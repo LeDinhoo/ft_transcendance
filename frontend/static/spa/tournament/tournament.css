@@ -1,0 +1,272 @@
+.headerMenuSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.mainTournament {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	flex-grow: 1;
+	background-color: var(--gluon-grey);
+	border-radius: var(--radius-lg);
+	gap: var(--16px);
+	padding: var(--16px);
+}
+
+.tournamentSection {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	border-radius: var(--radius-xl);
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--dark-grey);
+	gap: var(--10px);
+}
+
+.tournamentSlider {
+	display: flex;
+	width: 100%;
+	border-radius: var(--radius-xl);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: var(--54px);
+	padding: var(--54px) var(--0px);
+	background-color: var(--dark-grey);
+	color: aliceblue;
+}
+
+.subTournamentSection {
+	/* background-color: rgb(14, 79, 136); */
+	display: flex;
+	width: 100%;
+	flex-direction: row;
+	justify-content: space-evenly;
+	align-items: center;
+	gap: var(--32px);
+}
+
+.tournamentSection1 {
+	display: flex;
+	width: 16.719vw;
+	height: 28.333vw;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: var(--64px);
+	/* background-color: aliceblue; */
+}
+
+.tournamentSection2 {
+	display: flex;
+	width: 16.25vw;
+	height: 20.208vw;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 11.25vw;
+	/* background-color: aqua; */
+}
+
+.tournamentSection3 {
+	display: flex;
+	border-radius: --var(radius-xlg);
+	flex-direction: row;
+	justify-content: left;
+	align-items: center;
+	gap: var(--8px);
+	/* background-color: rgb(255, 0, 195); */
+}
+
+.tournamentSection4 {
+	display: flex;
+	width: 16.25vw;
+	height: 4.583vw;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: var(--16px);
+	/* background-color: rgb(0, 255, 55); */
+}
+
+.doubleMatch {
+	display: flex;
+	border-radius: --var(radius-xlg);
+	flex-direction: row;
+	justify-content: left;
+	align-items: center;
+	gap: var(--8px);
+}
+
+.doubleMatchNumber {
+	display: flex;
+	width: var(--36px);
+	height: var(--36px);
+	border-radius: var(--16px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--dusty-grey);
+	color: var(--snow);
+	font-size: var(--20px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+
+}
+
+.doubleMatchDuel {
+	display: flex;
+	flex-direction: column;
+	gap: var(--8px);
+}
+
+.player {
+	display: flex;
+	width: 10.833vw;
+	border-radius: var(--radius-lg);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: var(--12px);
+	padding: var(--8px) var(--16px);
+	background-color: transparent;
+	border: 3px solid var(--dusty-grey);
+
+}
+
+.logo {
+	display: flex;
+	width: var(--24px);
+	height: var(--24px);
+}
+
+.nickname {
+	color: var(--snow);
+	font-size: var(--16px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+}
+
+.doubleMatchScore {
+	display: flex;
+	flex-direction: column;
+	gap: var(--8px);
+}
+
+.score {
+	display: flex;
+	/* width: var(--40px); */
+	/* height: var(--40px); */
+	border-radius: var(--16px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: var(--10px) var(--16px);
+	background-color: transparent;
+	border: 3px solid var(--dusty-grey);
+	color: var(--snow);
+	font-size: var(--16px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+}
+
+.bracketSelector {
+	display: flex;
+	border-radius: var(--radius-mlg);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: var(--4px);
+	padding: var(--4px) var(--8px);
+	background-color: var(--slate-grey);
+}
+
+.bracketName {
+	display: flex;
+	height: var(--20px);
+	border-radius: var(--8px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	padding: var(--4px) var(--0px);
+}
+
+.bracketNameLeft {
+	display: flex;
+	width: 3.542vw;
+	border-radius: var(--8px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	/* background-color: var(--liquid-lava); */
+	color: var(--snow);
+	font-size: var(--10px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	padding: var(--4px) 0px;
+}
+
+.buttonPlay {
+	display: flex;
+}
+
+.chipSelectorPlayer {
+	display: flex;
+	width: 9.063vw;
+	border-radius: var(--12px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: var(--4px);
+	padding: var(--4px) var(--8px);
+}
+
+.numberLeft {
+	display: flex;
+	width: 2.604vw;
+	border-radius: var(--8px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	color: var(--snow);
+	font-size: var(--10px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	padding: var(--4px) var(--0px);
+
+}
+
+.numberMid {
+	display: flex;
+	width: 2.604vw;
+	border-radius: var(--8px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	color: var(--snow);
+	font-size: var(--10px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	padding: var(--4px) var(--0px);
+}
+
+.numberRight {
+	display: flex;
+	width: 2.604vw;
+	border-radius: var(--8px);
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	color: var(--snow);
+	font-size: var(--10px);
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	padding: var(--4px) var(--0px);
+}

@@ -1,0 +1,61 @@
+services:
+
+  database:
+    restart: always
+    container_name: database
+    build:
+      dockerfile: Dockerfile
+      context: ./database
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - transcendence-network
+    env_file:
+      - .env
+    # Pas de port exposé, uniquement accessible par les autres services du réseau Docker
+
+  backend:
+    restart: always
+    container_name: backend
+    build: 
+      dockerfile: Dockerfile
+      context: ./backend
+    volumes:
+      - ./backend:/app
+      #- ./frontend/static:/app/frontend/static  # Monter le dossier static du frontend dans le backend
+      - ./backend/certs:/app/certs
+    #ports:
+    #  - "8443:8443"
+    expose:
+      - "8443"
+    depends_on:
+      - database
+    env_file:
+      - .env
+    networks:
+      - transcendence-network
+    # Le backend n'a pas de port mappé, il est uniquement accessible par le frontend via le réseau Docker
+
+  frontend:
+    restart: always
+    container_name: frontend
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    depends_on: 
+      - backend
+    env_file:
+      - .env
+    networks:
+      - transcendence-network
+    ports:
+      - "4430:443"   # Port 4430 pour accéder au frontend en HTTPS
+
+volumes:
+  postgres_data:
+    name: postgre_data
+
+networks:
+  transcendence-network:
+    name: transcendence-network
+    driver: bridge

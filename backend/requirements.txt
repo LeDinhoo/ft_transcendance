@@ -1,0 +1,33 @@
+asgiref==3.7.2
+Django==4.2.9
+git+https://github.com/encode/django-rest-framework.git
+gunicorn==21.2.0
+packaging==23.2
+psycopg2-binary==2.9.9
+setuptools==69.0.2
+sqlparse==0.4.4
+typing_extensions==4.9.0
+wheel==0.42.0
+Pillow==10.2.0
+djangorestframework-simplejwt==4.8.0
+web3==6.15.1
+django-oauth-toolkit
+requests_oauthlib
+django-extensions
+django-cors-headers
+Werkzeug
+pyOpenSSL
+uuid
+uvicorn==0.22.0  # Ajout de la dépendance Uvicorn
+
+#Django>=3.2,<4.0
+#bcrypt==3.2.0
+#certifi==2023.7.22        # Mise à jour vers une version récente
+#chardet==5.1.0            # Mise à jour vers une version récente
+#cryptography==41.0.3      # Mise à jour vers la dernière version
+#pyOpenSSL==23.2.0         # Ajouté pour le support SSL
+#Pillow==10.0.0            # Mise à jour vers une version récente
+#requests==2.31.0          # Mise à jour vers une version récente
+#urllib3==2.0.4            # Mise à jour vers une version récente
+#psycopg2==2.9.6           # Mise à jour vers une version récente
+#gunicorn==20.1.0

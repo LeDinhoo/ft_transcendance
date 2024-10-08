@@ -1,0 +1,202 @@
+
+.customSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-grow: 1;
+    background-color: var(--gluon-grey);
+    border-radius: var(--radius-lg);
+    gap: var(--16px);
+    padding: var(--16px);
+
+}
+
+.customSettings
+{
+    background-color: var(--dark-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--radius-xl);
+    height: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    gap: var(--10px)
+}
+
+.game
+{
+    color: rgb(241, 240, 255);
+    background-color: var(--dark-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--10px);
+    height: 100%;
+    width: 100%;
+    border-radius: var(--24px);
+}
+
+
+.firstRowSettings
+{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: var(--10px) var(--40px);
+    font-family: "Inter", sans-serif;
+    font-weight: bold;
+    font-size: var(--32px);
+    color: var(--snow);
+}
+
+.rowSettings
+{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    padding: 0vw var(--40px);
+    gap: var(--60px);
+}
+
+.lastRowSettings
+{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: var(--10px)(--10px);
+    gap: var(--10px);
+}
+
+.settingsCall
+{
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 11.927vw;
+    border: var(--4px) solid #808080;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    color: var(--snow);
+    font-size: var(--16px);
+    flex-direction: row;
+    border-radius: var(--16px);
+    gap: var(--12px);
+    padding: var(--8px) var(--16px);
+
+}
+
+.settingsAnswer
+{
+    background-color:var(--gluon-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: var(--4px);
+    padding: var(--8px);
+    border-radius: var(--16px);
+}
+
+.answer1
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding: var(--4px) 0vw;
+    border-radius: var(--12px);
+    width: var(--70px);
+    height: var(--30px);
+    border-radius: var(--12px);
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    font-size: var(--16px);
+    color: var(--snow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.settingsAnswer3
+{
+    background-color:var(--gluon-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    border-radius: var(--16px);
+    gap: var(--32px);
+    padding: var(--8px);
+
+}
+
+.answer3
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding: var(--4px) 0vw;
+    border-radius: var(--12px);
+    width: 5.208vw;
+    height: var(--30px);
+    border-radius: var(--12px);
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    font-size: var(--16px);
+    color: var(--snow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.settingsAnswer6
+{
+    background-color:var(--gluon-grey);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    border-radius: var(--16px);
+    gap: var(--32px);
+    padding: var(--8px);
+    
+}
+
+.answer6
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    padding: var(--4px) 0vw;
+    border-radius: var(--12px);
+    width: var(--80px);
+    height: var(--30px);
+    border-radius: var(--12px);
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    font-size: var(--16px);
+    color: var(--snow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.answer1:hover, .answer3:hover, .answer6:hover {
+    background-color: var(--liquid-lava);
+}
+.answer1.active, .answer3.active, .answer6.active {
+    background-color: var(--liquid-lava);
+}
+
+

@@ -1,0 +1,47 @@
+.headerNavBar {
+  background-color: var(--liquid-lava);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: var(--16px);
+  padding: var(--8px) var(--24px);
+  border-radius: var(--24px);
+}
+
+/*.headerMenuSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}*/
+
+.iconMenu {
+  height: 2.656vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  cursor: pointer;
+  cursor: pointer;
+}
+
+.icon {
+  width: var(--36px);
+  height: var(--36px);
+}
+
+.navLabel {
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity 0.5s ease, max-height 0.5s ease;
+  font-size: 0.625vw;
+  font-weight: 700;
+  max-height: 0;
+  color: var(--snow);
+}
+
+.navLabel.active {
+  opacity: 1;
+  max-height: 1.5vw;
+}

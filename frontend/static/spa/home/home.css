@@ -1,0 +1,36 @@
+
+.GameSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-grow: 1;
+    background-color: var(--gluon-grey);
+    border-radius: var(--radius-lg);
+    gap: var(--16px);
+    padding: var(--16px);
+}
+
+.game {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--dark-grey);
+    border-radius: var(--radius-lg);
+}
+
+.play {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--dark-grey);
+    border-radius: var(--radius-lg);
+    gap: var(--16px);
+    padding: var(--16px);
+}
