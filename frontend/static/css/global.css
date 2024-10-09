@@ -96,7 +96,8 @@ body {
   width: 100%;
 }
 
-.btn-icon, .btn-icon-orange {
+.btn-icon,
+.btn-icon-orange {
   display: inline-flex;
   align-items: center;
   padding: var(--8px) var(--16px);
@@ -116,7 +117,8 @@ body {
   color: var(--snow);
 }
 
-.btn-icon:hover, .btn-icon-orange:hover {
+.btn-icon:hover,
+.btn-icon-orange:hover {
   background-color: var(--liquid-lava);
   border: var(--liquid-lava) solid var(--4px);
   color: var(--snow);
@@ -128,7 +130,8 @@ body {
   color: var(--liquid-lava);
 }
 
-.btn-icon:active, .btn-icon-orange:active {
+.btn-icon:active,
+.btn-icon-orange:active {
   transition: border 0s;
   border: var(--snow) solid var(--4px);
 }
@@ -137,7 +140,8 @@ body {
   border: var(--liquid-lava) solid var(--4px);
 }
 
-.btn-icon svg, .btn-icon-orange svg {
+.btn-icon svg,
+.btn-icon-orange svg {
   width: var(--32px);
   height: var(--32px);
   fill: currentColor;

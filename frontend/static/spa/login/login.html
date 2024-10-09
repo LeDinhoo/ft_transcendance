@@ -1,116 +1,117 @@
+<div id="gameSection" class="gameSection">
+    <div id="topPaddle" class="paddle"></div>
+    <div id="bottomPaddle" class="paddle"></div>
+    <div id="ball"></div>
+    <div id="centerLine"></div>
+    <div id="speedDisplay"></div>
+    <div id="scoreDisplay">0 - 0</div>
+</div>
 
-    <div id="gameSection" class="gameSection">
-      <div id="topPaddle" class="paddle"></div>
-      <div id="bottomPaddle" class="paddle"></div>
-      <div id="ball"></div>
-      <div id="centerLine"></div>
-      <div id="speedDisplay"></div>
-      <div id="scoreDisplay">0 - 0</div>
-    </div>
-
-    <div class="loginSection">
-      <!-- Formulaire de Connexion -->
-      <form id="loginWidget" class="loginWidget" action="#" method="POST">
+<div class="loginSection">
+    <!-- Formulaire de Connexion -->
+    <form id="loginWidget" class="loginWidget" action="#" method="POST">
         <h2 id="loginTitle">Join the Battle</h2>
         <div class="formInputFrame">
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="inputFrame"
-            placeholder=" "
-            required
-            autocomplete="email"
-          />
-          <label for="email" class="inputLabel">E-mail</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                class="inputFrame"
+                placeholder=" "
+                required
+                autocomplete="email"
+            />
+            <label for="email" class="inputLabel">E-mail</label>
         </div>
         <div class="formInputFrame">
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="password" class="inputLabel">Password</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="password" class="inputLabel">Password</label>
         </div>
         <!-- Bouton de soumission de connexion -->
         <button id="submitLoginBtn" class="loginWidgetButton">Log In</button>
         <hr />
         <div class="otherChoiceFrame">
-          <button id="42" class="fortyTwoWidgetButton">
-            <svg>
-              <use href="/static/assets/icons/sprite.svg#42logo"></use>
-            </svg>
-          </button>
-          <button id="registerButton" class="registerWidgetButton">
-            Register
-          </button>
+            <button id="42" class="fortyTwoWidgetButton">
+                <svg>
+                    <use href="/static/assets/icons/sprite.svg#42logo"></use>
+                </svg>
+            </button>
+            <button id="registerButton" class="registerWidgetButton">
+                Register
+            </button>
         </div>
-      </form>
+    </form>
 
-      <!-- Formulaire d'inscription -->
-      <form id="registerWidget" class="loginWidget" action="#" method="POST">
+    <!-- Formulaire d'inscription -->
+    <form id="registerWidget" class="loginWidget" action="#" method="POST">
         <h2 id="registerTitle">Create Account</h2>
         <div class="formInputFrame">
-          <input
-            type="text"
-            id="username"
-            name="username"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="username" class="inputLabel">Username</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="username" class="inputLabel">Username</label>
         </div>
         <div class="formInputFrame">
-          <input
-            type="email"
-            id="registerEmail"
-            name="registerEmail"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="registerEmail" class="inputLabel">E-mail</label>
+            <input
+                type="email"
+                id="registerEmail"
+                name="registerEmail"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="registerEmail" class="inputLabel">E-mail</label>
         </div>
         <div class="formInputFrame">
-          <input
-            type="password"
-            id="registerPassword"
-            name="registerPassword"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="registerPassword" class="inputLabel">Password</label>
+            <input
+                type="password"
+                id="registerPassword"
+                name="registerPassword"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="registerPassword" class="inputLabel">Password</label>
         </div>
         <div class="formInputFrame">
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="confirmPassword" class="inputLabel">Confirm Password</label>
+            <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="confirmPassword" class="inputLabel"
+                >Confirm Password</label
+            >
         </div>
         <!-- Bouton de soumission d'inscription -->
-        <button id="submitRegisterBtn" class="loginWidgetButton">Register</button>
+        <button id="submitRegisterBtn" class="loginWidgetButton">
+            Register
+        </button>
         <hr />
         <div class="otherChoiceFrame">
-          <button class="fortyTwoWidgetButton">
-            <svg>
-              <use href="/static/assets/icons/sprite.svg#42logo"></use>
-            </svg>
-          </button>
-          <button id="signUpButton" class="registerWidgetButton">
-            Sign Up
-          </button>
+            <button class="fortyTwoWidgetButton">
+                <svg>
+                    <use href="/static/assets/icons/sprite.svg#42logo"></use>
+                </svg>
+            </button>
+            <button id="signUpButton" class="registerWidgetButton">
+                Sign Up
+            </button>
         </div>
-      </form>
-    </div>
-
-
+    </form>
+</div>
