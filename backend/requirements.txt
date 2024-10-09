@@ -19,6 +19,8 @@ Werkzeug
 pyOpenSSL
 uuid
 uvicorn==0.22.0  # Ajout de la dépendance Uvicorn
+channels==3.0.4
+channels-redis==3.3.1
 
 #Django>=3.2,<4.0
 #bcrypt==3.2.0
