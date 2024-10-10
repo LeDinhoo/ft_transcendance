@@ -26,6 +26,7 @@ urlpatterns = [
     path('', views.index_view, name='index'),  # Page d'accueil avec les formulaires de login/register
     path('register/', views.register_view, name='register'),  # Vue d'inscription
     path('login/', views.login_view, name='login'),  # Vue de connexion
+    path('profil/', views.profile_view, name='profile_view'),
     #path('game/', views.game_view, name='game'),  # Vue du jeu, accessible après connexion
     # JWT Token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)

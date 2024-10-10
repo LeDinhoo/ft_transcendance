@@ -337,52 +337,112 @@
 // });
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    if (typeof window.isProfileInitialized === 'undefined') {
+        window.isProfileInitialized = false;
+    }
+
     const appDiv = document.getElementById('app');
     const navbar = document.getElementById('navbarContainer');
 
     // Fonction pour charger un fichier HTML, CSS et un tableau de JS et les injecter dans la page
-    function loadComponent(htmlUrl, cssUrl, jsUrls) {
-        fetch(htmlUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur lors du chargement de la page');
-                }
-                return response.text();
-            })
-            .then(html => {
+    // function loadComponent(htmlUrl, cssUrl, jsUrls) {
+        // fetch(htmlUrl)
+            // .then(response => {
+                // if (!response.ok) {
+                    // throw new Error('Erreur lors du chargement de la page');
+                // }
+                // return response.text();
+            // })
+            // .then(html => {
+                // appDiv.innerHTML = html;
+// 
+                //Charger le fichier CSS spécifique s'il existe
+                // if (cssUrl) {
+                    // loadCSS(cssUrl);
+                // }
+// 
+                //Supprimer les anciens scripts avant d'en charger de nouveaux
+                // removePreviousComponentScripts();
+// 
+                //Charger les fichiers JS spécifiques s'il y en a
+                // if (jsUrls && jsUrls.length > 0) {
+                    // loadScriptsInOrder(jsUrls)
+                        // .then(() => {
+                            //Initialiser les composants spécifiques après le chargement des scripts
+                            // if (typeof initializePage === 'function') {
+                                // initializePage(); // Initialisation pour certaines pages
+                            // }
+                            // if (typeof initGame === 'function') {
+                                // initGame();  // Initialisation pour les pages de jeu
+                            // }
+                            // initializeNavBar(); // Réinitialiser la navbar après chaque changement de page
+                        // })
+                        // .catch(err => console.error('Erreur lors du chargement des scripts:', err));
+                // } else {
+                    // initializeNavBar(); // Réinitialiser la navbar même s'il n'y a pas de script à charger
+                // }
+            // })
+            // .catch(err => {
+                // console.error('Erreur lors du chargement de la page:', err);
+                // appDiv.innerHTML = '<p>Une erreur est survenue lors du chargement de la page.</p>';
+            // });
+    // }
+
+    let isLoading = false;
+
+    async function loadComponent(htmlUrl, cssUrl, jsUrls, shouldInitGame = false) {
+        if (isLoading) return;  // Empêcher le chargement multiple
+        isLoading = true;
+    
+        try {
+            // Charger le contenu HTML
+            const response = await fetch(htmlUrl);
+            if (!response.ok) {
+                throw new Error('Erreur lors du chargement de la page');
+            }
+            const html = await response.text();
+    
+            // Ne charger le HTML que si c'est différent du contenu actuel
+            if (appDiv.innerHTML !== html) {
                 appDiv.innerHTML = html;
-
-                // Charger le fichier CSS spécifique s'il existe
-                if (cssUrl) {
-                    loadCSS(cssUrl);
-                }
-
-                // Supprimer les anciens scripts avant d'en charger de nouveaux
-                removePreviousComponentScripts();
-
-                // Charger les fichiers JS spécifiques s'il y en a
-                if (jsUrls && jsUrls.length > 0) {
-                    loadScriptsInOrder(jsUrls)
-                        .then(() => {
-                            // Initialiser les composants spécifiques après le chargement des scripts
-                            if (typeof initializePage === 'function') {
-                                initializePage(); // Initialisation pour certaines pages
-                            }
-                            if (typeof initGame === 'function') {
-                                initGame();  // Initialisation pour les pages de jeu
-                            }
-                            initializeNavBar(); // Réinitialiser la navbar après chaque changement de page
-                        })
-                        .catch(err => console.error('Erreur lors du chargement des scripts:', err));
-                } else {
-                    initializeNavBar(); // Réinitialiser la navbar même s'il n'y a pas de script à charger
-                }
-            })
-            .catch(err => {
-                console.error('Erreur lors du chargement de la page:', err);
-                appDiv.innerHTML = '<p>Une erreur est survenue lors du chargement de la page.</p>';
-            });
+            }
+    
+            // Charger le fichier CSS s'il existe
+            if (cssUrl) {
+                loadCSS(cssUrl);
+            }
+    
+            // Supprimer les anciens scripts avant d'en charger de nouveaux
+            removePreviousComponentScripts();
+    
+            // Charger les scripts JS s'il y en a
+            if (jsUrls && jsUrls.length > 0) {
+                await loadScriptsInOrder(jsUrls);
+            }
+    
+            // Initialisation après le chargement
+            if (typeof initializePage === 'function') {
+                initializePage(); // Initialisation spécifique à la page
+            }
+    
+            // Appeler initGame si le paramètre shouldInitGame est vrai
+            if (shouldInitGame && typeof initGame === 'function') {
+                initGame();  // Initialisation pour les pages de jeu
+            }
+    
+            // Réinitialisation de la barre de navigation
+            initializeNavBar();
+        } catch (err) {
+            console.error('Erreur lors du chargement de la page:', err);
+            appDiv.innerHTML = '<p>Une erreur est survenue lors du chargement de la page.</p>';
+        } finally {
+            isLoading = false;  // Remettre le flag à false après le chargement
+        }
     }
+    
+
+
 
     // Fonction pour charger un fichier CSS dynamiquement
     function loadCSS(cssUrl) {
@@ -405,6 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const componentScripts = document.querySelectorAll('script[data-component-js]');
         componentScripts.forEach(script => script.remove());
     }
+    
 
     // Fonction pour charger les scripts dans l'ordre
     function loadScriptsInOrder(jsUrls) {
@@ -418,18 +479,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }, Promise.resolve());
     }
 
-    // Fonction pour charger un fichier JS dynamiquement avec cache-busting
+    //// Fonction pour charger un fichier JS dynamiquement avec cache-busting
+    //function loadScript(jsUrl) {
+    //    return new Promise((resolve, reject) => {
+    //        const script = document.createElement('script');
+    //        script.src = jsUrl;  // Cache-busting
+    //        script.defer = true;
+    //        script.setAttribute('data-component-js', 'true');  // Marquer ce script pour le nettoyage
+    //        script.onload = resolve;
+    //        script.onerror = reject;
+    //        document.body.appendChild(script);
+    //    });
+    //}
+
     function loadScript(jsUrl) {
         return new Promise((resolve, reject) => {
+            // Vérifier si le script est déjà chargé
+            if (document.querySelector(`script[src="${jsUrl}"]`)) {
+                // Le script est déjà présent, on résout directement la promesse
+                return resolve();
+            }
+    
+            // Si le script n'est pas présent, on le charge
             const script = document.createElement('script');
-            script.src = jsUrl;  // Cache-busting
+            script.src = jsUrl;  // Cache-busting ou URL
             script.defer = true;
             script.setAttribute('data-component-js', 'true');  // Marquer ce script pour le nettoyage
             script.onload = resolve;
             script.onerror = reject;
-            document.body.appendChild(script);
+            document.body.appendChild(script);  // Ajouter le script au DOM
         });
     }
+    
 
     // Fonction pour charger la page correcte en fonction de l'URL
     window.loadPageFromURL = function() {
@@ -441,7 +522,8 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/login/login.html',
                 '/static/spa/login/login.css',
-                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth.js']
+                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth.js'],
+                true
             );
         } else if (path === '/home') {
             loadComponent(
@@ -452,7 +534,11 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/profil/profil.html',
                 '/static/spa/profil/profil.css',
-            );
+                ['/static/spa/profil/profil.js']
+            ).then(() => {
+                   initializeProfilePage();  // Initialiser la page profil
+                //    window.isProfileInitialized = true;  // Marquer l'initialisation comme faite
+            });
         } else if (path === '/custom') {
             loadComponent(
                 '/static/spa/custom/custom.html',
@@ -468,7 +554,6 @@ document.addEventListener('DOMContentLoaded', function () {
             appDiv.innerHTML = '<p>Page non trouvée.</p>';
         }
     };
-
     // Fonction pour gérer la visibilité de la navbar
     function updateNavBarVisibility(path) {
         if (path === '/' || path === '/login-register') {

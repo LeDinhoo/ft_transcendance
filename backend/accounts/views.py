@@ -234,6 +234,20 @@ def register_view(request):
         }, status=500)
 
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Vérifie que l'utilisateur est authentifié
+def profile_view(request):
+    print(request.headers) 
+    user = request.user
+
+    # Renvoyer uniquement le nom d'utilisateur et l'email
+    return JsonResponse({
+        'username': user.username,
+        'email': user.email,
+    }, status=200)
+
+
 ## Vue pour le jeu (accessible uniquement après authentification JWT)
 #@api_view(['GET'])
 #@permission_classes([IsAuthenticated])  # Protéger cette vue avec JWT

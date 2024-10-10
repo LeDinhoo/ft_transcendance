@@ -6,7 +6,7 @@
               <div class="avatarFrame">
                 <img class="avatarImg" src="/static/assets/avatars/clown-fish.png" />
               </div>
-              <div class="playerFrame">Nickname</div>
+              <div class="playerFrame" id="playerFrame">Nickname</div>
             </div>
             <button class="btn-icon">
               <svg>
@@ -33,6 +33,7 @@
                     class="inputFrame"
                     placeholder=" "
                     required
+                    disabled
                   />
                   <label for="username" class="inputLabel">Username</label>
                 </div>
@@ -44,6 +45,7 @@
                     class="inputFrame"
                     placeholder=" "
                     required
+                    disabled
                   />
                   <label for="registerEmail" class="inputLabel">E-mail</label>
                 </div>
@@ -75,7 +77,7 @@
                 </div>
               </div>
               <div class="modifyButtonsFrame">
-                <button class="btn-icon">
+                <button class="btn-icon" id="modifyButton">
                   <svg>
                     <use href="/static/assets/icons/sprite.svg#edit"></use>
                   </svg>
