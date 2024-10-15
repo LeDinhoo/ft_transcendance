@@ -112,103 +112,200 @@
 // auth.js
 
 // Connexion
-document.getElementById('loginWidget').addEventListener('submit', function (event) {
-    event.preventDefault();  // Empêche la soumission classique du formulaire
+document
+  .getElementById("loginWidget")
+  .addEventListener("submit", function (event) {
+    event.preventDefault(); // Empêche la soumission classique du formulaire
     console.log("Formulaire de connexion intercepté.");
 
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-    document.getElementById('submitLoginBtn').disabled = true;
+    document.getElementById("submitLoginBtn").disabled = true;
 
-    fetch('/api/login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password })
+    fetch("/api/login/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, password: password }),
     })
-    .then(response => response.json())
-    .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
-            localStorage.setItem('access_token', data.access);
-            localStorage.setItem('refresh_token', data.refresh);
+          localStorage.setItem("access_token", data.access);
+          localStorage.setItem("refresh_token", data.refresh);
 
-            // Redirection vers /home
-            window.navigateTo('/home');
+          // Redirection vers /home
+          window.navigateTo("/home");
         } else {
-            alert('Erreur : ' + data.message);
+          alert("Erreur : " + data.message);
         }
-    })
-    .catch(error => {
-        console.error('Erreur lors de la connexion :', error);
-        alert('Une erreur est survenue, veuillez réessayer plus tard.');
-    })
-    .finally(() => {
-        document.getElementById('submitLoginBtn').disabled = false;
-    });
-});
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la connexion :", error);
+        alert("Une erreur est survenue, veuillez réessayer plus tard.");
+      })
+      .finally(() => {
+        document.getElementById("submitLoginBtn").disabled = false;
+      });
+  });
 
 // Inscription
-document.getElementById('registerWidget').addEventListener('submit', function (event) {
-    event.preventDefault();  // Empêche la soumission classique du formulaire
+// document.getElementById('registerWidget').addEventListener('submit', function (event) {
+//     event.preventDefault();  // Empêche la soumission classique du formulaire
+//     console.log("Formulaire d'inscription intercepté.");
+
+//     const username = document.getElementById('username').value;
+//     const email = document.getElementById('registerEmail').value;
+//     const password1 = document.getElementById('registerPassword').value;
+//     const password2 = document.getElementById('confirmPassword').value;
+
+//     if (password1 !== password2) {
+//         alert('Les mots de passe ne correspondent pas.');
+//         return;
+//     }
+
+//     document.getElementById('submitRegisterBtn').disabled = true;
+
+//     fetch('/api/register/', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ username: username, email: email, password1: password1, password2: password2 })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             // Connexion automatique après inscription réussie
+//             fetch('/api/login/', {
+//                 method: 'POST',
+//                 headers: { 'Content-Type': 'application/json' },
+//                 body: JSON.stringify({ email: email, password: password1 })
+//             })
+//             .then(loginResponse => loginResponse.json())
+//             .then(loginData => {
+//                 if (loginData.success) {
+//                     localStorage.setItem('access_token', loginData.access);
+//                     localStorage.setItem('refresh_token', loginData.refresh);
+
+//                     // Redirection vers /home
+//                     window.navigateTo('/home');
+//                 } else {
+//                     alert('Erreur lors de la connexion automatique');
+//                 }
+//             })
+//             .catch(error => {
+//                 console.error('Erreur lors de la connexion automatique :', error);
+//                 alert('Erreur lors de la connexion automatique.');
+//             });
+//         } else {
+//             alert('Erreur lors de l\'inscription : ' + data.message);
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Erreur lors de l\'inscription :', error);
+//         alert('Une erreur est survenue, veuillez réessayer plus tard.');
+//     })
+//     .finally(() => {
+//         document.getElementById('submitRegisterBtn').disabled = false;
+//     });
+// });
+
+// Inscription
+document
+  .getElementById("registerWidget")
+  .addEventListener("submit", function (event) {
+    event.preventDefault(); // Empêche la soumission classique du formulaire
     console.log("Formulaire d'inscription intercepté.");
 
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('registerEmail').value;
-    const password1 = document.getElementById('registerPassword').value;
-    const password2 = document.getElementById('confirmPassword').value;
+    const username = document.getElementById("username").value;
+    const email = document.getElementById("registerEmail").value;
+    const password1 = document.getElementById("registerPassword").value;
+    const password2 = document.getElementById("confirmPassword").value;
+
+    // Réinitialiser les messages d'erreur
+    clearErrors();
 
     if (password1 !== password2) {
-        alert('Les mots de passe ne correspondent pas.');
-        return;
+      displayError("password2", "Les mots de passe ne correspondent pas.");
+      return;
     }
 
-    document.getElementById('submitRegisterBtn').disabled = true;
+    document.getElementById("submitRegisterBtn").disabled = true;
 
-    fetch('/api/register/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username, email: email, password1: password1, password2: password2 })
+    fetch("/api/register/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,
+        email: email,
+        password1: password1,
+        password2: password2,
+      }),
     })
-    .then(response => response.json())
-    .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.success) {
-            // Connexion automatique après inscription réussie
-            fetch('/api/login/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email, password: password1 })
-            })
-            .then(loginResponse => loginResponse.json())
-            .then(loginData => {
-                if (loginData.success) {
-                    localStorage.setItem('access_token', loginData.access);
-                    localStorage.setItem('refresh_token', loginData.refresh);
+          // Connexion automatique après inscription réussie
+          fetch("/api/login/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: password1 }),
+          })
+            .then((loginResponse) => loginResponse.json())
+            .then((loginData) => {
+              if (loginData.success) {
+                localStorage.setItem("access_token", loginData.access);
+                localStorage.setItem("refresh_token", loginData.refresh);
 
-                    // Redirection vers /home
-                    window.navigateTo('/home');
-                } else {
-                    alert('Erreur lors de la connexion automatique');
-                }
+                // Redirection vers /home
+                window.location.href = "/home";
+              } else {
+                alert("Erreur lors de la connexion automatique");
+              }
             })
-            .catch(error => {
-                console.error('Erreur lors de la connexion automatique :', error);
-                alert('Erreur lors de la connexion automatique.');
+            .catch((error) => {
+              console.error("Erreur lors de la connexion automatique :", error);
+              alert("Erreur lors de la connexion automatique.");
             });
         } else {
-            alert('Erreur lors de l\'inscription : ' + data.message);
+          // Gérer les erreurs spécifiques renvoyées par le serveur
+          if (data.errors) {
+            for (const [field, messages] of Object.entries(data.errors)) {
+              displayError(field, messages.join(", "));
+            }
+          } else {
+            alert("Erreur lors de l'inscription : " + data.message);
+          }
         }
-    })
-    .catch(error => {
-        console.error('Erreur lors de l\'inscription :', error);
-        alert('Une erreur est survenue, veuillez réessayer plus tard.');
-    })
-    .finally(() => {
-        document.getElementById('submitRegisterBtn').disabled = false;
-    });
-});
+      })
+      .catch((error) => {
+        console.error("Erreur lors de l'inscription :", error);
+        alert("Une erreur est survenue, veuillez réessayer plus tard.");
+      })
+      .finally(() => {
+        document.getElementById("submitRegisterBtn").disabled = false;
+      });
+  });
+
+// Fonction pour afficher les erreurs sous chaque champ du formulaire
+function displayError(field, message) {
+  const errorElement = document.getElementById(`${field}Error`);
+  if (errorElement) {
+    errorElement.innerText = message;
+    errorElement.style.display = "block";
+  }
+}
+
+// Fonction pour réinitialiser les erreurs
+function clearErrors() {
+  const errorElements = document.querySelectorAll(".error-message");
+  errorElements.forEach(function (el) {
+    el.innerText = "";
+    el.style.display = "none";
+  });
+}
 
 // Fonction de navigation pour changer d'URL sans rechargement de page
 function navigateTo(path) {
-    history.pushState(null, '', path);  // Met à jour l'URL sans recharger
-    loadPageFromURL();  // Charge la nouvelle page correspondant à l'URL
+  history.pushState(null, "", path); // Met à jour l'URL sans recharger
+  loadPageFromURL(); // Charge la nouvelle page correspondant à l'URL
 }

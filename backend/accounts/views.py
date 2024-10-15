@@ -145,6 +145,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 logger = logging.getLogger(__name__)
 
@@ -188,9 +190,54 @@ def login_view(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-# Vue pour l'inscription avec gestion des erreurs et création de token JWT
+## Vue pour l'inscription avec gestion des erreurs et création de token JWT
+#@api_view(['POST'])
+#@permission_classes([AllowAny])  # Inscription doit être accessible à tous
+#def register_view(request):
+#    try:
+#        logger.info("Requête d'inscription reçue")
+#        data = json.loads(request.body)
+#
+#        register_form = RegisterForm(data)
+#        if register_form.is_valid():
+#            user = register_form.save()
+#            logger.info(f"Utilisateur créé : {user.username}")
+#            
+#            # Générer les tokens JWT
+#            refresh = RefreshToken.for_user(user)
+#            return JsonResponse({
+#                'success': True,
+#                'message': 'User registered successfully',
+#                'access': str(refresh.access_token),
+#                'refresh': str(refresh)
+#            }, status=201)
+#        else:
+#            logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
+#            return JsonResponse({
+#                'success': False,
+#                'message': 'Form is not valid',
+#                'errors': register_form.errors
+#            }, status=400)
+#
+#    except json.JSONDecodeError:
+#        logger.error("Erreur de parsing JSON")
+#        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+#    except IntegrityError as e:
+#        logger.error(f"Erreur d'intégrité : {str(e)}")
+#        return JsonResponse({
+#            'success': False,
+#            'message': f'Integrity error: {str(e)}'
+#        }, status=400)
+#    except Exception as e:
+#        logger.exception(f"Erreur inattendue : {str(e)}")
+#        return JsonResponse({
+#            'success': False,
+#            'message': f'Unexpected error: {str(e)}'
+#        }, status=500)
+
+
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Inscription doit être accessible à tous
+@permission_classes([AllowAny])
 def register_view(request):
     try:
         logger.info("Requête d'inscription reçue")
@@ -200,7 +247,7 @@ def register_view(request):
         if register_form.is_valid():
             user = register_form.save()
             logger.info(f"Utilisateur créé : {user.username}")
-            
+
             # Générer les tokens JWT
             refresh = RefreshToken.for_user(user)
             return JsonResponse({
@@ -214,7 +261,7 @@ def register_view(request):
             return JsonResponse({
                 'success': False,
                 'message': 'Form is not valid',
-                'errors': register_form.errors
+                'errors': register_form.errors.get_json_data()  # Utiliser get_json_data pour formater les erreurs
             }, status=400)
 
     except json.JSONDecodeError:
@@ -254,6 +301,41 @@ def profile_view(request):
 #def game_view(request):
 #    return render(request, 'game.html')
 #    #return JsonResponse({'message': 'Vous êtes authentifié et avez accès au jeu !'})
+
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_profile_view(request):
+    user = request.user
+    data = request.data
+
+    # Valider et mettre à jour le nom d'utilisateur si présent dans les données
+    if 'username' in data:
+        new_username = data['username']
+        if new_username.strip():  # Vérifie que le nom d'utilisateur n'est pas vide
+            user.username = new_username
+        else:
+            return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+
+    # Valider et mettre à jour l'email si présent dans les données
+    if 'email' in data:
+        new_email = data['email']
+        try:
+            validate_email(new_email)  # Utilise le validateur intégré de Django
+            user.email = new_email
+        except ValidationError:
+            return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
+
+    try:
+        user.save()  # Sauvegarder les modifications dans la base de données
+    except Exception as e:
+        return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+
+    return JsonResponse({
+        'username': user.username,
+        'email': user.email
+    }, status=200)
 
 
 

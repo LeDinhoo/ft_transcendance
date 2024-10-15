@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/login/login.html',
                 '/static/spa/login/login.css',
-                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth.js'],
+                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth_test.js'],
                 true
             );
         } else if (path === '/home') {
