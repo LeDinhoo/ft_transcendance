@@ -1,0 +1,7 @@
+{
+	"form_validation_error": "Vänligen fyll i alla fält.",
+	"http_error": "HTTP-fel: ",
+	"login_success": "Inloggning lyckades!",
+	"login_failure": "Fel: ",
+	"generic_error": "Ett fel inträffade, försök igen senare."
+}

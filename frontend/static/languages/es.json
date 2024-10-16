@@ -1,0 +1,7 @@
+{
+	"form_validation_error": "Por favor, complete todos los campos.",
+	"http_error": "Error HTTP: ",
+	"login_success": "¡Inicio de sesión exitoso!",
+	"login_failure": "Error: ",
+	"generic_error": "Ocurrió un error, por favor intente de nuevo más tarde."
+}
