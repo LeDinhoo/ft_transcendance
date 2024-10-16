@@ -29,6 +29,7 @@
   --32px: 1.667vw;
   --36px: 1.875vw;
   --40px: 2.083vw;
+  --44px: 2.292vw;
   --50px: 2.604vw;
   --54px: 2.813vw;
   --60px: 3.125vw;
@@ -96,7 +97,7 @@ body {
   width: 100%;
 }
 
-.btn-icon, .btn-icon-orange {
+.btn-icon, .btn-icon-orange, .btn-icon-change {
   display: inline-flex;
   align-items: center;
   padding: var(--8px) var(--16px);
@@ -108,6 +109,17 @@ body {
   font-size: var(--16px);
   font-weight: 600;
   gap: var(--8px);
+}
+
+.btn-icon-change {
+  position: absolute;
+  right: var(--16px);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--12px);
+  padding: var(--4px) var(--8px);
+  border-radius: var(--8px);
+  border: var(--snow) solid var(--2px);
 }
 
 .btn-icon-orange {
@@ -128,6 +140,12 @@ body {
   color: var(--liquid-lava);
 }
 
+.btn-icon-change:hover {
+  background-color: var(--liquid-lava);
+  border: var(--liquid-lava) solid var(--2px);
+  color: var(--snow);
+}
+
 .btn-icon:active, .btn-icon-orange:active {
   transition: border 0s;
   border: var(--snow) solid var(--4px);
@@ -135,6 +153,11 @@ body {
 
 .btn-icon-orange:active {
   border: var(--liquid-lava) solid var(--4px);
+}
+
+.btn-icon-change:active {
+  transition: border 0s;
+  border: var(--snow) solid var(--2px);
 }
 
 .btn-icon svg, .btn-icon-orange svg {
@@ -180,6 +203,20 @@ body {
   transition: 0.3s;
   pointer-events: none;
   background-color: var(--dark-void);
+}
+
+.eyeIcon {
+  width: var(--20px);
+  position: absolute;
+  right: var(--16px);
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: none;
+}
+
+.inputFrame:not(:placeholder-shown) ~ .eyeIcon {
+  display: block;
 }
 
 .inputFrame:focus ~ .inputLabel,

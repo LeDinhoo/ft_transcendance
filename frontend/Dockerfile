@@ -13,5 +13,9 @@ COPY nginx.conf /etc/nginx/conf.d/
 
 # Copy your website files
 COPY --chown=nginx:nginx . /usr/share/nginx/html/
+# Changer les permissions pour le dossier media sans sudo
+RUN mkdir -p /usr/share/nginx/html/media/ \
+    && chown -R nginx:nginx /usr/share/nginx/html/media/ \
+    && chmod -R 755 /usr/share/nginx/html/media/
 
 WORKDIR /usr/share/nginx/html

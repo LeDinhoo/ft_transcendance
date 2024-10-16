@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/login/login.html',
                 '/static/spa/login/login.css',
-                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth_test.js'],
+                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth_test.js', '/static/spa/login/visibilityPassword.js'],
                 true
             );
         } else if (path === '/home') {
@@ -534,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/profil/profil.html',
                 '/static/spa/profil/profil.css',
-                ['/static/spa/profil/profil.js']
+                ['/static/spa/profil/profil.js', '/static/spa/profil/visibilityPasswordProfil.js']
             ).then(() => {
                    initializeProfilePage();  // Initialiser la page profil
                 //    window.isProfileInitialized = true;  // Marquer l'initialisation comme faite

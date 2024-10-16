@@ -12,7 +12,6 @@ services:
       - transcendence-network
     env_file:
       - .env
-    # Pas de port exposé, uniquement accessible par les autres services du réseau Docker
 
   backend:
     restart: always
@@ -22,10 +21,8 @@ services:
       context: ./backend
     volumes:
       - ./backend:/app
-      #- ./frontend/static:/app/frontend/static  # Monter le dossier static du frontend dans le backend
       - ./backend/certs:/app/certs
-    #ports:
-    #  - "8443:8443"
+      - media:/app/media  # Volume partagé pour les fichiers médias
     expose:
       - "8443"
     depends_on:
@@ -34,7 +31,6 @@ services:
       - .env
     networks:
       - transcendence-network
-    # Le backend n'a pas de port mappé, il est uniquement accessible par le frontend via le réseau Docker
 
   frontend:
     restart: always
@@ -49,11 +45,15 @@ services:
     networks:
       - transcendence-network
     ports:
-      - "4430:443"   # Port 4430 pour accéder au frontend en HTTPS
+      - "4430:443"
+    volumes:
+      - media:/app/media  # Volume partagé pour les fichiers médias
 
 volumes:
   postgres_data:
     name: postgre_data
+  media:  # Volume partagé pour les fichiers médias
+    name: media_volume
 
 networks:
   transcendence-network:

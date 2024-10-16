@@ -183,6 +183,8 @@ STATICFILES_DIRS = [
 # Collectstatic root
 STATIC_ROOT = os.path.join(BASE_DIR, 'backend', 'staticfiles')  # Le dossier où collectstatic va placer les fichiers
 
+MEDIA_URL = '/media/'  # URL pour accéder aux fichiers médias
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Chemin pour stocker les fichiers uploadés
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

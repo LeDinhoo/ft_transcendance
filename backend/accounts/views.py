@@ -142,11 +142,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.conf import settings
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -282,16 +285,38 @@ def register_view(request):
 
 
 
+#@api_view(['GET'])
+#@permission_classes([IsAuthenticated])  # Vérifie que l'utilisateur est authentifié
+#def profile_view(request):
+#    print(request.headers) 
+#    user = request.user
+#
+#    # Renvoyer uniquement le nom d'utilisateur et l'email
+#    return JsonResponse({
+#        'username': user.username,
+#        'email': user.email,
+#        'avatar': f"/static/{user.avatar}" if user.avatar else None  # Renvoie l'URL de l'avatar depuis le dossier static
+#    }, status=200)
+#
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])  # Vérifie que l'utilisateur est authentifié
 def profile_view(request):
-    print(request.headers) 
     user = request.user
 
-    # Renvoyer uniquement le nom d'utilisateur et l'email
+    # Récupérer le chemin de l'avatar
+    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
+        # Si l'avatar est dans le répertoire static (par défaut)
+        avatar_url = f"/static/{user.avatar}"
+    else:
+        # Si l'avatar est un fichier uploadé par l'utilisateur (dans le répertoire media)
+        avatar_url = user.avatar.url if user.avatar else None
+
+    # Renvoi des données de l'utilisateur avec l'URL de l'avatar
     return JsonResponse({
         'username': user.username,
         'email': user.email,
+        'avatar': avatar_url
     }, status=200)
 
 
@@ -327,6 +352,30 @@ def update_profile_view(request):
         except ValidationError:
             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
 
+#    if 'avatar' in data:
+#        avatar = data['avatar']
+#
+#        # Optionnel : Vérification que l'avatar appartient à un ensemble prédéfini
+#        avatar_path = os.path.join('static/assets/avatars/', avatar)
+#        if not os.path.exists(avatar_path):
+#            return JsonResponse({'error': 'Avatar non valide ou inexistant.'}, status=400)
+#
+#        # Mettre à jour l'avatar de l'utilisateur
+#        user.avatar = avatar
+#
+    # Gérer l'avatar uploadé si présent
+    if 'avatar' in request.FILES:
+        avatar = request.FILES['avatar']
+
+        # Optionnel : Valider le type de fichier (seulement PNG ou JPEG)
+        valid_image_extensions = ['png', 'jpg', 'jpeg']
+        ext = avatar.name.split('.')[-1].lower()
+        if ext not in valid_image_extensions:
+            return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
+
+        # Attribuer l'avatar uploadé à l'utilisateur (Django gérera l'upload dans le dossier MEDIA_ROOT)
+        user.avatar = avatar
+
     try:
         user.save()  # Sauvegarder les modifications dans la base de données
     except Exception as e:
@@ -334,8 +383,10 @@ def update_profile_view(request):
 
     return JsonResponse({
         'username': user.username,
-        'email': user.email
+        'email': user.email,
+        'avatar': f"/media/{user.avatar}" if user.avatar else None  # Renvoie l'URL de l'avatar depuis le dossier static
     }, status=200)
+
 
 
 
