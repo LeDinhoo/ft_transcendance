@@ -25,7 +25,7 @@
 //            alert('Veuillez entrer un nom d\'utilisateur.');
 //            return;
 //        }
-//    }
+//    }chmod +x ~/.local/share/applications/gitkraken.desktop
 //
 //    // Désactiver le bouton de soumission pendant la requête
 //    document.getElementById('submitBtn').disabled = true;
