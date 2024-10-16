@@ -1,3 +1,5 @@
+@import url(/css/global.css);
+
 * {
   box-sizing: border-box;
 }
@@ -242,8 +244,7 @@
   gap: var(--12px);
 }
 
-.statName,
-.statNumber {
+.statName, .statNumber {
   width: 10.833vw;
   height: var(--40px);
   display: flex;

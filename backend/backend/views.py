@@ -258,197 +258,36 @@ def game_view(request):
 # Dans votre fichier views.py du backend
 
 from django.http import JsonResponse
-from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
-from django.contrib.auth import get_user_model, login
-
-# Imports de la bibliothèque standard Python
 from urllib.parse import urlencode
-import logging
-import json
-
-# Imports tiers
 import requests
+import logging
 
 UID = "u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8"
 SECRET = "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"
-REDIRECT_URI = "https://localhost:4430/home/"
+REDIRECT_URI = "https://localhost:4430/home"
 AUTH_URL = "https://api.intra.42.fr/oauth/authorize"
 TOKEN_URL = "https://api.intra.42.fr/oauth/token"
 USER_INFO_URL = "https://api.intra.42.fr/v2/me"
 
 logger = logging.getLogger(__name__)
-User = get_user_model()
 
 @require_http_methods(["GET"])
 def get_auth_url(request):
-    logger.info("get_auth_url view called")
+    logger.info(f"Returning auth URL:")
     try:
-        client_id = UID
-        redirect_uri = settings.REDIRECT_URI
-        
-        auth_url = f"https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
-        
-        logger.info(f"Generated auth_url: {auth_url}")
-        return JsonResponse({"auth_url": auth_url})
+        # UID = "u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8"
+        # REDIRECT_URI = "https://localhost:4430/login-register"
+        # AUTH_URL = "https://api.intra.42.fr/oauth/authorize"
+
+        auth_params = {
+            "client_id": UID,
+            "redirect_uri": REDIRECT_URI,
+            "response_type": "code"
+        }
+        full_auth_url = f"{AUTH_URL}?{urlencode(auth_params)}"
+        logger.info(f"Returning auth URL: {full_auth_url}")
+        return JsonResponse({"auth_url": full_auth_url})
     except Exception as e:
         logger.error(f"Error in get_auth_url: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
-
-@require_http_methods(["GET"])
-def home(request):
-    logger.info("Received GET request to /home/")
-    code = request.GET.get('code')
-    if code:
-        logger.info(f"Received authorization code: {code}")
-        try:
-            # Échangez le code contre un token d'accès
-            token_url = "https://api.intra.42.fr/oauth/token"
-            data = {
-                "grant_type": "authorization_code",
-                "client_id": UID,
-                "client_secret": SECRET,
-                "code": code,
-                "redirect_uri": REDIRECT_URI
-            }
-            token_response = requests.post(token_url, data=data)
-            token_response.raise_for_status()
-            access_token = token_response.json()['access_token']
-
-            # Récupération des informations de l'utilisateur
-            user_url = "https://api.intra.42.fr/v2/me"
-            headers = {"Authorization": f"Bearer {access_token}"}
-            user_response = requests.get(user_url, headers=headers)
-            user_response.raise_for_status()
-            user_info = user_response.json()
-
-            # Création ou mise à jour de l'utilisateur
-            user, created = User.objects.update_or_create(
-                username=user_info['login'],
-                defaults={
-                    'intra_email': user_info['email'],
-                    'image_url': user_info['image']['link']
-                }
-            )
-            logger.info(f"User {'created' if created else 'updated'}: {user.username}")
-
-            # Connexion de l'utilisateur
-            authenticated_user = authenticate(request, username=user.username, password=None)
-            if authenticated_user is not None:
-                login(request, authenticated_user)
-                logger.info(f"User {authenticated_user.username} authenticated successfully")
-                return JsonResponse({"success": True, "message": "Authentication successful"})
-            else:
-                logger.error(f"Authentication failed for user: {user.username}")
-                return JsonResponse({"success": False, "error": "Authentication failed"}, status=400)
-        except Exception as e:
-            logger.error(f"Error in authentication process: {str(e)}", exc_info=True)
-            return JsonResponse({"success": False, "error": str(e)}, status=500)
-    else:
-        logger.warning("No authorization code received")
-        return JsonResponse({"success": False, "error": "No authorization code provided"}, status=400)
-
-
-
-import logging
-from django.contrib.auth import get_user_model
-from django.contrib.auth.backends import ModelBackend
-
-logger = logging.getLogger(__name__)
-User = get_user_model()
-
-
-class IntraBackend(ModelBackend):
-    def authenticate(self, request, username=None, password=None, **kwargs):
-        logger.info(f"IntraBackend: Attempting to authenticate user: {username}")
-        try:
-            user = User.objects.get(username=username)
-            logger.info(f"IntraBackend: User found: {user.username}")
-            logger.info(f"IntraBackend: User is_active: {user.is_active}")
-            logger.info(f"IntraBackend: User is_staff: {user.is_staff}")
-            logger.info(f"IntraBackend: User is_superuser: {user.is_superuser}")
-            
-            # Vérifiez si l'utilisateur peut s'authentifier
-            can_authenticate = self.user_can_authenticate(user)
-            logger.info(f"IntraBackend: User can authenticate: {can_authenticate}")
-            
-            if can_authenticate:
-                return user
-            else:
-                logger.warning(f"IntraBackend: User {username} cannot authenticate")
-                return None
-        except User.DoesNotExist:
-            logger.error(f"IntraBackend: User not found: {username}")
-            return None
-
-    def user_can_authenticate(self, user):
-        can_authenticate = user.is_active
-        logger.info(f"IntraBackend: Checking if user {user.username} can authenticate: {can_authenticate}")
-        return can_authenticate
-
-    def get_user(self, user_id):
-        try:
-            user = User.objects.get(pk=user_id)
-            logger.info(f"IntraBackend: Retrieved user: {user.username}")
-            return user
-        except User.DoesNotExist:
-            logger.error(f"IntraBackend: User with id {user_id} not found")
-            return None
-
-
-# def home(request):
-#     logger.info(f"Received {request.method} request to /home/")
-#     logger.debug(f"Request headers: {request.headers}")
-#     logger.debug(f"Request body: {request.body}")
-#     if request.method == "POST":
-#         try:
-#             data = json.loads(request.body)
-#             code = data.get('code')
-            
-#             if not code:
-#                 return JsonResponse({'error': 'No authorization code provided'}, status=400)
-            
-#             # Échange du code contre un token d'accès
-#             token_response = requests.post('https://api.intra.42.fr/oauth/token', data={
-                # 'grant_type': 'authorization_code',
-                # 'client_id': 'YOUR_CLIENT_ID',
-                # 'client_secret': 'YOUR_CLIENT_SECRET',
-                # 'code': code,
-                # 'redirect_uri': 'https://localhost:4430/home'
-#             })
-#             token_data = token_response.json()
-            
-#             # Utilisation du token pour obtenir les informations de l'utilisateur
-#             user_response = requests.get('https://api.intra.42.fr/v2/me', headers={
-#                 'Authorization': f"Bearer {token_data['access_token']}"
-#             })
-#             user_data = user_response.json()
-            
-#             # Ici, vous pouvez traiter les données de l'utilisateur
-#             # Par exemple, créer ou mettre à jour l'utilisateur dans votre base de données
-            
-#             return JsonResponse({
-#                 'success': True,
-#                 'message': 'Authentication successful',
-#                 'user_data': user_data
-#             })
-        
-#         except json.JSONDecodeError:
-#             logger.error("Invalid JSON received")
-#             return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
-#         except requests.RequestException as e:
-#             logger.error(f"Error during API request: {str(e)}")
-#             return JsonResponse({'error': f'Error during API request: {str(e)}'}, status=400)
-#         except Exception as e:
-#             logger.error(f"Unexpected error: {str(e)}")
-#             return JsonResponse({'error': f'An unexpected error occurred: {str(e)}'}, status=500)
-    
-#     elif request.method == "GET":
-#         # Gérer la redirection initiale de l'API 42 si nécessaire
-#         code = request.GET.get('code')
-#         if code:
-#             # Vous pouvez choisir de traiter le code ici ou de le renvoyer au frontend
-#             return JsonResponse({"success": True, "message": "Code received", "code": code})
-#         return JsonResponse({"success": True, "message": "Ready for authentication"})

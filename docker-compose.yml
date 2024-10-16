@@ -6,7 +6,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./database
-    volumes:
+    volumes: 
       - postgres_data:/var/lib/postgresql/data/
     networks:
       - transcendence-network
@@ -17,14 +17,14 @@ services:
   backend:
     restart: always
     container_name: backend
-    build:
+    build: 
       dockerfile: Dockerfile
       context: ./backend
     volumes:
       - ./backend:/app
       #- ./frontend/static:/app/frontend/static  # Monter le dossier static du frontend dans le backend
       - ./backend/certs:/app/certs
-    #ports:
+    # ports:
     #  - "8443:8443"
     expose:
       - "8443"
@@ -42,7 +42,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./frontend
-    depends_on:
+    depends_on: 
       - backend
     env_file:
       - .env
@@ -55,7 +55,7 @@ volumes:
   postgres_data:
     name: postgre_data
 
-networks:   
+networks:
   transcendence-network:
     name: transcendence-network
     driver: bridge

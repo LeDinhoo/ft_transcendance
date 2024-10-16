@@ -15,26 +15,18 @@
 
 /* Variables pour les vw a partir des pixels*/
 :root {
-  --0px: 0vw;
   --2px: 0.104vw;
   --4px: 0.208vw;
   --8px: 0.417vw;
-  --10px: 0.521vw;
   --12px: 0.625vw;
   --16px: 0.833vw;
   --20px: 1.042vw;
   --24px: 1.25vw;
   --28px: 1.458vw;
-  --30px: 1.563vw;
   --32px: 1.667vw;
   --36px: 1.875vw;
   --40px: 2.083vw;
-  --50px: 2.604vw;
-  --54px: 2.813vw;
-  --60px: 3.125vw;
-  --64px: 3.333vw;
-  --70px: 3.646vw;
-  --80px: 4.167vw;
+  --44px: 2.292vw;
 }
 
 /* Variables pour les borders radius */
@@ -90,13 +82,7 @@ body {
   gap: var(--16px);
 }
 
-.app {
-  display: flex;
-  height: 100%;
-  width: 100%;
-}
-
-.btn-icon, .btn-icon-orange {
+.btn-icon {
   display: inline-flex;
   align-items: center;
   padding: var(--8px) var(--16px);
@@ -110,34 +96,18 @@ body {
   gap: var(--8px);
 }
 
-.btn-icon-orange {
+.btn-icon:hover {
   background-color: var(--liquid-lava);
   border: var(--liquid-lava) solid var(--4px);
   color: var(--snow);
 }
 
-.btn-icon:hover, .btn-icon-orange:hover {
-  background-color: var(--liquid-lava);
-  border: var(--liquid-lava) solid var(--4px);
-  color: var(--snow);
-}
-
-.btn-icon-orange:hover {
-  background-color: var(--snow);
-  border: var(--snow) solid var(--4px);
-  color: var(--liquid-lava);
-}
-
-.btn-icon:active, .btn-icon-orange:active {
+.btn-icon:active {
   transition: border 0s;
   border: var(--snow) solid var(--4px);
 }
 
-.btn-icon-orange:active {
-  border: var(--liquid-lava) solid var(--4px);
-}
-
-.btn-icon svg, .btn-icon-orange svg {
+.btn-icon svg {
   width: var(--32px);
   height: var(--32px);
   fill: currentColor;

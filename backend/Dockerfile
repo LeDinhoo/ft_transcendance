@@ -46,7 +46,7 @@
 #ENTRYPOINT ["/app/entrypoint.sh"]
 
 
-FROM python:3.12-slim-bullseye
+FROM python:3.9-slim-bullseye
 
 # Empêcher Python d'écrire des fichiers .pyc et forcer le stdout/stderr non bufferisé
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1

@@ -1,3 +1,5 @@
+
+
 .headerNavBar {
   background-color: var(--liquid-lava);
   display: flex;
@@ -8,13 +10,6 @@
   padding: var(--8px) var(--24px);
   border-radius: var(--24px);
 }
-
-/*.headerMenuSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-}*/
 
 .iconMenu {
   height: 2.656vw;
@@ -30,6 +25,18 @@
   width: var(--36px);
   height: var(--36px);
 }
+
+/* .navLabel {
+  display: none;
+  font-size: 0.625vw;
+  font-weight: 700;
+  color: var(--snow);
+  transition: all 1s ease;
+}
+
+.navLabel.active {
+  display: flex;
+} */
 
 .navLabel {
   opacity: 0;

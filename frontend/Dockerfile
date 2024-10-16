@@ -1,4 +1,4 @@
-FROM nginx:stable-alpine3.17
+FROM nginx:stable-alpine
 
 # Copy the SSL certificate and key
 #COPY --chown=nginx:nginx ./certs/localhost.crt /etc/nginx/certs/

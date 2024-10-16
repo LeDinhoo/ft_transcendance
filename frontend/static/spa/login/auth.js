@@ -109,9 +109,162 @@
 //});
 //
 
-// auth.js
+
+let authWindow;
+let authCheckInterval;
+let isAuth42ButtonInitialized = false;
+
+function initAuth42Button() {
+    if (isAuth42ButtonInitialized) {
+        console.log('Bouton 42 déjà initialisé');
+        return;
+    }
+
+    console.log('Tentative d\'initialisation du bouton 42');
+    const auth42Button = document.getElementById('42');
+    if (auth42Button) {
+        auth42Button.addEventListener('click', handleAuth42Click);
+        console.log('Bouton 42 initialisé avec succès');
+        isAuth42ButtonInitialized = true;
+    } else {
+        console.log('Bouton 42 non trouvé, réessai dans 100ms');
+        setTimeout(initAuth42Button, 100);
+    }
+}
+
+function openAuthWindow(authUrl) {
+    // Utilisez authWindow sans le redéclarer
+    authWindow = window.open(authUrl, '42 Authentication', 'width=600,height=700');
+    if (authWindow) {
+        authCheckInterval = setInterval(checkAuthStatus, 500);
+    } else {
+        console.error("Impossible d'ouvrir la fenêtre d'authentification");
+    }
+}
+
+function handleAuth42Click(e) {
+    e.preventDefault();
+    console.log('Clic sur le bouton 42');
+    fetch('/api/get-auth-url/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.auth_url) {
+                console.log('Ouverture de l\'URL d\'authentification:', data.auth_url);
+                window.location.href = data.auth_url;
+            } else {
+                console.error("URL d'authentification non reçue dans les données", data);
+            }
+        })
+        .catch(error => {
+            console.error("Erreur lors de la récupération de l'URL d'authentification:", error);
+        });
+}
+
+// Ajoutez cette fonction pour vérifier l'authentification après la redirection
+function checkAuthStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+        fetch(`${BASE_URL}/home/${window.location.search}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Authentication successful") {
+                    console.log("Authentification réussie");
+                    console.log("Informations de l'utilisateur :", data.user_info);
+                    // Vous pouvez afficher des informations spécifiques ici
+                    console.log("ID:", data.user_info.id);
+                    console.log("Login:", data.user_info.login);
+                    console.log("Email:", data.user_info.email);
+                    console.log("Nom complet:", data.user_info.displayname);
+                    // Ajoutez d'autres informations que vous souhaitez afficher
+                    
+                    // Vous pouvez également mettre à jour l'interface utilisateur ici
+                } else {
+                    console.error("Erreur d'authentification:", data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Erreur lors de la vérification de l'authentification:", error);
+            });
+    }
+}
+
+
+function sendCodeToServer(code) {
+    const csrftoken = getCookie('csrftoken');
+    fetch('https://localhost:4430/home/', {  // Notez que l'URL front-end reste en HTTPS
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ code: code })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log("Code envoyé avec succès:", data.message);
+            // Gérez la réponse ici
+        } else {
+            console.error("Erreur lors de l'envoi du code:", data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Erreur lors de l'envoi du code au serveur:", error);
+    });
+}
+
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+// Initialisation
+console.log('Script d\'authentification 42 chargé');
+document.addEventListener('DOMContentLoaded', initAuth42Button);
+
+// Utilisation de MutationObserver pour les changements dynamiques du DOM
+const observer = new MutationObserver((mutations) => {
+    if (!isAuth42ButtonInitialized) {
+        initAuth42Button();
+    }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+// Nettoyage de l'observer quand le bouton est initialisé
+function cleanupObserver() {
+    if (isAuth42ButtonInitialized) {
+        observer.disconnect();
+        console.log('MutationObserver déconnecté');
+    }
+}
+
+// Vérifier périodiquement si on peut nettoyer l'observer
+setInterval(cleanupObserver, 1000);
 
 // Connexion
+
+
 document.getElementById('loginWidget').addEventListener('submit', function (event) {
     event.preventDefault();  // Empêche la soumission classique du formulaire
     console.log("Formulaire de connexion intercepté.");
@@ -212,3 +365,4 @@ function navigateTo(path) {
     history.pushState(null, '', path);  // Met à jour l'URL sans recharger
     loadPageFromURL();  // Charge la nouvelle page correspondant à l'URL
 }
+

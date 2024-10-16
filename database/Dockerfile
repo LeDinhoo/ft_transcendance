@@ -1,4 +1,4 @@
-FROM postgres:16.1-alpine3.19
+FROM postgres:3.18-alpine
 
 # automatic configuration with env variables
 

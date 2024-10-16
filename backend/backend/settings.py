@@ -43,6 +43,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -94,6 +95,10 @@ SIMPLE_JWT = {
 
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "https://localhost:4430",
+]
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -185,15 +190,27 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG',  # Niveau de log à afficher (DEBUG pour tout voir)
             'class': 'logging.StreamHandler',
         },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # Niveau de log pour Django
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
 
+REDIRECT_URI = 'https://localhost:4430/home/'
+
+# Vous pouvez également définir une variable pour l'URL de base
+BASE_URL = 'https://localhost:4430'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/home/'
+LOGOUT_REDIRECT_URL = '/'
