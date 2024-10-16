@@ -6,7 +6,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./database
-    volumes: 
+    volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
       - transcendence-network
@@ -17,7 +17,7 @@ services:
   backend:
     restart: always
     container_name: backend
-    build: 
+    build:
       dockerfile: Dockerfile
       context: ./backend
     volumes:
@@ -42,7 +42,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./frontend
-    depends_on: 
+    depends_on:
       - backend
     env_file:
       - .env
@@ -55,7 +55,7 @@ volumes:
   postgres_data:
     name: postgre_data
 
-networks:
+networks:   
   transcendence-network:
     name: transcendence-network
     driver: bridge
