@@ -1,6 +1,3 @@
-// app.js
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const appDiv = document.getElementById('app');
 
@@ -9,7 +6,44 @@ document.addEventListener('DOMContentLoaded', function () {
         history.pushState(null, '', '/login-register');
     }
 
-    // Fonction pour charger un fichier HTML, CSS et un tableau de JS et les injecter dans la page
+    // Function to load language JSON based on user preference
+    function loadTranslations(language) {
+        return fetch(`/static/languages/${language}.json`)  // Load the appropriate language file
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load language file');
+                }
+                return response.json();
+            });
+    }
+
+    // Load the user's preferred language or default to 'en'
+    const userLang = localStorage.getItem('preferredLanguage') || 'en';
+
+    // Fetch translations once the page loads
+    let translations = {};
+    loadTranslations(userLang).then(langData => {
+        translations = langData;
+        // Optionally, you could use these translations right away if necessary
+        console.log('Loaded translations:', translations);
+    }).catch(err => {
+        console.error('Error loading translations:', err);
+    });
+
+    // Language Selector functionality
+    document.getElementById('languageSelector').addEventListener('change', function (event) {
+        const selectedLang = event.target.value;
+        localStorage.setItem('preferredLanguage', selectedLang);
+        location.reload();  // Reload the page to apply the new language
+    });
+
+    // Set the current language as the selected option when the page loads
+    const languageSelector = document.getElementById('languageSelector');
+    if (languageSelector) {
+        languageSelector.value = userLang;
+    }
+
+    // Function to load a component's HTML, CSS, and JS
     function loadComponent(htmlUrl, cssUrl, jsUrls) {
         fetch(htmlUrl)
             .then(response => {
@@ -21,21 +55,21 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(html => {
                 appDiv.innerHTML = html;
 
-                // Charger le fichier CSS spécifique s'il existe
+                // Load specific CSS if provided
                 if (cssUrl) {
                     loadCSS(cssUrl);
                 }
 
-                // Charger les fichiers JS spécifiques s'il y en a
+                // Load specific JS files if any
                 if (jsUrls && jsUrls.length > 0) {
                     loadScriptsInOrder(jsUrls)
                         .then(() => {
-                            // Initialiser les composants spécifiques après le chargement des scripts
+                            // Initialize components after JS is loaded
                             if (typeof initializePage === 'function') {
-                                initializePage();  // Initialisation pour les pages de login par exemple
+                                initializePage();
                             }
                             if (typeof initGame === 'function') {
-                                initGame();  // Initialisation pour les pages de jeu
+                                initGame();
                             }
                         })
                         .catch(err => console.error('Erreur lors du chargement des scripts:', err));
@@ -47,15 +81,15 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // Fonction pour supprimer les anciens fichiers CSS spécifiques aux composants
+    // Function to remove previous CSS for components
     function removePreviousComponentCSS() {
         const componentCSSLinks = document.querySelectorAll('link[data-component-css]');
         componentCSSLinks.forEach(link => link.remove());
     }
 
-    // Fonction pour charger un fichier CSS dynamiquement
+    // Function to dynamically load CSS
     function loadCSS(cssUrl) {
-        removePreviousComponentCSS();  // Supprimer les anciens fichiers CSS spécifiques
+        removePreviousComponentCSS();
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = cssUrl;
@@ -63,19 +97,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.head.appendChild(link);
     }
 
-    // Fonction pour charger les scripts dans l'ordre
+    // Function to load scripts in order
     function loadScriptsInOrder(jsUrls) {
         if (!jsUrls || jsUrls.length === 0) {
-            return Promise.resolve();  // Rien à charger
+            return Promise.resolve();  // Nothing to load
         }
 
-        // Charger les scripts un par un dans l'ordre
+        // Load scripts one by one
         return jsUrls.reduce((promise, jsUrl) => {
             return promise.then(() => loadScript(jsUrl));
         }, Promise.resolve());
     }
 
-    // Fonction pour charger un fichier JS dynamiquement
+    // Function to dynamically load JS files
     function loadScript(jsUrl) {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
@@ -87,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Fonction pour charger la page correcte en fonction de l'URL
+    // Function to load the correct page based on the URL
     window.loadPageFromURL = function() {
         const path = window.location.pathname;
 
@@ -95,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/login/login.html',
                 '/static/spa/login/login.css',
-                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth.js', '/static/spa/login/auth.js' ]
+                ['/static/spa/login/gameScript.js', '/static/spa/login/registerShowHide.js', '/static/spa/login/auth.js']
             );
         } else if (path === '/home') {
             loadComponent(
@@ -114,15 +148,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Gérer les boutons "précédent" et "suivant" du navigateur
+    // Handle browser back/forward buttons
     window.addEventListener('popstate', loadPageFromURL);
 
-    // Assigner la fonction navigateTo à window pour qu'elle soit globale
+    // Make navigateTo a global function
     window.navigateTo = function (path) {
         history.pushState(null, '', path);
         window.loadPageFromURL();
     };
 
-    // Charger la page en fonction de l'URL au chargement initial
+    // Load the page based on the URL at initial load
     loadPageFromURL();
 });
