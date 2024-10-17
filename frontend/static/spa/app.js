@@ -549,6 +549,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadComponent(
                 '/static/spa/tournament/tournament.html',
                 '/static/spa/tournament/tournament.css',
+                ['/static/spa/tournament/tournament.js']
             );
         } else {
             appDiv.innerHTML = '<p>Page non trouvée.</p>';

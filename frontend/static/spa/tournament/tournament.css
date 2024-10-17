@@ -1,272 +1,485 @@
-.headerMenuSection {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
+.main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--dark-void);
+  gap: var(--16px);
+  padding: var(--24px);
 }
 
 .mainTournament {
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	flex-grow: 1;
-	background-color: var(--gluon-grey);
-	border-radius: var(--radius-lg);
-	gap: var(--16px);
-	padding: var(--16px);
+  background-color: var(--gluon-grey);
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--24px);
+  padding: var(--24px);
 }
 
 .tournamentSection {
-	display: flex;
-	width: 100%;
-	height: 100%;
-	border-radius: var(--radius-xl);
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	background-color: var(--dark-grey);
-	gap: var(--10px);
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--dark-grey);
+  gap: var(--10px);
 }
 
 .tournamentSlider {
-	display: flex;
-	width: 100%;
-	border-radius: var(--radius-xl);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: var(--54px);
-	padding: var(--54px) var(--0px);
-	background-color: var(--dark-grey);
-	color: aliceblue;
+  display: flex;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--54px);
+  padding: var(--54px) var(--0px);
+  background-color: var(--dark-grey);
+  color: aliceblue;
 }
 
-.subTournamentSection {
-	/* background-color: rgb(14, 79, 136); */
-	display: flex;
-	width: 100%;
-	flex-direction: row;
-	justify-content: space-evenly;
-	align-items: center;
-	gap: var(--32px);
+.subTournamentSection4 {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: var(--32px);
+  /* display: none;  */
+}
+
+.subTournamentSection8161 {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: var(--32px);
+  /* display: none;  */
+}
+
+.subTournamentSection162 {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: var(--32px);
+  /* display: none;  */
 }
 
 .tournamentSection1 {
-	display: flex;
-	width: 16.719vw;
-	height: 28.333vw;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: var(--64px);
-	/* background-color: aliceblue; */
+  display: flex;
+  width: 16.719vw;
+  height: 28.333vw;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--64px);
 }
 
 .tournamentSection2 {
-	display: flex;
-	width: 16.25vw;
-	height: 20.208vw;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 11.25vw;
-	/* background-color: aqua; */
+  display: flex;
+  width: 16.25vw;
+  height: 20.208vw;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 11.25vw;
 }
 
 .tournamentSection3 {
-	display: flex;
-	border-radius: --var(radius-xlg);
-	flex-direction: row;
-	justify-content: left;
-	align-items: center;
-	gap: var(--8px);
-	/* background-color: rgb(255, 0, 195); */
+  display: flex;
+  border-radius: --var(radius-xlg);
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  gap: var(--8px);
 }
 
 .tournamentSection4 {
-	display: flex;
-	width: 16.25vw;
-	height: 4.583vw;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: var(--16px);
-	/* background-color: rgb(0, 255, 55); */
+  display: flex;
+  width: 16.25vw;
+  height: 4.583vw;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--16px);
 }
 
 .doubleMatch {
-	display: flex;
-	border-radius: --var(radius-xlg);
-	flex-direction: row;
-	justify-content: left;
-	align-items: center;
-	gap: var(--8px);
+  display: flex;
+  border-radius: --var(radius-xlg);
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  gap: var(--8px);
+  position: relative;
 }
 
 .doubleMatchNumber {
-	display: flex;
-	width: var(--36px);
-	height: var(--36px);
-	border-radius: var(--16px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	background-color: var(--dusty-grey);
-	color: var(--snow);
-	font-size: var(--20px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
-
+  display: flex;
+  width: var(--36px);
+  height: var(--36px);
+  border-radius: var(--16px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--dusty-grey);
+  color: var(--snow);
+  font-size: var(--20px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
 }
 
 .doubleMatchDuel {
-	display: flex;
-	flex-direction: column;
-	gap: var(--8px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--8px);
 }
 
 .player {
-	display: flex;
-	width: 10.833vw;
-	border-radius: var(--radius-lg);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: var(--12px);
-	padding: var(--8px) var(--16px);
-	background-color: transparent;
-	border: 3px solid var(--dusty-grey);
-
+  display: flex;
+  width: 10.833vw;
+  border-radius: var(--radius-lg);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--12px);
+  padding: var(--8px) var(--16px);
+  background-color: transparent;
+  border: 3px solid var(--dusty-grey);
 }
 
 .logo {
-	display: flex;
-	width: var(--24px);
-	height: var(--24px);
+  display: flex;
+  width: var(--24px);
+  height: var(--24px);
 }
 
 .nickname {
-	color: var(--snow);
-	font-size: var(--16px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
+  color: var(--snow);
+  font-size: var(--16px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
 }
 
 .doubleMatchScore {
-	display: flex;
-	flex-direction: column;
-	gap: var(--8px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--8px);
 }
 
 .score {
-	display: flex;
-	/* width: var(--40px); */
-	/* height: var(--40px); */
-	border-radius: var(--16px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	padding: var(--10px) var(--16px);
-	background-color: transparent;
-	border: 3px solid var(--dusty-grey);
-	color: var(--snow);
-	font-size: var(--16px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
+  display: flex;
+  border-radius: var(--16px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: var(--10px) var(--16px);
+  background-color: transparent;
+  border: 3px solid var(--dusty-grey);
+  color: var(--snow);
+  font-size: var(--16px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
 }
 
 .bracketSelector {
-	display: flex;
-	border-radius: var(--radius-mlg);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: var(--4px);
-	padding: var(--4px) var(--8px);
-	background-color: var(--slate-grey);
+  display: flex;
+  border-radius: var(--radius-mlg);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--4px);
+  padding: var(--4px) var(--8px);
+  background-color: var(--slate-grey);
 }
 
 .bracketName {
-	display: flex;
-	height: var(--20px);
-	border-radius: var(--8px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	padding: var(--4px) var(--0px);
+  display: flex;
+  height: var(--24px);
+  border-radius: var(--8px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: var(--4px) var(--0px);
+  color: var(--snow);
+  font-size: var(--16px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
 }
 
 .bracketNameLeft {
-	display: flex;
-	width: 3.542vw;
-	border-radius: var(--8px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	/* background-color: var(--liquid-lava); */
-	color: var(--snow);
-	font-size: var(--10px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
-	padding: var(--4px) 0px;
+  display: flex;
+  width: 3.542vw;
+  height: 1.5vw;
+  border-radius: var(--8px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  /* background-color: var(--liquid-lava); */
+  /* cursor: pointer; */
+  transition: color 0.3s ease;
+}
+
+.bracketNameRight {
+  display: flex;
+  width: 3.542vw;
+  border-radius: var(--8px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 1.5vw;
+  /* cursor: pointer; */
+  transition: color 0.3s ease;
 }
 
 .buttonPlay {
-	display: flex;
+  display: flex;
 }
 
 .chipSelectorPlayer {
-	display: flex;
-	width: 9.063vw;
-	border-radius: var(--12px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	gap: var(--4px);
-	padding: var(--4px) var(--8px);
+  display: flex;
+  width: 9.063vw;
+  border-radius: var(--12px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--4px);
+  padding: var(--4px) var(--8px);
+  background-color: var(--slate-grey);
 }
 
 .numberLeft {
-	display: flex;
-	width: 2.604vw;
-	border-radius: var(--8px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	color: var(--snow);
-	font-size: var(--10px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
-	padding: var(--4px) var(--0px);
-
+  display: flex;
+  width: 2.604vw;
+  border-radius: var(--8px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: var(--snow);
+  font-size: var(--16px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  padding: var(--4px) var(--0px);
+  /* cursor: pointer; */
 }
 
 .numberMid {
-	display: flex;
-	width: 2.604vw;
-	border-radius: var(--8px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	color: var(--snow);
-	font-size: var(--10px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
-	padding: var(--4px) var(--0px);
+  display: flex;
+  width: 2.604vw;
+  border-radius: var(--8px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: var(--snow);
+  font-size: var(--16px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  padding: var(--4px) var(--0px);
+  /* cursor: pointer; */
 }
 
 .numberRight {
-	display: flex;
-	width: 2.604vw;
-	border-radius: var(--8px);
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	color: var(--snow);
-	font-size: var(--10px);
-	font-family: "Inter", sans-serif;
-	font-weight: 600;
-	padding: var(--4px) var(--0px);
+  display: flex;
+  width: 2.604vw;
+  border-radius: var(--8px);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  color: var(--snow);
+  font-size: var(--16px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  padding: var(--4px) var(--0px);
+  /* cursor: pointer; */
+}
+
+.wiresHorizontal {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: 0.2vw solid var(--snow);
+  border-left: none;
+  height: 8.5vw;
+  width: 3vw;
+  left: 102%;
+  top: 45%;
+}
+
+.wiresHorizontal::after {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  top: 51%;
+  left: 100%; /* Ajustement pour tenir compte de l'épaisseur de la bordure */
+  width: 4vw; /* Longueur de la ligne horizontale */
+  height: 0.2vw; /* Épaisseur de la ligne */
+}
+
+.wiresHorizontal2 {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: 0.2vw solid var(--snow);
+  border-left: none;
+  height: 16.5vw;
+  width: 3vw;
+  left: 102%;
+  top: 45%;
+}
+
+.wiresHorizontal2::after {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%; /* Ajustement pour tenir compte de l'épaisseur de la bordure */
+  width: 3.6vw; /* Longueur de la ligne horizontale */
+  height: 0.2vw; /* Épaisseur de la ligne */
+}
+
+.wiresHorizontal3 {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  height: 0.2vw;
+  width: 6.3vw;
+  left: 100%;
+  top: 49%;
+}
+
+.wiresHorizontal4 {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: 0.2vw solid var(--snow);
+  border-right: none;
+  height: 8.5vw;
+  width: 3vw;
+  left: -20%;
+  top: 45%;
+}
+
+.wiresHorizontal4::after {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  top: 51%;
+  left: -149%; /* Ajustement pour tenir compte de l'épaisseur de la bordure */
+  width: 4vw; /* Longueur de la ligne horizontale */
+  height: 0.2vw; /* Épaisseur de la ligne */
+}
+
+.wiresHorizontal5 {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: 0.2vw solid var(--snow);
+  border-right: none;
+  height: 16.5vw;
+  width: 3vw;
+  left: -20%;
+  top: 45%;
+}
+
+.wiresHorizontal5::after {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -134%; /* Ajustement pour tenir compte de l'épaisseur de la bordure */
+  width: 3.6vw; /* Longueur de la ligne horizontale */
+  height: 0.2vw; /* Épaisseur de la ligne */
+}
+
+.wiresHorizontal6 {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  height: 0.2vw;
+  width: 6.3vw;
+  left: -40%;
+  top: 49%;
+}
+
+.wiresHorizontal7 {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  border: 0.2vw solid var(--snow);
+  border-left: none;
+  height: 16.5vw;
+  width: 3vw;
+  left: 102%;
+  top: 45%;
+}
+
+.wiresHorizontal7::after {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%; /* Ajustement pour tenir compte de l'épaisseur de la bordure */
+  width: 9.5vw; /* Longueur de la ligne horizontale */
+  height: 0.2vw; /* Épaisseur de la ligne */
+}
+
+.wiresHorizontal8 {
+  background-color: var(--snow);
+  content: "";
+  position: absolute;
+  height: 0.2vw;
+  width: 12.5vw;
+  left: 100%;
+  top: 49%;
+}
+
+.option-btn,
+.nav-btn {
+  cursor: pointer;
+  user-select: none;
+}
+
+.option-btn:hover,
+.nav-btn:hover {
+  background-color: var(--liquid-lava);
+}
+
+.option-btn.active,
+.nav-btn.active {
+  background-color: var(--liquid-lava);
+}
+
+.shape {
+  display: none;
+}
+
+.nav-16 {
+  display: none;
+}
+
+.active {
+  display: flex;
 }
