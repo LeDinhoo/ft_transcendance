@@ -300,16 +300,16 @@ def register_view(request):
 #
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Vérifie que l'utilisateur est authentifié
+@permission_classes([IsAuthenticated])
 def profile_view(request):
     user = request.user
 
-    # Récupérer le chemin de l'avatar
+    # Gérer le chemin de l'avatar : 
     if user.avatar and user.avatar.name.startswith('assets/avatars/'):
-        # Si l'avatar est dans le répertoire static (par défaut)
+        # Si l'avatar est dans le répertoire static
         avatar_url = f"/static/{user.avatar}"
     else:
-        # Si l'avatar est un fichier uploadé par l'utilisateur (dans le répertoire media)
+        # Si l'avatar est un fichier uploadé (dans media)
         avatar_url = user.avatar.url if user.avatar else None
 
     # Renvoi des données de l'utilisateur avec l'URL de l'avatar
@@ -319,7 +319,6 @@ def profile_view(request):
         'avatar': avatar_url
     }, status=200)
 
-
 ## Vue pour le jeu (accessible uniquement après authentification JWT)
 #@api_view(['GET'])
 #@permission_classes([IsAuthenticated])  # Protéger cette vue avec JWT
@@ -328,6 +327,65 @@ def profile_view(request):
 #    #return JsonResponse({'message': 'Vous êtes authentifié et avez accès au jeu !'})
 
 
+
+#@api_view(['PATCH'])
+#@permission_classes([IsAuthenticated])
+#def update_profile_view(request):
+#    user = request.user
+#    data = request.data
+#
+#    # Valider et mettre à jour le nom d'utilisateur si présent dans les données
+#    if 'username' in data:
+#        new_username = data['username']
+#        if new_username.strip():  # Vérifie que le nom d'utilisateur n'est pas vide
+#            user.username = new_username
+#        else:
+#            return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+#
+#    # Valider et mettre à jour l'email si présent dans les données
+#    if 'email' in data:
+#        new_email = data['email']
+#        try:
+#            validate_email(new_email)  # Utilise le validateur intégré de Django
+#            user.email = new_email
+#        except ValidationError:
+#            return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
+#
+##    if 'avatar' in data:
+##        avatar = data['avatar']
+##
+##        # Optionnel : Vérification que l'avatar appartient à un ensemble prédéfini
+##        avatar_path = os.path.join('static/assets/avatars/', avatar)
+##        if not os.path.exists(avatar_path):
+##            return JsonResponse({'error': 'Avatar non valide ou inexistant.'}, status=400)
+##
+##        # Mettre à jour l'avatar de l'utilisateur
+##        user.avatar = avatar
+##
+#    # Gérer l'avatar uploadé si présent
+#    if 'avatar' in request.FILES:
+#        avatar = request.FILES['avatar']
+#
+#        # Optionnel : Valider le type de fichier (seulement PNG ou JPEG)
+#        valid_image_extensions = ['png', 'jpg', 'jpeg']
+#        ext = avatar.name.split('.')[-1].lower()
+#        if ext not in valid_image_extensions:
+#            return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
+#
+#        # Attribuer l'avatar uploadé à l'utilisateur (Django gérera l'upload dans le dossier MEDIA_ROOT)
+#        user.avatar = avatar
+#
+#    try:
+#        user.save()  # Sauvegarder les modifications dans la base de données
+#    except Exception as e:
+#        return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+#
+#    return JsonResponse({
+#        'username': user.username,
+#        'email': user.email,
+#        'avatar': f"/media/{user.avatar}" if user.avatar else None  # Renvoie l'URL de l'avatar depuis le dossier static
+#    }, status=200)
+#
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -352,17 +410,6 @@ def update_profile_view(request):
         except ValidationError:
             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
 
-#    if 'avatar' in data:
-#        avatar = data['avatar']
-#
-#        # Optionnel : Vérification que l'avatar appartient à un ensemble prédéfini
-#        avatar_path = os.path.join('static/assets/avatars/', avatar)
-#        if not os.path.exists(avatar_path):
-#            return JsonResponse({'error': 'Avatar non valide ou inexistant.'}, status=400)
-#
-#        # Mettre à jour l'avatar de l'utilisateur
-#        user.avatar = avatar
-#
     # Gérer l'avatar uploadé si présent
     if 'avatar' in request.FILES:
         avatar = request.FILES['avatar']
@@ -381,12 +428,17 @@ def update_profile_view(request):
     except Exception as e:
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
 
+    # Gérer le chemin de l'avatar : 
+    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
+        avatar_url = f"/static/{user.avatar}"
+    else:
+        avatar_url = f"/media/{user.avatar}"
+
     return JsonResponse({
         'username': user.username,
         'email': user.email,
-        'avatar': f"/media/{user.avatar}" if user.avatar else None  # Renvoie l'URL de l'avatar depuis le dossier static
+        'avatar': avatar_url  # Renvoie l'URL correcte de l'avatar
     }, status=200)
-
 
 
 
