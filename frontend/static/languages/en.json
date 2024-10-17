@@ -1,6 +1,6 @@
 {
 	"login": {
-		"title": "Join the Battle TEST",
+		"title": "Join the Battle",
 		"email_label": "E-mail",
 		"password_label": "Password",
 		"login_button": "Log In",
@@ -14,10 +14,5 @@
 		"confirm_password_label": "Confirm Password",
 		"submit_register_button": "Register",
 		"sign_up_button": "Sign Up"
-	},
-	"form_validation_error": "Please fill out all fields.",
-	"http_error": "HTTP error: ",
-	"login_success": "Login successful!",
-	"login_failure": "Error: ",
-	"generic_error": "An error occurred, please try again later."
+	}
 }

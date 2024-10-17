@@ -6,80 +6,115 @@ document.addEventListener('DOMContentLoaded', function () {
         history.pushState(null, '', '/login-register');
     }
 
-    // Function to load language JSON based on user preference
+    // Function to load and apply translations from a loaded JSON
+	function applyTranslations(translations) {
+		document.querySelectorAll('[data-translate]').forEach((element) => {
+			const translationKey = element.getAttribute('data-translate');
+			const translatedText = getNestedTranslation(translationKey, translations);
+			console.log(`Translating key: ${translationKey}, translated text: ${translatedText}`);
+			if (translatedText) {
+				element.textContent = translatedText;  // Apply the translation
+			} else {
+				console.warn(`No translation found for key: ${translationKey}`);
+			}
+		});
+	}
+	
+
+    // Helper function to handle nested translation keys (like login.title)
+    function getNestedTranslation(key, translations) {
+        return key.split('.').reduce((obj, keyPart) => {
+            return obj && obj[keyPart] ? obj[keyPart] : null;
+        }, translations);
+    }
+
+    // Load the translations based on the user's preferred language
     function loadTranslations(language) {
-        return fetch(`/static/languages/${language}.json`)  // Load the appropriate language file
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to load language file');
-                }
-                return response.json();
+        return fetch(`/static/languages/${language}.json`)
+            .then((response) => response.json())
+            .then((translations) => {
+                applyTranslations(translations);
+            })
+            .catch((error) => {
+                console.error('Error loading translations:', error);
             });
     }
 
-    // Load the user's preferred language or default to 'en'
-    const userLang = localStorage.getItem('preferredLanguage') || 'en';
+    // Get the preferred language from localStorage or default to browser's language
+    function getPreferredLanguage() {
+        const savedLanguage = localStorage.getItem('preferredLanguage');
+        if (savedLanguage) {
+            return savedLanguage;
+        }
+        const browserLanguage = navigator.language.split('-')[0];  // e.g., "en-US" -> "en"
+        return ['en', 'fr', 'es', 'de'].includes(browserLanguage) ? browserLanguage : 'en';
+    }
 
-    // Fetch translations once the page loads
-    let translations = {};
-    loadTranslations(userLang).then(langData => {
-        translations = langData;
-        // Optionally, you could use these translations right away if necessary
-        console.log('Loaded translations:', translations);
-    }).catch(err => {
-        console.error('Error loading translations:', err);
-    });
+    // Save the selected language to localStorage
+    function setPreferredLanguage(language) {
+        localStorage.setItem('preferredLanguage', language);
+        loadTranslations(language);
+    }
 
     // Language Selector functionality
-    document.getElementById('languageSelector').addEventListener('change', function (event) {
+    const languageSelector = document.getElementById('languageSelector');
+    languageSelector.addEventListener('change', function (event) {
         const selectedLang = event.target.value;
-        localStorage.setItem('preferredLanguage', selectedLang);
+        setPreferredLanguage(selectedLang);
         location.reload();  // Reload the page to apply the new language
     });
 
     // Set the current language as the selected option when the page loads
-    const languageSelector = document.getElementById('languageSelector');
     if (languageSelector) {
-        languageSelector.value = userLang;
+        const userLang = getPreferredLanguage();
+        languageSelector.value = userLang;  // Set the dropdown to the preferred language
+        loadTranslations(userLang);  // Load the selected language translations
     }
 
     // Function to load a component's HTML, CSS, and JS
-    function loadComponent(htmlUrl, cssUrl, jsUrls) {
-        fetch(htmlUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur lors du chargement de la page');
-                }
-                return response.text();
-            })
-            .then(html => {
-                appDiv.innerHTML = html;
-
-                // Load specific CSS if provided
-                if (cssUrl) {
-                    loadCSS(cssUrl);
-                }
-
-                // Load specific JS files if any
-                if (jsUrls && jsUrls.length > 0) {
-                    loadScriptsInOrder(jsUrls)
-                        .then(() => {
-                            // Initialize components after JS is loaded
-                            if (typeof initializePage === 'function') {
-                                initializePage();
-                            }
-                            if (typeof initGame === 'function') {
-                                initGame();
-                            }
-                        })
-                        .catch(err => console.error('Erreur lors du chargement des scripts:', err));
-                }
-            })
-            .catch(err => {
-                console.error('Erreur lors du chargement de la page:', err);
-                appDiv.innerHTML = '<p>Une erreur est survenue lors du chargement de la page.</p>';
-            });
-    }
+	function loadComponent(htmlUrl, cssUrl, jsUrls) {
+		fetch(htmlUrl)
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Erreur lors du chargement de la page');
+				}
+				return response.text();
+			})
+			.then(html => {
+				appDiv.innerHTML = html;
+	
+				// Load specific CSS if provided
+				if (cssUrl) {
+					loadCSS(cssUrl);
+				}
+	
+				// Load specific JS files if any
+				if (jsUrls && jsUrls.length > 0) {
+					loadScriptsInOrder(jsUrls)
+						.then(() => {
+							// Initialize components after JS is loaded
+							if (typeof initializePage === 'function') {
+								initializePage();
+							}
+							if (typeof initGame === 'function') {
+								initGame();
+							}
+	
+							// Apply translations after all scripts and components are loaded
+							loadTranslations(getPreferredLanguage());
+						})
+						.catch(err => console.error('Erreur lors du chargement des scripts:', err));
+				} else {
+					// Apply translations if no scripts need to be loaded
+					loadTranslations(getPreferredLanguage());
+				}
+			})
+			.catch(err => {
+				console.error('Erreur lors du chargement de la page:', err);
+				appDiv.innerHTML = '<p>Une erreur est survenue lors du chargement de la page.</p>';
+			});
+	}
+	
 
     // Function to remove previous CSS for components
     function removePreviousComponentCSS() {

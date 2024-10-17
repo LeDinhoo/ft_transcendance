@@ -1,7 +1,18 @@
 {
-	"form_validation_error": "Por favor, complete todos los campos.",
-	"http_error": "Error HTTP: ",
-	"login_success": "¡Inicio de sesión exitoso!",
-	"login_failure": "Error: ",
-	"generic_error": "Ocurrió un error, por favor intente de nuevo más tarde."
+	"login": {
+		"title": "Únete a la Batalla",
+		"email_label": "Correo electrónico",
+		"password_label": "Contraseña",
+		"login_button": "Iniciar sesión",
+		"register_button": "Registrarse"
+	},
+	"register": {
+		"title": "Crear cuenta",
+		"username_label": "Nombre de usuario",
+		"email_label": "Correo electrónico",
+		"password_label": "Contraseña",
+		"confirm_password_label": "Confirmar contraseña",
+		"submit_register_button": "Registrarse",
+		"sign_up_button": "Regístrate"
+	}
 }
