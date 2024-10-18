@@ -561,7 +561,11 @@ document.addEventListener("DOMContentLoaded", function () {
         "/static/spa/tournament/tournament.html",
         "/static/spa/tournament/tournament.css",
         ["/static/spa/tournament/tournament.js"]
-      );
+      ).then(() => {
+        if (typeof initializeTournamentPage === "function") {
+          initializeTournamentPage(); // Appelle la fonction d'initialisation spécifique
+        }
+      });
     } else {
       appDiv.innerHTML = "<p>Page non trouvée.</p>";
     }

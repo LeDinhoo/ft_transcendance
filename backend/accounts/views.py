@@ -136,8 +136,10 @@ import logging
 from django.http import JsonResponse
 from django.db import IntegrityError  # Import de l'exception IntegrityError
 from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import check_password, make_password
 from django.shortcuts import render
 from .forms import RegisterForm, LoginForm
+from .validators import ComplexPasswordValidator  # Importer le validateur de mot de passe
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -150,6 +152,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.conf import settings
 import os
+
+
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -387,6 +393,62 @@ def profile_view(request):
 #    }, status=200)
 #
 
+
+####ANCIENNE VERSION QUI FONCTIONNE SANS LES MOTS DE PASSE#######
+#@api_view(['PATCH'])
+#@permission_classes([IsAuthenticated])
+#def update_profile_view(request):
+#    user = request.user
+#    data = request.data
+#
+#    # Valider et mettre à jour le nom d'utilisateur si présent dans les données
+#    if 'username' in data:
+#        new_username = data['username']
+#        if new_username.strip():  # Vérifie que le nom d'utilisateur n'est pas vide
+#            user.username = new_username
+#        else:
+#            return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+#
+#    # Valider et mettre à jour l'email si présent dans les données
+#    if 'email' in data:
+#        new_email = data['email']
+#        try:
+#            validate_email(new_email)  # Utilise le validateur intégré de Django
+#            user.email = new_email
+#        except ValidationError:
+#            return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
+#
+#    # Gérer l'avatar uploadé si présent
+#    if 'avatar' in request.FILES:
+#        avatar = request.FILES['avatar']
+#
+#        # Optionnel : Valider le type de fichier (seulement PNG ou JPEG)
+#        valid_image_extensions = ['png', 'jpg', 'jpeg']
+#        ext = avatar.name.split('.')[-1].lower()
+#        if ext not in valid_image_extensions:
+#            return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
+#
+#        # Attribuer l'avatar uploadé à l'utilisateur (Django gérera l'upload dans le dossier MEDIA_ROOT)
+#        user.avatar = avatar
+#
+#    try:
+#        user.save()  # Sauvegarder les modifications dans la base de données
+#    except Exception as e:
+#        return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+#
+#    # Gérer le chemin de l'avatar : 
+#    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
+#        avatar_url = f"/static/{user.avatar}"
+#    else:
+#        avatar_url = f"/media/{user.avatar}"
+#
+#    return JsonResponse({
+#        'username': user.username,
+#        'email': user.email,
+#        'avatar': avatar_url  # Renvoie l'URL correcte de l'avatar
+#    }, status=200)
+#
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_profile_view(request):
@@ -409,6 +471,25 @@ def update_profile_view(request):
             user.email = new_email
         except ValidationError:
             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
+
+    # Changement de mot de passe
+    if 'old_password' in data and 'new_password' in data:
+        old_password = data['old_password']
+        new_password = data['new_password']
+
+        # Vérifier si l'ancien mot de passe est correct
+        if not check_password(old_password, user.password):
+            return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
+
+        # Utiliser le validateur de mot de passe personnalisé
+        password_validator = ComplexPasswordValidator()
+        try:
+            password_validator.validate(new_password)
+        except ValidationError as e:
+            return JsonResponse({'error': e.messages[0]}, status=400)
+
+        # Hacher le nouveau mot de passe et le sauvegarder
+        user.password = make_password(new_password)
 
     # Gérer l'avatar uploadé si présent
     if 'avatar' in request.FILES:

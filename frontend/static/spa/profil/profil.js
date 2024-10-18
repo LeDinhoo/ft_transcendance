@@ -193,8 +193,6 @@
 //   }
 // }
 
-
-
 //ca fonctionne presque
 
 // // Fonction pour réinitialiser les champs de mot de passe
@@ -318,7 +316,6 @@
 //         formData.append("avatar", avatarFile);
 //       }
 
-
 //       fetch("/api/profil/update/", {
 //         method: "PATCH",
 //         headers: {
@@ -407,6 +404,20 @@ function resetPasswordFields() {
   }
 }
 
+// Fonction pour afficher un message de confirmation
+function showConfirmationMessage(message) {
+  const confirmationMessage = document.createElement('div');
+  confirmationMessage.className = 'confirmation-message';
+  confirmationMessage.innerText = message;
+
+  document.body.appendChild(confirmationMessage);
+
+  // Supprimer le message après 3 secondes
+  setTimeout(() => {
+    confirmationMessage.remove();
+  }, 3000);
+}
+
 // Fonction pour initialiser la gestion du mot de passe
 function initializePasswordManagement() {
   const newFrame = document.getElementById("newFrame");
@@ -415,7 +426,10 @@ function initializePasswordManagement() {
 
   // Supprimer tous les anciens écouteurs pour éviter les conflits
   const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
-  toggleChangePassword.parentNode.replaceChild(cloneToggleChangePassword, toggleChangePassword);
+  toggleChangePassword.parentNode.replaceChild(
+    cloneToggleChangePassword,
+    toggleChangePassword
+  );
 
   cloneToggleChangePassword.addEventListener("click", function () {
     const isHidden = newFrame.style.display === "none";
@@ -499,21 +513,96 @@ function initializeProfilePage() {
         })
         .catch((error) => {
           console.error("Erreur lors de la mise à jour de l'avatar :", error);
-          alert("Erreur lors de la mise à jour de l'avatar, veuillez réessayer.");
+          alert(
+            "Erreur lors de la mise à jour de l'avatar, veuillez réessayer."
+          );
         });
     }
   });
 
-  // Sauvegarder les changements (sans inclure l'avatar ici)
+  // // Sauvegarder les changements (sans inclure l'avatar ici)
+  // saveButton.addEventListener("click", function () {
+  //   if (!userInput.disabled && !emailInput.disabled) {
+  //     const updatedUsername = userInput.value;
+  //     const updatedEmail = emailInput.value;
+  //     const avatarFile = avatarInput.files[0];
+  //     // Validation des champs
+  //     if (!updatedUsername || !updatedEmail) {
+  //       alert("Le nom d'utilisateur et l'email ne peuvent pas être vides.");
+  //       return;
+  //     }
+
+  //     // Préparer les données pour la requête PATCH
+  //     const formData = new FormData();
+  //     formData.append("username", updatedUsername);
+  //     formData.append("email", updatedEmail);
+  //     if (avatarFile) {
+  //       formData.append("avatar", avatarFile);
+  //     }
+
+  //     fetch("/api/profil/update/", {
+  //       method: "PATCH",
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //       body: formData,
+  //     })
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           throw new Error(`Erreur HTTP: ${response.status}`);
+  //         }
+  //         return response.json();
+  //       })
+  //       .then((data) => {
+  //         // Mettre à jour l'interface utilisateur avec les nouvelles données
+  //         document.getElementById("playerFrame").innerText = data.username;
+  //         document.getElementById("username").value = data.username;
+  //         document.getElementById("registerEmail").value = data.email;
+
+  //         if (data.avatar) {
+  //           avatarDisplay.src = data.avatar; // Mettre à jour l'image de l'avatar
+  //         }
+
+  //         // Verrouiller à nouveau les champs après mise à jour
+  //         userInput.disabled = true;
+  //         emailInput.disabled = true;
+  //         cloneModifyButton.style.backgroundColor = "";
+  //         console.log("Informations mises à jour et verrouillées");
+  //       })
+  //       .catch((error) => {
+  //         console.error("Erreur lors de la mise à jour des informations :", error);
+  //         alert("Erreur lors de la mise à jour, veuillez réessayer.");
+  //       });
+  //   }
+  // });
+
+  // Sauvegarder les changements (y compris la modification de mot de passe)
   saveButton.addEventListener("click", function () {
     if (!userInput.disabled && !emailInput.disabled) {
       const updatedUsername = userInput.value;
       const updatedEmail = emailInput.value;
       const avatarFile = avatarInput.files[0];
+      const oldPassword = document.getElementById("oldPassword").value;
+      const newPassword = document.getElementById("newPassword").value;
+      const confirmNewPassword =
+        document.getElementById("confirmNewPassword").value;
+
       // Validation des champs
       if (!updatedUsername || !updatedEmail) {
         alert("Le nom d'utilisateur et l'email ne peuvent pas être vides.");
         return;
+      }
+
+      // Validation des mots de passe
+      if (newPassword || confirmNewPassword || oldPassword) {
+        if (!oldPassword) {
+          alert("Veuillez saisir votre ancien mot de passe.");
+          return;
+        }
+        if (newPassword !== confirmNewPassword) {
+          alert("Les nouveaux mots de passe ne correspondent pas.");
+          return;
+        }
       }
 
       // Préparer les données pour la requête PATCH
@@ -522,6 +611,10 @@ function initializeProfilePage() {
       formData.append("email", updatedEmail);
       if (avatarFile) {
         formData.append("avatar", avatarFile);
+      }
+      if (oldPassword && newPassword) {
+        formData.append("old_password", oldPassword);
+        formData.append("new_password", newPassword);
       }
 
       fetch("/api/profil/update/", {
@@ -552,9 +645,18 @@ function initializeProfilePage() {
           emailInput.disabled = true;
           cloneModifyButton.style.backgroundColor = "";
           console.log("Informations mises à jour et verrouillées");
+
+          // Réinitialiser les champs de mot de passe
+          resetPasswordFields();
+
+          // Afficher un message de confirmation
+          // showConfirmationMessage("Changements bien pris en compte !");
         })
         .catch((error) => {
-          console.error("Erreur lors de la mise à jour des informations :", error);
+          console.error(
+            "Erreur lors de la mise à jour des informations :",
+            error
+          );
           alert("Erreur lors de la mise à jour, veuillez réessayer.");
         });
     }
@@ -586,10 +688,12 @@ function initializeProfilePage() {
           if (data.avatar) {
             avatarDisplay.src = data.avatar; // Afficher l'avatar de la base de données
           } else {
-            avatarDisplay.src = '/static/assets/avatars/buffalo.png'; // Utiliser l'avatar par défaut s'il n'y en a pas
+            avatarDisplay.src = "/static/assets/avatars/buffalo.png"; // Utiliser l'avatar par défaut s'il n'y en a pas
           }
         } else {
-          console.error("Erreur lors de la récupération des informations utilisateur");
+          console.error(
+            "Erreur lors de la récupération des informations utilisateur"
+          );
         }
       })
       .catch((error) => {
