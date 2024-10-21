@@ -1,0 +1,18 @@
+{
+	"login": {
+		"title": "Join the Battle",
+		"email_label": "E-mail",
+		"password_label": "Password",
+		"login_button": "Log In",
+		"register_button": "Register"
+	},
+	"register": {
+		"title": "Create Account",
+		"username_label": "Username",
+		"email_label": "E-mail",
+		"password_label": "Password",
+		"confirm_password_label": "Confirm Password",
+		"submit_register_button": "Register",
+		"sign_up_button": "Sign Up"
+	}
+}

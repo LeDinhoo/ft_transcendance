@@ -1,0 +1,18 @@
+{
+	"login": {
+		"title": "Gå med i Striden",
+		"email_label": "E-post",
+		"password_label": "Lösenord",
+		"login_button": "Logga in",
+		"register_button": "Registrera"
+	},
+	"register": {
+		"title": "Skapa konto",
+		"username_label": "Användarnamn",
+		"email_label": "E-post",
+		"password_label": "Lösenord",
+		"confirm_password_label": "Bekräfta lösenord",
+		"submit_register_button": "Registrera",
+		"sign_up_button": "Registrera dig"
+	}
+}

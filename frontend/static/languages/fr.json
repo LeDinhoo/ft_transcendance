@@ -1,0 +1,18 @@
+{
+	"login": {
+		"title": "Rejoignez la Bataille",
+		"email_label": "E-mail",
+		"password_label": "Mot de passe",
+		"login_button": "Se connecter",
+		"register_button": "S'inscrire"
+	},
+	"register": {
+		"title": "Créer un compte",
+		"username_label": "Nom d'utilisateur",
+		"email_label": "E-mail",
+		"password_label": "Mot de passe",
+		"confirm_password_label": "Confirmez le mot de passe",
+		"submit_register_button": "S'inscrire",
+		"sign_up_button": "S'inscrire"
+	}
+}
