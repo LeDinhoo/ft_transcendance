@@ -309,3 +309,9 @@ function navigateTo(path) {
   history.pushState(null, "", path); // Met à jour l'URL sans recharger
   loadPageFromURL(); // Charge la nouvelle page correspondant à l'URL
 }
+
+
+document.getElementById('42').addEventListener('click', function() {
+    // Redirige vers la vue Django
+    window.location.href = '/api/get_auth_url/';  // Assure-toi que cette URL correspond bien à celle de ta vue Django
+});
