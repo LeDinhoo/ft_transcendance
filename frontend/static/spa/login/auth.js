@@ -311,7 +311,3 @@ function navigateTo(path) {
 }
 
 
-document.getElementById('42').addEventListener('click', function() {
-    // Redirige vers la vue Django
-    window.location.href = '/api/get_auth_url/';  // Assure-toi que cette URL correspond bien à celle de ta vue Django
-});

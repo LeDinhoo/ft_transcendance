@@ -65,6 +65,56 @@ MIDDLEWARE = [
 	'corsheaders.middleware.CorsMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4430",
+    "https://localhost:4430",
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://localhost:4430$",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 heures
+
+# Configuration SSL
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Autoriser les requêtes non-CSRF pour l'API
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:4430',
+]
+
+
+# Mise à jour de l'URL de redirection 42
+FORTYTWO_REDIRECT_URI = 'https://localhost:8443/api/callback-42/'
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Authentification standard par username
     'accounts.authentication.EmailBackend',       # Authentification par email

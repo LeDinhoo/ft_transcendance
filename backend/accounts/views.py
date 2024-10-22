@@ -534,13 +534,13 @@ def game_view(request):
 
 
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth import get_user_model, login
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 # Imports de la bibliothèque standard Python
 from urllib.parse import urlencode
 import logging
@@ -559,44 +559,81 @@ USER_INFO_URL = "https://api.intra.42.fr/v2/me"
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
-@require_http_methods(["GET"])
+
+@csrf_exempt
+@ensure_csrf_cookie
 def get_auth_url(request):
-    logger.info("get_auth_url view called")
+    if request.method == "OPTIONS":
+        response = JsonResponse({}, status=200)
+        response["Access-Control-Allow-Origin"] = "https://localhost:4430"
+        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+        response["Access-Control-Allow-Credentials"] = "true"
+        return response
+        
     try:
-        client_id = UID
-        redirect_uri = REDIRECT_URI
+        logger.info("Generating 42 authentication URL")
         
-        auth_url = f"https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
+        auth_url = (
+            'https://api.intra.42.fr/oauth/authorize'
+            f'?client_id={UID}'
+            f'&redirect_uri={REDIRECT_URI}'
+            '&response_type=code'
+            '&scope=public'
+        )
         
-        logger.info(f"Generated auth_url: {auth_url}")
-        return redirect(auth_url)
+        logger.info(f"Generated auth URL: {auth_url}")
+        
+        response = JsonResponse({
+            'success': True,
+            'auth_url': auth_url
+        })
+        
+        # Ajout manuel des headers CORS
+        response["Access-Control-Allow-Origin"] = "https://localhost:4430"
+        response["Access-Control-Allow-Credentials"] = "true"
+        
+        return response
+        
     except Exception as e:
-        logger.error(f"Error in get_auth_url: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=500)
+        logger.error(f"Error generating auth URL: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
     
+from django.http import JsonResponse
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
+
 def callback_42(request):
-    """
-    Gère le callback de l'API 42 et échange le code contre un token
-    """
     try:
-        # Récupération du code d'autorisation
         code = request.GET.get('code')
+        if not code:
+            return HttpResponse("""
+                <script>
+                    window.close();
+                </script>
+                <h1>No code provided</h1>
+            """)
         error = request.GET.get('error')
 
         # Gestion des erreurs de l'API 42
         if error:
             logger.error(f"OAuth error: {error}")
             return JsonResponse({
-                'error': 'OAuth error',
-                'detail': error
+                'success': False,
+                'error': error
             }, status=400)
 
         # Vérification du code
         if not code:
             logger.error("No authorization code received")
             return JsonResponse({
-                'error': 'No authorization code',
-                'detail': 'Authorization code missing from callback'
+                'success': False,
+                'error': 'No authorization code received'
             }, status=400)
 
         logger.info(f"Authorization code received: {code}")
@@ -619,12 +656,11 @@ def callback_42(request):
             verify=True
         )
 
-        # Vérification de la réponse
         if token_response.status_code != 200:
             logger.error(f"Token exchange failed: {token_response.text}")
             return JsonResponse({
-                'error': 'Token exchange failed',
-                'detail': token_response.text
+                'success': False,
+                'error': 'Token exchange failed'
             }, status=500)
 
         # Extraction du token
@@ -634,8 +670,8 @@ def callback_42(request):
         if not access_token:
             logger.error("No access token in response")
             return JsonResponse({
-                'error': 'No access token',
-                'detail': 'Access token missing from response'
+                'success': False,
+                'error': 'No access token received'
             }, status=500)
 
         # Récupération des informations de l'utilisateur
@@ -648,37 +684,57 @@ def callback_42(request):
         if user_response.status_code != 200:
             logger.error(f"User info request failed: {user_response.text}")
             return JsonResponse({
-                'error': 'User info request failed',
-                'detail': user_response.text
+                'success': False,
+                'error': 'Failed to get user info'
             }, status=500)
 
         # Traitement des données utilisateur
         user_data = user_response.json()
-        
-        # Stockez ici les informations de l'utilisateur dans votre système
-        # Par exemple, créez ou mettez à jour l'utilisateur dans votre base de données
-        
-        # Redirection vers la page de succès avec les données de l'utilisateur
-        return redirect({
-            'success': True,
-            'user': {
-                'id': user_data.get('id'),
-                'email': user_data.get('email'),
-                'login': user_data.get('login'),
-                'displayname': user_data.get('displayname')
-            }
-        })
+    
+        return HttpResponse(f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Authentication Successful</title>
+                <script>
+                    console.log('Setting completion cookie...');
+                    // Définir le cookie avec les bons attributs
+                    document.cookie = "auth_complete=true; path=/; SameSite=Lax; Secure";
+                    
+                    // Envoyer un message à la fenêtre principale
+                    if (window.opener) {{
+                        try {{
+                            window.opener.postMessage({{ type: 'auth_success' }}, 'https://localhost:4430');
+                        }} catch (e) {{
+                            console.error('Error sending message:', e);
+                        }}
+                    }}
+                    
+                    // Fermer après un court délai
+                    setTimeout(() => {{
+                        console.log('Closing popup...');
+                        window.close();
+                        
+                        // Si la fenêtre ne se ferme pas, forcer la redirection
+                        setTimeout(() => {{
+                            window.location.href = 'about:blank';
+                        }}, 100);
+                    }}, 500);
+                </script>
+            </head>
+            <body>
+                <h1>Authentication Successful!</h1>
+                <p>This window will close automatically...</p>
+                <p>If not redirected, <a href="https://localhost:4430/home">click here</a></p>
+            </body>
+            </html>
+        """)
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error during authentication: {str(e)}")
-        return JsonResponse({
-            'error': 'Network error',
-            'detail': str(e)
-        }, status=500)
     except Exception as e:
-        logger.error(f"Unexpected error in callback_42: {str(e)}")
-        return JsonResponse({
-            'error': 'Authentication failed',
-            'detail': str(e)
-        }, status=500)
-
+        logger.error(f"Callback error: {str(e)}")
+        return HttpResponse(f"""
+            <script>
+                window.close();
+            </script>
+            <h1>Authentication failed: {str(e)}</h1>
+        """)
