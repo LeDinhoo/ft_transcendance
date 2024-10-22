@@ -30,6 +30,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Rafraîchir le token
     path('get-auth-url/', views.get_auth_url, name='get_auth_url'),
-    path('home/', views.home, name='home'),
+    path('callback-42/', views.callback_42, name='callback_42'),  # Callback après autorisation
     # path('home/', views.home, name='home'),
 ]
