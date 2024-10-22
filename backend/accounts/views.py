@@ -543,6 +543,11 @@ from django.contrib.auth import get_user_model, login
 from django.views.decorators.csrf import ensure_csrf_cookie
 # Imports de la bibliothèque standard Python
 from urllib.parse import urlencode
+from django.db import transaction
+from .models import CustomUser
+from django.contrib.auth import login
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 import logging
 import json
 
@@ -608,6 +613,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+@transaction.atomic
 def callback_42(request):
     try:
         code = request.GET.get('code')
@@ -657,24 +663,15 @@ def callback_42(request):
         )
 
         if token_response.status_code != 200:
-            logger.error(f"Token exchange failed: {token_response.text}")
-            return JsonResponse({
-                'success': False,
-                'error': 'Token exchange failed'
-            }, status=500)
+            return HttpResponse("""
+                <script>window.close();</script>
+                <h1>Token exchange failed</h1>
+            """)
 
-        # Extraction du token
         token_data = token_response.json()
         access_token = token_data.get('access_token')
 
-        if not access_token:
-            logger.error("No access token in response")
-            return JsonResponse({
-                'success': False,
-                'error': 'No access token received'
-            }, status=500)
-
-        # Récupération des informations de l'utilisateur
+        # Obtenir les informations utilisateur de l'API 42
         user_response = requests.get(
             'https://api.intra.42.fr/v2/me',
             headers={'Authorization': f'Bearer {access_token}'},
@@ -682,59 +679,152 @@ def callback_42(request):
         )
 
         if user_response.status_code != 200:
-            logger.error(f"User info request failed: {user_response.text}")
-            return JsonResponse({
-                'success': False,
-                'error': 'Failed to get user info'
-            }, status=500)
+            return HttpResponse("""
+                <script>window.close();</script>
+                <h1>Failed to get user info</h1>
+            """)
 
-        # Traitement des données utilisateur
         user_data = user_response.json()
-    
-        return HttpResponse(f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Authentication Successful</title>
-                <script>
-                    console.log('Setting completion cookie...');
-                    // Définir le cookie avec les bons attributs
-                    document.cookie = "auth_complete=true; path=/; SameSite=Lax; Secure";
+        
+        try:
+            # Chercher d'abord par intra_42_id
+            user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
+            
+            if user is None:
+                # Vérifier si un utilisateur existe déjà avec cet email
+                existing_user = CustomUser.objects.filter(email=user_data['email']).first()
+                
+                if existing_user:
+                    # Si l'utilisateur existe déjà avec cet email, lier son compte à 42
+                    existing_user.intra_42_id = user_data['id']
+                    existing_user.is_42_user = True
+                    existing_user.save()
+                    user = existing_user
+                else:
+                    # Créer un nouvel utilisateur
+                    username = user_data['login']
+                    password = CustomUser.objects.make_random_password()
                     
-                    // Envoyer un message à la fenêtre principale
-                    if (window.opener) {{
-                        try {{
-                            window.opener.postMessage({{ type: 'auth_success' }}, 'https://localhost:4430');
-                        }} catch (e) {{
-                            console.error('Error sending message:', e);
-                        }}
-                    }}
-                    
-                    // Fermer après un court délai
-                    setTimeout(() => {{
-                        console.log('Closing popup...');
-                        window.close();
+                    user = CustomUser.objects.create_user(
+                        username=username,
+                        email=user_data['email'],
+                        password=password,  # Mot de passe aléatoire
+                        intra_42_id=user_data['id'],
+                        is_42_user=True
+                    )
+
+            # Connecter l'utilisateur avec le backend spécifié
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            
+            logger.info(f"User {user.username} logged in successfully via 42")
+
+            # Retourner la page HTML avec le script de redirection
+            return HttpResponse("""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Authentication Successful</title>
+                    <script>
+                        console.log('Callback page loaded, checking auth...');
                         
-                        // Si la fenêtre ne se ferme pas, forcer la redirection
-                        setTimeout(() => {{
-                            window.location.href = 'about:blank';
-                        }}, 100);
-                    }}, 500);
+                        async function checkAuthAndRedirect() {
+                            try {
+                                const response = await fetch('https://localhost:4430/api/check-auth/', {
+                                    method: 'GET',
+                                    credentials: 'include',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                    }
+                                });
+                                
+                                console.log('Auth check response:', response.status);
+                                
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    console.log('Auth check successful:', data);
+                                    
+                                    if (window.opener) {
+                                        console.log('Sending success message to opener...');
+                                        window.opener.postMessage({
+                                            type: 'auth_success',
+                                            user: data.user
+                                        }, 'https://localhost:4430');
+                                        
+                                        // Fermer cette fenêtre après un court délai
+                                        setTimeout(() => {
+                                            console.log('Closing popup...');
+                                            window.close();
+                                        }, 500);
+                                    }
+                                } else {
+                                    console.error('Auth check failed');
+                                    throw new Error('Authentication check failed');
+                                }
+                            } catch (error) {
+                                console.error('Error during auth check:', error);
+                                if (window.opener) {
+                                    window.opener.location.href = 'https://localhost:4430/login-register';
+                                }
+                                window.close();
+                            }
+                        }
+                        
+                        // Exécuter la vérification
+                        checkAuthAndRedirect();
+                    </script>
+                </head>
+                <body>
+                    <h1>Authentication Successful!</h1>
+                    <p>Verifying authentication...</p>
+                </body>
+                </html>
+            """)
+
+        except Exception as e:
+            logger.error(f"Database error: {str(e)}")
+            return HttpResponse(f"""
+                <script>
+                    console.error('Database error');
+                    if (window.opener) {{
+                        window.opener.location.href = 'https://localhost:4430/login-register';
+                    }}
+                    window.close();
                 </script>
-            </head>
-            <body>
-                <h1>Authentication Successful!</h1>
-                <p>This window will close automatically...</p>
-                <p>If not redirected, <a href="https://localhost:4430/home">click here</a></p>
-            </body>
-            </html>
-        """)
+                <h1>Database error: {str(e)}</h1>
+            """)
 
     except Exception as e:
         logger.error(f"Callback error: {str(e)}")
         return HttpResponse(f"""
             <script>
+                console.error('Authentication failed');
+                if (window.opener) {{
+                    window.opener.location.href = 'https://localhost:4430/login-register';
+                }}
                 window.close();
             </script>
             <h1>Authentication failed: {str(e)}</h1>
         """)
+
+
+@login_required
+def check_auth(request):
+    try:
+        logger.info(f"Checking auth status for user: {request.user.username}")
+        return JsonResponse({
+            'success': True,
+            'user': {
+                'id': request.user.id,
+                'username': request.user.username,
+                'email': request.user.email,
+                'is_42_user': getattr(request.user, 'is_42_user', False),
+                'avatar': request.user.avatar.url if request.user.avatar else None
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error in check_auth: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=401)

@@ -141,7 +141,8 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-
+LOGIN_URL = '/login-register/'  # URL où rediriger si non authentifié
+LOGIN_REDIRECT_URL = '/home/'   # URL après connexion réussie
 
 CORS_ALLOW_ALL_ORIGINS = True
 

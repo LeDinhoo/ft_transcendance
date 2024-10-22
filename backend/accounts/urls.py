@@ -34,4 +34,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Rafraîchir le token
     path('get_auth_url/', views.get_auth_url, name='get_auth_url'),
     path('callback-42/', views.callback_42, name='callback_42'),  # Callback après autorisation
+    path('check-auth/', views.check_auth, name='check_auth'),
 ]

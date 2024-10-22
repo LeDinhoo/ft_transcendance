@@ -25,9 +25,23 @@ document.getElementById('42').addEventListener('click', async function(e) {
       console.log('Received auth URL:', data.auth_url);
 
       if (data.success && data.auth_url) {
-          // Créer un cookie avec l'attribut SameSite
-          document.cookie = "auth_pending=true; path=/; SameSite=Lax; Secure";
+          // Ajouter un gestionnaire de message avant d'ouvrir la popup
+          const messageHandler = function(event) {
+              console.log('Message received in parent window:', event);
+              
+              if (event.origin === baseUrl) {
+                  console.log('Valid origin, processing message...');
+                  
+                  if (event.data.type === 'auth_success') {
+                      console.log('Authentication success confirmed, redirecting...');
+                      window.removeEventListener('message', messageHandler);
+                      window.location.replace(`${baseUrl}/home`);
+                  }
+              }
+          };
 
+          window.addEventListener('message', messageHandler);
+          
           console.log('Opening auth window...');
           const authWindow = window.open(
               data.auth_url,
@@ -36,52 +50,30 @@ document.getElementById('42').addEventListener('click', async function(e) {
           );
 
           if (!authWindow) {
+              window.removeEventListener('message', messageHandler);
               throw new Error('Popup window was blocked');
           }
 
-          // Vérifier les changements de cookie
-          const checkAuthStatus = setInterval(async () => {
-              const cookies = document.cookie.split(';');
-              const authCompleteCookie = cookies.find(c => c.trim().startsWith('auth_complete='));
-              
-              if (authCompleteCookie) {
-                  console.log('Auth completion detected');
-                  clearInterval(checkAuthStatus);
-                  
-                  // Nettoyer les cookies avec les bons attributs
-                  document.cookie = "auth_pending=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax; Secure";
-                  document.cookie = "auth_complete=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax; Secure";
-                  
-                  // Fermer la popup si elle n'est pas déjà fermée
-                  if (!authWindow.closed) {
-                      authWindow.close();
-                  }
-                  
-                  console.log('Forcing redirect to home...');
-                  try {
-                      // Essayer plusieurs méthodes de redirection
-                      window.location.replace(`${baseUrl}/home`);
-                      // Si ça ne fonctionne pas, essayer d'autres méthodes
-                      setTimeout(() => {
-                          window.location.href = `${baseUrl}/home`;
-                          // En dernier recours
-                          setTimeout(() => {
-                              window.location = `${baseUrl}/home`;
-                          }, 100);
-                      }, 100);
-                  } catch (e) {
-                      console.error('Redirect error:', e);
-                      // Dernière tentative
-                      window.location.assign(`${baseUrl}/home`);
-                  }
-              }
-              
-              // Si la fenêtre est fermée sans completion
+          // Vérification périodique de la popup
+          const checkPopup = setInterval(() => {
               if (authWindow.closed) {
-                  console.log('Auth window was closed');
-                  clearInterval(checkAuthStatus);
-                  // Nettoyer les cookies
-                  document.cookie = "auth_pending=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax; Secure";
+                  console.log('Auth window closed, cleaning up...');
+                  clearInterval(checkPopup);
+                  window.removeEventListener('message', messageHandler);
+                  
+                  // Vérification finale de l'authentification
+                  fetch(`${baseUrl}/api/check-auth/`, {
+                      credentials: 'include'
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      console.log('Final auth check:', data);
+                      if (data.success) {
+                          console.log('Confirmed authenticated, redirecting to home...');
+                          window.location.replace(`${baseUrl}/home`);
+                      }
+                  })
+                  .catch(error => console.error('Final auth check failed:', error));
               }
           }, 500);
       }
