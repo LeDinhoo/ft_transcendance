@@ -28,6 +28,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),  # Vue de connexion
     path('profil/', views.profile_view, name='profile_view'),
     path('profil/update/', views.update_profile_view, name='update_profile'),  # Vue pour mise à jour du profil (PATCH)
+    path('logout/', views.logout_view, name='logout'),  # Route pour le logout
     #path('game/', views.game_view, name='game'),  # Vue du jeu, accessible après connexion
     # JWT Token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)

@@ -1,6 +1,7 @@
 .headerNavBar {
   background-color: var(--liquid-lava);
   display: flex;
+  position: relative;
   justify-content: center;
   align-items: center;
   flex-direction: row;
@@ -44,4 +45,36 @@
 .navLabel.active {
   opacity: 1;
   max-height: 1.5vw;
+}
+
+.logout {
+  display: flex;
+  position: absolute;
+  left: 96%;
+  top: 4%;
+  cursor: pointer;
+  flex-direction: column;
+}
+
+.logout-text {
+  display: flex;
+  /* position: absolute; */
+  font-family: "Inter", sans-serif;
+  font-size: var(--8px);
+  font-weight: 600;
+  color: var(--liquid-lava);
+  margin-bottom: 20%;
+  top: 60%;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+}
+
+.logout:hover .logout-icon {
+  transform: scale(1.1);
+}
+
+.logout:hover .logout-text {
+  opacity: 1;
+  transform: translateY(0);
 }

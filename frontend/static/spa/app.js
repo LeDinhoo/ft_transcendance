@@ -335,13 +335,7 @@
 //     loadPageFromURL();
 // });
 
-
-
-
-
 /////////app.js qui fonctionne mais ne bloque pas les pages //////////////////
-
-
 
 // document.addEventListener("DOMContentLoaded", function () {
 //   if (typeof window.isProfileInitialized === "undefined") {
@@ -569,7 +563,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Charger une page en fonction de l'URL
-  async function loadComponent(htmlUrl, cssUrl, jsUrls, shouldInitGame = false) {
+  async function loadComponent(
+    htmlUrl,
+    cssUrl,
+    jsUrls,
+    shouldInitGame = false
+  ) {
     if (isLoading) return; // Empêcher le chargement multiple
     isLoading = true;
 
@@ -612,7 +611,8 @@ document.addEventListener("DOMContentLoaded", function () {
       initializeNavBar();
     } catch (err) {
       console.error("Erreur lors du chargement de la page:", err);
-      appDiv.innerHTML = "<p>Une erreur est survenue lors du chargement de la page.</p>";
+      appDiv.innerHTML =
+        "<p>Une erreur est survenue lors du chargement de la page.</p>";
     } finally {
       isLoading = false;
     }
@@ -630,13 +630,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Supprimer les anciens fichiers CSS
   function removePreviousComponentCSS() {
-    const componentCSSLinks = document.querySelectorAll("link[data-component-css]");
+    const componentCSSLinks = document.querySelectorAll(
+      "link[data-component-css]"
+    );
     componentCSSLinks.forEach((link) => link.remove());
   }
 
   // Supprimer les anciens scripts spécifiques aux composants
   function removePreviousComponentScripts() {
-    const componentScripts = document.querySelectorAll("script[data-component-js]");
+    const componentScripts = document.querySelectorAll(
+      "script[data-component-js]"
+    );
     componentScripts.forEach((script) => script.remove());
   }
 
@@ -729,6 +733,40 @@ document.addEventListener("DOMContentLoaded", function () {
       appDiv.innerHTML = "<p>Page non trouvée.</p>";
     }
   };
+
+  window.logout = function () {
+    console.log("log out function called");
+    const refreshToken = localStorage.getItem("refresh_token");
+
+    if (!refreshToken) {
+      console.error("No refresh token found.");
+      return;
+    }
+
+    fetch("/api/logout/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    })
+      .then((response) => {
+        console.log("Response status:", response.status); // Vérifie le statut de la réponse
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Logout response data:", data); // Affiche les données de la réponse
+        if (data.success) {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/login-register";
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  }
 
   // Fonction pour gérer la visibilité de la navbar
   function updateNavBarVisibility(path) {

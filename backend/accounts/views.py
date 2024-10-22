@@ -522,6 +522,26 @@ def update_profile_view(request):
     }, status=200)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
+def logout_view(request):
+    try:
+        # Récupérer le refresh token de la requête
+        refresh_token = request.data.get('refresh_token')
+
+        if refresh_token is None:
+            return JsonResponse({'success': False, 'message': 'Refresh token is required'}, status=400)
+
+        # Invalider le refresh token
+        token = RefreshToken(refresh_token)
+        token.blacklist()  # Cette méthode rend le token non valide (si vous avez activé la liste noire dans JWT)
+
+        return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
 
 def game_view(request):
     # Authentifier l'utilisateur via JWT
