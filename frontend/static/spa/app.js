@@ -766,7 +766,46 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       })
       .catch((error) => console.error("Error:", error));
-  }
+  };
+
+  // window.logout = function () {
+  //   console.log("log out function called");
+
+  //   const refreshToken = localStorage.getItem("refresh_token");
+  //   const accessToken = localStorage.getItem("access_token");
+
+  //   if (!refreshToken || !accessToken) {
+  //     console.error("Tokens not found.");
+  //     return;
+  //   }
+
+  //   fetch("/api/logout/", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${accessToken}`,  // Envoyer l'access token
+  //     },
+  //     body: JSON.stringify({
+  //       refresh_token: refreshToken,  // Inclure le refresh token dans le corps de la requête
+  //       access_token: accessToken     // Inclure également l'access token dans le corps de la requête
+  //     }),
+  //   })
+  //     .then((response) => {
+  //       console.log("Response status:", response.status); // Vérifie le statut de la réponse
+  //       return response.json();
+  //     })
+  //     .then((data) => {
+  //       console.log("Logout response data:", data); // Affiche les données de la réponse
+  //       if (data.success) {
+  //         localStorage.removeItem("access_token");  // Supprimer les tokens du stockage local
+  //         localStorage.removeItem("refresh_token");
+  //         window.location.href = "/login-register";
+  //       } else {
+  //         console.error(data.message);
+  //       }
+  //     })
+  //     .catch((error) => console.error("Error:", error));
+  // };
 
   // Fonction pour gérer la visibilité de la navbar
   function updateNavBarVisibility(path) {

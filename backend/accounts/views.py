@@ -142,7 +142,7 @@ from .forms import RegisterForm, LoginForm
 from .validators import ComplexPasswordValidator  # Importer le validateur de mot de passe
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
@@ -152,7 +152,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.conf import settings
 import os
-
 
 
 
@@ -540,6 +539,38 @@ def logout_view(request):
 
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+#@api_view(['POST'])
+#@permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
+#def logout_view(request):
+#    try:
+#        # Récupérer le refresh token et l'access token de la requête
+#        refresh_token = request.data.get('refresh_token')
+#        access_token = request.data.get('access_token')
+#
+#        if refresh_token is None or access_token is None:
+#            return JsonResponse({'success': False, 'message': 'Both access and refresh tokens are required'}, status=400)
+#
+#        # Invalider le refresh token
+#        refresh_token_instance = RefreshToken(refresh_token)
+#        refresh_token_instance.blacklist()
+#
+#        # Invalider l'access token
+#        try:
+#            access_token_instance = AccessToken(access_token)
+#            access_token_instance.blacklist()
+#        except Exception as e:
+#            # Optionnel : gérer les erreurs liées à l'access token (comme un access token déjà expiré)
+#            pass
+#
+#        return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+#
+#    except Exception as e:
+#        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+#
+
+
 
 
 
