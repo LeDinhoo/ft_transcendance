@@ -14,9 +14,12 @@ upd:
 down:
 	docker-compose -f $(DOCKER_FILE) down
 
+downv:
+	docker-compose -f $(DOCKER_FILE) down -v
 
 
-re: down up
+
+re: downv up
 
 clean: down
 	docker system prune -af --volumes

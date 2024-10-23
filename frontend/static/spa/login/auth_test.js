@@ -1,4 +1,28 @@
 // auth.js
+class AuthService {
+  constructor() {
+      this.baseUrl = 'https://localhost:4430';
+  }
+
+  setTokens(tokens) {
+      localStorage.setItem('access_token', tokens.access);
+      localStorage.setItem('refresh_token', tokens.refresh);
+  }
+
+  setUserData(userData) {
+      localStorage.setItem('user_data', JSON.stringify(userData));
+  }
+
+  clearAuth() {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+  }
+}
+
+const authService = new AuthService();
+
+// Gestionnaire d'authentification 42
 document.getElementById('42').addEventListener('click', async function(e) {
   e.preventDefault();
   console.log('Starting 42 authentication process...');
@@ -25,21 +49,32 @@ document.getElementById('42').addEventListener('click', async function(e) {
       console.log('Received auth URL:', data.auth_url);
 
       if (data.success && data.auth_url) {
-          // Ajouter un gestionnaire de message avant d'ouvrir la popup
+          // Gestionnaire de message pour la fenêtre principale
           const messageHandler = function(event) {
-              console.log('Message received in parent window:', event);
+              console.log('Message received:', event);
               
-              if (event.origin === baseUrl) {
-                  console.log('Valid origin, processing message...');
+              if (event.origin === baseUrl && event.data.type === 'auth_success') {
+                  console.log('Authentication successful, storing tokens...');
                   
-                  if (event.data.type === 'auth_success') {
-                      console.log('Authentication success confirmed, redirecting...');
-                      window.removeEventListener('message', messageHandler);
-                      window.location.replace(`${baseUrl}/home`);
+                  // Stocker les tokens
+                  localStorage.setItem('access_token', event.data.tokens.access);
+                  localStorage.setItem('refresh_token', event.data.tokens.refresh);
+                  
+                  // Stocker les données utilisateur
+                  if (event.data.user) {
+                      localStorage.setItem('user_data', JSON.stringify(event.data.user));
                   }
+                  
+                  // Nettoyer le gestionnaire
+                  window.removeEventListener('message', messageHandler);
+                  
+                  console.log('Redirecting to home...');
+                  // Rediriger vers la page d'accueil
+                  window.location.replace(`${baseUrl}/home`);
               }
           };
 
+          // Ajouter le gestionnaire avant d'ouvrir la popup
           window.addEventListener('message', messageHandler);
           
           console.log('Opening auth window...');
@@ -54,34 +89,108 @@ document.getElementById('42').addEventListener('click', async function(e) {
               throw new Error('Popup window was blocked');
           }
 
-          // Vérification périodique de la popup
+          // Vérifier si la fenêtre est fermée
           const checkPopup = setInterval(() => {
-              if (authWindow.closed) {
-                  console.log('Auth window closed, cleaning up...');
-                  clearInterval(checkPopup);
-                  window.removeEventListener('message', messageHandler);
-                  
-                  // Vérification finale de l'authentification
-                  fetch(`${baseUrl}/api/check-auth/`, {
-                      credentials: 'include'
-                  })
-                  .then(response => response.json())
-                  .then(data => {
-                      console.log('Final auth check:', data);
-                      if (data.success) {
-                          console.log('Confirmed authenticated, redirecting to home...');
-                          window.location.replace(`${baseUrl}/home`);
-                      }
-                  })
-                  .catch(error => console.error('Final auth check failed:', error));
-              }
-          }, 500);
+            if (authWindow.closed) {
+                console.log('Auth window closed, cleaning up...');
+                clearInterval(checkPopup);
+                window.removeEventListener('message', messageHandler);
+                
+                // Vérification finale de l'authentification
+                fetch(`${baseUrl}/api/check-auth/`, {
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Final auth check:', data);
+                    if (data.success) {
+                        console.log('Confirmed authenticated, redirecting to home...');
+                        window.location.replace(`${baseUrl}/home`);
+                    }
+                })
+                .catch(error => console.error('Final auth check failed:', error));
+            }
+        }, 500);
       }
   } catch (error) {
       console.error('Authentication error:', error);
       alert('Erreur lors de l\'authentification 42: ' + error.message);
   }
 });
+
+
+// Fonction utilitaire pour les requêtes authentifiées
+async function fetchWithAuth(url, options = {}) {
+  const token = localStorage.getItem('access_token');
+  if (!token) {
+      window.location.href = '/login-register/';
+      return null;
+  }
+
+  const headers = {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`
+  };
+
+  try {
+      const response = await fetch(url, {
+          ...options,
+          headers
+      });
+
+      if (response.status === 401) {
+          // Token invalide ou expiré
+          authService.clearAuth();
+          window.location.href = '/login-register/';
+          return null;
+      }
+
+      return response;
+  } catch (error) {
+      console.error('Fetch error:', error);
+      return null;
+  }
+}
+
+// async function fetchProfile() {
+//   try {
+//       const response = await fetch('https://localhost:4430/api/profil/', {
+//           method: 'GET',
+//           credentials: 'include',
+//           headers: {
+//               'Accept': 'application/json',
+//           }
+//       });
+
+//       if (response.ok) {
+//           const data = await response.json();
+//           if (data.success) {
+//               // Update UI with profile data
+//               console.log('Profile data:', data.user);
+//               return data.user;
+//           }
+//       } else if (response.status === 401) {
+//           // Redirect to login if unauthorized
+//           window.location.href = '/login-register/';
+//       }
+//   } catch (error) {
+//       console.error('Error fetching profile:', error);
+//   }
+//   return null;
+// }
+
+// // Check authentication status when needed
+// window.addEventListener('load', async () => {
+//   if (window.location.pathname === '/profil' || window.location.pathname === '/home') {
+//       const userData = await fetchProfile();
+//       if (!userData) {
+//           window.location.href = '/login-register/';
+//       }
+//   }
+// });
+
+
+
 // Fonction pour gérer l'authentification
 // const handle42Auth = async () => {
 //   console.log('Starting 42 authentication process...');

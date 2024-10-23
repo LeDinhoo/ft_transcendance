@@ -199,52 +199,6 @@ def login_view(request):
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
-## Vue pour l'inscription avec gestion des erreurs et création de token JWT
-#@api_view(['POST'])
-#@permission_classes([AllowAny])  # Inscription doit être accessible à tous
-#def register_view(request):
-#    try:
-#        logger.info("Requête d'inscription reçue")
-#        data = json.loads(request.body)
-#
-#        register_form = RegisterForm(data)
-#        if register_form.is_valid():
-#            user = register_form.save()
-#            logger.info(f"Utilisateur créé : {user.username}")
-#            
-#            # Générer les tokens JWT
-#            refresh = RefreshToken.for_user(user)
-#            return JsonResponse({
-#                'success': True,
-#                'message': 'User registered successfully',
-#                'access': str(refresh.access_token),
-#                'refresh': str(refresh)
-#            }, status=201)
-#        else:
-#            logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
-#            return JsonResponse({
-#                'success': False,
-#                'message': 'Form is not valid',
-#                'errors': register_form.errors
-#            }, status=400)
-#
-#    except json.JSONDecodeError:
-#        logger.error("Erreur de parsing JSON")
-#        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
-#    except IntegrityError as e:
-#        logger.error(f"Erreur d'intégrité : {str(e)}")
-#        return JsonResponse({
-#            'success': False,
-#            'message': f'Integrity error: {str(e)}'
-#        }, status=400)
-#    except Exception as e:
-#        logger.exception(f"Erreur inattendue : {str(e)}")
-#        return JsonResponse({
-#            'success': False,
-#            'message': f'Unexpected error: {str(e)}'
-#        }, status=500)
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
@@ -548,15 +502,18 @@ from .models import CustomUser
 from django.contrib.auth import login
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+
 import logging
 import json
 
 # Imports tiers
 import requests
 
-UID = "u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8"
-SECRET = "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"
-REDIRECT_URI = "https://localhost:4430/api/callback-42/"
+
 AUTH_URL = "https://api.intra.42.fr/oauth/authorize"
 TOKEN_URL = "https://api.intra.42.fr/oauth/token"
 USER_INFO_URL = "https://api.intra.42.fr/v2/me"
@@ -581,8 +538,8 @@ def get_auth_url(request):
         
         auth_url = (
             'https://api.intra.42.fr/oauth/authorize'
-            f'?client_id={UID}'
-            f'&redirect_uri={REDIRECT_URI}'
+            f'?client_id={settings.FORTYTWO_CLIENT_ID}'
+            f'&redirect_uri={settings.FORTYTWO_REDIRECT_URI}'
             '&response_type=code'
             '&scope=public'
         )
@@ -613,213 +570,176 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@transaction.atomic
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def callback_42(request):
     try:
         code = request.GET.get('code')
         if not code:
-            return HttpResponse("""
-                <script>
-                    window.close();
-                </script>
-                <h1>No code provided</h1>
-            """)
-        error = request.GET.get('error')
-
-        # Gestion des erreurs de l'API 42
-        if error:
-            logger.error(f"OAuth error: {error}")
-            return JsonResponse({
-                'success': False,
-                'error': error
-            }, status=400)
-
-        # Vérification du code
-        if not code:
             logger.error("No authorization code received")
             return JsonResponse({
                 'success': False,
-                'error': 'No authorization code received'
+                'message': 'No authorization code received'
             }, status=400)
-
-        logger.info(f"Authorization code received: {code}")
 
         # Échange du code contre un token
         token_url = 'https://api.intra.42.fr/oauth/token'
         token_data = {
             'grant_type': 'authorization_code',
-            'client_id': UID,
-            'client_secret': SECRET,
+            'client_id': settings.FORTYTWO_CLIENT_ID,
+            'client_secret': settings.FORTYTWO_CLIENT_SECRET,
             'code': code,
-            'redirect_uri': REDIRECT_URI
+            'redirect_uri': settings.FORTYTWO_REDIRECT_URI
         }
 
-        # Requête pour obtenir le token
-        token_response = requests.post(
-            token_url,
-            data=token_data,
-            timeout=10,
-            verify=True
-        )
+        try:
+            token_response = requests.post(token_url, data=token_data, timeout=10)
+            token_response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Token exchange failed: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to exchange authorization code'
+            }, status=400)
 
-        if token_response.status_code != 200:
-            return HttpResponse("""
-                <script>window.close();</script>
-                <h1>Token exchange failed</h1>
-            """)
-
-        token_data = token_response.json()
-        access_token = token_data.get('access_token')
-
-        # Obtenir les informations utilisateur de l'API 42
-        user_response = requests.get(
-            'https://api.intra.42.fr/v2/me',
-            headers={'Authorization': f'Bearer {access_token}'},
-            timeout=10
-        )
-
-        if user_response.status_code != 200:
-            return HttpResponse("""
-                <script>window.close();</script>
-                <h1>Failed to get user info</h1>
-            """)
-
-        user_data = user_response.json()
+        access_token = token_response.json().get('access_token')
         
         try:
-            # Chercher d'abord par intra_42_id
+            user_response = requests.get(
+                'https://api.intra.42.fr/v2/me',
+                headers={'Authorization': f'Bearer {access_token}'},
+                timeout=10
+            )
+            user_response.raise_for_status()
+            user_data = user_response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to get user info: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to get user information'
+            }, status=400)
+
+        try:
+            # Chercher l'utilisateur par intra_42_id
             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
             
             if user is None:
-                # Vérifier si un utilisateur existe déjà avec cet email
+                # Si non trouvé, chercher par email
                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
                 
                 if existing_user:
-                    # Si l'utilisateur existe déjà avec cet email, lier son compte à 42
+                    # Mettre à jour l'utilisateur existant avec les infos 42
                     existing_user.intra_42_id = user_data['id']
                     existing_user.is_42_user = True
                     existing_user.save()
                     user = existing_user
+                    logger.info(f"Updated existing user with 42 data: {user.username}")
                 else:
                     # Créer un nouvel utilisateur
-                    username = user_data['login']
-                    password = CustomUser.objects.make_random_password()
-                    
                     user = CustomUser.objects.create_user(
-                        username=username,
+                        username=user_data['login'],
                         email=user_data['email'],
-                        password=password,  # Mot de passe aléatoire
+                        password=CustomUser.objects.make_random_password(),
                         intra_42_id=user_data['id'],
-                        is_42_user=True
+                        is_42_user=True,
+                        avatar='assets/avatars/ladybug.png'  # Utilise la valeur par défaut
                     )
+                    logger.info(f"Created new user from 42 data: {user.username}")
 
-            # Connecter l'utilisateur avec le backend spécifié
+            # Connecter l'utilisateur
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
             
-            logger.info(f"User {user.username} logged in successfully via 42")
+            # Générer les tokens JWT comme dans votre login classique
+            refresh = RefreshToken.for_user(user)
 
-            # Retourner la page HTML avec le script de redirection
-            return HttpResponse("""
+            # Création des données pour la réponse
+            response_data = {
+                'success': True,
+                'message': 'Authentication successful',
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'is_42_user': user.is_42_user,
+                    'avatar': user.avatar.url
+                },
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            }
+
+            # Retourner une page HTML avec les données et la redirection
+            return HttpResponse(f"""
                 <!DOCTYPE html>
                 <html>
-                <head>
-                    <title>Authentication Successful</title>
-                    <script>
-                        console.log('Callback page loaded, checking auth...');
-                        
-                        async function checkAuthAndRedirect() {
-                            try {
-                                const response = await fetch('https://localhost:4430/api/check-auth/', {
-                                    method: 'GET',
-                                    credentials: 'include',
-                                    headers: {
-                                        'Accept': 'application/json',
-                                    }
-                                });
+                    <head>
+                        <title>Authentication Successful</title>
+                        <script>
+                            console.log('Processing authentication response...');
+                            
+                            // Les données de l'authentification
+                            const authData = {json.dumps(response_data)};
+                            
+                            // Stocker les tokens
+                            localStorage.setItem('access_token', authData.access);
+                            localStorage.setItem('refresh_token', authData.refresh);
+                            
+                            // Stocker les données utilisateur
+                            localStorage.setItem('user_data', JSON.stringify(authData.user));
+                            
+                            if (window.opener) {{
+                                // Envoyer un message à la fenêtre principale
+                                console.log('Sending success message to main window...');
+                                window.opener.postMessage({{
+                                    type: 'auth_success',
+                                    data: authData
+                                }}, 'https://localhost:4430');
                                 
-                                console.log('Auth check response:', response.status);
+                                // Rediriger la fenêtre principale
+                                console.log('Redirecting main window...');
+                                window.opener.location.href = 'https://localhost:4430/home';
                                 
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    console.log('Auth check successful:', data);
-                                    
-                                    if (window.opener) {
-                                        console.log('Sending success message to opener...');
-                                        window.opener.postMessage({
-                                            type: 'auth_success',
-                                            user: data.user
-                                        }, 'https://localhost:4430');
-                                        
-                                        // Fermer cette fenêtre après un court délai
-                                        setTimeout(() => {
-                                            console.log('Closing popup...');
-                                            window.close();
-                                        }, 500);
-                                    }
-                                } else {
-                                    console.error('Auth check failed');
-                                    throw new Error('Authentication check failed');
-                                }
-                            } catch (error) {
-                                console.error('Error during auth check:', error);
-                                if (window.opener) {
-                                    window.opener.location.href = 'https://localhost:4430/login-register';
-                                }
-                                window.close();
-                            }
-                        }
-                        
-                        // Exécuter la vérification
-                        checkAuthAndRedirect();
-                    </script>
-                </head>
-                <body>
-                    <h1>Authentication Successful!</h1>
-                    <p>Verifying authentication...</p>
-                </body>
+                                // Fermer cette fenêtre après un court délai
+                                setTimeout(() => {{
+                                    console.log('Closing popup window...');
+                                    window.close();
+                                }}, 300);
+                            }}
+                        </script>
+                    </head>
+                    <body>
+                        <h1>Authentication Successful!</h1>
+                        <p>Redirecting...</p>
+                    </body>
                 </html>
             """)
 
         except Exception as e:
             logger.error(f"Database error: {str(e)}")
-            return HttpResponse(f"""
-                <script>
-                    console.error('Database error');
-                    if (window.opener) {{
-                        window.opener.location.href = 'https://localhost:4430/login-register';
-                    }}
-                    window.close();
-                </script>
-                <h1>Database error: {str(e)}</h1>
-            """)
+            return JsonResponse({
+                'success': False,
+                'message': f'Database error: {str(e)}'
+            }, status=500)
 
     except Exception as e:
-        logger.error(f"Callback error: {str(e)}")
-        return HttpResponse(f"""
-            <script>
-                console.error('Authentication failed');
-                if (window.opener) {{
-                    window.opener.location.href = 'https://localhost:4430/login-register';
-                }}
-                window.close();
-            </script>
-            <h1>Authentication failed: {str(e)}</h1>
-        """)
+        logger.exception(f"Unexpected error in callback_42: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Unexpected error: {str(e)}'
+        }, status=500)
 
 
 @login_required
 def check_auth(request):
     try:
-        logger.info(f"Checking auth status for user: {request.user.username}")
+        user = request.user
         return JsonResponse({
             'success': True,
             'user': {
-                'id': request.user.id,
-                'username': request.user.username,
-                'email': request.user.email,
-                'is_42_user': getattr(request.user, 'is_42_user', False),
-                'avatar': request.user.avatar.url if request.user.avatar else None
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'is_42_user': getattr(user, 'is_42_user', False),
             }
         })
     except Exception as e:
@@ -828,3 +748,33 @@ def check_auth(request):
             'success': False,
             'error': str(e)
         }, status=401)
+
+
+# @login_required
+# def profile_view(request):
+#     try:
+#         user = request.user
+#         # Vérifier si l'utilisateur est authentifié
+#         if user.is_authenticated:
+#             return JsonResponse({
+#                 'success': True,
+#                 'user': {
+#                     'id': user.id,
+#                     'username': user.username,
+#                     'email': user.email,
+#                     'avatar': user.avatar.url if user.avatar else None,
+#                     'is_42_user': user.is_42_user,
+#                     'first_name': user.first_name,
+#                     'last_name': user.last_name,
+#                 }
+#             })
+#         else:
+#             return JsonResponse({
+#                 'success': False,
+#                 'error': 'User not authenticated'
+#             }, status=401)
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'error': str(e)
+#         }, status=500)

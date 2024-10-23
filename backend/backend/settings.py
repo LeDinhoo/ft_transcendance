@@ -141,8 +141,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+
+FORTYTWO_CLIENT_ID='u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8'
+FORTYTWO_CLIENT_SECRET='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'
+FORTYTWO_REDIRECT_URI='https://localhost:4430/api/callback-42/'
 LOGIN_URL = '/login-register/'  # URL où rediriger si non authentifié
 LOGIN_REDIRECT_URL = '/home/'   # URL après connexion réussie
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 

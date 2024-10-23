@@ -26,5 +26,8 @@ class CustomUser(AbstractUser):
         return self.username
 
     class Meta:
-        db_table = 'custom_users'  # ou le nom que vous utilisez déjà
+        db_table = 'accounts_customuser'  # ou le nom que vous utilisez déjà
+
+
+
 
