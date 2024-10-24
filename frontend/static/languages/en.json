@@ -1,18 +1,20 @@
 {
-	"login": {
-		"title": "Join the Battle",
-		"email_label": "E-mail",
-		"password_label": "Password",
-		"login_button": "Log In",
-		"register_button": "Register"
-	},
-	"register": {
-		"title": "Create Account",
-		"username_label": "Username",
-		"email_label": "E-mail",
-		"password_label": "Password",
-		"confirm_password_label": "Confirm Password",
-		"submit_register_button": "Register",
-		"sign_up_button": "Sign Up"
-	}
+    "login": {
+        "title": "Join the Battle",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Password",
+        "submitButton": "Log In",
+        "registerButton": "Register",
+        "emailError": "Invalid email address.",
+        "passwordError": "Password cannot be empty."
+    },
+    "register": {
+        "title": "Create Account",
+        "usernameLabel": "Username",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Password",
+        "confirmPasswordLabel": "Confirm Password",
+        "submitButton": "Register",
+        "signUpButton": "Sign Up"
+    }
 }

@@ -110,144 +110,142 @@
     </div>
   -->
 
-    <div id="gameSection" class="gameSection">
-      <div id="topPaddle" class="paddle"></div>
-      <div id="bottomPaddle" class="paddle"></div>
-      <div id="ball"></div>
-      <div id="centerLine"></div>
-      <div id="speedDisplay"></div>
-      <div id="scoreDisplay">0 - 0</div>
-    </div>
-    
-	<div class="language-switcher" style="margin-top: 20px;">
-		<a href="?lang=en"><img src="/static/assets/flags/flag-en.svg" alt="English" title="English" /></a>
-		<a href="?lang=fr"><img src="/static/assets/flags/flag-fr.svg" alt="Français" title="Français" /></a>
-		<a href="?lang=es"><img src="/static/assets/flags/flag-es.svg" alt="Español" title="Español" /></a>
-		<a href="?lang=swe"><img src="/static/assets/flags/flag-swe.svg" alt="Svenska" title="Svenska" /></a>
-	</div>
+  <div id="gameSection" class="gameSection">
+    <div id="topPaddle" class="paddle"></div>
+    <div id="bottomPaddle" class="paddle"></div>
+    <div id="ball"></div>
+    <div id="centerLine"></div>
+    <div id="speedDisplay"></div>
+    <div id="scoreDisplay">0 - 0</div>
+</div>
 
-    <div class="loginSection">
-      <!-- Formulaire de Connexion -->
-      <form id="loginWidget" class="loginWidget" action="#" method="POST">
-        <h2 id="loginTitle" data-translate="login.title"></h2>
+<div class="languageSwitcher">
+    <a href="javascript:void(0);" onclick="setPreferredLanguage('en');"><img src="/static/assets/flags/flag-en.svg" alt="English" title="English" /></a>
+    <a href="javascript:void(0);" onclick="setPreferredLanguage('fr');"><img src="/static/assets/flags/flag-fr.svg" alt="Français" title="Français" /></a>
+    <a href="javascript:void(0);" onclick="setPreferredLanguage('es');"><img src="/static/assets/flags/flag-es.svg" alt="Español" title="Español" /></a>
+    <a href="javascript:void(0);" onclick="setPreferredLanguage('swe');"><img src="/static/assets/flags/flag-swe.svg" alt="Svenska" title="Svenska" /></a>
+</div>
+
+<div class="loginSection">
+    <!-- Formulaire de Connexion -->
+    <form id="loginWidget" class="loginWidget" action="#" method="POST">
+        <h2 id="loginTitle" data-translate="login.title">Join the Battle</h2>
         <div class="formInputFrame">
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="inputFrame"
-            placeholder=" "
-            required
-            autocomplete="email"
-          />
-          <label for="email" class="inputLabel">E-mail</label>
-          <!-- Message d'erreur pour l'email (connexion) -->
-          <div id="emailError" class="error-message" style="display:none; color: red;"></div>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                class="inputFrame"
+                placeholder=" "
+                required
+                autocomplete="email"
+            />
+            <label for="email" class="inputLabel" data-translate="login.emailLabel">E-mail</label>
+            <!-- Message d'erreur pour l'email (connexion) -->
+            <div id="emailError" class="error-message" style="display:none; color: red;" data-translate="login.emailError"></div>
         </div>
         <div class="formInputFrame">
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="password" class="inputLabel">Password</label>
-          <img
-            id="togglePassword"
-            src="/static/assets/icons/vibility.png"
-            alt="visibility"
-            class="eyeIcon"
-          />
-          <!-- Message d'erreur pour le mot de passe (connexion) -->
-          <div id="passwordError" class="error-message" style="display:none; color: red;"></div>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="password" class="inputLabel" data-translate="login.passwordLabel">Password</label>
+            <img
+                id="togglePassword"
+                src="/static/assets/icons/vibility.png"
+                alt="visibility"
+                class="eyeIcon"
+            />
+            <!-- Message d'erreur pour le mot de passe (connexion) -->
+            <div id="passwordError" class="error-message" style="display:none; color: red;" data-translate="login.passwordError"></div>
         </div>
         <!-- Bouton de soumission de connexion -->
-        <button id="submitLoginBtn" class="loginWidgetButton">Log In</button>
+        <button id="submitLoginBtn" class="loginWidgetButton" data-translate="login.submitButton">Log In</button>
         <hr />
         <div class="otherChoiceFrame">
-          <button id="42" class="fortyTwoWidgetButton">
-            <svg>
-              <use href="/static/assets/icons/sprite.svg#42logo"></use>
-            </svg>
-          </button>
-          <button id="registerButton" class="registerWidgetButton">Register</button>
+            <button id="42" class="fortyTwoWidgetButton">
+                <svg>
+                    <use href="/static/assets/icons/sprite.svg#42logo"></use>
+                </svg>
+            </button>
+            <button id="registerButton" class="registerWidgetButton" data-translate="login.registerButton">Register</button>
         </div>
-      </form>
-    
-      <!-- Formulaire d'inscription -->
-	  
-      <form id="registerWidget" class="loginWidget" action="#" method="POST">
-        <h2 id="registerTitle">Create Account</h2>
+    </form>
+
+    <!-- Formulaire d'inscription -->
+    <form id="registerWidget" class="loginWidget" action="#" method="POST">
+        <h2 id="registerTitle" data-translate="register.title">Create Account</h2>
         <div class="formInputFrame">
-          <input
-            type="text"
-            id="username"
-            name="username"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="username" class="inputLabel">Username</label>
-        </div>
-        <div class="formInputFrame">
-          <input
-            type="email"
-            id="registerEmail"
-            name="registerEmail"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="registerEmail" class="inputLabel">E-mail</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="username" class="inputLabel" data-translate="register.usernameLabel">Username</label>
         </div>
         <div class="formInputFrame">
-          <input
-            type="password"
-            id="registerPassword"
-            name="registerPassword"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="registerPassword" class="inputLabel">Password</label>
-          <img
-          id="toggleRegisterPassword"
-          src="/static/assets/icons/vibility.png"
-          alt="visibility"
-          class="eyeIcon"
-        />
+            <input
+                type="email"
+                id="registerEmail"
+                name="registerEmail"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="registerEmail" class="inputLabel" data-translate="register.emailLabel">E-mail</label>
         </div>
         <div class="formInputFrame">
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            class="inputFrame"
-            placeholder=" "
-            required
-          />
-          <label for="confirmPassword" class="inputLabel">Confirm Password</label>
-          <img
-          id="toggleConfirmPassword"
-          src="/static/assets/icons/vibility.png"
-          alt="visibility"
-          class="eyeIcon"
-        />
+            <input
+                type="password"
+                id="registerPassword"
+                name="registerPassword"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="registerPassword" class="inputLabel" data-translate="register.passwordLabel">Password</label>
+            <img
+                id="toggleRegisterPassword"
+                src="/static/assets/icons/vibility.png"
+                alt="visibility"
+                class="eyeIcon"
+            />
+        </div>
+        <div class="formInputFrame">
+            <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                class="inputFrame"
+                placeholder=" "
+                required
+            />
+            <label for="confirmPassword" class="inputLabel" data-translate="register.confirmPasswordLabel">Confirm Password</label>
+            <img
+                id="toggleConfirmPassword"
+                src="/static/assets/icons/vibility.png"
+                alt="visibility"
+                class="eyeIcon"
+            />
         </div>
         <!-- Bouton de soumission d'inscription -->
-        <button id="submitRegisterBtn" class="loginWidgetButton">Register</button>
+        <button id="submitRegisterBtn" class="loginWidgetButton" data-translate="register.submitButton">Register</button>
         <hr />
         <div class="otherChoiceFrame">
-          <button class="fortyTwoWidgetButton">
-            <svg>
-              <use href="/static/assets/icons/sprite.svg#42logo"></use>
-            </svg>
-          </button>
-          <!-- Bouton Sign Up ajouté -->
-          <button id="signUpButton" class="registerWidgetButton">Sign Up</button>
+            <button class="fortyTwoWidgetButton">
+                <svg>
+                    <use href="/static/assets/icons/sprite.svg#42logo"></use>
+                </svg>
+            </button>
+            <!-- Bouton Sign Up ajouté -->
+            <button id="signUpButton" class="registerWidgetButton" data-translate="register.signUpButton">Sign Up</button>
         </div>
-      </form>
-    </div>
-    
+    </form>
+</div>

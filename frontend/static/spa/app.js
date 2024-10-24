@@ -520,7 +520,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		const path = window.location.pathname;
 		
 		updateNavBarVisibility(path); // Gérer la visibilité de la navbar
-		loadTranslations(getPreferredLanguage());
+		
 		
 		if (path === "/" || path === "/login-register") {
 			loadComponent(

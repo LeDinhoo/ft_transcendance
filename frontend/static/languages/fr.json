@@ -1,18 +1,20 @@
 {
-	"login": {
-		"title": "Rejoignez la Bataille",
-		"email_label": "E-mail",
-		"password_label": "Mot de passe",
-		"login_button": "Se connecter",
-		"register_button": "S'inscrire"
-	},
-	"register": {
-		"title": "Créer un compte",
-		"username_label": "Nom d'utilisateur",
-		"email_label": "E-mail",
-		"password_label": "Mot de passe",
-		"confirm_password_label": "Confirmez le mot de passe",
-		"submit_register_button": "S'inscrire",
-		"sign_up_button": "S'inscrire"
-	}
+    "login": {
+        "title": "Rejoindre la bataille",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Mot de passe",
+        "submitButton": "Se connecter",
+        "registerButton": "S'inscrire",
+        "emailError": "Adresse e-mail invalide.",
+        "passwordError": "Le mot de passe ne peut pas être vide."
+    },
+    "register": {
+        "title": "Créer un compte",
+        "usernameLabel": "Nom d'utilisateur",
+        "emailLabel": "E-mail",
+        "passwordLabel": "Mot de passe",
+        "confirmPasswordLabel": "Confirmer le mot de passe",
+        "submitButton": "S'inscrire",
+        "signUpButton": "S'inscrire"
+    }
 }

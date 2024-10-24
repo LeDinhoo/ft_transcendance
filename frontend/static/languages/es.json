@@ -1,18 +1,20 @@
 {
-	"login": {
-		"title": "Únete a la Batalla",
-		"email_label": "Correo electrónico",
-		"password_label": "Contraseña",
-		"login_button": "Iniciar sesión",
-		"register_button": "Registrarse"
-	},
-	"register": {
-		"title": "Crear cuenta",
-		"username_label": "Nombre de usuario",
-		"email_label": "Correo electrónico",
-		"password_label": "Contraseña",
-		"confirm_password_label": "Confirmar contraseña",
-		"submit_register_button": "Registrarse",
-		"sign_up_button": "Regístrate"
-	}
+    "login": {
+        "title": "Únete a la batalla",
+        "emailLabel": "Correo electrónico",
+        "passwordLabel": "Contraseña",
+        "submitButton": "Iniciar sesión",
+        "registerButton": "Registrarse",
+        "emailError": "Dirección de correo electrónico inválida.",
+        "passwordError": "La contraseña no puede estar vacía."
+    },
+    "register": {
+        "title": "Crear cuenta",
+        "usernameLabel": "Nombre de usuario",
+        "emailLabel": "Correo electrónico",
+        "passwordLabel": "Contraseña",
+        "confirmPasswordLabel": "Confirmar contraseña",
+        "submitButton": "Registrarse",
+        "signUpButton": "Inscribirse"
+    }
 }
