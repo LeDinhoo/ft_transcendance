@@ -712,6 +712,7 @@ document.addEventListener("DOMContentLoaded", function () {
         initializePasswordManagement();
         resetPasswordFields();
         initializePasswordVisibility();
+        initializeAvatarFeature();
       });
     } else if (path === "/custom") {
       loadComponent(

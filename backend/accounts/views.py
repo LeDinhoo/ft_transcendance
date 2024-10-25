@@ -304,26 +304,54 @@ def register_view(request):
 #    }, status=200)
 #
 
+#@api_view(['GET'])
+#@permission_classes([IsAuthenticated])
+#def profile_view(request):
+#    user = request.user
+#
+#    # Gérer le chemin de l'avatar : 
+#    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
+#        # Si l'avatar est dans le répertoire static
+#        avatar_url = f"/static/{user.avatar}"
+#    else:
+#        # Si l'avatar est un fichier uploadé (dans media)
+#        avatar_url = user.avatar.url if user.avatar else None
+#
+#    # Renvoi des données de l'utilisateur avec l'URL de l'avatar
+#    return JsonResponse({
+#        'username': user.username,
+#        'email': user.email,
+#        'avatar': avatar_url
+#    }, status=200)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile_view(request):
     user = request.user
+    print("Chargement du profil pour l'utilisateur:", user.username)  # Debug
+    print("Avatar actuel:", user.avatar)  # Debug
 
-    # Gérer le chemin de l'avatar : 
-    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
-        # Si l'avatar est dans le répertoire static
-        avatar_url = f"/static/{user.avatar}"
-    else:
-        # Si l'avatar est un fichier uploadé (dans media)
-        avatar_url = user.avatar.url if user.avatar else None
+    # Construire l'URL de l'avatar
+    avatar_url = None
+    if user.avatar:
+        if str(user.avatar).startswith('assets/avatars/'):
+            # Si l'avatar est un avatar prédéfini
+            avatar_url = f"/static/{user.avatar}"
+        else:
+            # Si l'avatar est un fichier uploadé
+            avatar_url = f"/media/{user.avatar}"
 
-    # Renvoi des données de l'utilisateur avec l'URL de l'avatar
-    return JsonResponse({
+    print("URL de l'avatar construite:", avatar_url)  # Debug
+
+    # Préparation de la réponse
+    response_data = {
         'username': user.username,
         'email': user.email,
         'avatar': avatar_url
-    }, status=200)
+    }
 
+    print("Données renvoyées:", response_data)  # Debug
+    return JsonResponse(response_data, status=200)
 ## Vue pour le jeu (accessible uniquement après authentification JWT)
 #@api_view(['GET'])
 #@permission_classes([IsAuthenticated])  # Protéger cette vue avec JWT
@@ -453,6 +481,8 @@ def profile_view(request):
 def update_profile_view(request):
     user = request.user
     data = request.data
+    print("Données reçues:", data)  # Debug
+    print("Files reçus:", request.FILES)  # Debug
 
     # Valider et mettre à jour le nom d'utilisateur si présent dans les données
     if 'username' in data:
@@ -490,36 +520,53 @@ def update_profile_view(request):
         # Hacher le nouveau mot de passe et le sauvegarder
         user.password = make_password(new_password)
 
-    # Gérer l'avatar uploadé si présent
+    # Gestion de l'avatar
     if 'avatar' in request.FILES:
-        avatar = request.FILES['avatar']
-
-        # Optionnel : Valider le type de fichier (seulement PNG ou JPEG)
+        # Pour les fichiers uploadés
+        avatar_file = request.FILES['avatar']
         valid_image_extensions = ['png', 'jpg', 'jpeg']
-        ext = avatar.name.split('.')[-1].lower()
+        ext = avatar_file.name.split('.')[-1].lower()
         if ext not in valid_image_extensions:
             return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
+        user.avatar = avatar_file
+    
+    elif 'selected_avatar' in data:
+        selected_avatar = data['selected_avatar']
+        print("Avatar sélectionné:", selected_avatar)  # Debug
 
-        # Attribuer l'avatar uploadé à l'utilisateur (Django gérera l'upload dans le dossier MEDIA_ROOT)
-        user.avatar = avatar
+        # Vérifier si le chemin correspond au format attendu
+        expected_prefix = 'assets/avatars/'
+        if selected_avatar.startswith(expected_prefix):
+            user.avatar = selected_avatar
+            print("Avatar après assignation:", user.avatar)  # Debug
+        else:
+            print("Chemin d'avatar invalide:", selected_avatar)  # Debug
+            return JsonResponse({
+                'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
+            }, status=400)
 
     try:
-        user.save()  # Sauvegarder les modifications dans la base de données
+        user.save()
+        print("Utilisateur sauvegardé avec succès")  # Debug
     except Exception as e:
+        print("Erreur lors de la sauvegarde:", str(e))  # Debug
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
 
-    # Gérer le chemin de l'avatar : 
-    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
-        avatar_url = f"/static/{user.avatar}"
-    else:
-        avatar_url = f"/media/{user.avatar}"
+    # Construction de l'URL de l'avatar
+    avatar_url = None
+    if user.avatar:
+        if str(user.avatar).startswith('assets/avatars/'):
+            avatar_url = f"/static/{user.avatar}"
+        else:
+            avatar_url = f"/media/{user.avatar}"
+    
+    print("URL de l'avatar renvoyée:", avatar_url)  # Debug
 
     return JsonResponse({
         'username': user.username,
         'email': user.email,
-        'avatar': avatar_url  # Renvoie l'URL correcte de l'avatar
+        'avatar': avatar_url
     }, status=200)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
