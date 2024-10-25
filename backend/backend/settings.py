@@ -91,12 +91,13 @@ SIMPLE_JWT = {
     #'ROTATE_REFRESH_TOKENS': False,
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,  # Active la liste noire
+    'TOKEN_BLACKLIST_ENABLED': True,  # Ajoute ceci
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': settings.SECRET_KEY,
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', 'rest_framework_simplejwt.tokens.RefreshToken'),
+    #'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_BLACKLIST_ENABLED': True,  # Ajoute ceci
 }
 
 

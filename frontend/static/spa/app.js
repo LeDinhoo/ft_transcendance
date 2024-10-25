@@ -734,48 +734,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  window.logout = function () {
-    console.log("log out function called");
-    const refreshToken = localStorage.getItem("refresh_token");
-
-    if (!refreshToken) {
-      console.error("No refresh token found.");
-      return;
-    }
-
-    fetch("/api/logout/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    })
-      .then((response) => {
-        console.log("Response status:", response.status); // Vérifie le statut de la réponse
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Logout response data:", data); // Affiche les données de la réponse
-        if (data.success) {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          window.location.href = "/login-register";
-        } else {
-          console.error(data.message);
-        }
-      })
-      .catch((error) => console.error("Error:", error));
-  };
-
   // window.logout = function () {
   //   console.log("log out function called");
-
   //   const refreshToken = localStorage.getItem("refresh_token");
-  //   const accessToken = localStorage.getItem("access_token");
 
-  //   if (!refreshToken || !accessToken) {
-  //     console.error("Tokens not found.");
+  //   if (!refreshToken) {
+  //     console.error("No refresh token found.");
   //     return;
   //   }
 
@@ -783,12 +747,9 @@ document.addEventListener("DOMContentLoaded", function () {
   //     method: "POST",
   //     headers: {
   //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${accessToken}`,  // Envoyer l'access token
+  //       Authorization: `Bearer ${localStorage.getItem("access_token")}`,
   //     },
-  //     body: JSON.stringify({
-  //       refresh_token: refreshToken,  // Inclure le refresh token dans le corps de la requête
-  //       access_token: accessToken     // Inclure également l'access token dans le corps de la requête
-  //     }),
+  //     body: JSON.stringify({ refresh_token: refreshToken }),
   //   })
   //     .then((response) => {
   //       console.log("Response status:", response.status); // Vérifie le statut de la réponse
@@ -797,7 +758,7 @@ document.addEventListener("DOMContentLoaded", function () {
   //     .then((data) => {
   //       console.log("Logout response data:", data); // Affiche les données de la réponse
   //       if (data.success) {
-  //         localStorage.removeItem("access_token");  // Supprimer les tokens du stockage local
+  //         localStorage.removeItem("access_token");
   //         localStorage.removeItem("refresh_token");
   //         window.location.href = "/login-register";
   //       } else {
@@ -807,6 +768,46 @@ document.addEventListener("DOMContentLoaded", function () {
   //     .catch((error) => console.error("Error:", error));
   // };
 
+  window.logout = function () {
+    console.log("log out function called");
+
+    const refreshToken = localStorage.getItem("refresh_token");
+    const accessToken = localStorage.getItem("access_token");
+
+    if (!refreshToken || !accessToken) {
+        console.error("Tokens not found.");
+        return;
+    }
+
+    fetch("/api/logout/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,  // Envoyer l'access token dans les headers
+        },
+        body: JSON.stringify({
+            refresh_token: refreshToken,  // Inclure le refresh token dans le corps de la requête
+            access_token: accessToken     // Inclure également l'access token dans le corps de la requête
+        }),
+    })
+    .then((response) => {
+        console.log("Response status:", response.status); // Vérifie le statut de la réponse
+        return response.json();
+    })
+    .then((data) => {
+        console.log("Logout response data:", data); // Affiche les données de la réponse
+        if (data.success) {
+            localStorage.removeItem("access_token");  // Supprimer les tokens du stockage local
+            localStorage.removeItem("refresh_token");
+            window.location.href = "/login-register";
+        } else {
+            console.error(data.message);
+        }
+    })
+    .catch((error) => console.error("Error:", error));
+};
+
+
   // Fonction pour gérer la visibilité de la navbar
   function updateNavBarVisibility(path) {
     if (path === "/" || path === "/login-register") {
@@ -815,6 +816,32 @@ document.addEventListener("DOMContentLoaded", function () {
       navbar.style.display = "flex"; // Afficher la navbar sur les autres pages
     }
   }
+
+
+//   window.showErrorPopup(message) = function() {
+//     const popupModal = document.getElementById('popupModal');
+//     const popupOverlay = document.getElementById('popupOverlay');
+//     const popupTexte = document.querySelector('.popupTexte');
+
+//     // Met à jour le texte du pop-up avec le message d'erreur
+//     popupTexte.textContent = message;
+
+//     // Affiche la pop-up et l'overlay
+//     popupOverlay.style.display = 'block';
+//     popupModal.classList.add('active');
+// }
+
+// function closePopup() {
+//     const popupModal = document.getElementById('popupModal');
+//     const popupOverlay = document.getElementById('popupOverlay');
+//     popupModal.classList.remove('active');
+//     popupOverlay.style.display = 'none';
+// }
+
+// // Attacher l'événement pour fermer la pop-up quand on clique sur le bouton "OK" ou en dehors
+// document.getElementById('popupCloseBtn').addEventListener('click', closePopup);
+// document.getElementById('popupOverlay').addEventListener('click', closePopup);
+
 
   // Gérer les boutons "précédent" et "suivant" du navigateur
   window.addEventListener("popstate", loadPageFromURL);

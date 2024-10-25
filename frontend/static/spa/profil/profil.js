@@ -406,8 +406,8 @@ function resetPasswordFields() {
 
 // Fonction pour afficher un message de confirmation
 function showConfirmationMessage(message) {
-  const confirmationMessage = document.createElement('div');
-  confirmationMessage.className = 'confirmation-message';
+  const confirmationMessage = document.createElement("div");
+  confirmationMessage.className = "confirmation-message";
   confirmationMessage.innerText = message;
 
   document.body.appendChild(confirmationMessage);
@@ -513,8 +513,12 @@ function initializeProfilePage() {
         })
         .catch((error) => {
           console.error("Erreur lors de la mise à jour de l'avatar :", error);
-          alert(
-            "Erreur lors de la mise à jour de l'avatar, veuillez réessayer."
+          // alert(
+          //   "Erreur lors de la mise à jour de l'avatar, veuillez réessayer."
+          // );
+
+          showErrorPopup(
+            "Erreur lors de la mise à jour de l'avatar, veuillez réessayer.<br> Only JPG / JPEG / PNG format accepted"
           );
         });
     }
@@ -589,18 +593,27 @@ function initializeProfilePage() {
 
       // Validation des champs
       if (!updatedUsername || !updatedEmail) {
-        alert("Le nom d'utilisateur et l'email ne peuvent pas être vides.");
+        // alert("Le nom d'utilisateur et l'email ne peuvent pas être vides.");
+        showErrorPopup(
+          "Le nom d'utilisateur et l'email ne peuvent pas être vides."
+        );
         return;
       }
 
       // Validation des mots de passe
       if (newPassword || confirmNewPassword || oldPassword) {
         if (!oldPassword) {
-          alert("Veuillez saisir votre ancien mot de passe.");
+          // alert("Veuillez saisir votre ancien mot de passe.");
+          showErrorPopup(
+            "Veuillez saisir votre ancien mot de passe."
+          );
           return;
         }
         if (newPassword !== confirmNewPassword) {
-          alert("Les nouveaux mots de passe ne correspondent pas.");
+          showErrorPopup(
+            "Les nouveaux mots de passe ne correspondent pas."
+          );
+          // alert("Les nouveaux mots de passe ne correspondent pas.");
           return;
         }
       }
@@ -657,7 +670,10 @@ function initializeProfilePage() {
             "Erreur lors de la mise à jour des informations :",
             error
           );
-          alert("Erreur lors de la mise à jour, veuillez réessayer.");
+          showErrorPopup(
+            "Erreur lors de la mise à jour, veuillez réessayer."
+          );
+          // alert("Erreur lors de la mise à jour, veuillez réessayer.");
         });
     }
   });
