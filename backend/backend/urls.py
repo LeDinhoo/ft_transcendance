@@ -22,6 +22,6 @@ from accounts import views  # Importer les vues si tu souhaites utiliser `game_v
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),  # Inclure toutes les URLs de l'application accounts avec le préfixe /api/
-    path('game/', views.game_view, name='game'),
+    #path('game/', views.game_view, name='game'),
 	path('', views.index_view, name='index'),  # Inclure la route /game/ ici sans le préfixe /api/
 ]

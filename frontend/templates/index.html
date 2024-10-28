@@ -52,6 +52,26 @@
           <div class="navLabel">settings</div>
         </div>
       </div>
+      <div class="logout">
+        <img
+          class="logout-icon"
+          id="logout-icon"
+          src="/static/assets/icons/logout.svg"
+        />
+        <span class="logout-text">Log out</span>
+      </div>
+    </div>
+
+
+
+    <div id="popupOverlay"></div>
+    <div class="popupGlobal" id="popupModal">
+        <div class="popupTitle">                 
+          <img src="/static/assets/icons/popup.svg" class="warning-icon" alt="Warning Icon">
+          <span>Erreur</span>                
+        </div>
+        <div class="popupTexte">JPG / JPEG / PNG format</div>
+        <button id="popupCloseBtn" class="popupClose">OK</button>
     </div>
 
     <div class="app" id="app"></div>
@@ -59,5 +79,6 @@
     <script src="/static/spa/language.js"></script>
     <script src="/static/spa/app.js"></script>
     <script src="/static/spa/navBar.js"></script>
+    <script src="/static/spa/popup.js"></script>
   </body>
 </html>

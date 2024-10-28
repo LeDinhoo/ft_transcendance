@@ -142,7 +142,7 @@ from .forms import RegisterForm, LoginForm
 from .validators import ComplexPasswordValidator  # Importer le validateur de mot de passe
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
@@ -152,7 +152,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.conf import settings
 import os
-
 
 
 
@@ -183,11 +182,21 @@ def login_view(request):
         if user is not None:
             # Générer les tokens JWT
             refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            print('access token:  ==> ', access_token)
+
+            logger.info(f"Access token: {access_token}")
+            logger.info(f"Refresh token: {refresh_token}")
+
             return JsonResponse({
                 'success': True,
                 'message': 'Login successful',
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
+                'access' : access_token,
+                'refresh': refresh_token
+                #'access': str(refresh.access_token),
+                #'refresh': str(refresh)
             }, status=200)
         else:
             return JsonResponse({'success': False, 'message': 'Invalid credentials'}, status=401)
@@ -262,8 +271,8 @@ def register_view(request):
             return JsonResponse({
                 'success': True,
                 'message': 'User registered successfully',
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
+                #'access': str(refresh.access_token),
+                #'refresh': str(refresh)
             }, status=201)
         else:
             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
@@ -288,7 +297,6 @@ def register_view(request):
             'success': False,
             'message': f'Unexpected error: {str(e)}'
         }, status=500)
-
 
 
 #@api_view(['GET'])
@@ -520,6 +528,69 @@ def update_profile_view(request):
         'email': user.email,
         'avatar': avatar_url  # Renvoie l'URL correcte de l'avatar
     }, status=200)
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
+# def logout_view(request):
+#     try:
+#         # Récupérer le refresh token de la requête
+#         refresh_token = request.data.get('refresh_token')
+
+#         if refresh_token is None:
+#             return JsonResponse({'success': False, 'message': 'Refresh token is required'}, status=400)
+
+#         # Invalider le refresh token
+#         token = RefreshToken(refresh_token)
+#         token.blacklist()  # Cette méthode rend le token non valide (si vous avez activé la liste noire dans JWT)
+
+#         return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
+def logout_view(request):
+    try:
+        # Récupérer le refresh token de la requête
+        refresh_token = request.data.get('refresh_token')
+
+        if not refresh_token:
+            return JsonResponse({'success': False, 'message': 'Refresh token is required'}, status=400)
+
+        # Invalider le refresh token
+        try:
+            refresh_token_instance = RefreshToken(refresh_token)
+            refresh_token_instance.blacklist()
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error blacklisting refresh token: {str(e)}'}, status=500)
+
+        return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+from rest_framework_simplejwt.exceptions import TokenError
+
+@api_view(['POST'])
+def token_refresh_view(request):
+    refresh_token = request.data.get('refresh')
+    
+    try:
+        token = RefreshToken(refresh_token)
+        
+        # Vérifier si le token est blacklisté
+        if token.check_blacklist():
+            return JsonResponse({'error': 'Token is blacklisted'}, status=400)
+        
+        # Générer un nouveau token d'accès
+        new_access_token = str(token.access_token)
+        return JsonResponse({'access': new_access_token}, status=200)
+        
+    except TokenError as e:
+        return JsonResponse({'error': 'Invalid token'}, status=400)
 
 
 

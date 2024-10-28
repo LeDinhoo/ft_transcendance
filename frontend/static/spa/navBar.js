@@ -67,7 +67,19 @@ function initializeNavBar() {
       label.classList.remove("active");
     }
   });
+
+  // Attendre que le DOM soit entièrement chargé pour ajouter l'événement logout
+  window.addEventListener('DOMContentLoaded', () => {
+    const logoutButton = document.getElementById("logout-icon");
+    if (logoutButton) {
+      logoutButton.addEventListener("click", logout); // Appelle la fonction logout définie dans app.js
+      console.log("Logout button event listener attached"); 
+    } else {
+      console.error("Logout icon not found in the DOM.");
+    }
+  });
 }
+
 
 // Appeler la fonction d'initialisation au chargement initial
 initializeNavBar();
