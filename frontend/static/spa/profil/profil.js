@@ -439,9 +439,15 @@ function initializePasswordManagement() {
   });
 }
 
+
+
+
 function initializeProfilePage() {
   let accessToken = localStorage.getItem("access_token");
   console.log("Token récupéré:", accessToken);
+
+  // Ajouter l'initialisation de la fonctionnalité d'avatar
+  initializeAvatarFeature();
 
   // Réinitialiser les champs de mot de passe à chaque chargement de la page profil
   resetPasswordFields();
@@ -678,6 +684,9 @@ function initializeProfilePage() {
     }
   });
 
+
+
+
   // Charger les informations du profil et de l'avatar lors du chargement de la page
   if (accessToken) {
     fetch("/api/profil/", {
@@ -719,3 +728,206 @@ function initializeProfilePage() {
     console.log("Aucun token JWT trouvé.");
   }
 }
+
+
+// // 2 ajout pop up avatar
+
+// const modal = document.getElementById('avatarModal');
+// const avatarGrid = document.getElementById('avatarGrid');
+// const applyButton = document.getElementById('applyButton');
+// let selectedAvatar = null;
+// let tempSelectedSrc = null;
+
+const avatarUrls = [
+    '/static/assets/avatars/abeille.png',
+    '/static/assets/avatars/buffalo.png',
+    '/static/assets/avatars/bullfinch.png',
+    '/static/assets/avatars/clown-fish.png',
+    '/static/assets/avatars/crabe.png',
+    '/static/assets/avatars/frog.png',
+    '/static/assets/avatars/giraffe.png',
+    '/static/assets/avatars/gorilla.png',
+    '/static/assets/avatars/chicken.png',
+    '/static/assets/avatars/hedgehog.png',
+    '/static/assets/avatars/hippopotame.png',
+    '/static/assets/avatars/ladybug.png',
+    '/static/assets/avatars/lapin.png',
+    '/static/assets/avatars/lelephant.png',
+    '/static/assets/avatars/lion.png',
+    '/static/assets/avatars/cow.png',
+    '/static/assets/avatars/mouton.png',
+    '/static/assets/avatars/owl.png',
+    '/static/assets/avatars/parrot.png',
+    '/static/assets/avatars/penguin.png',
+    '/static/assets/avatars/walrus.png',
+    '/static/assets/avatars/porc.png',
+    '/static/assets/avatars/souris.png',
+    '/static/assets/avatars/zebra.png'
+];
+
+
+let selectedAvatar = null;
+let tempSelectedSrc = null;
+
+function createAvatarGrid() {
+  const avatarGrid = document.getElementById('avatarGrid');
+  const applyButton = document.getElementById('applyButton');
+  
+  if (!avatarGrid) return;
+  
+  avatarGrid.innerHTML = '';
+  
+  for (let row = 0; row < 4; row++) {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'avatar-row';
+      
+      for (let col = 0; col < 6; col++) {
+          const index = row * 6 + col;
+          if (index < avatarUrls.length) {
+              const avatarOption = document.createElement('div');
+              avatarOption.className = 'avatar-option';
+              
+              const img = document.createElement('img');
+              img.src = avatarUrls[index];
+              img.alt = `Avatar ${index + 1}`;
+              avatarOption.appendChild(img);
+              
+              avatarOption.addEventListener('click', () => {
+                  // Supprimer la sélection précédente
+                  if (selectedAvatar) {
+                      selectedAvatar.classList.remove('selected');
+                  }
+                  // Mettre à jour la nouvelle sélection
+                  avatarOption.classList.add('selected');
+                  selectedAvatar = avatarOption;
+                  tempSelectedSrc = img.src;
+                  
+                  // Activer le bouton
+                  if (applyButton) {
+                      applyButton.disabled = false;
+                  }
+                  console.log("Avatar sélectionné:", tempSelectedSrc); // Debug
+              });
+              
+              rowDiv.appendChild(avatarOption);
+          }
+      }     
+      avatarGrid.appendChild(rowDiv);
+  }
+}
+
+
+
+function initializeAvatarFeature() {
+  const accessToken = localStorage.getItem("access_token");
+  const modal = document.getElementById('avatarModal');
+  const applyButton = document.getElementById('applyButton');
+
+  // Création de la grille
+  createAvatarGrid();
+
+  if (applyButton) {
+    applyButton.addEventListener('click', () => {
+        if (tempSelectedSrc) {
+            const formData = new FormData();
+            formData.append('selected_avatar', tempSelectedSrc.split('/static/')[1]);
+
+            fetch("/api/profil/update/", {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Réponse reçue:", data); // Debug
+                // Mettre à jour tous les avatars sur la page
+                const avatarElements = document.querySelectorAll('.avatarImg');
+                avatarElements.forEach(element => {
+                    element.src = data.avatar; // Utiliser l'URL renvoyée par le serveur
+                });
+                
+                // Mettre à jour l'avatar dans le profil si présent
+                const avatarDisplay = document.getElementById('avatarDisplay');
+                if (avatarDisplay) {
+                    avatarDisplay.src = data.avatar;
+                }
+                
+                closeModal();
+                console.log("Avatar mis à jour avec succès");
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors de la mise à jour de l'avatar");
+            });
+        }
+    });
+}
+
+  window.openModal = function() {
+      if (modal) {
+          modal.style.display = 'flex';
+          if (applyButton) {
+              applyButton.disabled = !selectedAvatar;
+          }
+      }
+  };
+
+  window.closeModal = function() {
+      if (modal) {
+          modal.style.display = 'none';
+          selectedAvatar = null;
+          tempSelectedSrc = null;
+          if (applyButton) {
+              applyButton.disabled = true;
+          }
+      }
+  };
+
+  // Gestion du clic en dehors de la modal
+  if (modal) {
+      modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+              closeModal();
+          }
+      });
+  }
+}
+
+
+// function openModal() {
+//     modal.style.display = 'flex';
+//     applyButton.disabled = !selectedAvatar;
+// }
+
+// function closeModal() {
+//     modal.style.display = 'none';
+//     if (selectedAvatar) {
+//         selectedAvatar.classList.remove('selected');
+//         selectedAvatar = null;
+//     }
+//     tempSelectedSrc = null;
+// }
+
+// applyButton.addEventListener('click', () => {
+//     if (tempSelectedSrc) {
+//         document.querySelector('.avatarImg').src = tempSelectedSrc;
+//         closeModal();
+//     }
+// });
+
+// modal.addEventListener('click', (e) => {
+//     if (e.target === modal) {
+//         closeModal();
+//     }
+// });
+
+// createAvatarGrid();
+
+

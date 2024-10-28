@@ -2,6 +2,9 @@
   <div class="accountSection">
     <div class="avatarSection">
       <div class="playerProfilFrame">
+
+
+
         <div class="avatarFrame">
           <img
             id="avatarDisplay"
@@ -18,19 +21,45 @@
         </div>
         <div class="playerFrame" id="playerFrame">Nickname</div>
       </div>
+
+
+
       <button class="btn-icon" id="uploadButton">
         <svg>
           <use href="/static/assets/icons/sprite.svg#upload"></use>
         </svg>
         Upload
       </button>
-      <button class="btn-icon">
+      <button class="btn-icon" onclick="openModal()">
         <svg>
           <use href="/static/assets/icons/sprite.svg#slider"></use>
         </svg>
         Avatar
       </button>
+
+      <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                Choisissez votre avatar
+            </div>
+            <div class="avatar-grid" id="avatarGrid">
+        </div>
+            <div class="modal-footer">
+                <button class="btn-icon" onclick="closeModal()">
+                    <img src="/static/assets/icons/close.svg" class="popuplogo">
+                    Annuler
+                </button>
+                <button class="btn-icon" id="applyButton" disabled>
+                    <img src="/static/assets/icons/check.svg" class="popuplogo">
+                    Appliquer
+                </button>
+            </div>
+        </div>
     </div>
+
+    </div>
+
+
     <div class="manageProfilSection">
       <div class="informationSection">
         <div class="settingsTitles">Account Settings</div>
