@@ -123,18 +123,6 @@ document
             });
         } else {
           showErrorPopup("Votre mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial <br>- au minimum 8 caractères. ")
-          // Gérer les erreurs spécifiques renvoyées par le serveur
-          // if (data.errors) {
-          //   for (const [field, messages] of Object.entries(data.errors)) {
-          //     const errorMessages = messages
-          //       .map((msg) => msg.message)
-          //       .join(", ");
-          //     displayError(field, errorMessages);
-          //   }
-          // } else {
-          //   showErrorPopup("Erreur lors de l'inscription.");
-          //   // alert("Erreur lors de l'inscription : " + data.message);
-          // }
         }
       })
       .catch((error) => {

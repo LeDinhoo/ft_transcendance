@@ -4,5 +4,5 @@ FROM postgres:16.1-alpine3.19
 
 # connect with
 #docker exec -it database bash
-#psql -U postgres -d postgres
+#psql -U clement -d db_myproject
 #\list or \dt

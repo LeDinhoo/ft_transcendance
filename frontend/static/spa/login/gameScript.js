@@ -47,23 +47,6 @@ let gameElements = {
     scoreDisplay: null
 };
 
-/**
- * Initialise les éléments du jeu en récupérant les références DOM et définit les dimensions du jeu.
- * Cette fonction doit être appelée une fois au début du jeu pour configurer l'environnement initial.
- */
-/*function initializeGameElements() {
-    gameElements.gameSection = document.getElementById('gameSection');
-    gameElements.topPaddle = document.getElementById('topPaddle');
-    gameElements.bottomPaddle = document.getElementById('bottomPaddle');
-    gameElements.ball = document.getElementById('ball');
-    gameElements.speedDisplay = document.getElementById('speedDisplay');
-    gameElements.scoreDisplay = document.getElementById('scoreDisplay');
-
-    // Set dynamic game dimensions
-    gameState.gameWidth = gameElements.gameSection.offsetWidth;
-    gameState.gameHeight = gameElements.gameSection.offsetHeight;
-}*/
-
 function initializeGameElements() {
     gameElements.gameSection = document.getElementById('gameSection');
     gameElements.topPaddle = document.getElementById('topPaddle');
