@@ -703,3 +703,133 @@ function initializeProfilePage() {
     console.log("Aucun token JWT trouvé.");
   }
 }
+
+
+///////////////////////////////////////////////////////////////////////
+
+
+// Ajouter cette fonction à votre fichier profil.js existant
+
+function initialize2FA() {
+  const toggle2FAButton = document.getElementById('toggle2FAButton');
+  const confirm2FAButton = document.getElementById('confirm2FAButton');
+  const verificationFrame = document.getElementById('2faVerificationFrame');
+  const statusSpan = document.getElementById('2faStatus');
+  let is2FAEnabled = false;
+
+  // Fonction pour mettre à jour l'interface selon le statut 2FA
+  function updateUI2FAStatus(enabled) {
+    is2FAEnabled = enabled;
+    statusSpan.textContent = enabled ? '2FA: ON' : '2FA: OFF';
+    statusSpan.style.color = enabled ? '#4CAF50' : '#FF5722';
+    
+    toggle2FAButton.innerHTML = `
+      <svg>
+        <use href="/static/assets/icons/sprite.svg#${enabled ? 'unlock' : 'lock'}"></use>
+      </svg>
+      ${enabled ? 'Disable 2FA' : 'Enable 2FA'}
+    `;
+    
+    // Cacher le frame de vérification
+    verificationFrame.style.display = 'none';
+  }
+
+  // Vérifier le statut initial de la 2FA
+  fetch('/api/profil/', {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    updateUI2FAStatus(data.is_2fa_enabled);
+  })
+  .catch(error => {
+    console.error('Erreur lors de la vérification du statut 2FA:', error);
+  });
+
+  // Gestionnaire pour le bouton toggle 2FA
+  toggle2FAButton.addEventListener('click', function() {
+    const action = is2FAEnabled ? 'disable' : 'enable';
+    
+    fetch('/api/2fa/toggle/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ action: action })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (action === 'enable') {
+        // Afficher le frame de vérification
+        verificationFrame.style.display = 'flex';
+        showConfirmationMessage('Code de vérification envoyé par email');
+      } else {
+        updateUI2FAStatus(false);
+        showConfirmationMessage('2FA désactivé avec succès');
+      }
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      showConfirmationMessage('Une erreur est survenue');
+    });
+  });
+
+  // Gestionnaire pour le bouton de confirmation
+  confirm2FAButton.addEventListener('click', function() {
+    const code = document.getElementById('verificationCode').value;
+    
+    if (!code) {
+      showConfirmationMessage('Veuillez entrer le code reçu par email');
+      return;
+    }
+
+    fetch('/api/2fa/verify/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code: code })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Code invalide');
+      }
+      return response.json();
+    })
+    .then(data => {
+      updateUI2FAStatus(true);
+      showConfirmationMessage('2FA activé avec succès');
+      // Réinitialiser le champ du code
+      document.getElementById('verificationCode').value = '';
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      showConfirmationMessage('Code invalide');
+    });
+  });
+
+  // Fermer le frame de vérification si on clique en dehors
+  document.addEventListener('click', function(event) {
+    if (!verificationFrame.contains(event.target) && 
+        !toggle2FAButton.contains(event.target) &&
+        verificationFrame.style.display === 'flex') {
+      verificationFrame.style.display = 'none';
+    }
+  });
+}
+
+// Modifier votre fonction initializeProfilePage pour inclure l'initialisation 2FA
+function initializeProfilePage() {
+  // Votre code existant...
+  
+  // Ajouter l'initialisation 2FA
+  initialize2FA();
+  
+  // Le reste de votre code existant...
+}
+
+/////////////////////////////////////////////////////////////////////////

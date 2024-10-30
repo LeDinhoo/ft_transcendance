@@ -21,6 +21,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
+from .views import Toggle2FAView, Verify2FAView, TestEmailView
 
 urlpatterns = [
     path('', views.index_view, name='index'),  # Page d'accueil avec les formulaires de login/register
@@ -35,4 +36,7 @@ urlpatterns = [
     path('get_auth_url/', views.get_auth_url, name='get_auth_url'),
     path('callback-42/', views.callback_42, name='callback_42'),  # Callback après autorisation
     path('check-auth/', views.check_auth, name='check_auth'),
+    path('2fa/toggle/', Toggle2FAView.as_view(), name='toggle_2fa'),
+    path('2fa/verify/', Verify2FAView.as_view(), name='verify_2fa'),
+    path('test-email/', TestEmailView.as_view(), name='test_email'),
 ]

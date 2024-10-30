@@ -17,6 +17,7 @@ django-extensions
 django-cors-headers
 Werkzeug
 pyOpenSSL
+python-dotenv==1.0.0
 uuid
 uvicorn==0.22.0  # Ajout de la dépendance Uvicorn
 

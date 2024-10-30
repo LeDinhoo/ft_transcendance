@@ -261,3 +261,18 @@ LOGGING = {
     },
 }
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Email Configuration
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'csiffreinblanc@gmail.com'
+EMAIL_HOST_PASSWORD = 'cbws izxl miso dbij'  # Remplacez par votre mot de passe d'application
+DEFAULT_FROM_EMAIL = 'csiffreinblanc@gmail.com'
+EMAIL_SUBJECT_PREFIX = '[Pong42] '

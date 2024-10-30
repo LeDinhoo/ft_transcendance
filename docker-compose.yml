@@ -1,12 +1,11 @@
 services:
-
   database:
     restart: always
     container_name: database
     build:
       dockerfile: Dockerfile
       context: ./database
-    volumes: 
+    volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
       - transcendence-network
@@ -16,17 +15,20 @@ services:
   backend:
     restart: always
     container_name: backend
-    build: 
+    build:
       dockerfile: Dockerfile
       context: ./backend
     volumes:
       - ./backend:/app
       - ./backend/certs:/app/certs
-      - media:/app/media  # Volume partagé pour les fichiers médias
+      - media:/app/media
     expose:
       - "8443"
     depends_on:
       - database
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     env_file:
       - .env
     networks:
@@ -38,7 +40,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./frontend
-    depends_on: 
+    depends_on:
       - backend
     env_file:
       - .env
@@ -47,12 +49,12 @@ services:
     ports:
       - "4430:443"
     volumes:
-      - media:/app/media  # Volume partagé pour les fichiers médias
+      - media:/app/media
 
 volumes:
   postgres_data:
     name: postgre_data
-  media:  # Volume partagé pour les fichiers médias
+  media:
     name: media_volume
 
 networks:

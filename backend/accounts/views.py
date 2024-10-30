@@ -612,6 +612,7 @@ def callback_42(request):
             )
             user_response.raise_for_status()
             user_data = user_response.json()
+            
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to get user info: {str(e)}")
             return JsonResponse({
@@ -748,6 +749,161 @@ def check_auth(request):
             'success': False,
             'error': str(e)
         }, status=401)
+    
+
+#######################################2FA views#####################################################################
+
+# Imports nécessaires
+from django.core.mail import send_mail  # Pour envoyer des emails
+from django.conf import settings        # Pour accéder aux paramètres
+from django.utils import timezone       # Pour la gestion des timestamps
+from datetime import timedelta         # Pour la durée de validité du code
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+import random                          # Pour générer le code
+import string                          # Pour générer le code
+
+class Toggle2FAView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        action = request.data.get('action')
+        
+        if action == 'enable':
+            # Code existant pour l'activation...
+            code = ''.join(random.choices(string.digits, k=6))
+            user.two_factor_code = code
+            user.two_factor_code_timestamp = timezone.now()
+            user.save()
+
+            message = f"""
+            Bonjour {user.username},
+            
+            Voici votre code de vérification pour l'activation de la 2FA : {code}
+            
+            Ce code est valable pendant 10 minutes.
+            """
+
+            try:
+                send_mail(
+                    subject='Code de vérification 2FA',
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+                return Response({
+                    'message': 'Code de vérification envoyé par email'
+                })
+            except Exception as e:
+                print(f"Erreur d'envoi d'email: {e}")
+                return Response(
+                    {'error': "Erreur lors de l'envoi de l'email"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+                
+        elif action == 'disable':
+            if user.is_2fa_enabled:
+                user.is_2fa_enabled = False
+                user.two_factor_code = None
+                user.two_factor_code_timestamp = None
+                user.save()
+                return Response({
+                    'message': '2FA désactivé avec succès',
+                    'is_2fa_enabled': False
+                })
+            
+            return Response({
+                'error': "2FA n'est pas activé"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Si l'action n'est ni 'enable' ni 'disable'
+        return Response({
+            'error': "Action non valide"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Verify2FAView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        code = request.data.get('code')
+
+        if not code:
+            return Response(
+                {'error': 'Code requis'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Vérifier si le code est toujours valide (10 minutes)
+        if user.two_factor_code_timestamp and \
+           timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
+            return Response(
+                {'error': 'Code expiré'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if code == user.two_factor_code:
+            user.is_2fa_enabled = True
+            user.two_factor_code = None
+            user.two_factor_code_timestamp = None
+            user.save()
+            return Response({'message': '2FA activé avec succès'})
+
+        return Response(
+            {'error': 'Code invalide'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+from django.core.mail import send_mail
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.conf import settings
+
+class TestEmailView(APIView):
+    def get(self, request):
+        try:
+            print("Tentative d'envoi d'email avec les paramètres suivants:")
+            print(f"EMAIL_HOST: {settings.EMAIL_HOST}")
+            print(f"EMAIL_PORT: {settings.EMAIL_PORT}")
+            print(f"EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
+            print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
+            print(f"FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
+            
+            send_mail(
+                subject='Test Email de Pong42',
+                message='Ceci est un email de test pour vérifier la configuration SMTP.',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=['chsiffre@student.42lyon.fr'],
+                fail_silently=False,
+            )
+            return Response({
+                'message': 'Email de test envoyé avec succès!',
+                'email_host': settings.EMAIL_HOST,
+                'email_port': settings.EMAIL_PORT,
+                'email_use_tls': settings.EMAIL_USE_TLS,
+                'from_email': settings.DEFAULT_FROM_EMAIL
+            })
+        except Exception as e:
+            print(f"Erreur détaillée: {str(e)}")
+            return Response({
+                'error': f'Erreur lors de l\'envoi: {str(e)}',
+                'error_type': type(e).__name__,
+                'email_host': settings.EMAIL_HOST,
+                'email_port': settings.EMAIL_PORT,
+                'email_use_tls': settings.EMAIL_USE_TLS,
+                'from_email': settings.DEFAULT_FROM_EMAIL
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#######################################2FA views#####################################################################
+
+
 
 
 # @login_required
