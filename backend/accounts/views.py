@@ -486,7 +486,7 @@ def game_view(request):
     # Si l'authentification est réussie, rendre le template game.html
     return render(request, 'game.html')
 
-
+#################################API 42 ####################################################
 
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
