@@ -309,3 +309,5 @@ function navigateTo(path) {
   history.pushState(null, "", path); // Met à jour l'URL sans recharger
   loadPageFromURL(); // Charge la nouvelle page correspondant à l'URL
 }
+
+

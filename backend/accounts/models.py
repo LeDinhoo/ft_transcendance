@@ -1,23 +1,38 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import random
+import string
 
 class CustomUser(AbstractUser):
-    avatar= models.ImageField(upload_to='avatars/', max_length=255, default='assets/avatars/ladybug.png')
-    
-    # Email unique pour chaque utilisateur
-    email = models.EmailField(unique=True)
+    # Vos champs existants
+    is_2fa_enabled = models.BooleanField(default=False)
+    two_factor_code = models.CharField(max_length=6, null=True, blank=True)
+    two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
 
-    # Ajout de related_name pour éviter les conflits avec le modèle User de Django
+    avatar = models.ImageField(upload_to='avatars/', max_length=255, default='assets/avatars/ladybug.png')
+    email = models.EmailField(unique=True)
+    intra_42_id = models.IntegerField(null=True, blank=True, unique=True)
+    is_42_user = models.BooleanField(default=False)
+    # Nouveaux champs pour 2FA
+    is_2fa_enabled = models.BooleanField(default=False)
+    two_factor_code = models.CharField(max_length=6, null=True, blank=True)
+    two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
+
     groups = models.ManyToManyField(
         'auth.Group',
-        related_name='customuser_set',  # Change le related_name pour éviter les conflits
+        related_name='customuser_set',
         blank=True
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
-        related_name='customuser_permissions_set',  # Change le related_name pour éviter les conflits
+        related_name='customuser_permissions_set',
         blank=True
     )
 
-    def __str__(self):
-        return self.username
+    def generate_2fa_code(self):
+        """Génère un code 2FA à 6 chiffres"""
+        code = ''.join(random.choices(string.digits, k=6))
+        return code
+
+    class Meta:
+        db_table = 'accounts_customuser'
