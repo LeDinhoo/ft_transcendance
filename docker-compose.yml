@@ -21,6 +21,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/certs:/app/certs
+      - ./backend/templates:/app/templates
       - media:/app/media
     expose:
       - "8443"

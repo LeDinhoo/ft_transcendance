@@ -220,3 +220,42 @@ hr {
 .invertBounce {
   animation: invertBounce 0.8s ease;
 }
+
+
+/* Styles pour le popup 2FA */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background-color: var(--dark-grey);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 400px;
+}
+
+.popup-content h2 {
+  color: var(--snow);
+  margin-bottom: 1rem;
+}
+
+.popup-content .formInputFrame {
+  margin: 1.5rem 0;
+}
+
+.popup-content .modifyButtonsFrame {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

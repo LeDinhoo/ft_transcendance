@@ -19,4 +19,6 @@ urlpatterns = [
     path('2fa/toggle/', Toggle2FAView.as_view(), name='toggle_2fa'),
     path('2fa/verify/', Verify2FAView.as_view(), name='verify_2fa'),
     path('test-email/', TestEmailView.as_view(), name='test_email'),
+    path('verify-2fa-login/', views.verify_2fa_login, name='verify_2fa_login'),
+    # urls.py
 ]

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #FF710D;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .code-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF710D;
+            letter-spacing: 5px;
+        }
+        .warning {
+            background-color: #fff3e0;
+            border-left: 4px solid #FF710D;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Pong42</h1>
+        </div>
+        
+        <h2>Bonjour {{ username }},</h2>
+        
+        <p>Une demande d'activation de l'authentification à deux facteurs (2FA) a été initiée sur votre compte Pong42.</p>
+        
+        <div class="code-container">
+            <p>Votre code de vérification :</p>
+            <div class="code">{{ code }}</div>
+            <p>Ce code est valable pendant {{ valid_minutes }} minutes</p>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Attention :</strong>
+            <ul>
+                <li>Ne partagez jamais ce code avec qui que ce soit</li>
+                <li>L'équipe Pong42 ne vous demandera jamais ce code</li>
+                <li>Si vous n'êtes pas à l'origine de cette demande, sécurisez votre compte immédiatement</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Cet email a été envoyé par Pong42<br>
+            Si vous avez des questions, contactez-nous à {{ support_email }}</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -62,7 +62,7 @@ function initializeProfilePage() {
 
   // Appeler la fonction de gestion du mot de passe
   initializePasswordManagement();
-
+  initialize2FA();
   // Couleur pour l'état déverrouillé
   const unlockedColor = "#ff710d"; // orange liquid lava lorsque déverrouillé
 
@@ -231,42 +231,41 @@ function initializeProfilePage() {
   // Charger les informations du profil et de l'avatar lors du chargement de la page
   if (accessToken) {
     fetch("/api/profil/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        },
     })
-      .then((response) => {
+    .then((response) => {
+        console.log("Statut de la réponse:", response.status);
         if (!response.ok) {
-          throw new Error(`Erreur HTTP: ${response.status}`);
+            throw new Error(`Erreur HTTP: ${response.status}`);
         }
         return response.json();
-      })
-      .then((data) => {
+    })
+    .then((data) => {
+        console.log("Données reçues:", data);
         if (data.username && data.email) {
-          // Met à jour les champs du formulaire avec les valeurs récupérées
-          document.getElementById("playerFrame").innerText = data.username;
-          document.getElementById("username").value = data.username;
-          document.getElementById("registerEmail").value = data.email;
+            document.getElementById("playerFrame").innerText = data.username;
+            document.getElementById("username").value = data.username;
+            document.getElementById("registerEmail").value = data.email;
+            
+            // Mise à jour du statut 2FA si présent dans la réponse
+            if ('is_2fa_enabled' in data) {
+                updateUI2FAStatus(data.is_2fa_enabled);
+            }
 
-          // Remplacer l'avatar par celui dans la base de données
-          if (data.avatar) {
-            avatarDisplay.src = data.avatar; // Afficher l'avatar de la base de données
-          } else {
-            avatarDisplay.src = "/static/assets/avatars/buffalo.png"; // Utiliser l'avatar par défaut s'il n'y en a pas
-          }
-        } else {
-          console.error(
-            "Erreur lors de la récupération des informations utilisateur"
-          );
+            if (data.avatar) {
+                avatarDisplay.src = data.avatar;
+            } else {
+                avatarDisplay.src = "/static/assets/avatars/buffalo.png";
+            }
         }
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la récupération du profil :", error);
-      });
-  } else {
-    console.log("Aucun token JWT trouvé.");
+    })
+    .catch((error) => {
+        console.error("Erreur lors de la récupération du profil:", error);
+    });
   }
 }
 
@@ -388,14 +387,5 @@ function initialize2FA() {
   });
 }
 
-// Modifier votre fonction initializeProfilePage pour inclure l'initialisation 2FA
-function initializeProfilePage() {
-  // Votre code existant...
-  
-  // Ajouter l'initialisation 2FA
-  initialize2FA();
-  
-  // Le reste de votre code existant...
-}
 
 /////////////////////////////////////////////////////////////////////////

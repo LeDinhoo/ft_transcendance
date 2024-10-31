@@ -21,7 +21,14 @@ from django.conf import settings
 import os
 
 
-
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from rest_framework.response import Response
+from rest_framework import status
+from django.conf import settings
+import random
+import string
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +43,7 @@ def index_view(request):
 
 # Vue pour la connexion (utilisation des tokens JWT)
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Connexion doit être accessible à tous
+@permission_classes([AllowAny])
 def login_view(request):
     try:
         # Récupérer les données JSON envoyées dans la requête
@@ -46,33 +53,68 @@ def login_view(request):
 
         # Authentifier l'utilisateur
         user = authenticate(request, email=email, password=password)
+
         if user is not None:
-            # Générer les tokens JWT
+            # Vérifier si l'utilisateur a activé la 2FA
+            if user.is_2fa_enabled:
+                # Générer un code 2FA
+                code = ''.join(random.choices(string.digits, k=6))
+                user.two_factor_code = code
+                user.two_factor_code_timestamp = timezone.now()
+                user.save()
+
+                # Envoyer le code par email
+                try:
+                    send_2fa_email(user, code)
+                except Exception as e:
+                    logger.error(f"Erreur d'envoi du code 2FA: {str(e)}")
+                    return JsonResponse({
+                        'success': False,
+                        'message': "Erreur lors de l'envoi du code de vérification"
+                    }, status=500)
+
+                # Retourner une réponse indiquant que la 2FA est requise
+                return JsonResponse({
+                    'success': True,
+                    'require_2fa': True,
+                    'user_id': user.id,
+                    'message': 'Code 2FA envoyé par email'
+                })
+
+            # Si pas de 2FA, connexion normale
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
-            print('access token:  ==> ', access_token)
-
+            print('access token: ==> ', access_token)
             logger.info(f"Access token: {access_token}")
             logger.info(f"Refresh token: {refresh_token}")
 
             return JsonResponse({
                 'success': True,
                 'message': 'Login successful',
-                'access' : access_token,
+                'require_2fa': False,
+                'access': access_token,
                 'refresh': refresh_token
-                #'access': str(refresh.access_token),
-                #'refresh': str(refresh)
             }, status=200)
         else:
-            return JsonResponse({'success': False, 'message': 'Invalid credentials'}, status=401)
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid credentials'
+            }, status=401)
 
     except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
     except Exception as e:
         logger.error(f"Erreur de connexion : {str(e)}")
-        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
 
 
 @api_view(['POST'])
@@ -125,19 +167,18 @@ def register_view(request):
 def profile_view(request):
     user = request.user
 
-    # Gérer le chemin de l'avatar : 
+    # Gérer le chemin de l'avatar
     if user.avatar and user.avatar.name.startswith('assets/avatars/'):
-        # Si l'avatar est dans le répertoire static
         avatar_url = f"/static/{user.avatar}"
     else:
-        # Si l'avatar est un fichier uploadé (dans media)
         avatar_url = user.avatar.url if user.avatar else None
 
-    # Renvoi des données de l'utilisateur avec l'URL de l'avatar
+    # Ajouter is_2fa_enabled à la réponse
     return JsonResponse({
         'username': user.username,
         'email': user.email,
-        'avatar': avatar_url
+        'avatar': avatar_url,
+        'is_2fa_enabled': user.is_2fa_enabled  # Ajout du statut 2FA
     }, status=200)
 
 
@@ -544,33 +585,17 @@ class Toggle2FAView(APIView):
         action = request.data.get('action')
         
         if action == 'enable':
-            # Code existant pour l'activation...
             code = ''.join(random.choices(string.digits, k=6))
             user.two_factor_code = code
             user.two_factor_code_timestamp = timezone.now()
             user.save()
 
-            message = f"""
-            Bonjour {user.username},
-            
-            Voici votre code de vérification pour l'activation de la 2FA : {code}
-            
-            Ce code est valable pendant 10 minutes.
-            """
-
-            try:
-                send_mail(
-                    subject='Code de vérification 2FA',
-                    message=message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
+            # Utiliser la nouvelle fonction d'envoi d'email
+            if send_2fa_email(user, code):
                 return Response({
                     'message': 'Code de vérification envoyé par email'
                 })
-            except Exception as e:
-                print(f"Erreur d'envoi d'email: {e}")
+            else:
                 return Response(
                     {'error': "Erreur lors de l'envoi de l'email"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -591,10 +616,39 @@ class Toggle2FAView(APIView):
                 'error': "2FA n'est pas activé"
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Si l'action n'est ni 'enable' ni 'disable'
         return Response({
             'error': "Action non valide"
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+def send_2fa_email(user, code):
+    try:
+        print(f"Envoi du code 2FA à {user.email}")
+        
+        context = {
+            'username': user.username,
+            'code': code,
+            'valid_minutes': 10,
+            'support_email': settings.DEFAULT_FROM_EMAIL
+        }
+        
+        html_message = render_to_string('email/2fa_code.html', context)
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject='[Pong42] Code de vérification 2FA',
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        print(f"Email 2FA envoyé avec succès à {user.email}")
+        return True
+        
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email 2FA: {str(e)}")
+        return False
 
 
 class Verify2FAView(APIView):
@@ -636,6 +690,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 class TestEmailView(APIView):
     def get(self, request):
@@ -646,21 +702,38 @@ class TestEmailView(APIView):
             print(f"EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
             print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
             print(f"FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
+
+            # Contexte pour le template
+            context = {
+                'username': 'Test User',
+                'code': '123456',  # Code de test
+                'valid_minutes': 10,
+                'support_email': settings.DEFAULT_FROM_EMAIL
+            }
             
+            # Créer les versions HTML et texte de l'email
+            html_message = render_to_string('email/2fa_code.html', context)
+            plain_message = strip_tags(html_message)
+
             send_mail(
-                subject='Test Email de Pong42',
-                message='Ceci est un email de test pour vérifier la configuration SMTP.',
+                subject='[Pong42] Test Email - Code 2FA',
+                message=plain_message,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=['chsiffre@student.42lyon.fr'],
+                html_message=html_message,
                 fail_silently=False,
             )
+
+            # Garder les informations de debug dans la réponse
             return Response({
                 'message': 'Email de test envoyé avec succès!',
                 'email_host': settings.EMAIL_HOST,
                 'email_port': settings.EMAIL_PORT,
                 'email_use_tls': settings.EMAIL_USE_TLS,
-                'from_email': settings.DEFAULT_FROM_EMAIL
+                'from_email': settings.DEFAULT_FROM_EMAIL,
+                'template_context': context  # Ajouter le contexte pour vérification
             })
+
         except Exception as e:
             print(f"Erreur détaillée: {str(e)}")
             return Response({
@@ -671,6 +744,97 @@ class TestEmailView(APIView):
                 'email_use_tls': settings.EMAIL_USE_TLS,
                 'from_email': settings.DEFAULT_FROM_EMAIL
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def send_2fa_email(user, code):
+    try:
+        print(f"Envoi du code 2FA à {user.email}")
+        
+        context = {
+            'username': user.username,
+            'code': code,
+            'valid_minutes': 10,
+            'support_email': settings.DEFAULT_FROM_EMAIL
+        }
+        
+        html_message = render_to_string('email/2fa_code.html', context)
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject='[Pong42] Code de vérification 2FA',
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        print(f"Email 2FA envoyé avec succès à {user.email}")
+        return True
+        
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email 2FA: {str(e)}")
+        return False
+
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_2fa_login(request):
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        code = data.get('code')
+
+        try:
+            user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Utilisateur non trouvé'
+            }, status=404)
+
+        # Vérifier si le code est expiré (10 minutes)
+        if timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
+            return JsonResponse({
+                'success': False,
+                'message': 'Code expiré'
+            }, status=400)
+
+        if code == user.two_factor_code:
+            # Code valide, générer les tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            # Nettoyer le code 2FA
+            user.two_factor_code = None
+            user.two_factor_code_timestamp = None
+            user.save()
+
+            logger.info(f"2FA validé pour l'utilisateur: {user.email}")
+            return JsonResponse({
+                'success': True,
+                'message': 'Login successful',
+                'access': access_token,
+                'refresh': refresh_token
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Code invalide'
+            }, status=400)
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Erreur lors de la vérification 2FA : {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 #######################################2FA views#####################################################################
 
