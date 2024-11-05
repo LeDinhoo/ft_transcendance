@@ -113,121 +113,121 @@
 // auth.js
 
 // Connexion avec gestion 2FA
-document.getElementById("loginWidget").addEventListener("submit", function (event) {
-  event.preventDefault();
-  console.log("Formulaire de connexion intercepté.");
+// document.getElementById("loginWidget").addEventListener("submit", function (event) {
+//   event.preventDefault();
+//   console.log("Formulaire de connexion intercepté.");
 
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
+//   const email = document.getElementById("loginEmail").value;
+//   const password = document.getElementById("loginPassword").value;
 
-  // Réinitialiser les messages d'erreur
-  clearErrors();
+//   // Réinitialiser les messages d'erreur
+//   clearErrors();
 
-  // Désactiver le bouton pendant le traitement
-  document.getElementById("submitLoginBtn").disabled = true;
+//   // Désactiver le bouton pendant le traitement
+//   document.getElementById("submitLoginBtn").disabled = true;
 
-  fetch("/api/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-  })
-  .then((response) => response.json())
-  .then((data) => {
-      if (data.success) {
-          if (data.require_2fa) {
-              // Afficher le popup 2FA
-              show2FAPopup(data.user_id);
-          } else {
-              // Connexion normale sans 2FA
-              localStorage.setItem("access_token", data.access);
-              localStorage.setItem("refresh_token", data.refresh);
-              window.location.href = "/home";
-          }
-      } else {
-          showErrorPopup(data.message || "Identifiants invalides");
-      }
-  })
-  .catch((error) => {
-      console.error("Erreur lors de la connexion :", error);
-      showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
-  })
-  .finally(() => {
-      document.getElementById("submitLoginBtn").disabled = false;
-  });
-});
+//   fetch("/api/login/", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ email, password }),
+//   })
+//   .then((response) => response.json())
+//   .then((data) => {
+//       if (data.success) {
+//           if (data.require_2fa) {
+//               // Afficher le popup 2FA
+//               show2FAPopup(data.user_id);
+//           } else {
+//               // Connexion normale sans 2FA
+//               localStorage.setItem("access_token", data.access);
+//               localStorage.setItem("refresh_token", data.refresh);
+//               window.location.href = "/home";
+//           }
+//       } else {
+//           showErrorPopup(data.message || "Identifiants invalides");
+//       }
+//   })
+//   .catch((error) => {
+//       console.error("Erreur lors de la connexion :", error);
+//       showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
+//   })
+//   .finally(() => {
+//       document.getElementById("submitLoginBtn").disabled = false;
+//   });
+// });
 
-// Fonction pour afficher le popup 2FA
-function show2FAPopup(userId) {
-  const popupHTML = `
-      <div class="popup-overlay" id="twoFactorPopup">
-          <div class="popup-content">
-              <h2 class="text-center mb-4">Vérification en deux étapes</h2>
-              <p class="mb-4">Un code de vérification a été envoyé à votre adresse email.</p>
-              <div class="formInputFrame">
-                  <input
-                      type="text"
-                      id="verificationCode"
-                      name="verificationCode"
-                      class="inputFrame"
-                      placeholder=" "
-                      required
-                  />
-                  <label for="verificationCode" class="inputLabel">Code de vérification</label>
-              </div>
-              <div class="modifyButtonsFrame">
-                  <button class="btn-icon" id="verify2FABtn">
-                      <svg>
-                          <use href="/static/assets/icons/sprite.svg#check"></use>
-                      </svg>
-                      Vérifier
-                  </button>
-                  <button class="btn-icon" id="cancel2FABtn">
-                      <svg>
-                          <use href="/static/assets/icons/sprite.svg#close"></use>
-                      </svg>
-                      Annuler
-                  </button>
-              </div>
-          </div>
-      </div>
-  `;
+// // Fonction pour afficher le popup 2FA
+// function show2FAPopup(userId) {
+//   const popupHTML = `
+//       <div class="popup-overlay" id="twoFactorPopup">
+//           <div class="popup-content">
+//               <h2 class="text-center mb-4">Vérification en deux étapes</h2>
+//               <p class="mb-4">Un code de vérification a été envoyé à votre adresse email.</p>
+//               <div class="formInputFrame">
+//                   <input
+//                       type="text"
+//                       id="verificationCode"
+//                       name="verificationCode"
+//                       class="inputFrame"
+//                       placeholder=" "
+//                       required
+//                   />
+//                   <label for="verificationCode" class="inputLabel">Code de vérification</label>
+//               </div>
+//               <div class="modifyButtonsFrame">
+//                   <button class="btn-icon" id="verify2FABtn">
+//                       <svg>
+//                           <use href="/static/assets/icons/sprite.svg#check"></use>
+//                       </svg>
+//                       Vérifier
+//                   </button>
+//                   <button class="btn-icon" id="cancel2FABtn">
+//                       <svg>
+//                           <use href="/static/assets/icons/sprite.svg#close"></use>
+//                       </svg>
+//                       Annuler
+//                   </button>
+//               </div>
+//           </div>
+//       </div>
+//   `;
 
-  document.body.insertAdjacentHTML('beforeend', popupHTML);
+//   document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-  // Gestion de la vérification
-  document.getElementById('verify2FABtn').addEventListener('click', () => {
-      const code = document.getElementById('verificationCode').value;
-      verify2FACode(userId, code);
-  });
+//   // Gestion de la vérification
+//   document.getElementById('verify2FABtn').addEventListener('click', () => {
+//       const code = document.getElementById('verificationCode').value;
+//       verify2FACode(userId, code);
+//   });
 
-  // Gestion de l'annulation
-  document.getElementById('cancel2FABtn').addEventListener('click', () => {
-      document.getElementById('twoFactorPopup').remove();
-  });
-}
+//   // Gestion de l'annulation
+//   document.getElementById('cancel2FABtn').addEventListener('click', () => {
+//       document.getElementById('twoFactorPopup').remove();
+//   });
+// }
 
-// Fonction pour vérifier le code 2FA
-function verify2FACode(userId, code) {
-  fetch("/api/verify-2fa-login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id: userId, code: code }),
-  })
-  .then((response) => response.json())
-  .then((data) => {
-      if (data.success) {
-          localStorage.setItem("access_token", data.access);
-          localStorage.setItem("refresh_token", data.refresh);
-          window.location.href = "/home";
-      } else {
-          showErrorPopup(data.message || "Code invalide");
-      }
-  })
-  .catch((error) => {
-      console.error("Erreur lors de la vérification 2FA :", error);
-      showErrorPopup("Une erreur est survenue lors de la vérification");
-  });
-}
+// // Fonction pour vérifier le code 2FA
+// function verify2FACode(userId, code) {
+//   fetch("/api/verify-2fa-login/", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ user_id: userId, code: code }),
+//   })
+//   .then((response) => response.json())
+//   .then((data) => {
+//       if (data.success) {
+//           localStorage.setItem("access_token", data.access);
+//           localStorage.setItem("refresh_token", data.refresh);
+//           window.location.href = "/home";
+//       } else {
+//           showErrorPopup(data.message || "Code invalide");
+//       }
+//   })
+//   .catch((error) => {
+//       console.error("Erreur lors de la vérification 2FA :", error);
+//       showErrorPopup("Une erreur est survenue lors de la vérification");
+//   });
+// }
 
 
 

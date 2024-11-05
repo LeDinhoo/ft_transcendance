@@ -1,52 +1,187 @@
 // auth.js
 
-document
-  .getElementById("loginWidget")
-  .addEventListener("submit", function (event) {
-    event.preventDefault(); // Empêche la soumission classique du formulaire
-    console.log("Formulaire de connexion intercepté.");
+document.getElementById("loginWidget").addEventListener("submit", async function (event) {
+  event.preventDefault();
+  console.log("Formulaire de connexion intercepté.");
+  
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const submitBtn = document.getElementById("submitLoginBtn");
+  
+  submitBtn.disabled = true;
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+  try {
+      const loginResponse = await fetch("/api/login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+      });
+      
+      const loginData = await loginResponse.json();
+      
+      if (loginData.requires_2fa) {
+          showTwoFactorPopup(loginData.user_id);
+      } else if (loginData.success) {
+          handleSuccessfulLogin(loginData);
+      } else {
+          showErrorPopup(loginData.message || "Identifiants invalides");
+      }
+  } catch (error) {
+      console.error("Erreur lors de la connexion :", error);
+      showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
+  } finally {
+      submitBtn.disabled = false;
+  }
+});
 
-    // Désactive le bouton pendant le traitement
-    document.getElementById("submitLoginBtn").disabled = true;
+// Nouvelles fonctions pour le 2FA
+function showTwoFactorPopup(userId) {
+  const popup = document.createElement('div');
+  popup.className = 'popup-overlay';
+  popup.innerHTML = `
+      <div class="popup-content">
+          <h3>Vérification en deux étapes</h3>
+          <p>Un code a été envoyé à votre adresse email</p>
+          <div class="code-input-container">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+          </div>
+          <div class="timer">Code valide pendant: <span id="countdown">10:00</span></div>
+          <button class="verify-button" id="verifyButton" disabled>Vérifier</button>
+          <p class="error-message" style="display: none;"></p>
+      </div>
+  `;
+  
+  document.body.appendChild(popup);
+  setupCodeInputs(userId);
+  startCountdown(10 * 60);
+  
+  return popup;
+}
 
-    fetch("/api/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, password: password }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          // Stocker les tokens JWT
-          localStorage.setItem("access_token", data.access);
-          localStorage.setItem("refresh_token", data.refresh);
-
-          // Afficher les tokens dans la console
-          console.log("Access Token (login) : ", data.access);
-          console.log("Refresh Token (login) : ", data.refresh);
-
-          // Redirection vers /home après connexion réussie
-          window.location.href = "/home";
-        } else {
-          showErrorPopup("L'email n'est pas valide.");
-          // displayError("email", data.message); // Affiche l'erreur de connexion
-        }
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la connexion :", error);
-        showErrorPopup(
-          "Une erreur est survenue, veuillez réessayer plus tard."
-        );
-        // alert("Une erreur est survenue, veuillez réessayer plus tard.");
-      })
-      .finally(() => {
-        // Réactiver le bouton
-        document.getElementById("submitLoginBtn").disabled = false;
+function setupCodeInputs(userId) {
+  const inputs = document.querySelectorAll('.code-input');
+  const verifyButton = document.getElementById('verifyButton');
+  
+  inputs.forEach((input, index) => {
+      if (index === 0) input.focus();
+      
+      input.addEventListener('input', (e) => {
+          e.target.value = e.target.value.replace(/[^0-9]/g, '');
+          
+          if (e.target.value) {
+              if (index < inputs.length - 1) {
+                  inputs[index + 1].focus();
+              }
+          }
+          
+          const isComplete = Array.from(inputs).every(input => input.value.length === 1);
+          verifyButton.disabled = !isComplete;
+      });
+      
+      input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !e.target.value && index > 0) {
+              inputs[index - 1].focus();
+          }
       });
   });
+  
+  verifyButton.addEventListener('click', () => {
+      const code = Array.from(inputs).map(input => input.value).join('');
+      verifyTwoFactorCode(userId, code);
+  });
+}
+
+function startCountdown(duration) {
+  const countdownElement = document.getElementById('countdown');
+  let timer = duration;
+  
+  const countdown = setInterval(() => {
+      const minutes = Math.floor(timer / 60);
+      const seconds = timer % 60;
+      
+      countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      if (--timer < 0) {
+          clearInterval(countdown);
+          countdownElement.textContent = "Code expiré";
+          document.getElementById('verifyButton').disabled = true;
+      }
+  }, 1000);
+}
+
+async function verifyTwoFactorCode(userId, code) {
+  const verifyButton = document.getElementById('verifyButton');
+  const errorMessage = document.querySelector('.error-message');
+  
+  try {
+      verifyButton.disabled = true;
+      verifyButton.textContent = 'Vérification...';
+      
+      const response = await fetch("/api/verify-2fa-login/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId, code: code }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+          handleSuccessfulLogin(data);
+      } else {
+          errorMessage.textContent = data.message || "Code invalide";
+          errorMessage.style.display = 'block';
+          verifyButton.disabled = false;
+      }
+  } catch (error) {
+      console.error("Erreur lors de la vérification 2FA:", error);
+      errorMessage.textContent = "Une erreur est survenue lors de la vérification";
+      errorMessage.style.display = 'block';
+  } finally {
+      verifyButton.textContent = 'Vérifier';
+      verifyButton.disabled = false;
+  }
+}
+
+function handleSuccessfulLogin(data) {
+  const popup = document.querySelector('.popup-overlay');
+  if (popup) {
+      popup.remove();
+  }
+  
+  localStorage.setItem("access_token", data.access);
+  localStorage.setItem("refresh_token", data.refresh);
+  window.location.href = "/home";
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

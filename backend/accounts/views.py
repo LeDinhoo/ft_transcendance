@@ -21,6 +21,10 @@ from django.conf import settings
 import os
 
 
+import random
+from django.utils import timezone
+from datetime import timedelta
+
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from rest_framework.response import Response
@@ -43,43 +47,60 @@ def index_view(request):
 
 # Vue pour la connexion (utilisation des tokens JWT)
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Connexion doit être accessible à tous
+@permission_classes([AllowAny])
 def login_view(request):
     try:
-        # Récupérer les données JSON envoyées dans la requête
         data = json.loads(request.body)
         email = data.get('email')
         password = data.get('password')
-
-        # Authentifier l'utilisateur
+        
         user = authenticate(request, email=email, password=password)
+        
         if user is not None:
-            # Générer les tokens JWT
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
-
-            print('access token:  ==> ', access_token)
-
-            logger.info(f"Access token: {access_token}")
-            logger.info(f"Refresh token: {refresh_token}")
-
-            return JsonResponse({
-                'success': True,
-                'message': 'Login successful',
-                'access' : access_token,
-                'refresh': refresh_token
-                #'access': str(refresh.access_token),
-                #'refresh': str(refresh)
-            }, status=200)
+            # Vérifier si l'utilisateur a activé le 2FA
+            if user.is_2fa_enabled:  # On utilise is_2fa_enabled au lieu de two_factor_enabled
+                # Générer un code 2FA (6 chiffres)
+                code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+                
+                # Sauvegarder le code et son timestamp
+                user.two_factor_code = code
+                user.two_factor_code_timestamp = timezone.now()
+                user.save()
+                
+                # Envoyer l'email avec le code
+                if send_2fa_email(user, code):
+                    return JsonResponse({
+                        'success': True,
+                        'requires_2fa': True,
+                        'user_id': user.id,
+                        'message': 'Code 2FA envoyé'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Erreur lors de l\'envoi du code 2FA'
+                    }, status=500)
+            else:
+                # Connexion sans 2FA
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Login successful',
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh)
+                })
         else:
-            return JsonResponse({'success': False, 'message': 'Invalid credentials'}, status=401)
-
-    except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+            return JsonResponse({
+                'success': False, 
+                'message': 'Invalid credentials'
+            }, status=401)
+            
     except Exception as e:
         logger.error(f"Erreur de connexion : {str(e)}")
-        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 
 
