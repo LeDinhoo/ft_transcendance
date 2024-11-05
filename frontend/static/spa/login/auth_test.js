@@ -1,4 +1,56 @@
 // auth.js
+
+document
+  .getElementById("loginWidget")
+  .addEventListener("submit", function (event) {
+    event.preventDefault(); // Empêche la soumission classique du formulaire
+    console.log("Formulaire de connexion intercepté.");
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    // Désactive le bouton pendant le traitement
+    document.getElementById("submitLoginBtn").disabled = true;
+
+    fetch("/api/login/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, password: password }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Stocker les tokens JWT
+          localStorage.setItem("access_token", data.access);
+          localStorage.setItem("refresh_token", data.refresh);
+
+          // Afficher les tokens dans la console
+          console.log("Access Token (login) : ", data.access);
+          console.log("Refresh Token (login) : ", data.refresh);
+
+          // Redirection vers /home après connexion réussie
+          window.location.href = "/home";
+        } else {
+          showErrorPopup("L'email n'est pas valide.");
+          // displayError("email", data.message); // Affiche l'erreur de connexion
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la connexion :", error);
+        showErrorPopup(
+          "Une erreur est survenue, veuillez réessayer plus tard."
+        );
+        // alert("Une erreur est survenue, veuillez réessayer plus tard.");
+      })
+      .finally(() => {
+        // Réactiver le bouton
+        document.getElementById("submitLoginBtn").disabled = false;
+      });
+  });
+
+
+
+
 class AuthService {
   constructor() {
       this.baseUrl = 'https://localhost:4430';

@@ -43,7 +43,7 @@ def index_view(request):
 
 # Vue pour la connexion (utilisation des tokens JWT)
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([AllowAny])  # Connexion doit être accessible à tous
 def login_view(request):
     try:
         # Récupérer les données JSON envoyées dans la requête
@@ -53,67 +53,33 @@ def login_view(request):
 
         # Authentifier l'utilisateur
         user = authenticate(request, email=email, password=password)
-
         if user is not None:
-            # Vérifier si l'utilisateur a activé la 2FA
-            if user.is_2fa_enabled:
-                # Générer un code 2FA
-                code = ''.join(random.choices(string.digits, k=6))
-                user.two_factor_code = code
-                user.two_factor_code_timestamp = timezone.now()
-                user.save()
-
-                # Envoyer le code par email
-                try:
-                    send_2fa_email(user, code)
-                except Exception as e:
-                    logger.error(f"Erreur d'envoi du code 2FA: {str(e)}")
-                    return JsonResponse({
-                        'success': False,
-                        'message': "Erreur lors de l'envoi du code de vérification"
-                    }, status=500)
-
-                # Retourner une réponse indiquant que la 2FA est requise
-                return JsonResponse({
-                    'success': True,
-                    'require_2fa': True,
-                    'user_id': user.id,
-                    'message': 'Code 2FA envoyé par email'
-                })
-
-            # Si pas de 2FA, connexion normale
+            # Générer les tokens JWT
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
-            print('access token: ==> ', access_token)
+            print('access token:  ==> ', access_token)
+
             logger.info(f"Access token: {access_token}")
             logger.info(f"Refresh token: {refresh_token}")
 
             return JsonResponse({
                 'success': True,
                 'message': 'Login successful',
-                'require_2fa': False,
-                'access': access_token,
+                'access' : access_token,
                 'refresh': refresh_token
+                #'access': str(refresh.access_token),
+                #'refresh': str(refresh)
             }, status=200)
         else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Invalid credentials'
-            }, status=401)
+            return JsonResponse({'success': False, 'message': 'Invalid credentials'}, status=401)
 
     except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Invalid JSON data'
-        }, status=400)
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
     except Exception as e:
         logger.error(f"Erreur de connexion : {str(e)}")
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=500)
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 
 
