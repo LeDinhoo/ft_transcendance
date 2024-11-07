@@ -29,7 +29,5 @@ class CustomUser(AbstractUser):
         code = ''.join(random.choices(string.digits, k=6))
         return code
 
-
-
     class Meta:
         db_table = 'accounts_customuser'
