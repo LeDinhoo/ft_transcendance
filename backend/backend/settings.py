@@ -69,6 +69,56 @@ MIDDLEWARE = [
 	'corsheaders.middleware.CorsMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4430",
+    "https://localhost:4430",
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://localhost:4430$",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 heures
+
+# Configuration SSL
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Autoriser les requêtes non-CSRF pour l'API
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:4430',
+]
+
+
+# Mise à jour de l'URL de redirection 42
+FORTYTWO_REDIRECT_URI = 'https://localhost:8443/api/callback-42/'
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Authentification standard par username
     'accounts.authentication.EmailBackend',       # Authentification par email
@@ -88,7 +138,6 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=12),
-    #'ROTATE_REFRESH_TOKENS': False,
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,  # Active la liste noire
     'TOKEN_BLACKLIST_ENABLED': True,  # Ajoute ceci
@@ -96,10 +145,15 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': settings.SECRET_KEY,
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', 'rest_framework_simplejwt.tokens.RefreshToken'),
-    #'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
+
+FORTYTWO_CLIENT_ID='u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8'
+FORTYTWO_CLIENT_SECRET='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'
+FORTYTWO_REDIRECT_URI='https://localhost:4430/api/callback-42/'
+LOGIN_URL = '/login-register/'  # URL où rediriger si non authentifié
+LOGIN_REDIRECT_URL = '/home/'   # URL après connexion réussie
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -110,13 +164,16 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend', 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend', 'templates'),
+            os.path.join(BASE_DIR, 'accounts', 'templates'),  # Si votre app s'appelle 'accounts'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-				'django.template.context_processors.csrf',
+                'django.template.context_processors.csrf',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -171,8 +228,6 @@ PBKDF2_ITERATIONS = 310000  #nombre d'itérations
 TIME_ZONE = 'Europe/Paris'
 USE_TZ = False  # Si tu préfères ne pas utiliser les fuseaux horaires dans les données
 
-#TIME_ZONE = 'UTC'
-#USE_TZ = True
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -214,3 +269,18 @@ LOGGING = {
     },
 }
 
+# import os
+# from dotenv import load_dotenv
+
+# load_dotenv()
+
+# Email Configuration
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'csiffreinblanc@gmail.com'
+EMAIL_HOST_PASSWORD = 'cbws izxl miso dbij'  # Remplacez par votre mot de passe d'application
+DEFAULT_FROM_EMAIL = 'csiffreinblanc@gmail.com'
+EMAIL_SUBJECT_PREFIX = '[Pong42] '

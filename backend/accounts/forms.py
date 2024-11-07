@@ -1,28 +1,3 @@
-#from django import forms
-#from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-#from django.contrib.auth import get_user_model
-#
-## Formulaire d'inscription
-#class RegisterForm(UserCreationForm):
-#    email = forms.EmailField(required=True)
-#
-#    class Meta:
-#        model = get_user_model()  # Utilise le modèle utilisateur personnalisé
-#        fields = ['username', 'email', 'password1', 'password2']  # Champs pour l'inscription
-#
-#    def save(self, commit=True):
-#        user = super().save(commit=False)
-#        user.email = self.cleaned_data['email']
-#        if commit:
-#            user.save()
-#        return user
-#
-## Formulaire de connexion
-#class LoginForm(AuthenticationForm):
-#    username = forms.CharField()
-#    password = forms.CharField(widget=forms.PasswordInput)
-
-
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model

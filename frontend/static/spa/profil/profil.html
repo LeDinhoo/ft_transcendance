@@ -2,9 +2,6 @@
   <div class="accountSection">
     <div class="avatarSection">
       <div class="playerProfilFrame">
-
-
-
         <div class="avatarFrame">
           <img
             id="avatarDisplay"
@@ -21,45 +18,69 @@
         </div>
         <div class="playerFrame" id="playerFrame">Nickname</div>
       </div>
-
-
-
-      <button class="btn-icon" id="uploadButton">
-        <svg>
-          <use href="/static/assets/icons/sprite.svg#upload"></use>
-        </svg>
-        Upload
-      </button>
-      <button class="btn-icon" onclick="openModal()">
-        <svg>
-          <use href="/static/assets/icons/sprite.svg#slider"></use>
-        </svg>
-        Avatar
-      </button>
-
-      <div class="modal" id="avatarModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                Choisissez votre avatar
-            </div>
-            <div class="avatar-grid" id="avatarGrid">
+      <!-- Section boutons avec 2FA intégré -->
+      <div class="avatarButtons">
+        <button class="btn-icon" id="uploadButton">
+          <svg>
+            <use href="/static/assets/icons/sprite.svg#upload"></use>
+          </svg>
+          Upload
+        </button>
+        <button class="btn-icon">
+          <svg>
+            <use href="/static/assets/icons/sprite.svg#slider"></use>
+          </svg>
+          Avatar
+        </button>
+        <!-- Status 2FA et bouton -->
+        <div class="twoFactorStatus">
+          <span id="2faStatus" style="font-weight: bold; color: #FF5722;">2FA: OFF</span>
         </div>
-            <div class="modal-footer">
-                <button class="btn-icon" onclick="closeModal()">
-                    <img src="/static/assets/icons/close.svg" class="popuplogo">
-                    Annuler
-                </button>
-                <button class="btn-icon" id="applyButton" disabled>
-                    <img src="/static/assets/icons/check.svg" class="popuplogo">
-                    Appliquer
-                </button>
-            </div>
+        <button class="btn-icon" id="toggle2FAButton">
+          <svg>
+            <use href="/static/assets/icons/sprite.svg#lock"></use>
+          </svg>
+          Enable 2FA
+        </button>
+      </div>
+      <!-- Frame pour la vérification qui apparaît au besoin -->
+      <div id="2faVerificationFrame" class="formInputFrame" style="display: none;">
+        <input
+          type="text"
+          id="verificationCode"
+          name="verificationCode"
+          class="inputFrame"
+          placeholder=" "
+          required
+        />
+        <label for="verificationCode" class="inputLabel">Verification Code</label>
+        <button class="btn-icon" id="confirm2FAButton">
+          <svg>
+            <use href="/static/assets/icons/sprite.svg#save"></use>
+          </svg>
+          Confirm
+        </button>
+        <div id="2faVerificationFrame" class="formInputFrame">
+          <input
+            type="text"
+            id="verificationCode"
+            name="verificationCode"
+            class="inputFrame"
+            placeholder=" "
+            required
+          />
+          <label for="verificationCode" class="inputLabel">Code</label>
+          <button class="btn-icon" id="confirm2FAButton">
+            <svg>
+              <use href="/static/assets/icons/sprite.svg#save"></use>
+            </svg>
+            Confirm
+          </button>
         </div>
+      </div>
+      </div>
     </div>
-
     </div>
-
-
     <div class="manageProfilSection">
       <div class="informationSection">
         <div class="settingsTitles">Account Settings</div>

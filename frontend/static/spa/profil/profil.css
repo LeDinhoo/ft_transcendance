@@ -27,15 +27,64 @@
 }
 
 .avatarSection {
+  position: relative;
   width: 100%;
   height: 17.292vw;
   border-radius: var(--radius-lg);
   display: flex;
-  justify-content: center;
+  justify-content: space-between; /* Changé de center à space-between */
   align-items: center;
   flex-direction: row;
   background-color: var(--dark-grey);
-  gap: var(--24px);
+  padding: 0 var(--24px); /* Ajout de padding horizontal */
+}
+
+/* Nouvelle classe pour organiser les boutons */
+.avatarButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--16px);
+}
+
+/* Style pour le status 2FA */
+.twoFactorStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--8px);
+  padding: 0 var(--16px);
+  height: 2.5vw; /* Même hauteur que les boutons */
+  border-left: 2px solid var(--dusty-grey);
+  margin-left: var(--16px);
+}
+
+/* Style pour le frame de vérification */
+#2faVerificationFrame {
+  position: absolute;
+  top: calc(100% + var(--8px)); /* Juste en dessous de avatarSection */
+  right: var(--24px); /* Aligné avec le padding de avatarSection */
+  background-color: var(--dark-grey);
+  padding: var(--16px);
+  border-radius: var(--radius-lg);
+  border: var(--dusty-grey) solid var(--4px);
+  display: none;
+  z-index: 1000;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--16px);
+}
+
+#2faVerificationFrame.visible {
+  display: flex;
+  align-items: center;
+  gap: var(--16px);
+}
+
+/* Ajustement des boutons pour qu'ils aient la même taille */
+.btn-icon {
+  height: 2.5vw; /* Hauteur fixe pour tous les boutons */
+  min-width: 6vw; /* Largeur minimale pour les boutons */
+  padding: 0 var(--16px);
 }
 
 .manageProfilSection {
