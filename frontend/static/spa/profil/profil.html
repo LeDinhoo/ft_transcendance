@@ -26,12 +26,32 @@
           </svg>
           Upload
         </button>
-        <button class="btn-icon">
+        <button class="btn-icon" onclick="openModal()">
           <svg>
             <use href="/static/assets/icons/sprite.svg#slider"></use>
           </svg>
           Avatar
         </button>
+
+        <div class="modal" id="avatarModal">
+          <div class="modal-content">
+              <div class="modal-header">
+                  Choisissez votre avatar
+              </div>
+              <div class="avatar-grid" id="avatarGrid">
+          </div>
+              <div class="modal-footer">
+                  <button class="btn-icon" onclick="closeModal()">
+                      <img src="/static/assets/icons/close.svg" class="popuplogo">
+                      Annuler
+                  </button>
+                  <button class="btn-icon" id="applyButton" disabled>
+                      <img src="/static/assets/icons/check.svg" class="popuplogo">
+                      Appliquer
+                  </button>
+              </div>
+          </div>
+        </div>
         <!-- Status 2FA et bouton -->
         <div class="twoFactorStatus">
           <span id="2faStatus" style="font-weight: bold; color: #FF5722;">2FA: OFF</span>

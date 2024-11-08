@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     "/static/spa/home/home.css");
     } else if (path === "/profil") {
       loadComponent(
-        "/static/spa/profil/profil.html",
+        "/static/spa/profil/profil_test.html",
         "/static/spa/profil/profil.css",
         [
           "/static/spa/profil/profil.js",
@@ -180,6 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resetPasswordFields();
         initializePasswordVisibility();
         initializeAvatarFeature();
+        initialize2FA();
       });
     } else if (path === "/custom") {
       loadComponent(

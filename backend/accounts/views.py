@@ -156,18 +156,23 @@ def profile_view(request):
     print("Avatar actuel:", user.avatar)  # Debug
 
     # Gérer le chemin de l'avatar
-    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
-        avatar_url = f"/static/{user.avatar}"
-    else:
-        avatar_url = user.avatar.url if user.avatar else None
+    avatar_url = None
+    if user.avatar:
+        if str(user.avatar).startswith('assets/avatars/'):
+            # Si l'avatar est un avatar prédéfini
+            avatar_url = f"/static/{user.avatar}"
+        else:
+            # Si l'avatar est un fichier uploadé
+            avatar_url = f"/media/{user.avatar}"
 
-    # Ajouter is_2fa_enabled à la réponse
-    return JsonResponse({
+    response_data = {
         'username': user.username,
         'email': user.email,
         'avatar': avatar_url,
-        'is_2fa_enabled': user.is_2fa_enabled  # Ajout du statut 2FA
-    }, status=200)
+        'is_2fa_enabled': user.is_2fa_enabled
+    }
+
+    return JsonResponse(response_data, status=200)
 
 
 @api_view(['PATCH'])
@@ -175,8 +180,8 @@ def profile_view(request):
 def update_profile_view(request):
     user = request.user
     data = request.data
-    print("Données reçues:", data)  # Debug
-    print("Files reçus:", request.FILES)  # Debug
+    #print("Données reçues:", data)  # Debug
+    #print("Files reçus:", request.FILES)  # Debug
 
     # Valider et mettre à jour le nom d'utilisateur si présent dans les données
     if 'username' in data:
@@ -217,33 +222,45 @@ def update_profile_view(request):
     # Gérer l'avatar uploadé si présent
     if 'avatar' in request.FILES:
         avatar = request.FILES['avatar']
-
-        # Optionnel : Valider le type de fichier (seulement PNG ou JPEG)
         valid_image_extensions = ['png', 'jpg', 'jpeg']
         ext = avatar.name.split('.')[-1].lower()
         if ext not in valid_image_extensions:
             return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
-
-        # Attribuer l'avatar uploadé à l'utilisateur (Django gérera l'upload dans le dossier MEDIA_ROOT)
         user.avatar = avatar
+
+    elif 'selected_avatar' in data:
+        selected_avatar = data['selected_avatar']
+        print("Avatar sélectionné:", selected_avatar)  # Debug
+        # Vérifier si le chemin correspond au format attendu
+        expected_prefix = 'assets/avatars/'
+        if selected_avatar.startswith(expected_prefix):
+            user.avatar = selected_avatar
+            print("Avatar après assignation:", user.avatar)  # Debug
+        else:
+            print("Chemin d'avatar invalide:", selected_avatar)  # Debug
+            return JsonResponse({
+                'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
+            }, status=400)
 
     try:
         user.save()  # Sauvegarder les modifications dans la base de données
     except Exception as e:
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
 
-    # Gérer le chemin de l'avatar : 
-    if user.avatar and user.avatar.name.startswith('assets/avatars/'):
-        avatar_url = f"/static/{user.avatar}"
-    else:
-        avatar_url = f"/media/{user.avatar}"
+    avatar_url = None
+    if user.avatar:
+        if str(user.avatar).startswith('assets/avatars/'):
+            avatar_url = f"/static/{user.avatar}"
+        else:
+            avatar_url = f"/media/{user.avatar}"
+    
+    print("URL de l'avatar renvoyée:", avatar_url)  # Debug
 
     return JsonResponse({
         'username': user.username,
         'email': user.email,
-        'avatar': avatar_url  # Renvoie l'URL correcte de l'avatar
+        'avatar': avatar_url
     }, status=200)
-
 
 
 @api_view(['POST'])
