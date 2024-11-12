@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong 3D</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #game {
+        width: 80vw;
+        height: 80vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+          "three/examples/jsm/loaders/GLTFLoader": "https://unpkg.com/three@0.157.0/examples/jsm/loaders/GLTFLoader.js",
+          "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js",
+          "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js",
+          "three/examples/jsm/postprocessing/EffectComposer": "https://unpkg.com/three@0.157.0/examples/jsm/postprocessing/EffectComposer.js",
+          "three/examples/jsm/postprocessing/RenderPass": "https://unpkg.com/three@0.157.0/examples/jsm/postprocessing/RenderPass.js",
+          "three/examples/jsm/postprocessing/UnrealBloomPass": "https://unpkg.com/three@0.157.0/examples/jsm/postprocessing/UnrealBloomPass.js",
+          "three/examples/jsm/postprocessing/Pass": "https://unpkg.com/three@0.157.0/examples/jsm/postprocessing/Pass.js",
+          "three/examples/jsm/shaders/CopyShader": "https://unpkg.com/three@0.157.0/examples/jsm/shaders/CopyShader.js",
+          "three/examples/jsm/postprocessing/MaskPass": "https://unpkg.com/three@0.157.0/examples/jsm/postprocessing/MaskPass.js",
+          "three/examples/jsm/shaders/LuminosityHighPassShader": "https://unpkg.com/three@0.157.0/examples/jsm/shaders/LuminosityHighPassShader.js",
+          "three/examples/jsm/helpers/RectAreaLightHelper": "https://unpkg.com/three@0.157.0/examples/jsm/helpers/RectAreaLightHelper.js",
+          "three/examples/jsm/loaders/FontLoader": "https://unpkg.com/three@0.157.0/examples/jsm/loaders/FontLoader.js",
+          "three/examples/jsm/geometries/TextGeometry": "https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js"
+        }
+      }
+    </script>
+    <script type="module" src="game.js"></script>
+     <script type="module" src="light.js"></script>
+  </body>
+</html>
+

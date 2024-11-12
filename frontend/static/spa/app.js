@@ -42,13 +42,13 @@ document.addEventListener("DOMContentLoaded", function () {
         appDiv.innerHTML = html;
       }
 
-			// Charger le fichier CSS s'il existe
-			if (cssUrl) {
-				loadCSS(cssUrl);
-			}
+      // Charger le fichier CSS s'il existe
+      if (cssUrl) {
+        loadCSS(cssUrl);
+      }
 
-			// Supprimer les anciens scripts avant d'en charger de nouveaux
-			removePreviousComponentScripts();
+      // Supprimer les anciens scripts avant d'en charger de nouveaux
+      removePreviousComponentScripts();
 
       // Charger les scripts JS dans l'ordre
       if (jsUrls && jsUrls.length > 0) {
@@ -76,15 +76,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-	// Fonction pour charger un fichier CSS dynamiquement
-	function loadCSS(cssUrl) {
-		removePreviousComponentCSS(); // Supprimer les anciens fichiers CSS spécifiques
-		const link = document.createElement("link");
-		link.rel = "stylesheet";
-		link.href = cssUrl;
-		link.setAttribute("data-component-css", "true");
-		document.head.appendChild(link);
-	}
+  // Fonction pour charger un fichier CSS dynamiquement
+  function loadCSS(cssUrl) {
+    removePreviousComponentCSS(); // Supprimer les anciens fichiers CSS spécifiques
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = cssUrl;
+    link.setAttribute("data-component-css", "true");
+    document.head.appendChild(link);
+  }
 
   // Supprimer les anciens fichiers CSS
   function removePreviousComponentCSS() {
@@ -94,8 +94,6 @@ document.addEventListener("DOMContentLoaded", function () {
     componentCSSLinks.forEach((link) => link.remove());
   }
 
-
-
   // Supprimer les anciens scripts spécifiques aux composants
   function removePreviousComponentScripts() {
     const componentScripts = document.querySelectorAll(
@@ -103,8 +101,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     componentScripts.forEach((script) => script.remove());
   }
-
-
 
   // Charger les scripts JS dans l'ordre
   function loadScriptsInOrder(jsUrls) {
@@ -116,8 +112,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return promise.then(() => loadScript(jsUrl));
     }, Promise.resolve());
   }
-
-
 
   // Charger un fichier JS dynamiquement
   function loadScript(jsUrl) {
@@ -136,8 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.appendChild(script);
     });
   }
-
-
 
   // Fonction pour charger la page correcte en fonction de l'URL
   window.loadPageFromURL = function () {
@@ -164,8 +156,13 @@ document.addEventListener("DOMContentLoaded", function () {
         true
       );
     } else if (path === "/home") {
-      loadComponent("/static/spa/home/home.html",
-                    "/static/spa/home/home.css");
+      loadComponent(
+        "/static/spa/home/home.html", 
+        "/static/spa/home/home.css",
+        ["/static/spa/home/home.js",
+      ]).then(() => {
+        initializeHome();
+    });
     } else if (path === "/profil") {
       loadComponent(
         "/static/spa/profil/profil_test.html",
@@ -194,15 +191,13 @@ document.addEventListener("DOMContentLoaded", function () {
         "/static/spa/tournament/tournament.css",
         ["/static/spa/tournament/tournament.js"]
       ).then(() => {
-        if (typeof initializeTournamentPage === "function") {
-          initializeTournamentPage();
-        }
+        initializeTournamentPage();
+        // initializeTournamentDisplay();
       });
     } else {
       appDiv.innerHTML = "<p>Page non trouvée.</p>";
     }
   };
-
 
   window.logout = function () {
     console.log("log out function called");
@@ -211,38 +206,37 @@ document.addEventListener("DOMContentLoaded", function () {
     const accessToken = localStorage.getItem("access_token");
 
     if (!refreshToken || !accessToken) {
-        console.error("Tokens not found.");
-        return;
+      console.error("Tokens not found.");
+      return;
     }
 
     fetch("/api/logout/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,  // Envoyer l'access token dans les headers
-        },
-        body: JSON.stringify({
-            refresh_token: refreshToken,  // Inclure le refresh token dans le corps de la requête
-            access_token: accessToken     // Inclure également l'access token dans le corps de la requête
-        }),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`, // Envoyer l'access token dans les headers
+      },
+      body: JSON.stringify({
+        refresh_token: refreshToken, // Inclure le refresh token dans le corps de la requête
+        access_token: accessToken, // Inclure également l'access token dans le corps de la requête
+      }),
     })
-    .then((response) => {
+      .then((response) => {
         console.log("Response status:", response.status); // Vérifie le statut de la réponse
         return response.json();
-    })
-    .then((data) => {
+      })
+      .then((data) => {
         console.log("Logout response data:", data); // Affiche les données de la réponse
         if (data.success) {
-            localStorage.removeItem("access_token");  // Supprimer les tokens du stockage local
-            localStorage.removeItem("refresh_token");
-            window.location.href = "/login-register";
+          localStorage.removeItem("access_token"); // Supprimer les tokens du stockage local
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/login-register";
         } else {
-            console.error(data.message);
+          console.error(data.message);
         }
-    })
-    .catch((error) => console.error("Error:", error));
-};
-
+      })
+      .catch((error) => console.error("Error:", error));
+  };
 
   // Fonction pour gérer la visibilité de la navbar
   function updateNavBarVisibility(path) {
