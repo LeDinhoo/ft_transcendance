@@ -431,3 +431,124 @@ function navigateTo(path) {
 }
 
 
+
+
+
+class AuthService {
+  constructor() {
+      this.baseUrl = 'https://localhost:4430';
+  }
+
+  setTokens(tokens) {
+      localStorage.setItem('access_token', tokens.access);
+      localStorage.setItem('refresh_token', tokens.refresh);
+  }
+
+  setUserData(userData) {
+      localStorage.setItem('user_data', JSON.stringify(userData));
+  }
+
+  clearAuth() {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+  }
+}
+
+const authService = new AuthService();
+
+// Gestionnaire d'authentification 42
+document.getElementById('42').addEventListener('click', async function(e) {
+  e.preventDefault();
+  console.log('Starting 42 authentication process...');
+
+  try {
+      const baseUrl = 'https://localhost:4430';
+      
+      console.log('Fetching auth URL...');
+      const response = await fetch(`${baseUrl}/api/get_auth_url/`, {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          mode: 'cors'
+      });
+
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Received auth URL:', data.auth_url);
+
+      if (data.success && data.auth_url) {
+          // Gestionnaire de message pour la fenêtre principale
+          const messageHandler = function(event) {
+              console.log('Message received:', event);
+              
+              if (event.origin === baseUrl && event.data.type === 'auth_success') {
+                  console.log('Authentication successful, storing tokens...');
+                  
+                  // Stocker les tokens
+                  localStorage.setItem('access_token', event.data.tokens.access);
+                  localStorage.setItem('refresh_token', event.data.tokens.refresh);
+                  
+                  // Stocker les données utilisateur
+                  if (event.data.user) {
+                      localStorage.setItem('user_data', JSON.stringify(event.data.user));
+                  }
+                  
+                  // Nettoyer le gestionnaire
+                  window.removeEventListener('message', messageHandler);
+                  
+                  console.log('Redirecting to home...');
+                  // Rediriger vers la page d'accueil
+                  window.location.replace(`${baseUrl}/home`);
+              }
+          };
+
+          // Ajouter le gestionnaire avant d'ouvrir la popup
+          window.addEventListener('message', messageHandler);
+          
+          console.log('Opening auth window...');
+          const authWindow = window.open(
+              data.auth_url,
+              '42 Authentication',
+              'width=600,height=700'
+          );
+
+          if (!authWindow) {
+              window.removeEventListener('message', messageHandler);
+              throw new Error('Popup window was blocked');
+          }
+
+          // Vérifier si la fenêtre est fermée
+          const checkPopup = setInterval(() => {
+            if (authWindow.closed) {
+                console.log('Auth window closed, cleaning up...');
+                clearInterval(checkPopup);
+                window.removeEventListener('message', messageHandler);
+                
+                // Vérification finale de l'authentification
+                fetch(`${baseUrl}/api/check-auth/`, {
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Final auth check:', data);
+                    if (data.success) {
+                        console.log('Confirmed authenticated, redirecting to home...');
+                        window.location.replace(`${baseUrl}/home`);
+                    }
+                })
+                .catch(error => console.error('Final auth check failed:', error));
+            }
+        }, 500);
+      }
+  } catch (error) {
+      console.error('Authentication error:', error);
+      alert('Erreur lors de l\'authentification 42: ' + error.message);
+  }
+});

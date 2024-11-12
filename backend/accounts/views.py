@@ -717,6 +717,7 @@ logger = logging.getLogger(__name__)
 #             'message': f'Unexpected error: {str(e)}'
 #         }, status=500)
 
+from django.core.files.base import ContentFile
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -806,7 +807,6 @@ def callback_42(request):
                         # Créer un nom de fichier unique
                         file_name = f"42_avatar_{user.username}_{user.id}.jpg"
                         
-                        from django.core.files.base import ContentFile
                         # Sauvegarder l'image
                         user.avatar.save(
                             file_name,
