@@ -769,31 +769,57 @@ def callback_42(request):
             }, status=400)
 
         try:
+            # Récupérer l'URL de l'avatar depuis l'API 42
+            avatar_url = user_data.get('image', {}).get('versions', {}).get('large')
+            logger.info(f"Found avatar URL: {avatar_url}")
+
             # Chercher l'utilisateur par intra_42_id
             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
-
+            
             if user is None:
                 # Si non trouvé, chercher par email
                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
-
+                
                 if existing_user:
-                    # Mettre à jour l'utilisateur existant avec les infos 42
                     existing_user.intra_42_id = user_data['id']
                     existing_user.is_42_user = True
-                    existing_user.save()
                     user = existing_user
-                    logger.info(f"Updated existing user with 42 data: {user.username}")
                 else:
-                    # Créer un nouvel utilisateur
                     user = CustomUser.objects.create_user(
                         username=user_data['login'],
                         email=user_data['email'],
                         password=CustomUser.objects.make_random_password(),
                         intra_42_id=user_data['id'],
                         is_42_user=True,
-                        avatar='assets/avatars/ladybug.png'  # Utilise la valeur par défaut
+                        avatar='assets/avatars/ladybug.png'
                     )
-                    logger.info(f"Created new user from 42 data: {user.username}")
+
+            # Télécharger et sauvegarder l'avatar si disponible
+            if avatar_url:
+                try:
+                    logger.info(f"Attempting to download avatar from: {avatar_url}")
+                    avatar_response = requests.get(avatar_url, timeout=10)
+                    
+                    if avatar_response.status_code == 200:
+                        logger.info("Avatar download successful")
+                        
+                        # Créer un nom de fichier unique
+                        file_name = f"42_avatar_{user.username}_{user.id}.jpg"
+                        
+                        from django.core.files.base import ContentFile
+                        # Sauvegarder l'image
+                        user.avatar.save(
+                            file_name,
+                            ContentFile(avatar_response.content),
+                            save=True
+                        )
+                        logger.info(f"Avatar saved to: {user.avatar.path}")
+                    else:
+                        logger.error(f"Failed to download avatar. Status code: {avatar_response.status_code}")
+                
+                except Exception as e:
+                    logger.error(f"Failed to save avatar: {str(e)}")
+                    logger.exception("Detailed error:")
 
             # Connecter l'utilisateur
             user.backend = 'django.contrib.auth.backends.ModelBackend'
