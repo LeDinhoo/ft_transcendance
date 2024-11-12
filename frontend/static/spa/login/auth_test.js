@@ -14,7 +14,8 @@ document.getElementById("loginWidget").addEventListener("submit", async function
       const loginResponse = await fetch("/api/login/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          credentials: 'include',  // Envoie les cookies avec la requête
+          body: JSON.stringify({ email: email, password: password }),
       });
       
       const loginData = await loginResponse.json();
@@ -125,6 +126,7 @@ async function verifyTwoFactorCode(userId, code) {
       const response = await fetch("/api/verify-2fa-login/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: 'include',  // Pour envoyer et recevoir les cookies
           body: JSON.stringify({ user_id: userId, code: code }),
       });
       
@@ -564,23 +566,24 @@ async function fetchWithAuth(url, options = {}) {
           fetch("/api/login/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: 'include',  // Pour envoyer et recevoir les cookies
             body: JSON.stringify({ email: email, password: password1 }),
           })
             .then((loginResponse) => loginResponse.json())
             .then((loginData) => {
               if (loginData.success) {
-                localStorage.setItem("access_token", loginData.access);
-                localStorage.setItem("refresh_token", loginData.refresh);
+                // localStorage.setItem("access_token", loginData.access);
+                // localStorage.setItem("refresh_token", loginData.refresh);
 
                 // Afficher les tokens dans la console
-                console.log(
-                  "Access Token (login apres inscription) : ",
-                  loginData.access
-                );
-                console.log(
-                  "Refresh Token (login apres inscription) : ",
-                  loginData.refresh
-                );
+                // console.log(
+                //   "Access Token (login apres inscription) : ",
+                //   loginData.access
+                // );
+                // console.log(
+                //   "Refresh Token (login apres inscription) : ",
+                //   loginData.refresh
+                // );
 
                 // Redirection vers /home
                 window.location.href = "/home";

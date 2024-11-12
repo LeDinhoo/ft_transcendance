@@ -34,6 +34,27 @@ import random
 import string
 from django.utils import timezone
 
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_cookies(request):
+    logger.info("Accès à la vue check_cookies")
+    return JsonResponse({
+        "cookies": request.COOKIES,
+        "access_token": request.COOKIES.get('access_token')
+    })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # S'assure que le token est valide
+def auth_check(request):
+    # Si l'utilisateur est authentifié, retourner une réponse 200 OK
+    return Response({"authenticated": True}, status=status.HTTP_200_OK)
+
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
 logger = logging.getLogger(__name__)
 
 # Vue pour la page d'accueil (login/register)
@@ -43,6 +64,41 @@ def index_view(request):
     login_form = LoginForm()
     register_form = RegisterForm()
     return render(request, 'index.html', {'login_form': login_form, 'register_form': register_form})
+
+# def set_jwt_cookies(response, access_token, refresh_token):
+#     # Configurer les cookies sécurisés pour les tokens
+#     response.set_cookie(
+#         key='access_token',
+#         value=access_token,
+#         httponly=True,  # Empêche l'accès via JavaScript
+#         secure=True,    # Utilise HTTPS uniquement
+#         samesite='Strict'  # Paramètre SameSite pour CSRF
+#     )
+#     response.set_cookie(
+#         key='refresh_token',
+#         value=refresh_token,
+#         httponly=True,
+#         secure=True,
+#         samesite='Strict'
+#     )
+
+def set_jwt_cookies(response, access_token, refresh_token):
+    # Configurer les cookies sécurisés pour les tokens
+    response.set_cookie(
+        key='access_token',
+        value=access_token,
+        httponly=True,  # Empêche l'accès via JavaScript
+        secure=True,    # Utilise HTTPS uniquement
+        samesite='None'  # Autorise l'accès intersite pour les fenêtres popup
+    )
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite='None'  # Autorise l'accès intersite pour les fenêtres popup
+    )
+
 
 
 # Vue pour la connexion (utilisation des tokens JWT)
@@ -82,12 +138,15 @@ def login_view(request):
             else:
                 # Connexion sans 2FA
                 refresh = RefreshToken.for_user(user)
-                return JsonResponse({
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
+                response = JsonResponse({
                     'success': True,
                     'message': 'Login successful',
-                    'access': str(refresh.access_token),
-                    'refresh': str(refresh)
-                })
+
+                }, status=200)
+                set_jwt_cookies(response, access_token, refresh_token)
+                return response
         else:
             return JsonResponse({
                 'success': False,
@@ -264,46 +323,115 @@ def update_profile_view(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
+@permission_classes([IsAuthenticated])
 def logout_view(request):
     try:
-        # Récupérer le refresh token de la requête
-        refresh_token = request.data.get('refresh_token')
-
-        if not refresh_token:
-            return JsonResponse({'success': False, 'message': 'Refresh token is required'}, status=400)
-
-        # Invalider le refresh token
-        try:
-            refresh_token_instance = RefreshToken(refresh_token)
-            refresh_token_instance.blacklist()
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error blacklisting refresh token: {str(e)}'}, status=500)
-
-        return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
-
+        refresh_token = request.COOKIES.get('refresh_token')
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        
+        response = JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
     except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
+# def logout_view(request):
+#     try:
+#         # Récupérer le refresh token de la requête
+#         refresh_token = request.data.get('refresh_token')
+
+#         if not refresh_token:
+#             return JsonResponse({'success': False, 'message': 'Refresh token is required'}, status=400)
+
+#         # Invalider le refresh token
+#         try:
+#             refresh_token_instance = RefreshToken(refresh_token)
+#             refresh_token_instance.blacklist()
+#         except Exception as e:
+#             return JsonResponse({'success': False, 'message': f'Error blacklisting refresh token: {str(e)}'}, status=500)
+
+#         return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 from rest_framework_simplejwt.exceptions import TokenError
 
 @api_view(['POST'])
-def token_refresh_view(request):
+@permission_classes([AllowAny])
+def refresh_token_view(request):
+    refresh_token = request.COOKIES.get('refresh_token')
+    if not refresh_token:
+        return JsonResponse({'error': 'Refresh token not found'}, status=403)
+
+    try:
+        token = RefreshToken(refresh_token)
+        access_token = str(token.access_token)
+
+        response = JsonResponse({'success': True}, status=200)
+        response.set_cookie(
+            key='access_token',
+            value=access_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+
+        return response
+
+    except Exception as e:
+        return JsonResponse({'error': 'Invalid refresh token'}, status=403)
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def auto_refresh_token_view(request):
     refresh_token = request.data.get('refresh')
+    
+    if not refresh_token:
+        return Response({'error': 'Refresh token is required'}, status=400)
     
     try:
         token = RefreshToken(refresh_token)
-        
-        # Vérifier si le token est blacklisté
-        if token.check_blacklist():
-            return JsonResponse({'error': 'Token is blacklisted'}, status=400)
-        
-        # Générer un nouveau token d'accès
         new_access_token = str(token.access_token)
-        return JsonResponse({'access': new_access_token}, status=200)
         
-    except TokenError as e:
-        return JsonResponse({'error': 'Invalid token'}, status=400)
+        return Response({
+            'access': new_access_token
+        }, status=200)
+    except Exception as e:
+        return Response({'error': 'Invalid or expired refresh token'}, status=403)
+
+
+
+# @api_view(['POST'])
+# def token_refresh_view(request):
+#     refresh_token = request.data.get('refresh')
+    
+#     try:
+#         token = RefreshToken(refresh_token)
+        
+#         # Vérifier si le token est blacklisté
+#         if token.check_blacklist():
+#             return JsonResponse({'error': 'Token is blacklisted'}, status=400)
+        
+#         # Générer un nouveau token d'accès
+#         new_access_token = str(token.access_token)
+#         return JsonResponse({'access': new_access_token}, status=200)
+        
+#     except TokenError as e:
+#         return JsonResponse({'error': 'Invalid token'}, status=400)
 
 #################################API 42 ####################################################
 
@@ -389,6 +517,207 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def callback_42(request):
+#     try:
+#         code = request.GET.get('code')
+#         if not code:
+#             logger.error("No authorization code received")
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': 'No authorization code received'
+#             }, status=400)
+
+#         # Échange du code contre un token
+#         token_url = 'https://api.intra.42.fr/oauth/token'
+#         token_data = {
+#             'grant_type': 'authorization_code',
+#             'client_id': settings.FORTYTWO_CLIENT_ID,
+#             'client_secret': settings.FORTYTWO_CLIENT_SECRET,
+#             'code': code,
+#             'redirect_uri': settings.FORTYTWO_REDIRECT_URI
+#         }
+
+#         try:
+#             token_response = requests.post(token_url, data=token_data, timeout=10)
+#             token_response.raise_for_status()
+#         except requests.exceptions.RequestException as e:
+#             logger.error(f"Token exchange failed: {str(e)}")
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': 'Failed to exchange authorization code'
+#             }, status=400)
+
+#         access_token = token_response.json().get('access_token')
+
+#         try:
+#             user_response = requests.get(
+#                 'https://api.intra.42.fr/v2/me',
+#                 headers={'Authorization': f'Bearer {access_token}'},
+#                 timeout=10
+#             )
+#             user_response.raise_for_status()
+#             user_data = user_response.json()
+
+#         except requests.exceptions.RequestException as e:
+#             logger.error(f"Failed to get user info: {str(e)}")
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': 'Failed to get user information'
+#             }, status=400)
+
+#         try:
+#             # Chercher l'utilisateur par intra_42_id
+#             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
+
+#             if user is None:
+#                 # Si non trouvé, chercher par email
+#                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
+
+#                 if existing_user:
+#                     # Mettre à jour l'utilisateur existant avec les infos 42
+#                     existing_user.intra_42_id = user_data['id']
+#                     existing_user.is_42_user = True
+#                     existing_user.save()
+#                     user = existing_user
+#                     logger.info(f"Updated existing user with 42 data: {user.username}")
+#                 else:
+#                     # Créer un nouvel utilisateur
+#                     user = CustomUser.objects.create_user(
+#                         username=user_data['login'],
+#                         email=user_data['email'],
+#                         password=CustomUser.objects.make_random_password(),
+#                         intra_42_id=user_data['id'],
+#                         is_42_user=True,
+#                         avatar='assets/avatars/ladybug.png'  # Utilise la valeur par défaut
+#                     )
+#                     logger.info(f"Created new user from 42 data: {user.username}")
+
+#             # Connecter l'utilisateur
+#             user.backend = 'django.contrib.auth.backends.ModelBackend'
+#             login(request, user)
+
+#             # Générer les tokens JWT comme dans votre login classique
+#             refresh = RefreshToken.for_user(user)
+#             access_token = str(refresh.access_token)
+#             refresh_token = str(refresh)
+
+#             # Création des données pour la réponse
+#             response_data = {
+#                 'success': True,
+#                 'message': 'Authentication successful',
+#                 'user': {
+#                     'id': user.id,
+#                     'username': user.username,
+#                     'email': user.email,
+#                     'is_42_user': user.is_42_user,
+#                     'avatar': user.avatar.url
+#                 },
+#                 # 'access': str(refresh.access_token),
+#                 # 'refresh': str(refresh)
+#             }
+#             # set_jwt_cookies(response_data, access_token, refresh_token)
+
+
+#             # # Retourner une page HTML avec les données et la redirection
+#             # return HttpResponse(f"""
+#             #     <!DOCTYPE html>
+#             #     <html>
+#             #         <head>
+#             #             <title>Authentication Successful</title>
+#             #             <script>
+#             #                 console.log('Processing authentication response...');
+
+#             #                 // Les données de l'authentification
+#             #                 const authData = {json.dumps(response_data)};
+
+#             #                 // Stocker les tokens
+#             #                 localStorage.setItem('access_token', authData.access);
+#             #                 localStorage.setItem('refresh_token', authData.refresh);
+
+#             #                 // Stocker les données utilisateur
+#             #                 localStorage.setItem('user_data', JSON.stringify(authData.user));
+
+#             #                 if (window.opener) {{
+#             #                     // Envoyer un message à la fenêtre principale
+#             #                     console.log('Sending success message to main window...');
+#             #                     window.opener.postMessage({{
+#             #                         type: 'auth_success',
+#             #                         data: authData
+#             #                     }}, 'https://localhost:4430');
+
+#             #                     // Rediriger la fenêtre principale
+#             #                     console.log('Redirecting main window...');
+#             #                     window.opener.location.href = 'https://localhost:4430/home';
+
+#             #                     // Fermer cette fenêtre après un court délai
+#             #                     setTimeout(() => {{
+#             #                         console.log('Closing popup window...');
+#             #                         window.close();
+#             #                     }}, 300);
+#             #                 }}
+#             #             </script>
+#             #         </head>
+#             #         <body>
+#             #             <h1>Authentication Successful!</h1>
+#             #             <p>Redirecting...</p>
+#             #         </body>
+#             #     </html>
+#             # """)
+
+#             response = HttpResponse(f"""
+#                 <!DOCTYPE html>
+#                 <html>
+#                     <head>
+#                         <title>Authentication Successful</title>
+#                         <script>
+#                             if (window.opener) {{
+#                                 // Envoyer un message à la fenêtre principale
+#                                 console.log('Sending success message to main window...');
+#                                 window.opener.postMessage({{
+#                                     type: 'auth_success'
+#                                 }}, 'https://localhost:4430');
+
+#                                 // Rediriger la fenêtre principale
+#                                 console.log('Redirecting main window...');
+#                                 window.opener.location.href = 'https://localhost:4430/home';
+
+#                                 // Fermer cette fenêtre après un court délai
+#                                 setTimeout(() => {{
+#                                     console.log('Closing popup window...');
+#                                     window.close();
+#                                 }}, 300);
+#                             }}
+#                         </script>
+#                     </head>
+#                     <body>
+#                         <h1>Authentication Successful!</h1>
+#                         <p>Redirecting...</p>
+#                     </body>
+#                 </html>
+#             """)
+
+#         # Définir les cookies de jetons sur la réponse HTML
+#         set_jwt_cookies(response, access_token, refresh_token)
+#         return response
+
+
+#         except Exception as e:
+#             logger.error(f"Database error: {str(e)}")
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': f'Database error: {str(e)}'
+#             }, status=500)
+
+#     except Exception as e:
+#         logger.exception(f"Unexpected error in callback_42: {str(e)}")
+#         return JsonResponse({
+#             'success': False,
+#             'message': f'Unexpected error: {str(e)}'
+#         }, status=500)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def callback_42(request):
@@ -472,47 +801,21 @@ def callback_42(request):
 
             # Générer les tokens JWT comme dans votre login classique
             refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
 
-            # Création des données pour la réponse
-            response_data = {
-                'success': True,
-                'message': 'Authentication successful',
-                'user': {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email,
-                    'is_42_user': user.is_42_user,
-                    'avatar': user.avatar.url
-                },
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
-            }
-
-            # Retourner une page HTML avec les données et la redirection
-            return HttpResponse(f"""
+            # Préparer la réponse HTML avec les données
+            response = HttpResponse(f"""
                 <!DOCTYPE html>
                 <html>
                     <head>
                         <title>Authentication Successful</title>
                         <script>
-                            console.log('Processing authentication response...');
-
-                            // Les données de l'authentification
-                            const authData = {json.dumps(response_data)};
-
-                            // Stocker les tokens
-                            localStorage.setItem('access_token', authData.access);
-                            localStorage.setItem('refresh_token', authData.refresh);
-
-                            // Stocker les données utilisateur
-                            localStorage.setItem('user_data', JSON.stringify(authData.user));
-
                             if (window.opener) {{
                                 // Envoyer un message à la fenêtre principale
                                 console.log('Sending success message to main window...');
                                 window.opener.postMessage({{
-                                    type: 'auth_success',
-                                    data: authData
+                                    type: 'auth_success'
                                 }}, 'https://localhost:4430');
 
                                 // Rediriger la fenêtre principale
@@ -534,6 +837,10 @@ def callback_42(request):
                 </html>
             """)
 
+            # Définir les cookies de jetons sur la réponse HTML
+            set_jwt_cookies(response, access_token, refresh_token)
+            return response
+
         except Exception as e:
             logger.error(f"Database error: {str(e)}")
             return JsonResponse({
@@ -547,6 +854,7 @@ def callback_42(request):
             'success': False,
             'message': f'Unexpected error: {str(e)}'
         }, status=500)
+
 
 
 @login_required
@@ -819,12 +1127,14 @@ def verify_2fa_login(request):
             user.save()
 
             logger.info(f"2FA validé pour l'utilisateur: {user.email}")
-            return JsonResponse({
+            response = JsonResponse({
                 'success': True,
                 'message': 'Login successful',
-                'access': access_token,
-                'refresh': refresh_token
+                # 'access': access_token,
+                # 'refresh': refresh_token
             })
+            set_jwt_cookies(response, access_token, refresh_token)
+            return response
         else:
             return JsonResponse({
                 'success': False,

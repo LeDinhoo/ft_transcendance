@@ -46,8 +46,8 @@ function initializePasswordManagement() {
 }
 
 function initializeProfilePage() {
-  let accessToken = localStorage.getItem("access_token");
-  console.log("Token récupéré:", accessToken);
+  // let accessToken = localStorage.getItem("access_token");
+  // console.log("Token récupéré:", accessToken);
 
   // Ajouter l'initialisation de la fonctionnalité d'avatar
   initializeAvatarFeature();
@@ -102,9 +102,10 @@ function initializeProfilePage() {
       // Envoyer la requête PATCH pour mettre à jour l'avatar
       fetch("/api/profil/update/", {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${accessToken}`,
+        // },
+        credentials: "include",
         body: formData,
       })
         .then((response) => {
@@ -185,9 +186,10 @@ function initializeProfilePage() {
 
       fetch("/api/profil/update/", {
         method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${accessToken}`,
+        // },
+        credentials: "include",
         body: formData,
       })
         .then((response) => {
@@ -231,14 +233,22 @@ function initializeProfilePage() {
     }
   });
 
-  // Charger les informations du profil et de l'avatar lors du chargement de la page
-  if (accessToken) {
+  // // Charger les informations du profil et de l'avatar lors du chargement de la page
+  // if (accessToken) {
+  //   fetch("/api/profil/", {
+  //       method: "GET",
+  //       headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //           "Content-Type": "application/json",
+  //       },
+  //   })
+    // Récupérer les données du profil sans accéder directement au token
     fetch("/api/profil/", {
-        method: "GET",
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-        },
+      method: "GET",
+      credentials: "include", // Le cookie est automatiquement envoyé par le navigateur
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
     .then((response) => {
         console.log("Statut de la réponse:", response.status);
@@ -270,7 +280,7 @@ function initializeProfilePage() {
         console.error("Erreur lors de la récupération du profil:", error);
     });
   }
-}
+
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -568,7 +578,7 @@ function createAvatarGrid() {
 
 
 function initializeAvatarFeature() {
-  const accessToken = localStorage.getItem("access_token");
+  // const accessToken = localStorage.getItem("access_token");
   const modal = document.getElementById('avatarModal');
   const applyButton = document.getElementById('applyButton');
 
@@ -583,9 +593,10 @@ function initializeAvatarFeature() {
 
             fetch("/api/profil/update/", {
                 method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                // headers: {
+                //     Authorization: `Bearer ${accessToken}`,
+                // },
+                credentials: "include", // Le cookie est automatiquement envoyé par le navigateur
                 body: formData
             })
             .then(response => {
