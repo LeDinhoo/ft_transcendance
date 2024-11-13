@@ -82,7 +82,7 @@ function initializeTournamentPage() {
       }
 
       this.gameContainer.style.display = "block";
-      this.gameContainer.src = "/game/three.html";
+      this.gameContainer.src = "/static/spa/game/three.html";
 
       this.gameContainer.onload = () => {
         console.log(
@@ -632,45 +632,84 @@ function initializeTournamentPage() {
     updatePlayButton();
   }
 
-  // Event Listeners
-  document.addEventListener("DOMContentLoaded", () => {
-    gameManager = new TournamentGameManager(tournamentState);
+  // // Event Listeners
+  // document.addEventListener("DOMContentLoaded", () => {
+  //   gameManager = new TournamentGameManager(tournamentState);
 
-    const playButton = document.querySelector(".buttonPlay");
-    if (playButton) {
-      playButton.addEventListener("click", () => {
+  //   const playButton = document.querySelector(".buttonPlay");
+  //   if (playButton) {
+  //     playButton.addEventListener("click", () => {
+  //       if (!tournamentState.isStarted) {
+  //         const playerCount = getSelectedPlayerCount();
+  //         openTournamentConfig(playerCount);
+  //       } else {
+  //         gameManager.startGame();
+  //       }
+  //     });
+  //   }
+
+  //   const startButton = document.querySelector(".start-tournament-btn");
+  //   if (startButton) {
+  //     startButton.addEventListener("click", startTournament);
+  //   }
+
+  //   const resetButton = document.querySelector(".reset-btn");
+  //   if (resetButton) {
+  //     resetButton.addEventListener("click", () => {
+  //       location.reload();
+  //     });
+  //   }
+
+  //   const closeButton = document.querySelector(".close-icon");
+  //   if (closeButton) {
+  //     closeButton.addEventListener("click", closeTournamentConfig);
+  //   }
+
+  //   optionButtons.forEach((button) => {
+  //     button.addEventListener("click", (event) => {
+  //       handleOptionChange(event.target.id);
+  //     });
+  //   });
+  // });
+
+  // Par cette version (à l'intérieur de la fonction initializeTournamentPage) :
+gameManager = new TournamentGameManager(tournamentState);
+
+// const playButton = document.querySelector(".buttonPlay");
+if (playButton) {
+    playButton.addEventListener("click", () => {
         if (!tournamentState.isStarted) {
-          const playerCount = getSelectedPlayerCount();
-          openTournamentConfig(playerCount);
+            const playerCount = getSelectedPlayerCount();
+            openTournamentConfig(playerCount);
         } else {
-          gameManager.startGame();
+            gameManager.startGame();
         }
-      });
-    }
-
-    const startButton = document.querySelector(".start-tournament-btn");
-    if (startButton) {
-      startButton.addEventListener("click", startTournament);
-    }
-
-    const resetButton = document.querySelector(".reset-btn");
-    if (resetButton) {
-      resetButton.addEventListener("click", () => {
-        location.reload();
-      });
-    }
-
-    const closeButton = document.querySelector(".close-icon");
-    if (closeButton) {
-      closeButton.addEventListener("click", closeTournamentConfig);
-    }
-
-    optionButtons.forEach((button) => {
-      button.addEventListener("click", (event) => {
-        handleOptionChange(event.target.id);
-      });
     });
-  });
+}
+
+const startButton = document.querySelector(".start-tournament-btn");
+if (startButton) {
+    startButton.addEventListener("click", startTournament);
+}
+
+const resetButton = document.querySelector(".reset-btn");
+if (resetButton) {
+    resetButton.addEventListener("click", () => {
+        location.reload();
+    });
+}
+
+const closeButton = document.querySelector(".close-icon");
+if (closeButton) {
+    closeButton.addEventListener("click", closeTournamentConfig);
+}
+
+optionButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+        handleOptionChange(event.target.id);
+    });
+});
+  
 
   handleOptionChange("4");
 
@@ -806,213 +845,4 @@ function initializeTournamentPage() {
 
     continueBtn.addEventListener("click", handleContinue);
   }
-
 }
-// function initializeTournamentPage() {
-//   console.log("Initialisation de la page de tournoi...");
-
-//   const optionButtons = document.querySelectorAll(".option-btn");
-//   const playButton = document.querySelector(".buttonPlay");
-//   const tournamentConfig = document.getElementById("tournamentConfig");
-//   const shapes = document.querySelectorAll(".shape");
-
-//   // État global du tournoi
-//   const tournamentState = {
-//     players: [],
-//     matches: [],
-//     currentMatch: 0,
-//     isStarted: false,
-//   };
-
-//   let gameManager;
-
-//   class TournamentGameManager {
-//     constructor(state) {
-//       this.state = state;
-//       this.setupGameContainer();
-//     }
-
-//     setupGameContainer() {
-//       this.gameContainer = document.createElement("iframe");
-//       this.gameContainer.id = "gameContainer";
-//       this.gameContainer.style.cssText = `
-//         position: fixed;
-//         top: 0;
-//         left: 0;
-//         width: 100%;
-//         height: 100%;
-//         border: none;
-//         display: none;
-//         z-index: 2000;
-//         background: black;
-//       `;
-//       document.body.appendChild(this.gameContainer);
-
-//       window.addEventListener("message", (event) => {
-//         if (event.data.type === "gameComplete") {
-//           this.endGame();
-//           const winnerIndex = event.data.data.winnerIndex;
-//           progressTournament(winnerIndex, event.data.data.scores);
-//         }
-//       });
-//     }
-
-//     startGame() {
-//       const currentMatch = this.state.matches[this.state.currentMatch];
-//       if (
-//         !currentMatch ||
-//         this.state.currentMatch >= this.state.matches.length
-//       ) {
-//         console.log("Pas de match à jouer");
-//         return;
-//       }
-
-//       this.gameContainer.style.display = "block";
-//       this.gameContainer.src = "/game/three.html";
-
-//       this.gameContainer.onload = () => {
-//         this.gameContainer.contentWindow.postMessage(
-//           {
-//             type: "startGame",
-//             data: {
-//               player1: currentMatch.player1,
-//               player2: currentMatch.player2,
-//             },
-//           },
-//           "*"
-//         );
-//       };
-//     }
-
-//     endGame() {
-//       this.gameContainer.style.display = "none";
-//       this.gameContainer.src = "about:blank";
-//     }
-//   }
-
-//   function handleOptionChange(value) {
-//     optionButtons.forEach((btn) => btn.classList.remove("active"));
-//     document.getElementById(value).classList.add("active");
-
-//     shapes.forEach((shape) => shape.classList.remove("active"));
-//     document.getElementById(`${value}display`).classList.add("active");
-
-//     tournamentState.players = [];
-//     tournamentState.matches = [];
-//     tournamentState.currentMatch = 0;
-//     tournamentState.isStarted = false;
-//   }
-
-//   function startTournament() {
-//     const playerInputs = document.querySelectorAll(
-//       ".player-entry .player-input"
-//     );
-//     const playerAvatars = document.querySelectorAll(
-//       ".player-entry .player-avatar"
-//     );
-
-//     tournamentState.players = Array.from(playerInputs).map((input, i) => ({
-//       name: input.value,
-//       avatar: playerAvatars[i].src,
-//     }));
-
-//     generateMatches();
-//     updateBracketDisplay();
-//     tournamentState.isStarted = true;
-//     playButton.innerHTML = "LAUNCH NEXT MATCH";
-//   }
-
-//   function generateMatches() {
-//     const players = tournamentState.players;
-//     const matches = [];
-//     for (let i = 0; i < players.length; i += 2) {
-//       matches.push({
-//         player1: players[i],
-//         player2: players[i + 1] || null,
-//         winner: null,
-//       });
-//     }
-//     tournamentState.matches = matches;
-//     console.log("Matches générés :", matches);
-//   }
-
-//   function updateBracketDisplay() {
-//     const activeShape = document.querySelector(".shape.active");
-//     const matches = activeShape.querySelectorAll(".doubleMatch");
-
-//     matches.forEach((matchElement, index) => {
-//       const match = tournamentState.matches[index];
-//       if (!match) return;
-
-//       const players = matchElement.querySelectorAll(".player");
-//       const nickname1 = players[0].querySelector(".nickname");
-//       const nickname2 = players[1]?.querySelector(".nickname");
-//       const avatar1 = players[0].querySelector(".logo");
-//       const avatar2 = players[1]?.querySelector(".logo");
-
-//       if (match.player1) {
-//         nickname1.textContent = match.player1.name;
-//         avatar1.src = match.player1.avatar;
-//       }
-//       if (match.player2) {
-//         nickname2.textContent = match.player2.name;
-//         avatar2.src = match.player2.avatar;
-//       }
-//     });
-//   }
-
-//   function progressTournament(winnerIndex, scores) {
-//     const currentMatch = tournamentState.matches[tournamentState.currentMatch];
-//     const winner =
-//       winnerIndex === 0 ? currentMatch.player1 : currentMatch.player2;
-//     currentMatch.winner = winner;
-
-//     const scoreElements = document
-//       .querySelector(".shape.active")
-//       .querySelectorAll(".doubleMatch")
-//       [tournamentState.currentMatch].querySelectorAll(".score");
-
-//     scoreElements[0].textContent = scores[0];
-//     scoreElements[1].textContent = scores[1];
-
-//     tournamentState.currentMatch++;
-
-//     if (tournamentState.currentMatch >= tournamentState.matches.length) {
-//       playButton.innerHTML = "Tournament Complete!";
-//       playButton.disabled = true;
-//     } else {
-//       playButton.innerHTML = "LAUNCH NEXT MATCH";
-//     }
-//   }
-
-//   playButton.addEventListener("click", () => {
-//     if (!tournamentState.isStarted) {
-//       tournamentConfig.style.display = "block";
-//     } else {
-//       gameManager.startGame();
-//     }
-//   });
-
-//   document
-//     .querySelector(".start-tournament-btn")
-//     .addEventListener("click", () => {
-//       startTournament();
-//       tournamentConfig.style.display = "none";
-//     });
-
-//   optionButtons.forEach((button) => {
-//     button.addEventListener("click", (event) => {
-//       handleOptionChange(event.target.id);
-//     });
-//   });
-
-//   handleOptionChange("4");
-
-//   gameManager = new TournamentGameManager(tournamentState);
-// }
-
-// // Initialiser la page du tournoi après chargement du DOM
-// document.addEventListener("DOMContentLoaded", () => {
-//   initializeTournamentPage();
-//   console.log("La page du tournoi est initialisée.");
-// });

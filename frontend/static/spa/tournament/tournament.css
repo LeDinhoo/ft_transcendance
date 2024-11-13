@@ -508,7 +508,18 @@ body {
   cursor: pointer;
 
   position: absolute;
-  left: calc(50% + 500px);
+  /* left: calc(50% + 500px); */
+  left: calc(50% + 300px); /* Réduit la distance par rapport au centre */
+  white-space: nowrap; /* Empêche le texte de se wrapper */
+  min-width: max-content; /* Assure que le bouton garde sa taille minimale */
+}
+
+
+@media screen and (max-width: 1400px) {
+  .reset-btn {
+      left: auto; /* Annule le left calculé */
+      right: 20px; /* Place le bouton à droite avec une marge fixe */
+  }
 }
 
 .reset-btn:hover {
