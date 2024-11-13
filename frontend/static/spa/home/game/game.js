@@ -6,7 +6,6 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import { Score3D } from "./Score3D.js";
 
-
 // Scene Configuration
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
@@ -1263,6 +1262,53 @@ function animate() {
 
   controls.update();
   composer.render();
+}
+
+export function recordGame(scoreUser, scoreOpponent, result) {
+  console.log("fonction recordGame appele");
+  const data = {
+    score_user: scoreUser,
+    score_opponent: scoreOpponent,
+    result: result, // true pour victoire, false pour défaite
+  };
+
+  console.log("data :", data.score_user, data.score_opponent, data.result);
+  const csrftoken = getCookie("crsftoken");
+  console.log("CRSF TOKEN: ", csrftoken);
+  fetch("/api/record-game/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCookie("csrftoken"), // Récupère le token CSRF
+    },
+    credentials: "include", // Permet d'envoyer les cookies d'authentification
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message) {
+        console.log(data.message); // Confirmation
+      } else if (data.error) {
+        console.error(data.error); // Affiche une erreur si présente
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+// Fonction utilitaire pour récupérer le token CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
 }
 // Initialiser la taille du contour
 updateBorderSize();

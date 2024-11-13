@@ -1212,3 +1212,176 @@ def verify_2fa_login(request):
 #             'success': False,
 #             'error': str(e)
 #         }, status=500)
+
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
+from .models import GameHistory
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])  # S'assure que l'utilisateur est authentifié
+# def record_game(request):
+#     logger.info("Appel de record_game")
+    
+#     # Charger les données JSON envoyées par le frontend
+#     data = request.data
+#     logger.info(f"Données reçues pour record_game: {data}")
+
+#     score_user = data.get('score_user')
+#     score_opponent = data.get('score_opponent')
+#     result = data.get('result')  # True pour victoire, False pour défaite
+
+#     # Vérifier que les données sont présentes
+#     if score_user is None or score_opponent is None or result is None:
+#         return JsonResponse({'error': 'Missing data'}, status=400)
+
+#     # Créer un nouvel enregistrement de partie pour l'utilisateur connecté
+#     game = GameHistory.objects.create(
+#         user=request.user,  # L'utilisateur connecté est associé comme `player1`
+#         score_user=score_user,
+#         score_opponent=score_opponent,
+#         result=result
+#     )
+
+#     # Retourner une réponse JSON pour confirmer l'enregistrement
+#     return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def record_game(request):
+    logger.info("Appel de record_game")
+
+    data = request.data
+    score_user = data.get('score_user')
+    score_opponent = data.get('score_opponent')
+    result = data.get('result')
+    opponent_id = data.get('opponent_id')  # ID de l'opposant si enregistré
+    opponent_name = data.get('opponent_name', 'IA')  # Nom de l'opposant, par défaut "IA"
+
+    # Vérifier que les données sont présentes
+    if score_user is None or score_opponent is None or result is None:
+        return JsonResponse({'error': 'Missing data'}, status=400)
+
+    # Trouver l'opposant si c'est un utilisateur enregistré
+    opponent_user = None
+    if opponent_id:
+        try:
+            opponent_user = CustomUser.objects.get(id=opponent_id)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'error': 'Opponent user not found'}, status=404)
+
+    # Créer un nouvel enregistrement de partie
+    game = GameHistory.objects.create(
+        user=request.user,
+        score_user=score_user,
+        score_opponent=score_opponent,
+        result=result,
+        opponent_user=opponent_user,  # Opposant enregistré
+        opponent_name=opponent_name if not opponent_user else None  # Nom si opposant temporaire ou IA
+    )
+
+    return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
+
+
+# views.py
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import GameHistory
+
+# @api_view(['GET'])  # Accepter uniquement les requêtes GET
+# @permission_classes([IsAuthenticated])
+# def match_history(request):
+#     games = GameHistory.objects.filter(user=request.user).order_by('-date_played')
+#     history = []
+#     for game in games:
+#         history.append({
+#             'score_user': game.score_user,
+#             'score_opponent': game.score_opponent,
+#             'result': "VICTORY" if game.result else "DEFEAT",
+#             'opponent_avatar': game.opponent_user.avatar.url if game.opponent_user and game.opponent_user.avatar else '/static/assets/avatars/default.png',
+#             'user_avatar': request.user.avatar.url if request.user.avatar else '/static/assets/avatars/default.png'
+#         })
+#     return JsonResponse({'history': history})
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def match_history(request):
+#     games = GameHistory.objects.filter(user=request.user).order_by('-date_played')
+#     history = []
+
+#     for game in games:
+#         # Récupérer l'avatar de l'utilisateur
+#         user_avatar = request.user.avatar.url if request.user.avatar else 'assets/avatars/ladybug.png'
+
+#         # Récupérer l'avatar de l'adversaire
+#         if game.opponent_user:
+#             opponent_avatar = game.opponent_user.avatar.url if game.opponent_user.avatar else 'assets/avatars/clown-fish.png'
+#         else:
+#             # Dans le cas où l'adversaire n'est pas un utilisateur réel, on peut définir un avatar générique
+#             opponent_avatar = '/static/assets/avatars/crabe.png'
+
+#         history.append({
+#             'score_user': game.score_user,
+#             'score_opponent': game.score_opponent,
+#             'result': "VICTORY" if game.result else "DEFEAT",
+#             'opponent_avatar': opponent_avatar,
+#             'user_avatar': user_avatar
+#         })
+
+#     return JsonResponse({'history': history})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def match_history(request):
+    games = GameHistory.objects.filter(user=request.user).order_by('-date_played')
+    history = []
+
+    for game in games:
+        # Récupérer l'avatar de l'utilisateur
+        if request.user.avatar:
+            if str(request.user.avatar).startswith('assets/avatars/'):
+                # Si l'avatar est dans STATIC_URL
+                user_avatar = f"/static/{request.user.avatar}"
+            else:
+                # Si l'avatar est dans MEDIA_URL
+                user_avatar = request.user.avatar.url
+        else:
+            # Si aucun avatar n'est défini, mettre un avatar par défaut
+            user_avatar = '/static/assets/avatars/ladybug.png'
+
+        # Récupérer l'avatar de l'adversaire
+        if game.opponent_user:
+            if game.opponent_user.avatar:
+                if str(game.opponent_user.avatar).startswith('assets/avatars/'):
+                    # Si l'avatar est dans STATIC_URL
+                    opponent_avatar = f"/static/{game.opponent_user.avatar}"
+                else:
+                    # Si l'avatar est dans MEDIA_URL
+                    opponent_avatar = game.opponent_user.avatar.url
+            else:
+                # Dans le cas où l'adversaire n'a pas d'avatar, définir un avatar générique
+                opponent_avatar = '/static/assets/avatars/clown-fish.png'
+        else:
+            # Si l'adversaire n'est pas un utilisateur réel, définir un avatar générique
+            opponent_avatar = '/static/assets/avatars/crabe.png'
+
+        history.append({
+            'score_user': game.score_user,
+            'score_opponent': game.score_opponent,
+            'result': "VICTORY" if game.result else "DEFEAT",
+            'opponent_avatar': opponent_avatar,
+            'user_avatar': user_avatar
+        })
+
+    return JsonResponse({'history': history})
+

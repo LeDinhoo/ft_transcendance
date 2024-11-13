@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import { recordGame } from './game.js';
 
 export class Score3D {
   constructor(scene, camera) {
@@ -191,41 +192,83 @@ export class Score3D {
 
 
   // Remplacer la méthode updateScore existante (vers la ligne 178) par :
+  // updateScore(player) {
+  //   if (this.gameOver) return;
+
+  //   if (player === 1) {
+  //     this.score.player1++;
+  //   } else {
+  //     this.score.player2++;
+  //   }
+
+  //   // Vérifier la condition de victoire
+  //   if (this.checkWinCondition()) {
+  //     // Déterminer le gagnant et envoyer l'événement
+  //     const winner = this.score.player1 > this.score.player2 ? 1 : 2;
+
+  //     // Informer la fenêtre parente avec les scores
+  //     if (window.parent !== window) {
+  //       console.log(
+  //         "Score3D sending gameComplete message with winner:",
+  //         winner
+  //       );
+  //       window.parent.postMessage(
+  //         {
+  //           type: "gameComplete",
+  //           data: {
+  //             winner: winner - 1, // -1 car le tournament attend 0 ou 1
+  //             finalScores: {
+  //               player1: this.score.player1,
+  //               player2: this.score.player2,
+  //             },
+  //           },
+  //         },
+  //         "*"
+  //       );
+  //     }
+  //     return;
+  //   }
+
   updateScore(player) {
     if (this.gameOver) return;
 
+    // Mise à jour du score en fonction du joueur
     if (player === 1) {
-      this.score.player1++;
+        this.score.player1++;
     } else {
-      this.score.player2++;
+        this.score.player2++;
     }
 
     // Vérifier la condition de victoire
     if (this.checkWinCondition()) {
-      // Déterminer le gagnant et envoyer l'événement
-      const winner = this.score.player1 > this.score.player2 ? 1 : 2;
+        // Déterminer le gagnant
+        const winner = this.score.player1 > this.score.player2 ? 1 : 2;
 
-      // Informer la fenêtre parente avec les scores
-      if (window.parent !== window) {
-        console.log(
-          "Score3D sending gameComplete message with winner:",
-          winner
-        );
-        window.parent.postMessage(
-          {
-            type: "gameComplete",
-            data: {
-              winner: winner - 1, // -1 car le tournament attend 0 ou 1
-              finalScores: {
-                player1: this.score.player1,
-                player2: this.score.player2,
-              },
-            },
-          },
-          "*"
-        );
-      }
-      return;
+        // Informer la fenêtre parente avec les scores
+        if (window.parent !== window) {
+            console.log("Score3D sending gameComplete message with winner:", winner);
+            window.parent.postMessage(
+                {
+                    type: "gameComplete",
+                    data: {
+                        winner: winner - 1, // -1 car le tournoi attend 0 ou 1
+                        finalScores: {
+                            player1: this.score.player1,
+                            player2: this.score.player2,
+                        },
+                    },
+                },
+                "*"
+            );
+        }
+
+        // Enregistrer la partie avec recordGame pour le backend
+        const scoreUser = this.score.player1; // Score du joueur actuel
+        const scoreOpponent = this.score.player2; // Score de l'adversaire
+        const result = winner === 1; // True si le joueur 1 gagne, sinon False
+        recordGame(scoreUser, scoreOpponent, result); // Appel de la fonction recordGame pour enregistrer la partie
+
+        return;
     }
 
     // Mettre à jour les couleurs et le score visuel

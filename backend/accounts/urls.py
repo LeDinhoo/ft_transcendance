@@ -12,6 +12,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),  # Route pour le logout
     path('auth-check/', views.auth_check, name='auth-check'),
     path('check-cookies/', views.check_cookies, name='check-cookies'),
+    path('record-game/', views.record_game, name='record_game'),
+    path("match-history/", views.match_history, name="match_history"),
     # JWT Token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Rafraîchir le token

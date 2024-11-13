@@ -167,7 +167,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 100%;
-  padding: 0.25vw; /* Pour garder une marge par rapport au border */
+  padding: 0.5vw; /* Pour garder une marge par rapport au border */
 }
 
 .playerFrame {

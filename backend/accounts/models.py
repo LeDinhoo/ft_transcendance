@@ -73,3 +73,37 @@ class CustomUser(AbstractUser):
 
     class Meta:
         db_table = 'accounts_customuser'
+
+
+# # Nouveau modèle pour l'historique des parties
+# class GameHistory(models.Model):
+#     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="games")
+#     score_user = models.IntegerField()
+#     score_opponent = models.IntegerField()
+#     result = models.BooleanField()  # True pour une victoire, False pour une défaite
+#     date = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"Game on {self.date} - {'Win' if self.result else 'Loss'}"
+
+
+from django.conf import settings
+from django.db import models
+
+class GameHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='games_as_player')
+    opponent_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='games_as_opponent'
+    )  # Opposant enregistré
+    opponent_name = models.CharField(max_length=100, null=True, blank=True)  # Nom de l'opposant temporaire ou IA
+    score_user = models.IntegerField()
+    score_opponent = models.IntegerField()
+    result = models.BooleanField()
+    date_played = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"

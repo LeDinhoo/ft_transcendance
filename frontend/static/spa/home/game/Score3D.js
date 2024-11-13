@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import { recordGame } from './game.js';
 
 export class Score3D {
   constructor(scene, camera, paddle1, paddle2, gamePlane) {
@@ -18,8 +19,8 @@ export class Score3D {
     this.scoreTextRight = null;
     this.victoryText = null;
     this.gameOver = false;
-    this.WINNING_SCORE = 5;
-    this.POINT_DIFFERENCE_REQUIRED = 2;
+    this.WINNING_SCORE = 1;
+    this.POINT_DIFFERENCE_REQUIRED = 0;
     this.fontLoader = new FontLoader();
 
     // Précharger la texture
@@ -264,103 +265,241 @@ export class Score3D {
     this.scoreTextRight.position.set(scoreSpacing, scoreY, -320);
   }
 
+  // updateScore(player) {
+  //   if (this.gameOver) return;
+
+  //   if (player === 1) {
+  //     this.score.player1++;
+  //   } else {
+  //     this.score.player2++;
+  //   }
+
+  //   // Vérifier que les paddles sont disponibles
+  //   if (this.paddle1 && this.paddle2) {
+  //     // Mettre à jour les couleurs en fonction des scores
+  //     if (this.score.player1 === 4 && this.score.player2 === 2) {
+  //       // Condition spéciale pour 4-2
+  //       this.textMaterialLeft.color.setHex(0x1d995b);
+  //       this.textMaterialRight.color.setHex(0x1d995b);
+
+  //       // Changer la texture du plan
+  //       if (this.gamePlane && this.specialTexture) {
+  //         this.gamePlane.traverse((child) => {
+  //           if (child.isMesh) {
+  //             // Sauvegarder le matériau original si ce n'est pas déjà fait
+  //             if (!this.originalPlaneMaterial) {
+  //               this.originalPlaneMaterial = child.material.clone();
+  //             }
+  //             child.material.map = this.specialTexture;
+  //             child.material.needsUpdate = true;
+  //           }
+  //         });
+  //       }
+
+  //       // Changement de la couleur des paddles
+  //       this.paddle1.traverse((child) => {
+  //         if (child.isMesh) {
+  //           child.material.color.setHex(0x1d995b);
+  //         }
+  //       });
+  //       this.paddle2.traverse((child) => {
+  //         if (child.isMesh) {
+  //           child.material.color.setHex(0x1d995b);
+  //         }
+  //       });
+  //     } else {
+  //       // Restaurer la texture originale du plan
+  //       if (this.gamePlane && this.originalPlaneMaterial) {
+  //         this.gamePlane.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material = this.originalPlaneMaterial.clone();
+  //             child.material.needsUpdate = true;
+  //           }
+  //         });
+  //       }
+
+  //       if (this.score.player1 > this.score.player2) {
+  //         this.textMaterialLeft.color.setHex(0xff4500);
+  //         this.textMaterialRight.color.setHex(0xff4500);
+
+  //         this.paddle1.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material.color.setHex(0xff4500);
+  //           }
+  //         });
+  //         this.paddle2.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material.color.setHex(0x0d9bff);
+  //           }
+  //         });
+  //       } else if (this.score.player2 > this.score.player1) {
+  //         this.textMaterialLeft.color.setHex(0x0d9bff);
+  //         this.textMaterialRight.color.setHex(0x0d9bff);
+
+  //         this.paddle1.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material.color.setHex(0xff4500);
+  //           }
+  //         });
+  //         this.paddle2.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material.color.setHex(0x0d9bff);
+  //           }
+  //         });
+  //       } else {
+  //         this.textMaterialLeft.color.setHex(0xff4500);
+  //         this.textMaterialRight.color.setHex(0x0d9bff);
+
+  //         this.paddle1.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material.color.setHex(0xff4500);
+  //           }
+  //         });
+  //         this.paddle2.traverse((child) => {
+  //           if (child.isMesh) {
+  //             child.material.color.setHex(0x0d9bff);
+  //           }
+  //         });
+  //       }
+  //     }
+  //   }
+
+  //   if (!this.font) return;
+
+  //   const options = { ...this.textOptions, font: this.font };
+
+  //   // Mise à jour de l'affichage du score gauche
+  //   if (this.scoreTextLeft) {
+  //     this.scene.remove(this.scoreTextLeft);
+  //     const geometryLeft = new TextGeometry(
+  //       this.score.player1.toString(),
+  //       options
+  //     );
+  //     geometryLeft.center();
+  //     this.scoreTextLeft = new THREE.Mesh(geometryLeft, this.textMaterialLeft);
+  //     this.scoreTextLeft.rotation.x = -Math.PI / 2;
+  //     this.scene.add(this.scoreTextLeft);
+  //   }
+
+  //   // Mise à jour de l'affichage du score droit
+  //   if (this.scoreTextRight) {
+  //     this.scene.remove(this.scoreTextRight);
+  //     const geometryRight = new TextGeometry(
+  //       this.score.player2.toString(),
+  //       options
+  //     );
+  //     geometryRight.center();
+  //     this.scoreTextRight = new THREE.Mesh(
+  //       geometryRight,
+  //       this.textMaterialRight
+  //     );
+  //     this.scoreTextRight.rotation.x = -Math.PI / 2;
+  //     this.scene.add(this.scoreTextRight);
+  //   }
+
+  //   this.updatePosition();
+
+  //   // Vérifier la condition de victoire après avoir mis à jour l'affichage
+  //   this.checkWinCondition();
+  // }
+
   updateScore(player) {
     if (this.gameOver) return;
 
+    // Incrémenter le score en fonction du joueur
     if (player === 1) {
-      this.score.player1++;
+        this.score.player1++;
     } else {
-      this.score.player2++;
+        this.score.player2++;
     }
 
     // Vérifier que les paddles sont disponibles
     if (this.paddle1 && this.paddle2) {
-      // Mettre à jour les couleurs en fonction des scores
-      if (this.score.player1 === 4 && this.score.player2 === 2) {
-        // Condition spéciale pour 4-2
-        this.textMaterialLeft.color.setHex(0x1d995b);
-        this.textMaterialRight.color.setHex(0x1d995b);
+        // Condition spéciale pour le score 4-2
+        if (this.score.player1 === 4 && this.score.player2 === 2) {
+            // Changer la couleur des scores et des paddles
+            this.textMaterialLeft.color.setHex(0x1d995b);
+            this.textMaterialRight.color.setHex(0x1d995b);
 
-        // Changer la texture du plan
-        if (this.gamePlane && this.specialTexture) {
-          this.gamePlane.traverse((child) => {
-            if (child.isMesh) {
-              // Sauvegarder le matériau original si ce n'est pas déjà fait
-              if (!this.originalPlaneMaterial) {
-                this.originalPlaneMaterial = child.material.clone();
-              }
-              child.material.map = this.specialTexture;
-              child.material.needsUpdate = true;
+            // Changer la texture du plan
+            if (this.gamePlane && this.specialTexture) {
+                this.gamePlane.traverse((child) => {
+                    if (child.isMesh) {
+                        if (!this.originalPlaneMaterial) {
+                            this.originalPlaneMaterial = child.material.clone();
+                        }
+                        child.material.map = this.specialTexture;
+                        child.material.needsUpdate = true;
+                    }
+                });
             }
-          });
-        }
 
-        // Changement de la couleur des paddles
-        this.paddle1.traverse((child) => {
-          if (child.isMesh) {
-            child.material.color.setHex(0x1d995b);
-          }
-        });
-        this.paddle2.traverse((child) => {
-          if (child.isMesh) {
-            child.material.color.setHex(0x1d995b);
-          }
-        });
-      } else {
-        // Restaurer la texture originale du plan
-        if (this.gamePlane && this.originalPlaneMaterial) {
-          this.gamePlane.traverse((child) => {
-            if (child.isMesh) {
-              child.material = this.originalPlaneMaterial.clone();
-              child.material.needsUpdate = true;
-            }
-          });
-        }
-
-        if (this.score.player1 > this.score.player2) {
-          this.textMaterialLeft.color.setHex(0xff4500);
-          this.textMaterialRight.color.setHex(0xff4500);
-
-          this.paddle1.traverse((child) => {
-            if (child.isMesh) {
-              child.material.color.setHex(0xff4500);
-            }
-          });
-          this.paddle2.traverse((child) => {
-            if (child.isMesh) {
-              child.material.color.setHex(0x0d9bff);
-            }
-          });
-        } else if (this.score.player2 > this.score.player1) {
-          this.textMaterialLeft.color.setHex(0x0d9bff);
-          this.textMaterialRight.color.setHex(0x0d9bff);
-
-          this.paddle1.traverse((child) => {
-            if (child.isMesh) {
-              child.material.color.setHex(0xff4500);
-            }
-          });
-          this.paddle2.traverse((child) => {
-            if (child.isMesh) {
-              child.material.color.setHex(0x0d9bff);
-            }
-          });
+            // Changer la couleur des paddles
+            this.paddle1.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.color.setHex(0x1d995b);
+                }
+            });
+            this.paddle2.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.color.setHex(0x1d995b);
+                }
+            });
         } else {
-          this.textMaterialLeft.color.setHex(0xff4500);
-          this.textMaterialRight.color.setHex(0x0d9bff);
+            // Restaurer la texture originale du plan
+            if (this.gamePlane && this.originalPlaneMaterial) {
+                this.gamePlane.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material = this.originalPlaneMaterial.clone();
+                        child.material.needsUpdate = true;
+                    }
+                });
+            }
 
-          this.paddle1.traverse((child) => {
-            if (child.isMesh) {
-              child.material.color.setHex(0xff4500);
+            if (this.score.player1 > this.score.player2) {
+                this.textMaterialLeft.color.setHex(0xff4500);
+                this.textMaterialRight.color.setHex(0xff4500);
+
+                this.paddle1.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.setHex(0xff4500);
+                    }
+                });
+                this.paddle2.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.setHex(0x0d9bff);
+                    }
+                });
+            } else if (this.score.player2 > this.score.player1) {
+                this.textMaterialLeft.color.setHex(0x0d9bff);
+                this.textMaterialRight.color.setHex(0x0d9bff);
+
+                this.paddle1.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.setHex(0xff4500);
+                    }
+                });
+                this.paddle2.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.setHex(0x0d9bff);
+                    }
+                });
+            } else {
+                this.textMaterialLeft.color.setHex(0xff4500);
+                this.textMaterialRight.color.setHex(0x0d9bff);
+
+                this.paddle1.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.setHex(0xff4500);
+                    }
+                });
+                this.paddle2.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.setHex(0x0d9bff);
+                    }
+                });
             }
-          });
-          this.paddle2.traverse((child) => {
-            if (child.isMesh) {
-              child.material.color.setHex(0x0d9bff);
-            }
-          });
         }
-      }
     }
 
     if (!this.font) return;
@@ -369,38 +508,46 @@ export class Score3D {
 
     // Mise à jour de l'affichage du score gauche
     if (this.scoreTextLeft) {
-      this.scene.remove(this.scoreTextLeft);
-      const geometryLeft = new TextGeometry(
-        this.score.player1.toString(),
-        options
-      );
-      geometryLeft.center();
-      this.scoreTextLeft = new THREE.Mesh(geometryLeft, this.textMaterialLeft);
-      this.scoreTextLeft.rotation.x = -Math.PI / 2;
-      this.scene.add(this.scoreTextLeft);
+        this.scene.remove(this.scoreTextLeft);
+        const geometryLeft = new TextGeometry(
+            this.score.player1.toString(),
+            options
+        );
+        geometryLeft.center();
+        this.scoreTextLeft = new THREE.Mesh(geometryLeft, this.textMaterialLeft);
+        this.scoreTextLeft.rotation.x = -Math.PI / 2;
+        this.scene.add(this.scoreTextLeft);
     }
 
     // Mise à jour de l'affichage du score droit
     if (this.scoreTextRight) {
-      this.scene.remove(this.scoreTextRight);
-      const geometryRight = new TextGeometry(
-        this.score.player2.toString(),
-        options
-      );
-      geometryRight.center();
-      this.scoreTextRight = new THREE.Mesh(
-        geometryRight,
-        this.textMaterialRight
-      );
-      this.scoreTextRight.rotation.x = -Math.PI / 2;
-      this.scene.add(this.scoreTextRight);
+        this.scene.remove(this.scoreTextRight);
+        const geometryRight = new TextGeometry(
+            this.score.player2.toString(),
+            options
+        );
+        geometryRight.center();
+        this.scoreTextRight = new THREE.Mesh(
+            geometryRight,
+            this.textMaterialRight
+        );
+        this.scoreTextRight.rotation.x = -Math.PI / 2;
+        this.scene.add(this.scoreTextRight);
     }
 
     this.updatePosition();
 
     // Vérifier la condition de victoire après avoir mis à jour l'affichage
-    this.checkWinCondition();
-  }
+    if (this.checkWinCondition()) {
+        // Déterminer les scores finaux et le résultat
+        const scoreUser = this.score.player1;
+        const scoreOpponent = this.score.player2;
+        const result = scoreUser > scoreOpponent;  // true si le joueur 1 gagne, sinon false
+
+        // Enregistrer la partie
+        recordGame(scoreUser, scoreOpponent, result);
+    }
+}
 
   getScore() {
     return this.score;

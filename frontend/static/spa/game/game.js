@@ -27,43 +27,45 @@ if (window.gameCleanup) {
   window.gameCleanup();
 }
 
-
 // Ajouter près du début de game.js
-window.dispatchGameEnd = function(winner) {
+window.dispatchGameEnd = function (winner) {
   if (window.parent !== window) {
-    window.parent.postMessage({
-      type: 'gameComplete',
-      data: { winner: winner - 1 }  // -1 car le tournament attend 0 ou 1
-    }, '*');
+    window.parent.postMessage(
+      {
+        type: "gameComplete",
+        data: { winner: winner - 1 }, // -1 car le tournament attend 0 ou 1
+      },
+      "*"
+    );
   }
 };
 
-window.gameCleanup = function() {
-  if (typeof renderer !== 'undefined') {
+window.gameCleanup = function () {
+  if (typeof renderer !== "undefined") {
     renderer.dispose();
   }
-  if (typeof scene !== 'undefined') {
-    scene.traverse(object => {
+  if (typeof scene !== "undefined") {
+    scene.traverse((object) => {
       if (object.geometry) {
         object.geometry.dispose();
       }
       if (object.material) {
         if (Array.isArray(object.material)) {
-          object.material.forEach(material => material.dispose());
+          object.material.forEach((material) => material.dispose());
         } else {
           object.material.dispose();
         }
       }
     });
   }
-  if (typeof composer !== 'undefined') {
+  if (typeof composer !== "undefined") {
     composer.dispose();
   }
 
   // Supprimer les event listeners
-  window.removeEventListener('resize', onWindowResize);
-  window.removeEventListener('keydown', null);
-  window.removeEventListener('keyup', null);
+  window.removeEventListener("resize", onWindowResize);
+  window.removeEventListener("keydown", null);
+  window.removeEventListener("keyup", null);
 
   // Nettoyer les variables globales
   window.scene = undefined;
@@ -71,7 +73,7 @@ window.gameCleanup = function() {
   window.renderer = undefined;
   window.composer = undefined;
   window.controls = undefined;
-}
+};
 
 // Modifier la création du renderer
 const renderer = new THREE.WebGLRenderer({
@@ -611,7 +613,7 @@ function updateTrajectory() {
   let lastValidPosition = tempPos.clone();
 
   const maxPoints = Math.floor(170 * (INITIAL_BALL_SPEED / currentBallSpeed));
-  const numPoints = Math.max(5, maxPoints);
+  const numPoints = Math.max(2, maxPoints);
 
   for (let i = 0; i < numPoints; i++) {
     points.push(tempPos.clone());
@@ -748,7 +750,7 @@ function moveAI() {
 
       let targetZ = impactPoint.position.z;
 
-      const offsetDot = 5; 
+      const offsetDot = 5;
 
       switch (currentAITarget) {
         case AI_POSITIONS.TOP:
@@ -1013,9 +1015,16 @@ function animate() {
       flashNeonBorder();
       scoreSystem.updateScore(2); // Point pour joueur 2
       if (scoreSystem.isGameOver()) {
+        console.log("Game over. Attempting to record game...");
         isBallMoving = false;
         ball.position.set(0, -100, 0);
         // Enlever l'appel à dispatchGameEnd ici car il est déjà dans Score3D
+        // Enregistrer le score du jeu
+        const scoreUser = scoreSystem.getScore(1); // Score joueur 1
+        const scoreOpponent = scoreSystem.getScore(2); // Score joueur 2
+        const result = scoreOpponent > scoreUser; // False si perdu, True si gagné
+        console.log("Scores:", scoreUser, scoreOpponent, "Result:", result);
+        recordGame(scoreUser, scoreOpponent, result);
       } else {
         resetBall();
         setTimeout(launchBall, 500);
@@ -1027,6 +1036,11 @@ function animate() {
         isBallMoving = false;
         ball.position.set(0, -100, 0);
         // Enlever l'appel à dispatchGameEnd ici car il est déjà dans Score3D
+        // Enregistrer le score du jeu
+        const scoreUser = scoreSystem.getScore(1); // Score joueur 1
+        const scoreOpponent = scoreSystem.getScore(2); // Score joueur 2
+        const result = scoreUser > scoreOpponent; // True si gagné, False si perdu
+        recordGame(scoreUser, scoreOpponent, result);
       } else {
         resetBall();
         setTimeout(launchBall, 500);
@@ -1037,6 +1051,83 @@ function animate() {
   controls.update();
   composer.render();
 }
+
+// export function recordGame(scoreUser, scoreOpponent, result) {
+//   console.log("fonction recordGame appele");
+//   const data = {
+//     score_user: scoreUser,
+//     score_opponent: scoreOpponent,
+//     result: result, // true pour victoire, false pour défaite
+//   };
+
+//   console.log("data :", data.score_user, data.score_opponent, data.result);
+
+//   fetch("/api/record-game/", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       // 'X-CSRFToken': getCookie('csrftoken')  // Récupère le token CSRF
+//     },
+//     credentials: "include", // Permet d'envoyer les cookies d'authentification
+//     body: JSON.stringify(data),
+//   })
+//     .then((response) => response.json())
+//     .then((data) => {
+//       if (data.message) {
+//         console.log(data.message); // Confirmation
+//       } else if (data.error) {
+//         console.error(data.error); // Affiche une erreur si présente
+//       }
+//     })
+//     .catch((error) => console.error("Error:", error));
+// }
+
+export function recordGame(scoreUser, scoreOpponent, result, opponentId = null, opponentName = 'IA') {
+  const data = {
+    score_user: scoreUser,
+    score_opponent: scoreOpponent,
+    result: result, // true pour victoire, false pour défaite
+    opponent_id: opponentId,       // Si l'opposant est un utilisateur enregistré
+    opponent_name: opponentName    // Si l'opposant est temporaire ou IA
+  };
+
+  fetch("/api/record-game/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.message) {
+        console.log(data.message);
+      } else if (data.error) {
+        console.error(data.error);
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+
+// Fonction utilitaire pour récupérer le token CSRF
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
 // Initialiser la taille du contour
 updateBorderSize();
 
