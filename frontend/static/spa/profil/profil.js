@@ -575,8 +575,6 @@ function createAvatarGrid() {
   }
 }
 
-
-
 function initializeAvatarFeature() {
   // const accessToken = localStorage.getItem("access_token");
   const modal = document.getElementById('avatarModal');
@@ -631,13 +629,26 @@ function initializeAvatarFeature() {
 }
 
   window.openModal = function() {
-      if (modal) {
-          modal.style.display = 'flex';
-          if (applyButton) {
-              applyButton.disabled = !selectedAvatar;
-          }
-      }
-  };
+    if (modal) {
+        // Afficher la modal
+        modal.style.display = 'flex';
+        
+        // Réinitialiser toute sélection précédente
+        const previousSelected = document.querySelector('.avatar-option.selected');
+        if (previousSelected) {
+            previousSelected.classList.remove('selected');
+        }
+        
+        // Réinitialiser les variables de sélection
+        selectedAvatar = null;
+        tempSelectedSrc = null;
+        
+        // Désactiver le bouton Apply
+        if (applyButton) {
+            applyButton.disabled = true;
+        }
+    }
+};
 
   window.closeModal = function() {
       if (modal) {
@@ -659,35 +670,5 @@ function initializeAvatarFeature() {
       });
   }
 }
-
-
-// function openModal() {
-//     modal.style.display = 'flex';
-//     applyButton.disabled = !selectedAvatar;
-// }
-
-// function closeModal() {
-//     modal.style.display = 'none';
-//     if (selectedAvatar) {
-//         selectedAvatar.classList.remove('selected');
-//         selectedAvatar = null;
-//     }
-//     tempSelectedSrc = null;
-// }
-
-// applyButton.addEventListener('click', () => {
-//     if (tempSelectedSrc) {
-//         document.querySelector('.avatarImg').src = tempSelectedSrc;
-//         closeModal();
-//     }
-// });
-
-// modal.addEventListener('click', (e) => {
-//     if (e.target === modal) {
-//         closeModal();
-//     }
-// });
-
-// createAvatarGrid();
 
 

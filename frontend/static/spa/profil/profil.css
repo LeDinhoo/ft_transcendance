@@ -330,57 +330,53 @@
 
 .modal-content {
   background-color: var(--dark-grey);
-  width: 780px; 
+  width: 450px;
   display: flex;
   flex-direction: column;
-  border-radius: 12px; 
-  overflow: hidden; 
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  border-bottom: 1px solid #374151;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--dusty-grey);
   color: var(--snow);
-  font-size: 1vw;
+  font-size: 14px;
   font-weight: 600;
   font-family: "Inter", sans-serif;
-  padding: 1.5rem;
 }
 
 .avatar-grid {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  gap: 1rem;
-  padding: 2rem 1.5rem; 
-  gap: 1.5rem; 
+  padding: 0.75rem;
+  gap: 0.5rem;
 }
 
 .avatar-row {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   justify-content: center;
 }
 
 .avatar-option {
-  width: 95px; 
-  height: 95px;
+  width: 50px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 3px solid transparent;
+  border: 2px solid transparent;
   background-color: var(--dark-grey);
   cursor: pointer;
   border-radius: 50%;
-  padding: 5px;
+  padding: 2px;
 }
 
 .avatar-option.selected {
   border-color: var(--liquid-lava);
-  padding: 5px;
 }
 
 .avatar-option img {
@@ -394,19 +390,20 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
-  gap: 1rem;
-  border-top: 1px solid #374151;
-  padding: 1.5rem; 
-  gap: 1.5rem; 
+  padding: 0.75rem;
+  gap: 0.75rem;
+  border-top: 1px solid var(--dusty-grey);
 }
 
 .modal-footer .btn-icon {
   padding: 0.5rem 1rem;
-  border: 1px solid #374151;
-  border-radius: 0.25rem;
-  border-radius: 24px; 
-  padding: 0.75rem 1.5rem; 
+  border: 1px solid var(--dusty-grey);
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  height: auto;
+  min-width: auto;
+  display: flex;
+  align-items: center;
 }
 
 .modal-footer .btn-icon:last-child {
@@ -415,7 +412,7 @@
 }
 
 .modal-footer .btn-icon:last-child:disabled {
-  background-color: #6B7280;
+  background-color: var(--slate-grey);
   cursor: not-allowed;
 }
 
@@ -437,14 +434,15 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--dark-grey);
-  padding: 2rem;
+  padding: 1.5rem;
   z-index: 1001;
   text-align: center;
+  border-radius: var(--radius-lg);
 }
 
 .warning-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   margin-right: 0.5rem;
 }
 
@@ -454,40 +452,42 @@
   justify-content: center;
   margin-bottom: 1rem;
   color: var(--snow);
+  font-size: 14px;
 }
 
 .popupTexte {
   color: var(--snow);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 12px;
 }
 
 .popupClose {
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1.5rem;
   background-color: var(--liquid-lava);
   border: none;
   color: var(--snow);
   cursor: pointer;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-lg);
+  font-size: 12px;
 }
 
-.popuplogo
-{
-  width: 40px;
-  height: 40px;
-  margin-right: 8px;
+.popuplogo {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
   transition: filter 0.2s ease;
 }
 
 .btn-icon:hover .popuplogo {
-  filter: brightness(0) invert(1); 
+  filter: brightness(0) invert(1);
 }
 
 .btn-icon:last-child:not(:disabled) .popuplogo {
-  filter: none; 
+  filter: none;
 }
 
 .btn-icon:last-child:not(:disabled):hover .popuplogo {
-  filter: brightness(0) invert(1); 
+  filter: brightness(0) invert(1);
 }
 
 .btn-icon:last-child:disabled .popuplogo {
