@@ -303,31 +303,110 @@ function initializeProfilePage() {
 //   // Cacher le frame de vérification
 //   verificationFrame.style.display = 'none';
 // }
+// function updateUI2FAStatus(enabled) {
+//   const statusSpan = document.getElementById('2faStatus');
+//   const toggle2FAButton = document.getElementById('toggle2FAButton');
+//   const verificationFrame = document.getElementById('2faVerificationFrame');
+  
+//   if (!statusSpan || !toggle2FAButton || !verificationFrame) {
+//     console.error("Éléments pour l'interface 2FA introuvables.");
+//     return;
+//   }
+
+//   const is2FAEnabled = enabled;
+//   statusSpan.textContent = enabled ? '2FA: ON' : '2FA: OFF';
+//   statusSpan.style.color = enabled ? '#4CAF50' : '#FF5722';
+
+//   toggle2FAButton.innerHTML = `
+//     <svg>
+//       <use href="/static/assets/icons/sprite.svg#${enabled ? 'unlock' : 'lock'}"></use>
+//     </svg>
+//     ${enabled ? 'Disable 2FA' : 'Enable 2FA'}
+//   `;
+
+//   // Cacher le frame de vérification
+//   verificationFrame.style.display = 'none';
+// }
+
 function updateUI2FAStatus(enabled) {
-  const statusSpan = document.getElementById('2faStatus');
   const toggle2FAButton = document.getElementById('toggle2FAButton');
   const verificationFrame = document.getElementById('2faVerificationFrame');
   
-  if (!statusSpan || !toggle2FAButton || !verificationFrame) {
+  if (!toggle2FAButton || !verificationFrame) {
     console.error("Éléments pour l'interface 2FA introuvables.");
     return;
   }
 
-  const is2FAEnabled = enabled;
-  statusSpan.textContent = enabled ? '2FA: ON' : '2FA: OFF';
-  statusSpan.style.color = enabled ? '#4CAF50' : '#FF5722';
-
+  toggle2FAButton.className = enabled ? 'btn-icon enabled' : 'btn-icon';
   toggle2FAButton.innerHTML = `
     <svg>
       <use href="/static/assets/icons/sprite.svg#${enabled ? 'unlock' : 'lock'}"></use>
     </svg>
-    ${enabled ? 'Disable 2FA' : 'Enable 2FA'}
+    ${enabled ? '2FA ON' : '2FA OFF'}
   `;
 
   // Cacher le frame de vérification
   verificationFrame.style.display = 'none';
 }
 
+
+
+// function initialize2FA() {
+//   console.log("2FA initialisation appelée");
+  
+//   const toggle2FAButton = document.getElementById('toggle2FAButton');
+//   const confirm2FAButton = document.getElementById('confirm2FAButton');
+//   const verificationFrame = document.getElementById('2faVerificationFrame');
+//   let is2FAEnabled = false;
+
+//   // Vérifiez le statut initial de la 2FA
+//   fetch('/api/profil/', {
+//     headers: {
+//       'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+//     }
+//   })
+//   .then(response => response.json())
+//   .then(data => {
+//     if (data.is_2fa_enabled !== undefined) {
+//       updateUI2FAStatus(data.is_2fa_enabled);
+//       is2FAEnabled = data.is_2fa_enabled;
+//     }
+//   })
+//   .catch(error => {
+//     console.error('Erreur lors de la vérification du statut 2FA:', error);
+//   });
+
+//   // Gestionnaire pour le bouton toggle 2FA
+//   if (toggle2FAButton) {
+//     toggle2FAButton.addEventListener('click', function() {
+//       const action = is2FAEnabled ? 'disable' : 'enable';
+
+//       fetch('/api/2fa/toggle/', {
+//         method: 'POST',
+//         headers: {
+//           'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ action: action })
+//       })
+//       .then(response => response.json())
+//       .then(data => {
+//         if (action === 'enable') {
+//           verificationFrame.style.display = 'flex';
+//           showConfirmationMessage('Code de vérification envoyé par email');
+//         } else {
+//           updateUI2FAStatus(false);
+//           showConfirmationMessage('2FA désactivé avec succès');
+//         }
+//         is2FAEnabled = !is2FAEnabled;
+//       })
+//       .catch(error => {
+//         console.error('Erreur:', error);
+//         showConfirmationMessage('Une erreur est survenue');
+//       });
+//     });
+//   }
+// }
 
 
 function initialize2FA() {
@@ -338,10 +417,11 @@ function initialize2FA() {
   const verificationFrame = document.getElementById('2faVerificationFrame');
   let is2FAEnabled = false;
 
-  // Vérifiez le statut initial de la 2FA
+  // Vérifier le statut initial de la 2FA
   fetch('/api/profil/', {
+    credentials: 'include', // Pour les cookies
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      'Content-Type': 'application/json'
     }
   })
   .then(response => response.json())
@@ -362,8 +442,8 @@ function initialize2FA() {
 
       fetch('/api/2fa/toggle/', {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ action: action })
@@ -382,6 +462,41 @@ function initialize2FA() {
       .catch(error => {
         console.error('Erreur:', error);
         showConfirmationMessage('Une erreur est survenue');
+      });
+    });
+  }
+
+  // Gestionnaire pour le bouton de confirmation
+  if (confirm2FAButton) {
+    confirm2FAButton.addEventListener('click', function() {
+      const verificationCode = document.getElementById('verificationCode');
+      if (!verificationCode || !verificationCode.value) {
+        showConfirmationMessage('Veuillez entrer le code reçu par email');
+        return;
+      }
+
+      fetch('/api/2fa/verify/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: verificationCode.value })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Code invalide');
+        }
+        return response.json();
+      })
+      .then(data => {
+        updateUI2FAStatus(true);
+        showConfirmationMessage('2FA activé avec succès');
+        verificationCode.value = '';
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        showConfirmationMessage('Code invalide');
       });
     });
   }

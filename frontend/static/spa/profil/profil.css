@@ -32,37 +32,67 @@
   height: 17.292vw;
   border-radius: var(--radius-lg);
   display: flex;
-  justify-content: space-between; /* Changé de center à space-between */
+  justify-content: space-around;
   align-items: center;
   flex-direction: row;
   background-color: var(--dark-grey);
-  padding: 0 var(--24px); /* Ajout de padding horizontal */
+  padding: 0 var(--24px);
 }
 
-/* Nouvelle classe pour organiser les boutons */
+
+/* .avatarButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--16px);
+} */
+
+
 .avatarButtons {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--16px);
+  position: relative; /* Pour le positionnement du frame */
 }
 
-/* Style pour le status 2FA */
-.twoFactorStatus {
+
+/* Bouton 2FA */
+.btn-icon#toggle2FAButton {
+  position: relative; /* Pour servir de référence au frame */
   display: flex;
   align-items: center;
   gap: var(--8px);
-  padding: 0 var(--16px);
-  height: 2.5vw; /* Même hauteur que les boutons */
-  border-left: 2px solid var(--dusty-grey);
-  margin-left: var(--16px);
+  padding: 0 var(--16px) 0 var(--16px);
 }
 
-/* Style pour le frame de vérification */
-#2faVerificationFrame {
+.btn-icon#toggle2FAButton::before {
+  content: '';
   position: absolute;
-  top: calc(100% + var(--8px)); /* Juste en dessous de avatarSection */
-  right: var(--24px); /* Aligné avec le padding de avatarSection */
+  left: var(--16px); /* Aligne avec le padding */
+  width: 1.041vw;
+  height: 1.041vw;
+  border-radius: 100%;
+  background-color: rgb(247, 0, 0);
+}
+
+/* Ajoutez cette nouvelle règle pour décaler le texte */
+.btn-icon#toggle2FAButton span {
+  margin-left: calc(1.041vw + var(--8px)); /* Largeur de la pastille + petit espacement */
+}
+
+
+/* Style pour quand le 2FA est activé */
+.btn-icon#toggle2FAButton.enabled::before {
+  background-color: limegreen;
+}
+
+
+/* #2faVerificationFrame {
+  position: absolute;
+  top: calc(100% + var(--8px));
+  left: 50%;
+  transform: translate(-50%, 0);
   background-color: var(--dark-grey);
   padding: var(--16px);
   border-radius: var(--radius-lg);
@@ -72,12 +102,65 @@
   flex-direction: row;
   align-items: center;
   gap: var(--16px);
+  white-space: nowrap;
+} */
+
+
+#2faVerificationFrame {
+  position: absolute;
+  top: calc(100% + var(--8px));
+  right: 0;
+  background-color: var(--dark-grey);
+  padding: var(--16px);
+  border-radius: var(--radius-lg);
+  border: var(--dusty-grey) solid var(--4px);
+  display: none;
+  z-index: 1000;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--16px); /* Utilise le même gap que les autres éléments */
+}
+
+/* Ajustement spécifique pour l'input et le bouton dans le frame */
+#2faVerificationFrame .inputFrame,
+#2faVerificationFrame #verificationCode {
+  margin-right: 0; /* Retire toute marge par défaut */
+}
+
+#2faVerificationFrame .btn-icon {
+  margin-left: 0; /* Retire toute marge par défaut */
 }
 
 #2faVerificationFrame.visible {
   display: flex;
   align-items: center;
   gap: var(--16px);
+}
+
+
+#verificationCode {
+  width: 8vw;
+  height: 2.5vw;
+  background-color: var(--dark-grey);
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--radius-lg);
+  color: var(--snow);
+  padding: 0 var(--8px);
+  font-size: var(--16px);
+  text-align: center; /* Centre le texte */
+}
+
+/* Pour le bouton confirm dans le frame de vérification */
+#2faVerificationFrame .btn-icon img {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  transition: filter 0.2s ease;
+}
+
+/* Pour s'assurer que tous les logos dans les boutons ont la même apparence au survol */
+#2faVerificationFrame .btn-icon:hover img {
+  filter: brightness(0) invert(1);
 }
 
 /* Ajustement des boutons pour qu'ils aient la même taille */
