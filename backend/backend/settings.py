@@ -161,9 +161,15 @@ CSRF_COOKIE_SAMESITE = 'Strict'
 CSRF_COOKIE_HTTPONLY = True  # Empêche l'accès via JavaScript pour le cookie CSRF
 
 
-FORTYTWO_CLIENT_ID='u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8'
-FORTYTWO_CLIENT_SECRET='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'
-FORTYTWO_REDIRECT_URI='https://localhost:4430/api/callback-42/'
+# FORTYTWO_CLIENT_ID='u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8'
+# FORTYTWO_CLIENT_SECRET='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'
+# FORTYTWO_REDIRECT_URI='https://localhost:4430/api/callback-42/'
+
+FORTYTWO_CLIENT_ID = os.getenv('FORTYTWO_CLIENT_ID')
+FORTYTWO_CLIENT_SECRET = os.getenv('FORTYTWO_CLIENT_SECRET')
+FORTYTWO_REDIRECT_URI = os.getenv('FORTYTWO_REDIRECT_URI', 'https://localhost:4430/api/callback-42/')
+
+
 LOGIN_URL = '/login-register/'  # URL où rediriger si non authentifié
 LOGIN_REDIRECT_URL = '/home/'   # URL après connexion réussie
 
@@ -289,10 +295,20 @@ LOGGING = {
 # Email Configuration
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'csiffreinblanc@gmail.com'
-EMAIL_HOST_PASSWORD = 'cbws izxl miso dbij'  # Remplacez par votre mot de passe d'application
-DEFAULT_FROM_EMAIL = 'csiffreinblanc@gmail.com'
-EMAIL_SUBJECT_PREFIX = '[Pong42] '
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'csiffreinblanc@gmail.com')
+EMAIL_SUBJECT_PREFIX = os.getenv('EMAIL_SUBJECT_PREFIX', '[Pong42] ')
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'csiffreinblanc@gmail.com'
+# EMAIL_HOST_PASSWORD = 'cbws izxl miso dbij'  # Remplacez par votre mot de passe d'application
+# DEFAULT_FROM_EMAIL = 'csiffreinblanc@gmail.com'
+# EMAIL_SUBJECT_PREFIX = '[Pong42] '
