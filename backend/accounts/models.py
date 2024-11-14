@@ -104,6 +104,11 @@ class GameHistory(models.Model):
     score_opponent = models.IntegerField()
     result = models.BooleanField()
     date_played = models.DateTimeField(auto_now_add=True)
+
+    # Statistiques supplémentaires
+    power_catch = models.IntegerField(default=0)  # Exemple : puissance de la prise
+    ball_speed = models.FloatField(default=0.0)  # Exemple : vitesse de la balle
+    longest_rally = models.IntegerField(default=0)  # Exemple : durée du rallye le plus long
     
     def __str__(self):
         return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"

@@ -14,6 +14,7 @@ urlpatterns = [
     path('check-cookies/', views.check_cookies, name='check-cookies'),
     path('record-game/', views.record_game, name='record_game'),
     path("match-history/", views.match_history, name="match_history"),
+    path("user/statistics/", views.get_user_statistics, name="get_user_statistics"),
     # JWT Token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Rafraîchir le token

@@ -25,9 +25,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // Fonction pour rediriger vers la page de login si l'utilisateur n'est pas authentifié
-  function redirectToLoginIfNeeded(path) {
+  async function redirectToLoginIfNeeded(path) {
     const requiresAuth = path !== "/login-register" && path !== "/";
-    if (requiresAuth && !isAuthenticated()) {
+    const authenticated = await isAuthenticated();
+    if (requiresAuth && !authenticated) {
       navigateTo("/login-register");
       return true; // Indique qu'on a redirigé vers login
     }
@@ -146,11 +147,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Fonction pour charger la page correcte en fonction de l'URL
-  window.loadPageFromURL = function () {
+  window.loadPageFromURL = async function () {
     const path = window.location.pathname;
 
     // Redirection vers login si non authentifié
-    const redirected = redirectToLoginIfNeeded(path);
+    const redirected = await redirectToLoginIfNeeded(path);
     if (redirected) {
       return; // Ne pas charger la page demandée si on redirige vers login
     }

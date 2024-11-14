@@ -23,3 +23,22 @@ TODO
 
     ==> securite a mettre pour unicite des mots de passe. (pour les username cest deja ok)
 
+
+
+Statistique profil 
+
+- rank 1 2 3 (etoiles)
+
+    calcul du rank : ratio de 0 - 33 => '*' // 34 - 66 => '**' // 67 - 100 => '***'
+
+- nombres de parties joues
+
+- nombre de victoires
+
+- ratio victoires
+
+- power catch 
+
+- ball speed
+
+- longest rally

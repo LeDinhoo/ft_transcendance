@@ -1385,3 +1385,50 @@ def match_history(request):
 
     return JsonResponse({'history': history})
 
+
+from django.http import JsonResponse
+from django.db.models import Count, F, Q, Avg, Max
+from .models import GameHistory
+
+
+# Vue pour récupérer les statistiques de l'utilisateur
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_statistics(request):
+    user = request.user
+
+    # Nombre de parties jouées
+    total_games = GameHistory.objects.filter(user=user).count()
+
+    # Nombre de victoires
+    total_wins = GameHistory.objects.filter(user=user, result=True).count()
+
+    # Calcul du ratio victoires
+    win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
+
+    # Rank basé sur le ratio de victoires
+    if win_ratio <= 33:
+        rank = "*"
+    elif win_ratio <= 66:
+        rank = "**"
+    else:
+        rank = "***"
+
+    # Calcul des autres statistiques (par exemple, power catch, ball speed, longest rally)
+    # Ces champs doivent être définis dans votre modèle pour être récupérés
+    power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
+    ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
+    longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max']
+
+    # Retourner les statistiques sous forme de JsonResponse
+    statistics = {
+        'rank': rank,
+        'total_games': total_games,
+        'total_wins': total_wins,
+        'win_ratio': win_ratio,
+        'power_catch_avg': power_catch_avg or 0,  # Valeur par défaut si aucune donnée
+        'ball_speed_avg': ball_speed_avg or 0,    # Valeur par défaut si aucune donnée
+        'longest_rally': longest_rally or 0       # Valeur par défaut si aucune donnée
+    }
+
+    return JsonResponse(statistics, status=200)

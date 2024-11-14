@@ -142,9 +142,9 @@ JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=2),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,  # Active la liste noire
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=6),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,  # Active la liste noire
     #'TOKEN_BLACKLIST_ENABLED': True,  # Ajoute ceci
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ALGORITHM': 'RS256',
