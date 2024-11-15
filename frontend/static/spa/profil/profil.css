@@ -32,37 +32,67 @@
   height: 17.292vw;
   border-radius: var(--radius-lg);
   display: flex;
-  justify-content: space-between; /* Changé de center à space-between */
+  justify-content: space-around;
   align-items: center;
   flex-direction: row;
   background-color: var(--dark-grey);
-  padding: 0 var(--24px); /* Ajout de padding horizontal */
+  padding: 0 var(--24px);
 }
 
-/* Nouvelle classe pour organiser les boutons */
+
+/* .avatarButtons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--16px);
+} */
+
+
 .avatarButtons {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--16px);
+  position: relative; /* Pour le positionnement du frame */
 }
 
-/* Style pour le status 2FA */
-.twoFactorStatus {
+
+/* Bouton 2FA */
+.btn-icon#toggle2FAButton {
+  position: relative; /* Pour servir de référence au frame */
   display: flex;
   align-items: center;
   gap: var(--8px);
-  padding: 0 var(--16px);
-  height: 2.5vw; /* Même hauteur que les boutons */
-  border-left: 2px solid var(--dusty-grey);
-  margin-left: var(--16px);
+  padding: 0 var(--16px) 0 var(--16px);
 }
 
-/* Style pour le frame de vérification */
-#2faVerificationFrame {
+.btn-icon#toggle2FAButton::before {
+  content: '';
   position: absolute;
-  top: calc(100% + var(--8px)); /* Juste en dessous de avatarSection */
-  right: var(--24px); /* Aligné avec le padding de avatarSection */
+  left: var(--16px); /* Aligne avec le padding */
+  width: 1.041vw;
+  height: 1.041vw;
+  border-radius: 100%;
+  background-color: rgb(247, 0, 0);
+}
+
+/* Ajoutez cette nouvelle règle pour décaler le texte */
+.btn-icon#toggle2FAButton span {
+  margin-left: calc(1.041vw + var(--8px)); /* Largeur de la pastille + petit espacement */
+}
+
+
+/* Style pour quand le 2FA est activé */
+.btn-icon#toggle2FAButton.enabled::before {
+  background-color: limegreen;
+}
+
+
+/* #2faVerificationFrame {
+  position: absolute;
+  top: calc(100% + var(--8px));
+  left: 50%;
+  transform: translate(-50%, 0);
   background-color: var(--dark-grey);
   padding: var(--16px);
   border-radius: var(--radius-lg);
@@ -72,12 +102,65 @@
   flex-direction: row;
   align-items: center;
   gap: var(--16px);
+  white-space: nowrap;
+} */
+
+
+#2faVerificationFrame {
+  position: absolute;
+  top: calc(100% + var(--8px));
+  right: 0;
+  background-color: var(--dark-grey);
+  padding: var(--16px);
+  border-radius: var(--radius-lg);
+  border: var(--dusty-grey) solid var(--4px);
+  display: none;
+  z-index: 1000;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--16px); /* Utilise le même gap que les autres éléments */
+}
+
+/* Ajustement spécifique pour l'input et le bouton dans le frame */
+#2faVerificationFrame .inputFrame,
+#2faVerificationFrame #verificationCode {
+  margin-right: 0; /* Retire toute marge par défaut */
+}
+
+#2faVerificationFrame .btn-icon {
+  margin-left: 0; /* Retire toute marge par défaut */
 }
 
 #2faVerificationFrame.visible {
   display: flex;
   align-items: center;
   gap: var(--16px);
+}
+
+
+#verificationCode {
+  width: 8vw;
+  height: 2.5vw;
+  background-color: var(--dark-grey);
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--radius-lg);
+  color: var(--snow);
+  padding: 0 var(--8px);
+  font-size: var(--16px);
+  text-align: center; /* Centre le texte */
+}
+
+/* Pour le bouton confirm dans le frame de vérification */
+#2faVerificationFrame .btn-icon img {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  transition: filter 0.2s ease;
+}
+
+/* Pour s'assurer que tous les logos dans les boutons ont la même apparence au survol */
+#2faVerificationFrame .btn-icon:hover img {
+  filter: brightness(0) invert(1);
 }
 
 /* Ajustement des boutons pour qu'ils aient la même taille */
@@ -332,57 +415,53 @@
 
 .modal-content {
   background-color: var(--dark-grey);
-  width: 780px; 
+  width: 450px;
   display: flex;
   flex-direction: column;
-  border-radius: 12px; 
-  overflow: hidden; 
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  border-bottom: 1px solid #374151;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--dusty-grey);
   color: var(--snow);
-  font-size: 1vw;
+  font-size: 14px;
   font-weight: 600;
   font-family: "Inter", sans-serif;
-  padding: 1.5rem;
 }
 
 .avatar-grid {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  gap: 1rem;
-  padding: 2rem 1.5rem; 
-  gap: 1.5rem; 
+  padding: 0.75rem;
+  gap: 0.5rem;
 }
 
 .avatar-row {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   justify-content: center;
 }
 
 .avatar-option {
-  width: 95px; 
-  height: 95px;
+  width: 50px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 3px solid transparent;
+  border: 2px solid transparent;
   background-color: var(--dark-grey);
   cursor: pointer;
   border-radius: 50%;
-  padding: 5px;
+  padding: 2px;
 }
 
 .avatar-option.selected {
   border-color: var(--liquid-lava);
-  padding: 5px;
 }
 
 .avatar-option img {
@@ -396,19 +475,20 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
-  gap: 1rem;
-  border-top: 1px solid #374151;
-  padding: 1.5rem; 
-  gap: 1.5rem; 
+  padding: 0.75rem;
+  gap: 0.75rem;
+  border-top: 1px solid var(--dusty-grey);
 }
 
 .modal-footer .btn-icon {
   padding: 0.5rem 1rem;
-  border: 1px solid #374151;
-  border-radius: 0.25rem;
-  border-radius: 24px; 
-  padding: 0.75rem 1.5rem; 
+  border: 1px solid var(--dusty-grey);
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  height: auto;
+  min-width: auto;
+  display: flex;
+  align-items: center;
 }
 
 .modal-footer .btn-icon:last-child {
@@ -417,7 +497,7 @@
 }
 
 .modal-footer .btn-icon:last-child:disabled {
-  background-color: #6B7280;
+  background-color: var(--slate-grey);
   cursor: not-allowed;
 }
 
@@ -439,14 +519,15 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--dark-grey);
-  padding: 2rem;
+  padding: 1.5rem;
   z-index: 1001;
   text-align: center;
+  border-radius: var(--radius-lg);
 }
 
 .warning-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   margin-right: 0.5rem;
 }
 
@@ -456,40 +537,42 @@
   justify-content: center;
   margin-bottom: 1rem;
   color: var(--snow);
+  font-size: 14px;
 }
 
 .popupTexte {
   color: var(--snow);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 12px;
 }
 
 .popupClose {
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1.5rem;
   background-color: var(--liquid-lava);
   border: none;
   color: var(--snow);
   cursor: pointer;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-lg);
+  font-size: 12px;
 }
 
-.popuplogo
-{
-  width: 40px;
-  height: 40px;
-  margin-right: 8px;
+.popuplogo {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
   transition: filter 0.2s ease;
 }
 
 .btn-icon:hover .popuplogo {
-  filter: brightness(0) invert(1); 
+  filter: brightness(0) invert(1);
 }
 
 .btn-icon:last-child:not(:disabled) .popuplogo {
-  filter: none; 
+  filter: none;
 }
 
 .btn-icon:last-child:not(:disabled):hover .popuplogo {
-  filter: brightness(0) invert(1); 
+  filter: brightness(0) invert(1);
 }
 
 .btn-icon:last-child:disabled .popuplogo {

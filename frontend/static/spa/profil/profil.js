@@ -345,6 +345,7 @@ https: function updateUI2FAStatus(enabled) {
     return;
   }
 
+  toggle2FAButton.className = enabled ? 'btn-icon enabled' : 'btn-icon';
   const is2FAEnabled = enabled;
   statusSpan.textContent = enabled ? "2FA: ON" : "2FA: OFF";
   statusSpan.style.color = enabled ? "#4CAF50" : "#FF5722";
@@ -355,7 +356,7 @@ https: function updateUI2FAStatus(enabled) {
         enabled ? "unlock" : "lock"
       }"></use>
     </svg>
-    ${enabled ? "Disable 2FA" : "Enable 2FA"}
+    ${enabled ? '2FA ON' : '2FA OFF'}
   `;
 
   // Cacher le frame de vérification
@@ -602,14 +603,27 @@ function initializeAvatarFeature() {
     });
   }
 
-  window.openModal = function () {
+  window.openModal = function() {
     if (modal) {
-      modal.style.display = "flex";
-      if (applyButton) {
-        applyButton.disabled = !selectedAvatar;
-      }
+        // Afficher la modal
+        modal.style.display = 'flex';
+
+        // Réinitialiser toute sélection précédente
+        const previousSelected = document.querySelector('.avatar-option.selected');
+        if (previousSelected) {
+            previousSelected.classList.remove('selected');
+        }
+
+        // Réinitialiser les variables de sélection
+        selectedAvatar = null;
+        tempSelectedSrc = null;
+
+        // Désactiver le bouton Apply
+        if (applyButton) {
+            applyButton.disabled = true;
+        }
     }
-  };
+};
 
   window.closeModal = function () {
     if (modal) {
@@ -631,3 +645,5 @@ function initializeAvatarFeature() {
     });
   }
 }
+
+
