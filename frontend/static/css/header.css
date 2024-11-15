@@ -47,7 +47,7 @@
   max-height: 1.5vw;
 }
 
-.logout {
+/* .logout {
   display: flex;
   position: absolute;
   left: 96%;
@@ -58,7 +58,7 @@
 
 .logout-text {
   display: flex;
-  /* position: absolute; */
+  position: absolute;
   font-family: "Inter", sans-serif;
   font-size: var(--8px);
   font-weight: 600;
@@ -77,5 +77,55 @@
 .logout:hover .logout-text {
   opacity: 1;
   transform: translateY(0);
+} */
+
+
+.logout {
+  display: flex;
+  position: absolute;
+  right: 2rem;
+  top: 1rem; /* Position fixe en haut */
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem;
+  transition: all 0.3s ease;
 }
 
+.logout-icon {
+  width: var(--32px); /* Taille plus grande */
+  height: var(--32px);
+  transition: transform 0.3s ease;
+}
+
+.logout-text {
+  font-family: "Inter", sans-serif;
+  font-size: var(--12px);
+  font-weight: 600;
+  color: var(--liquid-lava);
+  margin-top: 0.25rem;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+}
+
+.logout:hover {
+  transform: translateY(-2px);
+}
+
+.logout:hover .logout-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media screen and (max-width: 768px) {
+  .logout {
+      right: 1rem;
+      top: 0.75rem;
+  }
+
+  .logout-icon {
+      width: var(--24px);
+      height: var(--24px);
+  }
+}
