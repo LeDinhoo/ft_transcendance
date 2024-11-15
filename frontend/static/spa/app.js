@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
         [
           "/static/spa/login/gameScript.js",
           "/static/spa/login/registerShowHide.js",
-          "/static/spa/login/auth_test.js",
+          "/static/spa/login/auth.js",
           "/static/spa/login/visibilityPassword.js",
         ],
         true
@@ -174,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     } else if (path === "/profil") {
       loadComponent(
-        "/static/spa/profil/profil_test.html",
+        "/static/spa/profil/profil.html",
         "/static/spa/profil/profil.css",
         [
           "/static/spa/profil/profil.js",
@@ -201,7 +201,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ["/static/spa/tournament/tournament.js"]
       ).then(() => {
         initializeTournamentPage();
-        // initializeTournamentDisplay();
       });
     } else {
       appDiv.innerHTML = "<p>Page non trouvée.</p>";
