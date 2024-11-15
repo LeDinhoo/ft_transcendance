@@ -4,12 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let isLoading = false;
 
-  // // Fonction pour vérifier si l'utilisateur est authentifié
-  // function isAuthenticated() {
-  //   const accessToken = localStorage.getItem("access_token");
-  //   return accessToken !== null; // L'utilisateur est authentifié s'il y a un token
-  // }
-
   async function isAuthenticated() {
     try {
         const response = await fetch("/api/auth-check/", {
@@ -214,44 +208,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  // window.logout = function () {
-  //   console.log("log out function called");
-
-  //   const refreshToken = localStorage.getItem("refresh_token");
-  //   const accessToken = localStorage.getItem("access_token");
-
-  //   if (!refreshToken || !accessToken) {
-  //     console.error("Tokens not found.");
-  //     return;
-  //   }
-
-  //   fetch("/api/logout/", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${accessToken}`, // Envoyer l'access token dans les headers
-  //     },
-  //     body: JSON.stringify({
-  //       refresh_token: refreshToken, // Inclure le refresh token dans le corps de la requête
-  //       access_token: accessToken, // Inclure également l'access token dans le corps de la requête
-  //     }),
-  //   })
-  //     .then((response) => {
-  //       console.log("Response status:", response.status); // Vérifie le statut de la réponse
-  //       return response.json();
-  //     })
-  //     .then((data) => {
-  //       console.log("Logout response data:", data); // Affiche les données de la réponse
-  //       if (data.success) {
-  //         localStorage.removeItem("access_token"); // Supprimer les tokens du stockage local
-  //         localStorage.removeItem("refresh_token");
-  //         window.location.href = "/login-register";
-  //       } else {
-  //         console.error(data.message);
-  //       }
-  //     })
-  //     .catch((error) => console.error("Error:", error));
-  // };
 
     // Code du logout mis à jour pour ne pas utiliser localStorage
     window.logout = function () {
@@ -268,7 +224,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((data) => {
           console.log("Logout response data:", data);
           if (data.success) {
-            // Rediriger vers la page de connexion
             window.location.href = "/login-register";
           } else {
             console.error(data.message);

@@ -67,7 +67,6 @@ function loadMatchHistory() {
     );
 }
 
-
 function updateMatchHistoryUI(history) {
   console.log("fonction updateMatchHistory appele");
 
@@ -139,26 +138,25 @@ function loadUserStatistics() {
       "Content-Type": "application/json",
     },
   })
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       console.log("Statistiques de l'utilisateur :", data);
 
       // Affichage des statistiques dans l'interface
       // document.getElementById("rank").innerText = data.rank;
       document.getElementById("total_games").innerText = data.total_games;
       // document.getElementById("total_wins").innerText = data.total_wins;
-      document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
+      document.getElementById("win_ratio").innerText =
+        data.win_ratio.toFixed(2) + "%";
       // document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
-      document.getElementById("ball_speed_avg").innerText = data.ball_speed_avg.toFixed(2);
+      document.getElementById("ball_speed_avg").innerText =
+        data.ball_speed_avg.toFixed(2);
       // document.getElementById("longest_rally").innerText = data.longest_rally;
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Erreur lors du chargement des statistiques :", error);
     });
 }
-
-
-
 
 function initializeProfilePage() {
   initializeAvatarFeature();
@@ -337,7 +335,6 @@ function initializeProfilePage() {
   loadUserStatistics();
 }
 
-
 https: function updateUI2FAStatus(enabled) {
   const statusSpan = document.getElementById("2faStatus");
   const toggle2FAButton = document.getElementById("toggle2FAButton");
@@ -375,9 +372,7 @@ function initialize2FA() {
 
   // Vérifiez le statut initial de la 2FA
   fetch("/api/profil/", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-    },
+    credentials: "include", // Envoie automatiquement les cookies, y compris l'access_token
   })
     .then((response) => response.json())
     .then((data) => {
@@ -390,15 +385,21 @@ function initialize2FA() {
       console.error("Erreur lors de la vérification du statut 2FA:", error);
     });
 
-  // Gestionnaire pour le bouton toggle 2FA
+  // Retirer les anciens écouteurs pour éviter les doubles appels
   if (toggle2FAButton) {
-    toggle2FAButton.addEventListener("click", function () {
+    const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
+    toggle2FAButton.parentNode.replaceChild(
+      cloneToggle2FAButton,
+      toggle2FAButton
+    );
+
+    cloneToggle2FAButton.addEventListener("click", function () {
       const action = is2FAEnabled ? "disable" : "enable";
 
       fetch("/api/2fa/toggle/", {
         method: "POST",
+        credentials: "include", // Envoie automatiquement les cookies
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ action: action }),
@@ -420,8 +421,53 @@ function initialize2FA() {
         });
     });
   }
-}
 
+  // Retirer les anciens écouteurs pour éviter les doubles appels sur confirm2FAButton
+  if (confirm2FAButton) {
+    const cloneConfirm2FAButton = confirm2FAButton.cloneNode(true);
+    confirm2FAButton.parentNode.replaceChild(
+      cloneConfirm2FAButton,
+      confirm2FAButton
+    );
+
+    cloneConfirm2FAButton.addEventListener("click", function () {
+      const verificationCodeInput = document.getElementById("verificationCode");
+      const code = verificationCodeInput ? verificationCodeInput.value : null;
+
+      if (!code) {
+        showConfirmationMessage("Veuillez entrer le code reçu par email");
+        return;
+      }
+
+      fetch("/api/2fa/verify/", {
+        method: "POST",
+        credentials: "include", // Envoie automatiquement les cookies
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: code }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Code invalide");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          updateUI2FAStatus(true);
+          showConfirmationMessage("2FA activé avec succès");
+          // Réinitialiser le champ du code
+          if (verificationCodeInput) {
+            verificationCodeInput.value = "";
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur:", error);
+          showConfirmationMessage("Code invalide");
+        });
+    });
+  }
+}
 
 const avatarUrls = [
   "/static/assets/avatars/abeille.png",
@@ -585,4 +631,3 @@ function initializeAvatarFeature() {
     });
   }
 }
-

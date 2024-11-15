@@ -33,5 +33,3 @@ signUpButton.addEventListener("click", () => {
 });
 
 registerWidget.style.display = "none";
-
-
