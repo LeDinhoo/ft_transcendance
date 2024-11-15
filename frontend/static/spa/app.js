@@ -4,30 +4,83 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let isLoading = false;
 
+  // async function isAuthenticated() {
+  //   try {
+  //     const response = await fetch("/api/auth-check/", {
+  //       method: "GET",
+  //       credentials: "include", // Inclut les cookies
+  //     });
+  //     return response.ok; // Retourne `true` si authentifié, sinon `false`
+  //   } catch (error) {
+  //     console.error("Erreur d'authentification:", error);
+  //     return false;
+  //   }
+  // }
+
   async function isAuthenticated() {
     try {
-        const response = await fetch("/api/auth-check/", {
-            method: "GET",
-            credentials: "include", // Inclut les cookies
+      const response = await fetch("/api/auth-check/", {
+        method: "GET",
+        credentials: "include", // Inclut les cookies
+      });
+
+      if (response.ok) {
+        return true; // L'utilisateur est authentifié
+      }
+
+      if (response.status === 401) {
+        console.log("Token d'accès expiré, tentative de rafraîchissement...");
+
+        // Si le token d'accès est expiré, essayer de le rafraîchir
+        const refreshResponse = await fetch("/api/token/refresh/", {
+          method: "POST",
+          credentials: "include", // Inclut les cookies
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
         });
-        return response.ok; // Retourne `true` si authentifié, sinon `false`
+
+        if (refreshResponse.ok) {
+          console.log("Token d'accès rafraîchi avec succès.");
+          return true; // Le token a été rafraîchi avec succès
+        } else {
+          console.warn("Impossible de rafraîchir le token.");
+          return false; // Le token de rafraîchissement est invalide ou expiré
+        }
+      }
+
+      return false; // Autre erreur d'authentification
     } catch (error) {
-        console.error("Erreur d'authentification:", error);
-        return false;
+      console.error("Erreur d'authentification:", error);
+      return false;
     }
-}
+  }
 
+  // // Fonction pour rediriger vers la page de login si l'utilisateur n'est pas authentifié
+  // async function redirectToLoginIfNeeded(path) {
+  //   const requiresAuth = path !== "/login-register" && path !== "/";
+  //   const authenticated = await isAuthenticated();
+  //   if (requiresAuth && !authenticated) {
+  //     navigateTo("/login-register");
+  //     return true; // Indique qu'on a redirigé vers login
+  //   }
+  //   return false;
+  // }
 
-  // Fonction pour rediriger vers la page de login si l'utilisateur n'est pas authentifié
   async function redirectToLoginIfNeeded(path) {
     const requiresAuth = path !== "/login-register" && path !== "/";
     const authenticated = await isAuthenticated();
+  
     if (requiresAuth && !authenticated) {
+      console.warn("Utilisateur non authentifié. Redirection vers la page de connexion.");
       navigateTo("/login-register");
       return true; // Indique qu'on a redirigé vers login
     }
-    return false;
+  
+    return false; // L'utilisateur est authentifié ou aucune authentification n'est requise
   }
+  
 
   // Charger une page en fonction de l'URL
   async function loadComponent(
@@ -165,16 +218,14 @@ document.addEventListener("DOMContentLoaded", function () {
         true
       );
     } else if (path === "/home") {
-      loadComponent(
-        "/static/spa/home/home.html", 
-        "/static/spa/home/home.css",
-        ["/static/spa/home/home.js",
+      loadComponent("/static/spa/home/home.html", "/static/spa/home/home.css", [
+        "/static/spa/home/home.js",
       ]).then(() => {
         initializeHome();
-    });
+      });
     } else if (path === "/profil") {
       loadComponent(
-        "/static/spa/profil/profil.html",
+        "/static/spa/profil/profil_test.html",
         "/static/spa/profil/profil.css",
         [
           "/static/spa/profil/profil.js",
@@ -207,29 +258,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
+  // Code du logout mis à jour pour ne pas utiliser localStorage
+  window.logout = function () {
+    console.log("log out function called");
 
-    // Code du logout mis à jour pour ne pas utiliser localStorage
-    window.logout = function () {
-      console.log("log out function called");
-  
-      fetch("/api/logout/", {
-        method: "POST",
-        credentials: "include", // Assure l'envoi des cookies avec la requête
-        headers: {
-          "Content-Type": "application/json",
-        },
+    fetch("/api/logout/", {
+      method: "POST",
+      credentials: "include", // Assure l'envoi des cookies avec la requête
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Logout response data:", data);
+        if (data.success) {
+          window.location.href = "/login-register";
+        } else {
+          console.error(data.message);
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Logout response data:", data);
-          if (data.success) {
-            window.location.href = "/login-register";
-          } else {
-            console.error(data.message);
-          }
-        })
-        .catch((error) => console.error("Error:", error));
-    };
+      .catch((error) => console.error("Error:", error));
+  };
 
   // Fonction pour gérer la visibilité de la navbar
   function updateNavBarVisibility(path) {

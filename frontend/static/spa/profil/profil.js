@@ -336,19 +336,20 @@ function initializeProfilePage() {
 }
 
 https: function updateUI2FAStatus(enabled) {
-  const statusSpan = document.getElementById("2faStatus");
+  // const statusSpan = document.getElementById("2faStatus");
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
 
-  if (!statusSpan || !toggle2FAButton || !verificationFrame) {
+  // if (!statusSpan || !toggle2FAButton || !verificationFrame) {
+  if (!toggle2FAButton || !verificationFrame) {
     console.error("Éléments pour l'interface 2FA introuvables.");
     return;
   }
 
   toggle2FAButton.className = enabled ? 'btn-icon enabled' : 'btn-icon';
   const is2FAEnabled = enabled;
-  statusSpan.textContent = enabled ? "2FA: ON" : "2FA: OFF";
-  statusSpan.style.color = enabled ? "#4CAF50" : "#FF5722";
+  // statusSpan.textContent = enabled ? "2FA: ON" : "2FA: OFF";
+  // statusSpan.style.color = enabled ? "#4CAF50" : "#FF5722";
 
   toggle2FAButton.innerHTML = `
     <svg>

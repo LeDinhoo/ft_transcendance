@@ -46,11 +46,40 @@ def check_cookies(request):
     })
 
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])  # S'assure que le token est valide
+# def auth_check(request):
+#     # Si l'utilisateur est authentifié, retourner une réponse 200 OK
+#     return Response({"authenticated": True}, status=status.HTTP_200_OK)
+
+
+
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+
+
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # S'assure que le token est valide
+@permission_classes([IsAuthenticated])  # Vérifie le token via le middleware JWT
 def auth_check(request):
-    # Si l'utilisateur est authentifié, retourner une réponse 200 OK
-    return Response({"authenticated": True}, status=status.HTTP_200_OK)
+    """
+    Vérifie si l'utilisateur est authentifié avec un token valide.
+    """
+    try:
+        # Vérification supplémentaire si nécessaire
+        JWTAuthentication().authenticate(request)
+        return Response({"authenticated": True}, status=status.HTTP_200_OK)
+
+    except TokenError as e:
+        # Gestion des erreurs liées au token
+        return Response({"error": "Token invalide ou expiré.", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+
+    except Exception as e:
+        # Autres erreurs inattendues
+        return Response({"error": "Erreur inattendue.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -322,6 +351,23 @@ def update_profile_view(request):
     }, status=200)
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def logout_view(request):
+#     try:
+#         refresh_token = request.COOKIES.get('refresh_token')
+#         if refresh_token:
+#             token = RefreshToken(refresh_token)
+#             token.blacklist()
+        
+#         response = JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+#         response.delete_cookie('access_token')
+#         response.delete_cookie('refresh_token')
+#         return response
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -330,13 +376,13 @@ def logout_view(request):
         if refresh_token:
             token = RefreshToken(refresh_token)
             token.blacklist()
-        
-        response = JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
-        return response
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        logger.error(f"Erreur lors du blacklistage du refresh token : {str(e)}")
+
+    response = JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+    response.delete_cookie('access_token')
+    response.delete_cookie('refresh_token')
+    return response
 
 
 # @api_view(['POST'])
@@ -363,18 +409,69 @@ def logout_view(request):
 
 from rest_framework_simplejwt.exceptions import TokenError
 
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def refresh_token_view(request):
+#     refresh_token = request.COOKIES.get('refresh_token')
+#     if not refresh_token:
+#         return JsonResponse({'error': 'Refresh token not found'}, status=403)
+
+#     try:
+#         token = RefreshToken(refresh_token)
+#         access_token = str(token.access_token)
+
+#         response = JsonResponse({'success': True}, status=200)
+#         response.set_cookie(
+#             key='access_token',
+#             value=access_token,
+#             httponly=True,
+#             secure=True,
+#             samesite='Lax'
+#         )
+
+#         return response
+
+#     except Exception as e:
+#         return JsonResponse({'error': 'Invalid refresh token'}, status=403)
+
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def refresh_token_view(request):
+#     refresh_token = request.COOKIES.get('refresh_token')
+#     if not refresh_token:
+#         return JsonResponse({'error': 'Refresh token not found in cookies'}, status=403)
+
+#     try:
+#         token = RefreshToken(refresh_token)
+#         access_token = str(token.access_token)
+
+#         response = JsonResponse({'success': True, 'access': access_token}, status=200)
+#         response.set_cookie(
+#             key='access_token',
+#             value=access_token,
+#             httponly=True,
+#             secure=True,
+#             samesite='Lax'
+#         )
+#         return response
+
+#     except TokenError as e:
+#         logger.error(f"Invalid refresh token: {e}")
+#         return JsonResponse({'error': 'Invalid or expired refresh token'}, status=403)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def refresh_token_view(request):
     refresh_token = request.COOKIES.get('refresh_token')
     if not refresh_token:
-        return JsonResponse({'error': 'Refresh token not found'}, status=403)
+        return JsonResponse({'error': 'Refresh token not found in cookies'}, status=403)
 
     try:
         token = RefreshToken(refresh_token)
         access_token = str(token.access_token)
 
-        response = JsonResponse({'success': True}, status=200)
+        response = JsonResponse({'success': True, 'access': access_token}, status=200)
         response.set_cookie(
             key='access_token',
             value=access_token,
@@ -382,11 +479,12 @@ def refresh_token_view(request):
             secure=True,
             samesite='Lax'
         )
-
         return response
 
-    except Exception as e:
-        return JsonResponse({'error': 'Invalid refresh token'}, status=403)
+    except TokenError as e:
+        logger.error(f"Invalid refresh token: {e}")
+        return JsonResponse({'error': 'Invalid or expired refresh token'}, status=403)
+
 
 
 from rest_framework.decorators import api_view, permission_classes
