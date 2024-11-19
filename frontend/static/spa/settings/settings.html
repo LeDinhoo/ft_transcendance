@@ -1,0 +1,226 @@
+<div class="mainSettings">
+    <div class="leftSettings">
+      <div class="settings-group">
+        <h2 class="settings-title">Game Settings</h2>
+
+        <div class="setting-item">
+          <span class="setting-label">Score to Win</span>
+          <div class="options-group">
+            <button class="option-button" data-setting="score">1</button>
+            <button class="option-button" data-setting="score">3</button>
+            <button class="option-button" data-setting="score">5</button>
+            <button class="option-button" data-setting="score">10</button>
+            <button class="option-button" data-setting="score">15</button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Ball Slower during Serve</span>
+          <div class="options-group">
+            <button class="option-button" data-setting="ballSlower">
+              Yes
+            </button>
+            <button class="option-button" data-setting="ballSlower">
+              No
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Who starts after a Point</span>
+          <div class="options-group">
+            <button class="option-button" data-setting="starter">
+              Player 1
+            </button>
+            <button class="option-button" data-setting="starter">
+              Alternate
+            </button>
+            <button class="option-button" data-setting="starter">
+              Player 2
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">Power Mode</span>
+          <div class="options-group">
+            <button class="option-button" data-setting="powerMode">
+              Yes
+            </button>
+            <button class="option-button" data-setting="powerMode">
+              No
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <span class="setting-label">IA Difficulty</span>
+          <div class="options-group">
+            <button class="option-button" data-setting="difficulty">
+              Easy
+            </button>
+            <button class="option-button" data-setting="difficulty">
+              Medium
+            </button>
+            <button class="option-button" data-setting="difficulty">
+              Hard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rightSettings">
+      <div class="settings-group">
+        <h2 class="settings-title">Controls Settings</h2>
+
+        <div class="controls-section">
+          <div class="player-controls">
+            <h3 class="controls-subtitle">Player 1</h3>
+            <div class="setting-item">
+              <span class="setting-label">Movement</span>
+              <div class="controls-group">
+                <div class="control-input">
+                  <label>Move Up</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p1-up"
+                    readonly
+                    placeholder="Press a key"
+                    value="W"
+                  />
+                </div>
+                <div class="control-input">
+                  <label>Move Down</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p1-down"
+                    readonly
+                    placeholder="Press a key"
+                    value="S"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <span class="setting-label">Powers</span>
+              <div class="controls-group">
+                <div class="control-input">
+                  <label>Flash Power</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p1-power-flash"
+                    readonly
+                    placeholder="Press a key"
+                    value="Q"
+                  />
+                </div>
+                <div class="control-input">
+                  <label>Laser Power</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p1-power-laser"
+                    readonly
+                    placeholder="Press a key"
+                    value="E"
+                  />
+                </div>
+                <div class="control-input">
+                  <label>Multiball Power</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p1-power-multi"
+                    readonly
+                    placeholder="Press a key"
+                    value="R"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="player-controls">
+            <h3 class="controls-subtitle">Player 2</h3>
+            <div class="setting-item">
+              <span class="setting-label">Movement</span>
+              <div class="controls-group">
+                <div class="control-input">
+                  <label>Move Up</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p2-up"
+                    readonly
+                    placeholder="Press a key"
+                    value="↑"
+                  />
+                </div>
+                <div class="control-input">
+                  <label>Move Down</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p2-down"
+                    readonly
+                    placeholder="Press a key"
+                    value="↓"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <span class="setting-label">Powers</span>
+              <div class="controls-group">
+                <div class="control-input">
+                  <label>Flash Power</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p2-power-flash"
+                    readonly
+                    placeholder="Press a key"
+                    value="I"
+                  />
+                </div>
+                <div class="control-input">
+                  <label>Laser Power</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p2-power-laser"
+                    readonly
+                    placeholder="Press a key"
+                    value="O"
+                  />
+                </div>
+                <div class="control-input">
+                  <label>Multiball Power</label>
+                  <input
+                    type="text"
+                    class="key-input"
+                    data-control="p2-power-multi"
+                    readonly
+                    placeholder="Press a key"
+                    value="P"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="saveSettings">
+    <button class="save-button">Save Settings</button>
+  </div>
+</div>
+

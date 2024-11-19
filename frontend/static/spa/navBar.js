@@ -6,10 +6,10 @@ function initializeNavBar() {
   // Tableau des routes correspondantes à chaque icône
   const routes = [
     "/home",
-    "/custom",
+    // "/custom",
     "/tournament",
     "/profil",
-    "/online",
+    // "/online",
     "/settings",
   ];
 

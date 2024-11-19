@@ -218,12 +218,12 @@ document.addEventListener("DOMContentLoaded", function () {
         initializeAvatarFeature();
         initialize2FA();
       });
-    } else if (path === "/custom") {
-      loadComponent(
-        "/static/spa/custom/custom.html",
-        "/static/spa/custom/custom.css",
-        ["/static/spa/custom/custom.js"]
-      );
+    // } else if (path === "/custom") {
+    //   loadComponent(
+    //     "/static/spa/custom/custom.html",
+    //     "/static/spa/custom/custom.css",
+    //     ["/static/spa/custom/custom.js"]
+    //   );
     } else if (path === "/tournament") {
       loadComponent(
         "/static/spa/tournament/tournament.html",
@@ -232,6 +232,15 @@ document.addEventListener("DOMContentLoaded", function () {
       ).then(() => {
         initializeTournamentPage();
       });
+    }
+      else if (path === "/settings") {
+      loadComponent(
+          "/static/spa/settings/settings.html",
+          "/static/spa/settings/settings.css",
+          ["/static/spa/settings/settings.js"]
+        ).then(() => {
+          initializeSettingsPage();
+        });
     } else {
       appDiv.innerHTML = "<p>Page non trouvée.</p>";
     }
