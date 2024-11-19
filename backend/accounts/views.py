@@ -94,22 +94,6 @@ def index_view(request):
     register_form = RegisterForm()
     return render(request, 'index.html', {'login_form': login_form, 'register_form': register_form})
 
-# def set_jwt_cookies(response, access_token, refresh_token):
-#     # Configurer les cookies sécurisés pour les tokens
-#     response.set_cookie(
-#         key='access_token',
-#         value=access_token,
-#         httponly=True,  # Empêche l'accès via JavaScript
-#         secure=True,    # Utilise HTTPS uniquement
-#         samesite='Strict'  # Paramètre SameSite pour CSRF
-#     )
-#     response.set_cookie(
-#         key='refresh_token',
-#         value=refresh_token,
-#         httponly=True,
-#         secure=True,
-#         samesite='Strict'
-#     )
 
 def set_jwt_cookies(response, access_token, refresh_token):
     # Configurer les cookies sécurisés pour les tokens
@@ -268,8 +252,6 @@ def profile_view(request):
 def update_profile_view(request):
     user = request.user
     data = request.data
-    #print("Données reçues:", data)  # Debug
-    #print("Files reçus:", request.FILES)  # Debug
 
     # Valider et mettre à jour le nom d'utilisateur si présent dans les données
     if 'username' in data:
@@ -351,23 +333,6 @@ def update_profile_view(request):
     }, status=200)
 
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def logout_view(request):
-#     try:
-#         refresh_token = request.COOKIES.get('refresh_token')
-#         if refresh_token:
-#             token = RefreshToken(refresh_token)
-#             token.blacklist()
-        
-#         response = JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
-#         response.delete_cookie('access_token')
-#         response.delete_cookie('refresh_token')
-#         return response
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=500)
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
@@ -384,81 +349,7 @@ def logout_view(request):
     response.delete_cookie('refresh_token')
     return response
 
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])  # Accessible uniquement pour les utilisateurs authentifiés
-# def logout_view(request):
-#     try:
-#         # Récupérer le refresh token de la requête
-#         refresh_token = request.data.get('refresh_token')
-
-#         if not refresh_token:
-#             return JsonResponse({'success': False, 'message': 'Refresh token is required'}, status=400)
-
-#         # Invalider le refresh token
-#         try:
-#             refresh_token_instance = RefreshToken(refresh_token)
-#             refresh_token_instance.blacklist()
-#         except Exception as e:
-#             return JsonResponse({'success': False, 'message': f'Error blacklisting refresh token: {str(e)}'}, status=500)
-
-#         return JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
-
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'message': str(e)}, status=400)
-
 from rest_framework_simplejwt.exceptions import TokenError
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def refresh_token_view(request):
-#     refresh_token = request.COOKIES.get('refresh_token')
-#     if not refresh_token:
-#         return JsonResponse({'error': 'Refresh token not found'}, status=403)
-
-#     try:
-#         token = RefreshToken(refresh_token)
-#         access_token = str(token.access_token)
-
-#         response = JsonResponse({'success': True}, status=200)
-#         response.set_cookie(
-#             key='access_token',
-#             value=access_token,
-#             httponly=True,
-#             secure=True,
-#             samesite='Lax'
-#         )
-
-#         return response
-
-#     except Exception as e:
-#         return JsonResponse({'error': 'Invalid refresh token'}, status=403)
-
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def refresh_token_view(request):
-#     refresh_token = request.COOKIES.get('refresh_token')
-#     if not refresh_token:
-#         return JsonResponse({'error': 'Refresh token not found in cookies'}, status=403)
-
-#     try:
-#         token = RefreshToken(refresh_token)
-#         access_token = str(token.access_token)
-
-#         response = JsonResponse({'success': True, 'access': access_token}, status=200)
-#         response.set_cookie(
-#             key='access_token',
-#             value=access_token,
-#             httponly=True,
-#             secure=True,
-#             samesite='Lax'
-#         )
-#         return response
-
-#     except TokenError as e:
-#         logger.error(f"Invalid refresh token: {e}")
-#         return JsonResponse({'error': 'Invalid or expired refresh token'}, status=403)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -511,25 +402,6 @@ def auto_refresh_token_view(request):
     except Exception as e:
         return Response({'error': 'Invalid or expired refresh token'}, status=403)
 
-
-
-# @api_view(['POST'])
-# def token_refresh_view(request):
-#     refresh_token = request.data.get('refresh')
-    
-#     try:
-#         token = RefreshToken(refresh_token)
-        
-#         # Vérifier si le token est blacklisté
-#         if token.check_blacklist():
-#             return JsonResponse({'error': 'Token is blacklisted'}, status=400)
-        
-#         # Générer un nouveau token d'accès
-#         new_access_token = str(token.access_token)
-#         return JsonResponse({'access': new_access_token}, status=200)
-        
-#     except TokenError as e:
-#         return JsonResponse({'error': 'Invalid token'}, status=400)
 
 #################################API 42 ####################################################
 
@@ -614,206 +486,6 @@ import requests
 import logging
 
 logger = logging.getLogger(__name__)
-
-# @api_view(['GET'])
-# @permission_classes([AllowAny])
-# def callback_42(request):
-#     try:
-#         code = request.GET.get('code')
-#         if not code:
-#             logger.error("No authorization code received")
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'No authorization code received'
-#             }, status=400)
-
-#         # Échange du code contre un token
-#         token_url = 'https://api.intra.42.fr/oauth/token'
-#         token_data = {
-#             'grant_type': 'authorization_code',
-#             'client_id': settings.FORTYTWO_CLIENT_ID,
-#             'client_secret': settings.FORTYTWO_CLIENT_SECRET,
-#             'code': code,
-#             'redirect_uri': settings.FORTYTWO_REDIRECT_URI
-#         }
-
-#         try:
-#             token_response = requests.post(token_url, data=token_data, timeout=10)
-#             token_response.raise_for_status()
-#         except requests.exceptions.RequestException as e:
-#             logger.error(f"Token exchange failed: {str(e)}")
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Failed to exchange authorization code'
-#             }, status=400)
-
-#         access_token = token_response.json().get('access_token')
-
-#         try:
-#             user_response = requests.get(
-#                 'https://api.intra.42.fr/v2/me',
-#                 headers={'Authorization': f'Bearer {access_token}'},
-#                 timeout=10
-#             )
-#             user_response.raise_for_status()
-#             user_data = user_response.json()
-
-#         except requests.exceptions.RequestException as e:
-#             logger.error(f"Failed to get user info: {str(e)}")
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Failed to get user information'
-#             }, status=400)
-
-#         try:
-#             # Chercher l'utilisateur par intra_42_id
-#             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
-
-#             if user is None:
-#                 # Si non trouvé, chercher par email
-#                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
-
-#                 if existing_user:
-#                     # Mettre à jour l'utilisateur existant avec les infos 42
-#                     existing_user.intra_42_id = user_data['id']
-#                     existing_user.is_42_user = True
-#                     existing_user.save()
-#                     user = existing_user
-#                     logger.info(f"Updated existing user with 42 data: {user.username}")
-#                 else:
-#                     # Créer un nouvel utilisateur
-#                     user = CustomUser.objects.create_user(
-#                         username=user_data['login'],
-#                         email=user_data['email'],
-#                         password=CustomUser.objects.make_random_password(),
-#                         intra_42_id=user_data['id'],
-#                         is_42_user=True,
-#                         avatar='assets/avatars/ladybug.png'  # Utilise la valeur par défaut
-#                     )
-#                     logger.info(f"Created new user from 42 data: {user.username}")
-
-#             # Connecter l'utilisateur
-#             user.backend = 'django.contrib.auth.backends.ModelBackend'
-#             login(request, user)
-
-#             # Générer les tokens JWT comme dans votre login classique
-#             refresh = RefreshToken.for_user(user)
-#             access_token = str(refresh.access_token)
-#             refresh_token = str(refresh)
-
-#             # Création des données pour la réponse
-#             response_data = {
-#                 'success': True,
-#                 'message': 'Authentication successful',
-#                 'user': {
-#                     'id': user.id,
-#                     'username': user.username,
-#                     'email': user.email,
-#                     'is_42_user': user.is_42_user,
-#                     'avatar': user.avatar.url
-#                 },
-#                 # 'access': str(refresh.access_token),
-#                 # 'refresh': str(refresh)
-#             }
-#             # set_jwt_cookies(response_data, access_token, refresh_token)
-
-
-#             # # Retourner une page HTML avec les données et la redirection
-#             # return HttpResponse(f"""
-#             #     <!DOCTYPE html>
-#             #     <html>
-#             #         <head>
-#             #             <title>Authentication Successful</title>
-#             #             <script>
-#             #                 console.log('Processing authentication response...');
-
-#             #                 // Les données de l'authentification
-#             #                 const authData = {json.dumps(response_data)};
-
-#             #                 // Stocker les tokens
-#             #                 localStorage.setItem('access_token', authData.access);
-#             #                 localStorage.setItem('refresh_token', authData.refresh);
-
-#             #                 // Stocker les données utilisateur
-#             #                 localStorage.setItem('user_data', JSON.stringify(authData.user));
-
-#             #                 if (window.opener) {{
-#             #                     // Envoyer un message à la fenêtre principale
-#             #                     console.log('Sending success message to main window...');
-#             #                     window.opener.postMessage({{
-#             #                         type: 'auth_success',
-#             #                         data: authData
-#             #                     }}, 'https://localhost:4430');
-
-#             #                     // Rediriger la fenêtre principale
-#             #                     console.log('Redirecting main window...');
-#             #                     window.opener.location.href = 'https://localhost:4430/home';
-
-#             #                     // Fermer cette fenêtre après un court délai
-#             #                     setTimeout(() => {{
-#             #                         console.log('Closing popup window...');
-#             #                         window.close();
-#             #                     }}, 300);
-#             #                 }}
-#             #             </script>
-#             #         </head>
-#             #         <body>
-#             #             <h1>Authentication Successful!</h1>
-#             #             <p>Redirecting...</p>
-#             #         </body>
-#             #     </html>
-#             # """)
-
-#             response = HttpResponse(f"""
-#                 <!DOCTYPE html>
-#                 <html>
-#                     <head>
-#                         <title>Authentication Successful</title>
-#                         <script>
-#                             if (window.opener) {{
-#                                 // Envoyer un message à la fenêtre principale
-#                                 console.log('Sending success message to main window...');
-#                                 window.opener.postMessage({{
-#                                     type: 'auth_success'
-#                                 }}, 'https://localhost:4430');
-
-#                                 // Rediriger la fenêtre principale
-#                                 console.log('Redirecting main window...');
-#                                 window.opener.location.href = 'https://localhost:4430/home';
-
-#                                 // Fermer cette fenêtre après un court délai
-#                                 setTimeout(() => {{
-#                                     console.log('Closing popup window...');
-#                                     window.close();
-#                                 }}, 300);
-#                             }}
-#                         </script>
-#                     </head>
-#                     <body>
-#                         <h1>Authentication Successful!</h1>
-#                         <p>Redirecting...</p>
-#                     </body>
-#                 </html>
-#             """)
-
-#         # Définir les cookies de jetons sur la réponse HTML
-#         set_jwt_cookies(response, access_token, refresh_token)
-#         return response
-
-
-#         except Exception as e:
-#             logger.error(f"Database error: {str(e)}")
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': f'Database error: {str(e)}'
-#             }, status=500)
-
-#     except Exception as e:
-#         logger.exception(f"Unexpected error in callback_42: {str(e)}")
-#         return JsonResponse({
-#             'success': False,
-#             'message': f'Unexpected error: {str(e)}'
-#         }, status=500)
 
 from django.core.files.base import ContentFile
 
@@ -1214,102 +886,108 @@ def send_2fa_email(user, code):
         return False
 
 
-
-
 @api_view(['POST'])
-@permission_classes([AllowAny])
-def verify_2fa_login(request):
+@permission_classes([AllowAny])  # Autorise tout le monde à accéder à cette vue
+def verify_2fa(request):
+    logger.info("Appel reçu pour verify_2fa avec body : %s", request.body)
     try:
+        # Chargement des données envoyées par le client
         data = json.loads(request.body)
-        user_id = data.get('user_id')
-        code = data.get('code')
+        code = data.get('code')  # Code 2FA saisi par l'utilisateur
 
-        try:
-            user = CustomUser.objects.get(id=user_id)
-        except CustomUser.DoesNotExist:
+        if not code:
+            logger.warning("Aucun code 2FA fourni.")
+            return JsonResponse({'success': False, 'message': 'Le code 2FA est requis.'}, status=400)
+
+        # Identifier le contexte : Profil ou Login
+        if request.user.is_authenticated:
+            # Contexte : Page de Profil
+            logger.info("Contexte : Profil utilisateur.")
+            user = request.user
+        else:
+            # Contexte : Page de Login
+            logger.info("Contexte : Login utilisateur.")
+            user_id = data.get('user_id')
+            if not user_id:
+                logger.warning("Aucun identifiant utilisateur fourni pour la connexion.")
+                return JsonResponse({
+                    'success': False,
+                    'message': "L'identifiant utilisateur est requis pour cette opération."
+                }, status=400)
+
+            # Récupération de l'utilisateur
+            try:
+                user = CustomUser.objects.get(id=user_id)
+                logger.info("Utilisateur trouvé : %s", user.email)
+            except CustomUser.DoesNotExist:
+                logger.error("Utilisateur introuvable avec l'ID : %s", user_id)
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Utilisateur non trouvé.'
+                }, status=404)
+
+        # Vérification de l'existence d'un code 2FA actif
+        if not user.two_factor_code or not user.two_factor_code_timestamp:
+            logger.warning("Aucun code 2FA actif trouvé pour l'utilisateur : %s", user.email)
             return JsonResponse({
                 'success': False,
-                'message': 'Utilisateur non trouvé'
-            }, status=404)
-
-        # Vérifier si le code est expiré (10 minutes)
-        if timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
-            return JsonResponse({
-                'success': False,
-                'message': 'Code expiré'
+                'message': "Aucun code 2FA actif trouvé. Réessayez."
             }, status=400)
 
-        if code == user.two_factor_code:
-            # Code valide, générer les tokens
-            refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            refresh_token = str(refresh)
+        # Vérification de l'expiration du code
+        if timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
+            logger.warning("Code 2FA expiré pour l'utilisateur : %s", user.email)
+            return JsonResponse({
+                'success': False,
+                'message': 'Code expiré.'
+            }, status=400)
 
-            # Nettoyer le code 2FA
+        # Vérification de la validité du code
+        if code == user.two_factor_code:
+            logger.info("Code 2FA valide pour l'utilisateur : %s", user.email)
+            # Réinitialisation du code 2FA
             user.two_factor_code = None
             user.two_factor_code_timestamp = None
-            user.save()
 
-            logger.info(f"2FA validé pour l'utilisateur: {user.email}")
-            response = JsonResponse({
-                'success': True,
-                'message': 'Login successful',
-                # 'access': access_token,
-                # 'refresh': refresh_token
-            })
-            set_jwt_cookies(response, access_token, refresh_token)
+            if not request.user.is_authenticated:
+                # Contexte : Login
+                logger.info("Génération des tokens pour l'utilisateur : %s", user.email)
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
+                refresh_token = str(refresh)
+
+                # Retour de la réponse avec les tokens
+                response = JsonResponse({
+                    'success': True,
+                    'message': 'Login successful',
+                })
+                set_jwt_cookies(response, access_token, refresh_token)
+            else:
+                # Contexte : Profil
+                logger.info("Activation du 2FA pour l'utilisateur : %s", user.email)
+                user.is_2fa_enabled = True
+                response = JsonResponse({
+                    'success': True,
+                    'message': '2FA activé avec succès.',
+                })
+
+            # Sauvegarde des modifications utilisateur
+            user.save()
             return response
         else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Code invalide'
-            }, status=400)
+            logger.warning("Code 2FA invalide pour l'utilisateur : %s", user.email)
+            return JsonResponse({'success': False, 'message': 'Code invalide.'}, status=400)
 
     except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Invalid JSON data'
-        }, status=400)
+        logger.error("Erreur de parsing JSON dans la requête.")
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+
     except Exception as e:
-        logger.error(f"Erreur lors de la vérification 2FA : {str(e)}")
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=500)
+        logger.error(f"Erreur inattendue lors de la vérification 2FA : {str(e)}")
+        return JsonResponse({'success': False, 'message': 'Une erreur est survenue.'}, status=500)
+
 
 #######################################2FA views#####################################################################
-
-
-
-
-# @login_required
-# def profile_view(request):
-#     try:
-#         user = request.user
-#         # Vérifier si l'utilisateur est authentifié
-#         if user.is_authenticated:
-#             return JsonResponse({
-#                 'success': True,
-#                 'user': {
-#                     'id': user.id,
-#                     'username': user.username,
-#                     'email': user.email,
-#                     'avatar': user.avatar.url if user.avatar else None,
-#                     'is_42_user': user.is_42_user,
-#                     'first_name': user.first_name,
-#                     'last_name': user.last_name,
-#                 }
-#             })
-#         else:
-#             return JsonResponse({
-#                 'success': False,
-#                 'error': 'User not authenticated'
-#             }, status=401)
-#     except Exception as e:
-#         return JsonResponse({
-#             'success': False,
-#             'error': str(e)
-#         }, status=500)
 
 
 
@@ -1321,34 +999,6 @@ import json
 import logging
 
 logger = logging.getLogger(__name__)
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])  # S'assure que l'utilisateur est authentifié
-# def record_game(request):
-#     logger.info("Appel de record_game")
-    
-#     # Charger les données JSON envoyées par le frontend
-#     data = request.data
-#     logger.info(f"Données reçues pour record_game: {data}")
-
-#     score_user = data.get('score_user')
-#     score_opponent = data.get('score_opponent')
-#     result = data.get('result')  # True pour victoire, False pour défaite
-
-#     # Vérifier que les données sont présentes
-#     if score_user is None or score_opponent is None or result is None:
-#         return JsonResponse({'error': 'Missing data'}, status=400)
-
-#     # Créer un nouvel enregistrement de partie pour l'utilisateur connecté
-#     game = GameHistory.objects.create(
-#         user=request.user,  # L'utilisateur connecté est associé comme `player1`
-#         score_user=score_user,
-#         score_opponent=score_opponent,
-#         result=result
-#     )
-
-#     # Retourner une réponse JSON pour confirmer l'enregistrement
-#     return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1386,57 +1036,11 @@ def record_game(request):
 
     return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
 
-
-# views.py
-
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import GameHistory
-
-# @api_view(['GET'])  # Accepter uniquement les requêtes GET
-# @permission_classes([IsAuthenticated])
-# def match_history(request):
-#     games = GameHistory.objects.filter(user=request.user).order_by('-date_played')
-#     history = []
-#     for game in games:
-#         history.append({
-#             'score_user': game.score_user,
-#             'score_opponent': game.score_opponent,
-#             'result': "VICTORY" if game.result else "DEFEAT",
-#             'opponent_avatar': game.opponent_user.avatar.url if game.opponent_user and game.opponent_user.avatar else '/static/assets/avatars/default.png',
-#             'user_avatar': request.user.avatar.url if request.user.avatar else '/static/assets/avatars/default.png'
-#         })
-#     return JsonResponse({'history': history})
-
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def match_history(request):
-#     games = GameHistory.objects.filter(user=request.user).order_by('-date_played')
-#     history = []
-
-#     for game in games:
-#         # Récupérer l'avatar de l'utilisateur
-#         user_avatar = request.user.avatar.url if request.user.avatar else 'assets/avatars/ladybug.png'
-
-#         # Récupérer l'avatar de l'adversaire
-#         if game.opponent_user:
-#             opponent_avatar = game.opponent_user.avatar.url if game.opponent_user.avatar else 'assets/avatars/clown-fish.png'
-#         else:
-#             # Dans le cas où l'adversaire n'est pas un utilisateur réel, on peut définir un avatar générique
-#             opponent_avatar = '/static/assets/avatars/crabe.png'
-
-#         history.append({
-#             'score_user': game.score_user,
-#             'score_opponent': game.score_opponent,
-#             'result': "VICTORY" if game.result else "DEFEAT",
-#             'opponent_avatar': opponent_avatar,
-#             'user_avatar': user_avatar
-#         })
-
-#     return JsonResponse({'history': history})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

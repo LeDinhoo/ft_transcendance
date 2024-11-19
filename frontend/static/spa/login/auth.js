@@ -21,6 +21,7 @@ document
       });
 
       const loginData = await loginResponse.json();
+      console.log("login Data: ", loginData);
 
       if (loginData.requires_2fa) {
         showTwoFactorPopup(loginData.user_id);
@@ -131,7 +132,8 @@ async function verifyTwoFactorCode(userId, code) {
     verifyButton.disabled = true;
     verifyButton.textContent = "Vérification...";
 
-    const response = await fetch("/api/verify-2fa-login/", {
+    // const response = await fetch("/api/verify-2fa-login/", {
+      const response = await fetch("/api/2fa/verify/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // Pour envoyer et recevoir les cookies

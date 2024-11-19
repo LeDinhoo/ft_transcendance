@@ -149,8 +149,8 @@ function loadUserStatistics() {
       document.getElementById("win_ratio").innerText =
         data.win_ratio.toFixed(2) + "%";
       // document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
-      document.getElementById("ball_speed_avg").innerText =
-        data.ball_speed_avg.toFixed(2);
+      // document.getElementById("top_speed").innerText =
+      // data.ball_speed_avg.toFixed(2);
       // document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
@@ -335,141 +335,253 @@ function initializeProfilePage() {
   loadUserStatistics();
 }
 
-https: function updateUI2FAStatus(enabled) {
-  // const statusSpan = document.getElementById("2faStatus");
-  const toggle2FAButton = document.getElementById("toggle2FAButton");
-  const verificationFrame = document.getElementById("2faVerificationFrame");
+/////////////////////////////////////////////////////////////////// 2FA ///////////////////////////////////////////////////////////////////////
 
-  // if (!statusSpan || !toggle2FAButton || !verificationFrame) {
-  if (!toggle2FAButton || !verificationFrame) {
-    console.error("Éléments pour l'interface 2FA introuvables.");
+function showTwoFactorPopup() {
+  // Vérifiez si une pop-up existe déjà
+  const existingPopup = document.querySelector(".popup-overlay");
+  if (existingPopup) {
+    console.log("Une pop-up 2FA existe déjà, pas besoin de recréer.");
     return;
   }
 
-  toggle2FAButton.className = enabled ? 'btn-icon enabled' : 'btn-icon';
-  const is2FAEnabled = enabled;
-  // statusSpan.textContent = enabled ? "2FA: ON" : "2FA: OFF";
-  // statusSpan.style.color = enabled ? "#4CAF50" : "#FF5722";
+  // Création de la nouvelle pop-up
+  console.log("Création d'une nouvelle pop-up 2FA...");
+  const popup = document.createElement("div");
+  popup.className = "popup-overlay";
+  popup.innerHTML = `
+      <div class="popup-content">
+          <h3>Vérification en deux étapes</h3>
+          <p>Un code a été envoyé à votre adresse email</p>
+          <div class="code-input-container">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+          </div>
+          <div class="timer">Code valide pendant: <span id="countdown">10:00</span></div>
+          <button class="verify-button" id="verifyButton" disabled>Vérifier</button>
+          <p class="error-message" style="display: none;"></p>
+      </div>
+  `;
 
+  document.body.appendChild(popup);
+
+  // Configurez les inputs pour la pop-up
+  setupCodeInputsForProfile();
+  startCountdown(10 * 60);
+
+  return popup;
+}
+
+function setupCodeInputsForProfile() {
+  const inputs = document.querySelectorAll(".code-input");
+  const verifyButton = document.getElementById("verifyButton");
+
+  inputs.forEach((input, index) => {
+    if (index === 0) input.focus();
+
+    input.addEventListener("input", (e) => {
+      e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Permet uniquement les chiffres
+
+      if (e.target.value && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+
+      const isComplete = Array.from(inputs).every(
+        (input) => input.value.length === 1
+      );
+      verifyButton.disabled = !isComplete;
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !e.target.value && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+  });
+
+  verifyButton.addEventListener("click", async () => {
+    const code = Array.from(inputs)
+      .map((input) => input.value)
+      .join("");
+    verifyTwoFactorCodeForProfile(code);
+  });
+}
+
+async function verifyTwoFactorCodeForProfile(code) {
+  const verifyButton = document.getElementById("verifyButton");
+  const errorMessage = document.querySelector(".error-message");
+
+  try {
+    verifyButton.disabled = true;
+    verifyButton.textContent = "Vérification...";
+
+    const response = await fetch("/api/2fa/verify/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ code }), // Pas besoin de `user_id`
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log("2FA activé avec succès.");
+      const popup = document.querySelector(".popup-overlay");
+      if (popup) popup.remove();
+      updateUI2FAStatus(true);
+      showConfirmationMessage(data.message);
+    } else {
+      errorMessage.textContent = data.message || "Code invalide.";
+      errorMessage.style.display = "block";
+    }
+  } catch (error) {
+    console.error("Erreur lors de la validation 2FA :", error);
+    errorMessage.textContent = "Une erreur est survenue.";
+    errorMessage.style.display = "block";
+  } finally {
+    verifyButton.textContent = "Vérifier";
+    verifyButton.disabled = false;
+  }
+}
+
+function startCountdown(duration) {
+  const countdownElement = document.getElementById("countdown");
+  if (!countdownElement) {
+    console.error("Élément pour le compte à rebours introuvable.");
+    return;
+  }
+
+  let timer = duration;
+
+  const countdown = setInterval(() => {
+    const minutes = Math.floor(timer / 60);
+    const seconds = timer % 60;
+
+    countdownElement.textContent = `${minutes}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+
+    if (--timer < 0) {
+      clearInterval(countdown);
+      countdownElement.textContent = "Code expiré";
+      document.getElementById("verifyButton").disabled = true;
+    }
+  }, 1000);
+}
+
+https: function updateUI2FAStatus(enabled) {
+  const toggle2FAButton = document.getElementById("toggle2FAButton");
+  const verificationFrame = document.getElementById("2faVerificationFrame");
+
+  // Vérifier si les éléments nécessaires sont présents
+  if (!toggle2FAButton || !verificationFrame) {
+    console.error(
+      "Éléments pour la mise à jour de l'interface 2FA introuvables."
+    );
+    return;
+  }
+
+  // Mettre à jour la classe et le contenu du bouton de basculement
+  toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
     <svg>
       <use href="/static/assets/icons/sprite.svg#${
         enabled ? "unlock" : "lock"
       }"></use>
     </svg>
-    ${enabled ? '2FA ON' : '2FA OFF'}
+    ${enabled ? "2FA ON" : "2FA OFF"}
   `;
 
-  // Cacher le frame de vérification
+  // Masquer le cadre de vérification (si applicable)
   verificationFrame.style.display = "none";
+
+  console.log(
+    `2FA ${enabled ? "activé" : "désactivé"} : interface mise à jour.`
+  );
 }
 
 function initialize2FA() {
-  console.log("2FA initialisation appelée");
+  console.log("Initialisation de la 2FA");
 
   const toggle2FAButton = document.getElementById("toggle2FAButton");
-  const confirm2FAButton = document.getElementById("confirm2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
-  let is2FAEnabled = false;
+  let is2FAEnabled = false; // Initialiser la variable
+
+  if (!toggle2FAButton || !verificationFrame) {
+    console.error("Éléments pour la gestion de la 2FA introuvables.");
+    return;
+  }
 
   // Vérifiez le statut initial de la 2FA
   fetch("/api/profil/", {
-    credentials: "include", // Envoie automatiquement les cookies, y compris l'access_token
+    credentials: "include", // Envoie les cookies
   })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération du profil");
+      }
+      return response.json();
+    })
     .then((data) => {
       if (data.is_2fa_enabled !== undefined) {
-        updateUI2FAStatus(data.is_2fa_enabled);
-        is2FAEnabled = data.is_2fa_enabled;
+        is2FAEnabled = data.is_2fa_enabled; // Mettre à jour le statut initial
+        updateUI2FAStatus(is2FAEnabled); // Mettre à jour l'interface utilisateur
       }
     })
     .catch((error) => {
-      console.error("Erreur lors de la vérification du statut 2FA:", error);
+      console.error("Erreur lors de la récupération du statut 2FA :", error);
     });
 
-  // Retirer les anciens écouteurs pour éviter les doubles appels
-  if (toggle2FAButton) {
-    const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
-    toggle2FAButton.parentNode.replaceChild(
-      cloneToggle2FAButton,
-      toggle2FAButton
-    );
+  // Supprimer les anciens écouteurs d'événements
+  const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
+  toggle2FAButton.parentNode.replaceChild(
+    cloneToggle2FAButton,
+    toggle2FAButton
+  );
 
-    cloneToggle2FAButton.addEventListener("click", function () {
-      const action = is2FAEnabled ? "disable" : "enable";
+  // Ajouter un nouvel écouteur au bouton de basculement
+  cloneToggle2FAButton.addEventListener("click", () => {
+    const action = is2FAEnabled ? "disable" : "enable";
 
-      fetch("/api/2fa/toggle/", {
-        method: "POST",
-        credentials: "include", // Envoie automatiquement les cookies
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action: action }),
+    fetch("/api/2fa/toggle/", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'activation/désactivation 2FA");
+        }
+        return response.json();
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (action === "enable") {
-            verificationFrame.style.display = "flex";
-            showConfirmationMessage("Code de vérification envoyé par email");
-          } else {
-            updateUI2FAStatus(false);
-            showConfirmationMessage("2FA désactivé avec succès");
+      .then((data) => {
+        if (action === "enable") {
+          // Vérifier et éviter la duplication de pop-ups
+          if (!document.querySelector(".popup-overlay")) {
+            showTwoFactorPopup(); // Afficher la pop-up pour entrer le code
           }
-          is2FAEnabled = !is2FAEnabled;
-        })
-        .catch((error) => {
-          console.error("Erreur:", error);
-          showConfirmationMessage("Une erreur est survenue");
-        });
-    });
-  }
-
-  // Retirer les anciens écouteurs pour éviter les doubles appels sur confirm2FAButton
-  if (confirm2FAButton) {
-    const cloneConfirm2FAButton = confirm2FAButton.cloneNode(true);
-    confirm2FAButton.parentNode.replaceChild(
-      cloneConfirm2FAButton,
-      confirm2FAButton
-    );
-
-    cloneConfirm2FAButton.addEventListener("click", function () {
-      const verificationCodeInput = document.getElementById("verificationCode");
-      const code = verificationCodeInput ? verificationCodeInput.value : null;
-
-      if (!code) {
-        showConfirmationMessage("Veuillez entrer le code reçu par email");
-        return;
-      }
-
-      fetch("/api/2fa/verify/", {
-        method: "POST",
-        credentials: "include", // Envoie automatiquement les cookies
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: code }),
+          showConfirmationMessage("Code de vérification envoyé par email.");
+        } else {
+          is2FAEnabled = false; // Mettre à jour le statut local
+          updateUI2FAStatus(is2FAEnabled);
+          showConfirmationMessage("2FA désactivé avec succès.");
+        }
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Code invalide");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          updateUI2FAStatus(true);
-          showConfirmationMessage("2FA activé avec succès");
-          // Réinitialiser le champ du code
-          if (verificationCodeInput) {
-            verificationCodeInput.value = "";
-          }
-        })
-        .catch((error) => {
-          console.error("Erreur:", error);
-          showConfirmationMessage("Code invalide");
-        });
-    });
-  }
+      .catch((error) => {
+        console.error("Erreur lors du basculement de la 2FA :", error);
+        showConfirmationMessage("Une erreur est survenue.");
+      });
+  });
 }
+
+////////////////////////////////////////////////////////POP UPS AVATAR //////////////////////////////////////////////////////////////
 
 const avatarUrls = [
   "/static/assets/avatars/abeille.png",
@@ -604,27 +716,29 @@ function initializeAvatarFeature() {
     });
   }
 
-  window.openModal = function() {
+  window.openModal = function () {
     if (modal) {
-        // Afficher la modal
-        modal.style.display = 'flex';
+      // Afficher la modal
+      modal.style.display = "flex";
 
-        // Réinitialiser toute sélection précédente
-        const previousSelected = document.querySelector('.avatar-option.selected');
-        if (previousSelected) {
-            previousSelected.classList.remove('selected');
-        }
+      // Réinitialiser toute sélection précédente
+      const previousSelected = document.querySelector(
+        ".avatar-option.selected"
+      );
+      if (previousSelected) {
+        previousSelected.classList.remove("selected");
+      }
 
-        // Réinitialiser les variables de sélection
-        selectedAvatar = null;
-        tempSelectedSrc = null;
+      // Réinitialiser les variables de sélection
+      selectedAvatar = null;
+      tempSelectedSrc = null;
 
-        // Désactiver le bouton Apply
-        if (applyButton) {
-            applyButton.disabled = true;
-        }
+      // Désactiver le bouton Apply
+      if (applyButton) {
+        applyButton.disabled = true;
+      }
     }
-};
+  };
 
   window.closeModal = function () {
     if (modal) {
@@ -646,5 +760,3 @@ function initializeAvatarFeature() {
     });
   }
 }
-
-

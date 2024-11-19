@@ -4,19 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let isLoading = false;
 
-  // async function isAuthenticated() {
-  //   try {
-  //     const response = await fetch("/api/auth-check/", {
-  //       method: "GET",
-  //       credentials: "include", // Inclut les cookies
-  //     });
-  //     return response.ok; // Retourne `true` si authentifié, sinon `false`
-  //   } catch (error) {
-  //     console.error("Erreur d'authentification:", error);
-  //     return false;
-  //   }
-  // }
-
   async function isAuthenticated() {
     try {
       const response = await fetch("/api/auth-check/", {
@@ -57,16 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // // Fonction pour rediriger vers la page de login si l'utilisateur n'est pas authentifié
-  // async function redirectToLoginIfNeeded(path) {
-  //   const requiresAuth = path !== "/login-register" && path !== "/";
-  //   const authenticated = await isAuthenticated();
-  //   if (requiresAuth && !authenticated) {
-  //     navigateTo("/login-register");
-  //     return true; // Indique qu'on a redirigé vers login
-  //   }
-  //   return false;
-  // }
 
   async function redirectToLoginIfNeeded(path) {
     const requiresAuth = path !== "/login-register" && path !== "/";
@@ -218,14 +195,16 @@ document.addEventListener("DOMContentLoaded", function () {
         true
       );
     } else if (path === "/home") {
-      loadComponent("/static/spa/home/home.html", "/static/spa/home/home.css", [
-        "/static/spa/home/home.js",
-      ]).then(() => {
+      loadComponent(
+        "/static/spa/home/home.html",
+        "/static/spa/home/home.css", 
+        ["/static/spa/home/home.js",]
+        ).then(() => {
         initializeHome();
       });
     } else if (path === "/profil") {
       loadComponent(
-        "/static/spa/profil/profil_test.html",
+        "/static/spa/profil/profil.html",
         "/static/spa/profil/profil.css",
         [
           "/static/spa/profil/profil.js",
