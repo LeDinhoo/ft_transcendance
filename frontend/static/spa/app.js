@@ -196,9 +196,9 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     } else if (path === "/home") {
       loadComponent(
-        "/static/spa/home/home.html",
-        "/static/spa/home/home.css", 
-        ["/static/spa/home/home.js",]
+        "/static/spa/new_home/new_home.html",
+        "/static/spa/new_home/new_home.css", 
+        ["/static/spa/new_home/new_home.js",]
         ).then(() => {
         initializeHome();
       });

@@ -1,0 +1,265 @@
+<div id="profileModal" class="profile-modal">
+    <div class="profile-modal-content">
+      <span class="close-profile-modal">&times;</span>
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <img
+            id="profileAvatar"
+            src="/static/assets/avatars/clown-fish.png"
+            alt="Player avatar"
+          />
+        </div>
+        <div class="profile-info">
+          <h2 id="profileNickname">Nickname</h2>
+          <div class="profile-rank">
+            <img
+              id="profileRankIcon"
+              src="/static/assets/icons/bronze.png"
+              alt="rank"
+            />
+            <span id="profileRankText">Bronze</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <h3>Statistics</h3>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Total Games</div>
+            <div id="totalGames" class="stat-value">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Win Rate</div>
+            <div id="winRate" class="stat-value">0%</div>
+          </div>
+        </div>
+
+        <div class="recent-games">
+          <h4>Recent Games</h4>
+          <div id="recentGamesList" class="recent-games-list">
+            <div class="no-games">No recent games</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Online Game Modal -->
+  <div class="online-game-modal">
+    <div class="online-game-content">
+      <div class="online-game-header">
+        <div class="online-game-title">Online Game</div>
+        <span class="close-online-game">&times;</span>
+      </div>
+
+      <div class="online-game-sections">
+        <div class="online-section">
+          <div class="section-title">Friends</div>
+          <div class="player-list" id="friendsList">
+            <!-- Friends list will be injected here -->
+          </div>
+        </div>
+
+        <div class="online-section">
+          <div class="section-title">Online Players</div>
+          <div class="player-list" id="onlinePlayersList">
+            <!-- Online players list will be injected here -->
+          </div>
+        </div>
+      </div>
+
+      <button class="launch-game" disabled>Launch Game</button>
+
+      <div class="game-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Waiting for opponent...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="homePageMain">
+      <div class="homeSectionLeft">
+        <!-- Avatar and Rank Section -->
+        <div class="upLeftFrame">
+          <div class="avatarSection">
+            <div class="avatarCircle">
+              <img
+                src="/static/assets/avatars/buffalo.png"
+                alt="avatar"
+                class="avatarImage"
+              />
+            </div>
+            <div class="nicknameSection">LeDinho</div>
+          </div>
+          <div class="rankSection">
+            <img
+              src="/static/assets/icons/bronze.png"
+              alt="avatar"
+              class="rankImage"
+            />
+            Bronze
+          </div>
+        </div>
+        <!-- Online Players Section -->
+        <div class="downLeftFrame">
+          <div class="onlinePlayersTitle">Online Players</div>
+          <!-- Repeated 9 times in your original code -->
+          <div class="onlinePlayers">
+            <div class="onlineFlag"></div>
+            <div class="onlineNickname">
+              <img
+                src="/static/assets/avatars/clown-fish.png"
+                alt="avatar"
+                class="onlineAvatar"
+              />
+              Nickname
+            </div>
+            <img
+              src="/static/assets/icons/online.svg"
+              alt="avatar"
+              class="onlineIcon"
+            />
+          </div>
+          <div class="onlinePlayers">
+            <div class="onlineFlag"></div>
+            <div class="onlineNickname">
+              <img
+                src="/static/assets/avatars/clown-fish.png"
+                alt="avatar"
+                class="onlineAvatar"
+              />
+              Nickname
+            </div>
+            <img
+              src="/static/assets/icons/online.svg"
+              alt="avatar"
+              class="onlineIcon"
+            />
+          </div>
+          <div class="onlinePlayers">
+            <div class="onlineFlag"></div>
+            <div class="onlineNickname">
+              <img
+                src="/static/assets/avatars/clown-fish.png"
+                alt="avatar"
+                class="onlineAvatar"
+              />
+              Nickname
+            </div>
+            <img
+              src="/static/assets/icons/online.svg"
+              alt="avatar"
+              class="onlineIcon"
+            />
+          </div>
+          <div class="onlinePlayers">
+            <div class="onlineFlag"></div>
+            <div class="onlineNickname">
+              <img
+                src="/static/assets/avatars/clown-fish.png"
+                alt="avatar"
+                class="onlineAvatar"
+              />
+              Nickname
+            </div>
+            <img
+              src="/static/assets/icons/online.svg"
+              alt="avatar"
+              class="onlineIcon"
+            />
+          </div>
+          <div class="onlinePlayers">
+            <div class="onlineFlag"></div>
+            <div class="onlineNickname">
+              <img
+                src="/static/assets/avatars/clown-fish.png"
+                alt="avatar"
+                class="onlineAvatar"
+              />
+              Nickname
+            </div>
+            <img
+              src="/static/assets/icons/online.svg"
+              alt="avatar"
+              class="onlineIcon"
+            />
+          </div>
+          <div class="onlinePlayers">
+            <div class="onlineFlag"></div>
+            <div class="onlineNickname">
+              <img
+                src="/static/assets/avatars/clown-fish.png"
+                alt="avatar"
+                class="onlineAvatar"
+              />
+              Nickname
+            </div>
+            <img
+              src="/static/assets/icons/online.svg"
+              alt="avatar"
+              class="onlineIcon"
+            />
+          </div>
+          <!-- Copy this block 8 more times for all players -->
+        </div>
+      </div>
+
+      <div class="homeSectionMiddle">
+        <div class="game">
+          <div class="gameTitle">GAME</div>
+          <div class="gameOption">CLASSIC PONG</div>
+          <div class="gameOption">POWER PONG</div>
+        </div>
+
+        <div class="mode">
+          <div class="gameTitle">MODE</div>
+          <div class="modeOption">1 VS 1</div>
+          <div class="modeOption">AGAINST AI</div>
+          <div class="modeOption">ONLINE</div>
+          <div class="modeOption">TOURNAMENT</div>
+        </div>
+      </div>
+
+      <div class="homeSectionRight">
+        <div class="chatTitle">Live Chat</div>
+      </div>
+    </div>
+
+    <div class="playHomePage">PLAY</div>
+  </div>
+
+  <!-- Tooltips Templates -->
+  <template id="avatarTooltipTemplate">
+    <div class="avatar-tooltip">
+      <div class="tooltip-title">Profile</div>
+      <div class="tooltip-content">
+        <div class="rank-row">
+          You can click on the profile section on the navbar to update your
+          infos
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="rankTooltipTemplate">
+    <div class="rank-tooltip">
+      <div class="tooltip-title">Ranking system</div>
+      <div class="tooltip-content">
+        <div class="rank-row">Bronze: 0 - 5 victories</div>
+        <div class="rank-row">Silver: 5 - 10 victories</div>
+        <div class="rank-row">Gold: at least 10 victories</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="contextMenuTemplate">
+    <div class="player-context-menu">
+      <div class="menu-option" data-action="profile">See profile</div>
+      <div class="menu-option" data-action="add-friend">
+        Add friend request
+      </div>
+    </div>
+  </template>
