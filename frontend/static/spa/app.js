@@ -181,6 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     updateNavBarVisibility(path);
+	WebSocketManager.initialize();
 
     if (path === "/" || path === "/login-register") {
       loadComponent(
