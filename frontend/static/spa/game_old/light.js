@@ -1,7 +1,4 @@
-// import * as THREE from "three";
-// import { scene } from "./game.js";
-
-import * as THREE from "./libs/three.module.js";
+import * as THREE from "three";
 import { scene } from "./game.js";
 
 // Light 1
@@ -59,6 +56,7 @@ const targetObject2 = new THREE.Object3D();
 targetObject2.position.set(200, 0, 0);
 scene.add(targetObject2);
 
+
 // Create new Directional Lights with targets
 const directionalLight3 = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight3.position.set(-500, 500, -500);
@@ -88,6 +86,7 @@ directionalLight6.castShadow = true;
 configureShadowSettings(directionalLight6);
 // scene.add(directionalLight6);
 
+
 // Helper function to configure shadow settings
 function configureShadowSettings(light) {
   light.shadow.camera.near = 1;
@@ -106,8 +105,8 @@ function configureShadowSettings(light) {
 export {
   directionalLight,
   directionalLight2,
-  directionalLight3,
-  directionalLight4,
+  // directionalLight3,
+  // directionalLight4,
   ambiantLight,
   targetObject1,
   targetObject2,

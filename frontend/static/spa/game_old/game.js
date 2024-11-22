@@ -1,20 +1,17 @@
-// import * as THREE from "three";
-// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-// import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-// import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-// import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-// import { Score3D } from "./Score3D.js";
-
-import * as THREE from "./libs/three.module.js";
-import { OrbitControls } from "./libs/OrbitControls.js";
-import { GLTFLoader } from "./libs/GLTFLoader.js";
-import { EffectComposer } from "./libs/EffectComposer.js";
-import { RenderPass } from "./libs/RenderPass.js";
-import { UnrealBloomPass } from "./libs/UnrealBloomPass.js";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import { Score3D } from "./Score3D.js";
 
-// Scene Configuration
+// Ajouter avec les autres variables globales
+let scoreSystem;
+const PADDLE_HEIGHT = 135;
+
+// export const gui = new lil.GUI();
+// Configuration de base
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
@@ -25,75 +22,56 @@ export const camera = new THREE.PerspectiveCamera(
   2000
 );
 
-// Game Constants
-const PADDLE_HEIGHT = 135;
-const DOT_OPACITY = 0;
-const INITIAL_BALL_SPEED = 10;
-const SPEED_INCREMENT = 0.75;
-const MAX_BALL_SPEED = 27;
-const paddle1Speed = 10;
+// Au début de game.js
+if (window.gameCleanup) {
+  window.gameCleanup();
+}
 
-// UI Effects
-const originalNeonColor = 0xffffff;
-const scoringFlashColor = 0xffffff;
-const flashDuration = 300;
-const originalBloomStrength = 0.4;
-const flashBloomStrength = 1.5;
 
-// AI Configuration
-const AI_POSITIONS = {
-  TOP: "top",
-  TOP_CENTER: "topCenter",
-  CENTER: "center",
-  BOTTOM_CENTER: "bottomCenter",
-  BOTTOM: "bottom",
+// Ajouter près du début de game.js
+window.dispatchGameEnd = function(winner) {
+  if (window.parent !== window) {
+    window.parent.postMessage({
+      type: 'gameComplete',
+      data: { winner: winner - 1 }  // -1 car le tournament attend 0 ou 1
+    }, '*');
+  }
 };
 
-const AI_UPDATE_INTERVAL = 1000;
-const ERROR_DURATION = 170;
-const ERROR_CHANCE = 0.1;
-const MIN_FOLLOW_DURATION = 230;
-const MAX_FOLLOW_DURATION = 530;
-const MIN_PAUSE_DURATION = 230;
-const MAX_PAUSE_DURATION = 500;
-const FOLLOW_MODE_DELAY = 700;
-const ERROR_MARGIN = 10;
+window.gameCleanup = function() {
+  if (typeof renderer !== 'undefined') {
+    renderer.dispose();
+  }
+  if (typeof scene !== 'undefined') {
+    scene.traverse(object => {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach(material => material.dispose());
+        } else {
+          object.material.dispose();
+        }
+      }
+    });
+  }
+  if (typeof composer !== 'undefined') {
+    composer.dispose();
+  }
 
-// Game State Variables
-let currentBallSpeed = INITIAL_BALL_SPEED;
-let paddle1, paddle2, gamePlane, border;
-let ballVelocity = new THREE.Vector3(0, 0, 0);
-let isBallMoving = false;
-let scoreSystem;
-let neonMaterial;
-let isFlashing = false;
+  // Supprimer les event listeners
+  window.removeEventListener('resize', onWindowResize);
+  window.removeEventListener('keydown', null);
+  window.removeEventListener('keyup', null);
 
-// Controls State
-const keys = {
-  w: false,
-  s: false,
-  arrowleft: false,
-  arrowright: false,
-};
-
-// AI State Variables
-let aiEnabled = true;
-let aiPaddleSpeed = 10;
-let lastAIUpdate = 0;
-let currentAITarget = AI_POSITIONS.CENTER;
-let targetOffset = 0;
-let lastTargetZ = 0;
-let isInError = false;
-let errorStartTime = 0;
-let correctDirection = 1;
-let isFollowing = false;
-let followStartTime = 0;
-let currentFollowDuration = 0;
-let currentPauseDuration = 0;
-let lastDirectionChangeTime = 0;
-let previousBallDirectionX = 0;
-
-scene.background = new THREE.Color(0x111111);
+  // Nettoyer les variables globales
+  window.scene = undefined;
+  window.camera = undefined;
+  window.renderer = undefined;
+  window.composer = undefined;
+  window.controls = undefined;
+}
 
 // Modifier la création du renderer
 const renderer = new THREE.WebGLRenderer({
@@ -124,6 +102,19 @@ const renderTarget = new THREE.WebGLRenderTarget(
 
 camera.position.set(0, 1000, 0);
 
+// Variables pour l'effet de glow du néon
+let neonMaterial;
+let originalNeonColor = 0xffffff;
+let scoringFlashColor = 0xffffff;
+let isFlashing = false;
+let flashDuration = 300;
+let originalBloomStrength = 0.4;
+let flashBloomStrength = 1.5;
+const INITIAL_BALL_SPEED = 8; // Vitesse initiale de la balle
+const SPEED_INCREMENT = 1; // Augmentation de la vitesse à chaque rebond
+const MAX_BALL_SPEED = 30; // Vitesse maximale de la balle
+let currentBallSpeed = INITIAL_BALL_SPEED; // Variable pour suivre la vitesse actuelle
+
 // Post-processing
 const renderScene = new RenderPass(scene, camera);
 const bloomPass = new UnrealBloomPass(
@@ -139,7 +130,13 @@ composer.addPass(renderScene);
 composer.addPass(bloomPass);
 
 // Après la création de la scène et de la caméra, initialiser le système de score
-scoreSystem = new Score3D(scene, camera, null, null, null);
+scoreSystem = new Score3D(scene, camera);
+
+// Variables pour les objets et le jeu
+let paddle1, paddle2, gamePlane, border;
+let ballVelocity = new THREE.Vector3(0, 0, 0);
+let isBallMoving = false;
+const BALL_SPEED = 8;
 
 // Modifier la fonction resetBall
 function resetBall() {
@@ -346,8 +343,6 @@ loader.load("./plan.glb", function (gltf) {
       child.material.metalness = 0;
     }
   });
-
-  scoreSystem.gamePlane = gamePlane;
 });
 
 // Chargement du paddle1
@@ -368,7 +363,6 @@ loader.load("./paddle1.glb", function (gltf) {
   });
 
   scene.add(paddle1);
-  scoreSystem.paddle1 = paddle1; // Mise à jour de la référence
   updatePaddlePositions();
 });
 
@@ -390,7 +384,6 @@ loader.load("./paddle1.glb", function (gltf) {
   });
 
   scene.add(paddle2);
-  scoreSystem.paddle2 = paddle2; // Mise à jour de la référence
   updatePaddlePositions();
 });
 
@@ -467,6 +460,16 @@ function calculateBoundaries() {
   };
 }
 
+// Ajouter ces variables en haut du fichier avec les autres
+const paddle1Speed = 10; // Vitesse de déplacement du paddle
+// Modifier la structure des keys pour inclure les flèches
+const keys = {
+  w: false,
+  s: false,
+  arrowleft: false,
+  arrowright: false,
+};
+
 // Modifier l'event listener de la touche espace
 window.addEventListener("keydown", (event) => {
   if (event.code === "Space") {
@@ -478,14 +481,6 @@ window.addEventListener("keydown", (event) => {
     }
   }
 });
-
-// window.addEventListener("keydown", (event) => {
-//   if (event.code === "Escape") {
-//     console.log("touche escape detectee")
-//     closeOnEscape(event);
-//     }
-//   }
-// );
 
 // Modifier les event listeners pour inclure les nouvelles touches
 window.addEventListener("keydown", (event) => {
@@ -682,60 +677,78 @@ function updateTrajectory() {
   trajectoryGeometry.setFromPoints(points);
 }
 
+// Add these variables at the top of your file
+let aiEnabled = true;
+let aiPaddleSpeed = 8;
+
+const AI_POSITIONS = {
+  TOP: "top",
+  TOP_CENTER: "topCenter",
+  CENTER: "center",
+  BOTTOM_CENTER: "bottomCenter",
+  BOTTOM: "bottom",
+};
+
+const AI_UPDATE_INTERVAL = 1000;
+const ERROR_DURATION = 170;
+const ERROR_CHANCE = 0.1;
+const MIN_FOLLOW_DURATION = 230;
+const MAX_FOLLOW_DURATION = 530;
+const MIN_PAUSE_DURATION = 230;
+const MAX_PAUSE_DURATION = 500;
+const FOLLOW_MODE_DELAY = 700; // Délai avant activation du mode suivi
+
+let lastAIUpdate = 0;
+let currentAITarget = AI_POSITIONS.CENTER;
+const ERROR_MARGIN = 0;
+let targetOffset = 0;
+let lastTargetZ = 0;
+let isInError = false;
+let errorStartTime = 0;
+let correctDirection = 1;
+
+let isFollowing = false;
+let followStartTime = 0;
+let currentFollowDuration = 0;
+let currentPauseDuration = 0;
+let lastDirectionChangeTime = 0; // Nouveau: moment du dernier changement de direction
+let previousBallDirectionX = 0; // Nouveau: mémorisation de la direction précédente
+
 function getRandomDuration(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
-
-// Variables globales à ajouter
-let lastBallPosition = { x: 0, z: 0 };
-let lastBallVelocity = { x: 0, z: 0 };
-let lastBallCheck = 0;
 
 function moveAI() {
   if (!aiEnabled || !paddle2) return;
 
   const currentTime = performance.now();
 
-  if (currentTime - lastBallCheck >= AI_UPDATE_INTERVAL) {
-    lastBallPosition = {
-      x: ball.position.x,
-      z: ball.position.z,
-    };
-    lastBallVelocity = {
-      x: ballVelocity.x,
-      z: ballVelocity.z,
-    };
-    lastBallCheck = currentTime;
-  }
-
-  if (Math.sign(lastBallVelocity.x) !== Math.sign(previousBallDirectionX)) {
-    if (lastBallVelocity.x < 0) {
+  // Détecter le changement de direction
+  if (Math.sign(ballVelocity.x) !== Math.sign(previousBallDirectionX)) {
+    if (ballVelocity.x < 0) {
+      // Si la balle commence à aller vers la gauche
       lastDirectionChangeTime = currentTime;
     }
-    previousBallDirectionX = lastBallVelocity.x;
+    previousBallDirectionX = ballVelocity.x;
   }
 
-  if (lastBallVelocity.x > 0) {
+  // Si la balle va de gauche à droite (mode interception)
+  if (ballVelocity.x > 0) {
+    // Réinitialiser les variables de suivi intermittent
     isFollowing = false;
     followStartTime = 0;
 
     if (currentTime - lastAIUpdate >= AI_UPDATE_INTERVAL) {
-      if (lastBallPosition.x < 0) {
-        // Modification ici: choix de la cible selon la difficulté
-        if (currentDifficulty === DIFFICULTY.EASY) {
-          // En mode facile, toujours viser le centre
-          currentAITarget = AI_POSITIONS.CENTER;
-        } else {
-          // En mode medium et difficile, utiliser tous les points
-          const positions = Object.values(AI_POSITIONS);
-          currentAITarget =
-            positions[Math.floor(Math.random() * positions.length)];
-        }
+      if (ball.position.x < 0) {
+        const positions = Object.values(AI_POSITIONS);
+        currentAITarget =
+          positions[Math.floor(Math.random() * positions.length)];
         targetOffset = (Math.random() - 0.5) * ERROR_MARGIN;
       }
 
       let targetZ = impactPoint.position.z;
-      const offsetDot = 5;
+
+      const offsetDot = 5; 
 
       switch (currentAITarget) {
         case AI_POSITIONS.TOP:
@@ -763,14 +776,18 @@ function moveAI() {
         correctDirection = Math.sign(lastTargetZ - paddle2.position.z);
       }
     }
-  } else {
+  }
+  // Mode suivi intermittent (balle va de droite à gauche)
+  else {
+    // Vérifier si on a dépassé le délai d'activation du mode suivi
     const canFollow =
       currentTime - lastDirectionChangeTime >= FOLLOW_MODE_DELAY;
 
     if (canFollow) {
-      lastTargetZ = lastBallPosition.z;
+      lastTargetZ = ball.position.z;
       isInError = false;
 
+      // Gestion du cycle suivi/pause
       if (!isFollowing) {
         if (
           followStartTime === 0 ||
@@ -804,12 +821,14 @@ function moveAI() {
     let direction = Math.sign(distanceToTarget);
     let shouldMove = true;
 
-    if (lastBallVelocity.x <= 0) {
+    // En mode suivi, ne bouger que pendant les périodes de suivi et après le délai
+    if (ballVelocity.x <= 0) {
       const canFollow =
         currentTime - lastDirectionChangeTime >= FOLLOW_MODE_DELAY;
       shouldMove = canFollow && isFollowing;
     }
 
+    // En mode interception avec erreur
     if (isInError) {
       if (currentTime - errorStartTime < ERROR_DURATION) {
         direction = -correctDirection;
@@ -832,138 +851,7 @@ function moveAI() {
   }
 }
 
-// function moveAI() {
-//   if (!aiEnabled || !paddle2) return;
-
-//   const currentTime = performance.now();
-
-//   // Détecter le changement de direction
-//   if (Math.sign(ballVelocity.x) !== Math.sign(previousBallDirectionX)) {
-//     if (ballVelocity.x < 0) {
-//       // Si la balle commence à aller vers la gauche
-//       lastDirectionChangeTime = currentTime;
-//     }
-//     previousBallDirectionX = ballVelocity.x;
-//   }
-
-//   // Si la balle va de gauche à droite (mode interception)
-//   if (ballVelocity.x > 0) {
-//     // Réinitialiser les variables de suivi intermittent
-//     isFollowing = false;
-//     followStartTime = 0;
-
-//     if (currentTime - lastAIUpdate >= AI_UPDATE_INTERVAL) {
-//       if (ball.position.x < 0) {
-//         const positions = Object.values(AI_POSITIONS);
-//         currentAITarget =
-//           positions[Math.floor(Math.random() * positions.length)];
-//         targetOffset = (Math.random() - 0.5) * ERROR_MARGIN;
-//       }
-
-//       let targetZ = impactPoint.position.z;
-
-//       const offsetDot = 5;
-
-//       switch (currentAITarget) {
-//         case AI_POSITIONS.TOP:
-//           targetZ += PADDLE_HEIGHT / 2 - offsetDot;
-//           break;
-//         case AI_POSITIONS.TOP_CENTER:
-//           targetZ += PADDLE_HEIGHT / 4;
-//           break;
-//         case AI_POSITIONS.CENTER:
-//           break;
-//         case AI_POSITIONS.BOTTOM_CENTER:
-//           targetZ -= PADDLE_HEIGHT / 4;
-//           break;
-//         case AI_POSITIONS.BOTTOM:
-//           targetZ -= PADDLE_HEIGHT / 2 - offsetDot;
-//           break;
-//       }
-
-//       lastTargetZ = targetZ + targetOffset;
-//       lastAIUpdate = currentTime;
-
-//       if (Math.random() < ERROR_CHANCE && !isInError) {
-//         isInError = true;
-//         errorStartTime = currentTime;
-//         correctDirection = Math.sign(lastTargetZ - paddle2.position.z);
-//       }
-//     }
-//   }
-//   // Mode suivi intermittent (balle va de droite à gauche)
-//   else {
-//     // Vérifier si on a dépassé le délai d'activation du mode suivi
-//     const canFollow =
-//       currentTime - lastDirectionChangeTime >= FOLLOW_MODE_DELAY;
-
-//     if (canFollow) {
-//       lastTargetZ = ball.position.z;
-//       isInError = false;
-
-//       // Gestion du cycle suivi/pause
-//       if (!isFollowing) {
-//         if (
-//           followStartTime === 0 ||
-//           currentTime - followStartTime >= currentPauseDuration
-//         ) {
-//           isFollowing = true;
-//           followStartTime = currentTime;
-//           currentFollowDuration = getRandomDuration(
-//             MIN_FOLLOW_DURATION,
-//             MAX_FOLLOW_DURATION
-//           );
-//           currentPauseDuration = getRandomDuration(
-//             MIN_PAUSE_DURATION,
-//             MAX_PAUSE_DURATION
-//           );
-//         }
-//       } else {
-//         if (currentTime - followStartTime >= currentFollowDuration) {
-//           isFollowing = false;
-//           followStartTime = currentTime;
-//         }
-//       }
-//     }
-//   }
-
-//   // Application du mouvement
-//   const paddleZ = paddle2.position.z;
-//   const distanceToTarget = lastTargetZ - paddleZ;
-
-//   if (Math.abs(distanceToTarget) > 5) {
-//     let direction = Math.sign(distanceToTarget);
-//     let shouldMove = true;
-
-//     // En mode suivi, ne bouger que pendant les périodes de suivi et après le délai
-//     if (ballVelocity.x <= 0) {
-//       const canFollow =
-//         currentTime - lastDirectionChangeTime >= FOLLOW_MODE_DELAY;
-//       shouldMove = canFollow && isFollowing;
-//     }
-
-//     // En mode interception avec erreur
-//     if (isInError) {
-//       if (currentTime - errorStartTime < ERROR_DURATION) {
-//         direction = -correctDirection;
-//       } else {
-//         isInError = false;
-//       }
-//     }
-
-//     if (shouldMove) {
-//       paddle2.position.z += direction * aiPaddleSpeed;
-
-//       // Limites du terrain
-//       const boundaries = calculateBoundaries();
-//       const paddleLimit = boundaries.maxZ - PADDLE_HEIGHT / 2;
-//       paddle2.position.z = Math.max(
-//         -paddleLimit,
-//         Math.min(paddleLimit, paddle2.position.z)
-//       );
-//     }
-//   }
-// }
+const DOT_OPACITY = 0.5;
 
 // Ajouter après la création du point vert, avec les autres créations d'objets globaux
 const paddleTopGeometry = new THREE.SphereGeometry(5, 16, 16);
@@ -1025,130 +913,9 @@ const bottomBoundaryPoint = new THREE.Mesh(
 );
 scene.add(bottomBoundaryPoint);
 
-// Création des hitboxes (à ajouter après la création des paddles)
-const hitboxMaterial = new THREE.MeshBasicMaterial({
-  color: 0xff0000,
-  transparent: true,
-  opacity: 0.3,
-  wireframe: true,
-});
-
-// Création de la géométrie des hitboxes (utiliser les dimensions que vous utilisez pour les collisions)
-const hitboxGeometry = new THREE.BoxGeometry(30, 20, PADDLE_HEIGHT); // 60 = 30*2 pour la largeur totale
-
-// Création des meshes des hitboxes
-const paddle1Hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-const paddle2Hitbox = new THREE.Mesh(hitboxGeometry, hitboxMaterial);
-
-// // Ajout des hitboxes à la scène
-// scene.add(paddle1Hitbox);
-// scene.add(paddle2Hitbox);
-
-// À ajouter à la fin du fichier, avant animate()
-const DIFFICULTY = {
-  EASY: {
-    name: "EASY",
-    color: "#22c55e",
-    paddleSpeed: 10,
-    errorDuration: 500,
-    errorChance: 0.4,
-    followDelay: 1000,
-    minFollowDuration: 100,
-    maxFollowDuration: 230,
-    minPauseDuration: 330,
-    maxPauseDuration: 700,
-    errorMargin: 10,
-  },
-  MEDIUM: {
-    name: "MEDIUM",
-    color: "#eab308",
-    paddleSpeed: 10,
-    errorDuration: 200,
-    errorChance: 0.1,
-    followDelay: 700,
-    minFollowDuration: 230,
-    maxFollowDuration: 530,
-    minPauseDuration: 230,
-    maxPauseDuration: 500,
-    errorMargin: 10,
-  },
-  HARD: {
-    name: "HARD",
-    color: "#ef4444",
-    paddleSpeed: 10,
-    errorDuration: 100,
-    errorChance: 0.05,
-    followDelay: 400,
-    minFollowDuration: 430,
-    maxFollowDuration: 830,
-    minPauseDuration: 130,
-    maxPauseDuration: 300,
-    errorMargin: 5,
-  },
-};
-
-let currentDifficulty = DIFFICULTY.EASY;
-
-// Créer l'affichage de la difficulté
-const difficultyDisplay = document.createElement("div");
-difficultyDisplay.style.cssText = `
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  color: white;
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  font-size: 16px;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-`;
-
-function updateDifficultyDisplay() {
-  difficultyDisplay.textContent = `AI: ${currentDifficulty.name}`;
-  difficultyDisplay.style.backgroundColor = currentDifficulty.color;
-}
-
-updateDifficultyDisplay();
-document.body.appendChild(difficultyDisplay);
-
-// Ajouter avec les autres event listeners (ou à la fin)
-window.addEventListener("keydown", (event) => {
-  if (event.key === "c" || event.key === "C") {
-    if (currentDifficulty === DIFFICULTY.EASY) {
-      currentDifficulty = DIFFICULTY.MEDIUM;
-    } else if (currentDifficulty === DIFFICULTY.MEDIUM) {
-      currentDifficulty = DIFFICULTY.HARD;
-    } else {
-      currentDifficulty = DIFFICULTY.EASY;
-    }
-
-    updateDifficultyDisplay();
-
-    // Mise à jour des paramètres de l'IA
-    aiPaddleSpeed = currentDifficulty.paddleSpeed;
-    ERROR_DURATION = currentDifficulty.errorDuration;
-    ERROR_CHANCE = currentDifficulty.errorChance;
-    FOLLOW_MODE_DELAY = currentDifficulty.followDelay;
-    MIN_FOLLOW_DURATION = currentDifficulty.minFollowDuration;
-    MAX_FOLLOW_DURATION = currentDifficulty.maxFollowDuration;
-    MIN_PAUSE_DURATION = currentDifficulty.minPauseDuration;
-    MAX_PAUSE_DURATION = currentDifficulty.maxPauseDuration;
-    ERROR_MARGIN = currentDifficulty.errorMargin;
-  }
-});
-
 // Modifier la fonction animate pour la vérification des points
 function animate() {
   requestAnimationFrame(animate);
-
-  // Mise à jour des positions des hitboxes
-  if (paddle1 && paddle2) {
-    paddle1Hitbox.position.set(paddle1.position.x, 15, paddle1.position.z);
-    paddle2Hitbox.position.set(paddle2.position.x, 15, paddle2.position.z);
-  }
 
   // Mettre à jour tous les points
   if (paddle2) {
@@ -1206,7 +973,7 @@ function animate() {
       if (
         ball.position.x <= paddleLeftX + 30 &&
         ball.position.x >= paddleLeftX - 30 &&
-        Math.abs(ball.position.z - paddle1.position.z) < PADDLE_HEIGHT / 1.8
+        Math.abs(ball.position.z - paddle1.position.z) < PADDLE_HEIGHT / 2
       ) {
         currentBallSpeed = Math.min(
           currentBallSpeed + SPEED_INCREMENT,
@@ -1227,7 +994,7 @@ function animate() {
       if (
         ball.position.x >= paddleRightX - 30 &&
         ball.position.x <= paddleRightX + 30 &&
-        Math.abs(ball.position.z - paddle2.position.z) < PADDLE_HEIGHT / 1.8
+        Math.abs(ball.position.z - paddle2.position.z) < PADDLE_HEIGHT / 2
       ) {
         currentBallSpeed = Math.min(
           currentBallSpeed + SPEED_INCREMENT,
@@ -1242,25 +1009,24 @@ function animate() {
       }
     }
 
-    // Point marqué
     if (ball.position.x < paddle1.position.x) {
-      // impactPoint.visible = false;
       flashNeonBorder();
       scoreSystem.updateScore(2); // Point pour joueur 2
       if (scoreSystem.isGameOver()) {
         isBallMoving = false;
         ball.position.set(0, -100, 0);
+        // Enlever l'appel à dispatchGameEnd ici car il est déjà dans Score3D
       } else {
         resetBall();
         setTimeout(launchBall, 500);
       }
     } else if (ball.position.x > paddle2.position.x) {
-      // impactPoint.visible = false;
       flashNeonBorder();
       scoreSystem.updateScore(1); // Point pour joueur 1
       if (scoreSystem.isGameOver()) {
         isBallMoving = false;
         ball.position.set(0, -100, 0);
+        // Enlever l'appel à dispatchGameEnd ici car il est déjà dans Score3D
       } else {
         resetBall();
         setTimeout(launchBall, 500);
@@ -1270,53 +1036,6 @@ function animate() {
 
   controls.update();
   composer.render();
-}
-
-export function recordGame(scoreUser, scoreOpponent, result) {
-  console.log("fonction recordGame appele");
-  const data = {
-    score_user: scoreUser,
-    score_opponent: scoreOpponent,
-    result: result, // true pour victoire, false pour défaite
-  };
-
-  console.log("data :", data.score_user, data.score_opponent, data.result);
-  const csrftoken = getCookie("crsftoken");
-  console.log("CRSF TOKEN: ", csrftoken);
-  fetch("/api/record-game/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"), // Récupère le token CSRF
-    },
-    credentials: "include", // Permet d'envoyer les cookies d'authentification
-    body: JSON.stringify(data),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.message) {
-        console.log(data.message); // Confirmation
-      } else if (data.error) {
-        console.error(data.error); // Affiche une erreur si présente
-      }
-    })
-    .catch((error) => console.error("Error:", error));
-}
-
-// Fonction utilitaire pour récupérer le token CSRF
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
 }
 // Initialiser la taille du contour
 updateBorderSize();

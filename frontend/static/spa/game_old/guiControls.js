@@ -1,16 +1,4 @@
-// import * as THREE from "three";
-// import { scene, gui } from "./game.js";
-// import {
-//   directionalLight,
-//   directionalLight2,
-//   directionalLight3,
-//   directionalLight4,
-//   targetObject1,
-//   targetObject2,
-// } from "./light.js";
-// import { camera, controls } from "./game.js";
-
-import * as THREE from "./libs/three.module.js";
+import * as THREE from "three";
 import { scene, gui } from "./game.js";
 import {
   directionalLight,
@@ -21,7 +9,6 @@ import {
   targetObject2,
 } from "./light.js";
 import { camera, controls } from "./game.js";
-
 
 // Création des contrôles pour les lumières
 const lightControls = {

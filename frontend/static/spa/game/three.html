@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -16,15 +16,6 @@
   </head>
   <body>
     <div id="game"></div>
-
-    <script>
-      // Écouter les messages du tournoi
-      window.addEventListener('message', (event) => {
-        if (event.data.type === 'startGame') {
-          window.currentPlayers = event.data.data;
-        }
-      });
-      </script>
     <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
     <script type="importmap">
       {
@@ -49,5 +40,59 @@
     <script type="module" src="game.js"></script>
      <script type="module" src="light.js"></script>
   </body>
-</html>
+</html> -->
 
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong 3D</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #game {
+        width: 80vw;
+        height: 80vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+
+    <!-- Importation de lil-gui depuis un fichier local -->
+    <!-- <script src="/static/spa/home/game/libs/lil-gui.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
+
+    <!-- Définition de l'importmap -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/static/spa/game/libs/three.module.js",
+          "three/examples/jsm/controls/OrbitControls": "/static/spa/game/libs/OrbitControls.js",
+          "three/examples/jsm/postprocessing/RenderPass": "/static/spa/game/libs/RenderPass.js",
+          "three/examples/jsm/postprocessing/UnrealBloomPass": "/static/spa/game/libs/UnrealBloomPass.js",
+          "three/examples/jsm/postprocessing/Pass": "/static/spa/game/libs/Pass.js",
+          "three/examples/jsm/shaders/CopyShader": "/static/spa/game/libs/CopyShader.js",
+          "three/examples/jsm/postprocessing/EffectComposer": "/static/spa/game/libs/EffectComposer.js",
+          "three/examples/jsm/loaders/GLTFLoader": "/static/spa/game/libs/GLTFLoader.js",
+          "three/examples/jsm/utils/BufferGeometryUtils": "/static/spa/game/libs/BufferGeometryUtils.js",
+          "three/examples/jsm/shaders/LuminosityHighPassShader": "/static/spa/game/libs/LuminosityHighPassShader.js",
+          "three/examples/jsm/postprocessing/MaskPass": "/static/spa/game/libs/MaskPass.js",
+          "three/examples/jsm/helpers/RectAreaLightHelper": "/static/spa/game/libs/RectAreaLightHelper.js",
+          "three/examples/jsm/loaders/FontLoader": "/static/spa/game/libs/FontLoader.js",
+          "three/examples/jsm/geometries/TextGeometry": "/static/spa/game/libs/TextGeometry.js",
+          "cannon-es": "/static/spa/game/libs/cannon-es.js"
+        }
+      }
+    </script>
+
+    <!-- Chargement des scripts du projet -->
+    <script type="module" src="/static/spa/game/game.js"></script>
+    <script type="module" src="/static/spa/game/light.js"></script>
+    <script type="module" src="/static/spa/game/guiControls.js"></script>
+    <script type="module" src="/static/spa/game/Score3D.js"></script>
+  </body>
+</html>
