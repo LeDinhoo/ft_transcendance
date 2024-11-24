@@ -48,16 +48,16 @@ document.addEventListener("DOMContentLoaded", function () {
   async function redirectToLoginIfNeeded(path) {
     const requiresAuth = path !== "/login-register" && path !== "/";
     const authenticated = await isAuthenticated();
-  
+
     if (requiresAuth && !authenticated) {
       console.warn("Utilisateur non authentifié. Redirection vers la page de connexion.");
       navigateTo("/login-register");
       return true; // Indique qu'on a redirigé vers login
     }
-  
+
     return false; // L'utilisateur est authentifié ou aucune authentification n'est requise
   }
-  
+
 
   // Charger une page en fonction de l'URL
   async function loadComponent(
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     updateNavBarVisibility(path);
-	WebSocketManager.initialize();
+	initializeSockets();
 
     if (path === "/" || path === "/login-register") {
       loadComponent(
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (path === "/home") {
       loadComponent(
         "/static/spa/new_home/new_home.html",
-        "/static/spa/new_home/new_home.css", 
+        "/static/spa/new_home/new_home.css",
         ["/static/spa/new_home/new_home.js",]
         ).then(() => {
         initializeHome();

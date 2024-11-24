@@ -1,32 +1,29 @@
-// webSocketManager.js
-(function (global) {
-    const webSocketManager = {
-        chatSocket: null,
+let chatSocket = null;
+// let gameSocket = null;
 
-        initialize() {
-            if (this.chatSocket && this.chatSocket.readyState === WebSocket.OPEN) {
-                console.log('WebSocket is already connected.');
-                return;
-            }
+function initializeSockets() {
+	console.log('TEST INIT SOCKS IN WSM');
+    chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
+    // gameSocket = new WebSocket('wss://localhost:4430/wss/game/');
 
-            this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
-
-            this.chatSocket.onopen = () => {
-                console.log('Chat WebSocket Connected');
-            };
-
-            this.chatSocket.onmessage = (e) => {
-                const data = JSON.parse(e.data);
-                console.log('Message received:', data);
-            };
-
-            this.chatSocket.onclose = () => {
-                console.warn('Chat WebSocket disconnected. Attempting to reconnect...');
-                setTimeout(() => this.initialize(), 5000); // Retry after 5 seconds
-            };
-        }
+    // Chat socket setup
+    chatSocket.onopen = () => {
+        console.log('Chat WebSocket Connected');
     };
 
-    // Attach it to the global scope (e.g., window object) for global access
-    global.webSocketManager = webSocketManager;
-})(window);
+    chatSocket.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        console.log('Chat message received:', data);
+    };
+
+	// // Game socket setup
+	// GameSocket.onopen = () => {
+	// 	console.log('Game WebSocket Connected');
+	// };
+
+	// GameSocket.onmessage = (e) => {
+	// 	const data = JSON.parse(e.data);
+	// 	console.log('Game message received:', data);
+	// };
+    // Game socket setup (similar to Game)
+}
