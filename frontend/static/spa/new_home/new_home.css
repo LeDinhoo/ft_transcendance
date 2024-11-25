@@ -983,11 +983,19 @@ body {
 /* Input Area */
 .chatInputContainer {
     display: flex;
+    align-items: center;  /* Centre verticalement */
     gap: var(--8px);
-    padding: var(--8px);
+    padding: var(--12px);
     background-color: var(--gluon-grey);
     border-radius: var(--16px);
-	margin-top: auto;         /* Pousse la zone de saisie vers le bas */
+    margin-top: auto;
+}
+
+.messageInputWrapper {
+    display: flex;
+    align-items: center;  /* Centre verticalement */
+    gap: var(--8px);    /* Espace entre input et icône */
+    width: 100%;
 }
 
 .chatInput {
