@@ -181,7 +181,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     updateNavBarVisibility(path);
-	initializeSockets();
+
+	// if (isAuthenticated)
+	// 	initializeChatSocket();
+
+	if (isAuthenticated())
+		window.wsManager.initializeChatSocket();
 
     if (path === "/" || path === "/login-register") {
       loadComponent(
@@ -199,7 +204,9 @@ document.addEventListener("DOMContentLoaded", function () {
       loadComponent(
         "/static/spa/new_home/new_home.html",
         "/static/spa/new_home/new_home.css",
-        ["/static/spa/new_home/new_home.js",]
+        [
+			"/static/spa/new_home/new_home.js",
+		]
         ).then(() => {
         initializeHome();
       });

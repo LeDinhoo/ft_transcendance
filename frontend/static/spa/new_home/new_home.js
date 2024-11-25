@@ -927,7 +927,6 @@
 //   });
 // }
 
-
 function initializeHome() {
   console.log("fonction initializeHome appelée..");
 
@@ -966,9 +965,91 @@ function initializeHome() {
       friendsList: document.getElementById("friendsList"),
       playersList: document.getElementById("onlinePlayersList"),
     },
+	chat: {
+		messages: document.getElementById('chatMessages'),
+		input: document.getElementById('messageInput'),
+		sendButton: document.getElementById('sendMessage')
+	}
   };
 
   let isGameInitialized = false;
+  let currentUser = null;
+
+  // Chat Management
+    class ChatHandler {
+        static async initialize() {
+            try {
+                const response = await fetch('/api/profil/', {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    ChatHandler.setupEventListeners();
+                    window.wsManager.addMessageListener(ChatHandler.handleMessage);
+					 // Charger l'historique des messages
+					const messageHistory = window.wsManager.getMessageHistory();
+					messageHistory.forEach(message => ChatHandler.handleMessage(message));
+				}
+            } catch (error) {
+                console.error('Erreur lors de l\'initialisation du chat:', error);
+            }
+        }
+
+        static setupEventListeners() {
+            if (DOM.chat.sendButton) {
+                DOM.chat.sendButton.addEventListener('click', ChatHandler.sendMessage);
+            }
+
+            if (DOM.chat.input) {
+                DOM.chat.input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        ChatHandler.sendMessage();
+                    }
+                });
+            }
+        }
+
+        static handleMessage(data) {
+            if (!DOM.chat.messages) return;
+
+            const isCurrentUser = currentUser && data.username === currentUser.username;
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${isCurrentUser ? 'sent' : 'received'}`;
+
+            messageElement.innerHTML = `
+                <img src="${data.avatar}" alt="${data.username}" class="messageAvatar">
+                <div class="messageContent">
+                    <div class="messageHeader">${data.username}</div>
+                    <div class="messageText">${data.message}</div>
+                </div>
+            `;
+
+            DOM.chat.messages.appendChild(messageElement);
+            DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
+        }
+
+        static sendMessage() {
+            if (!DOM.chat.input || !currentUser) return;
+
+            const message = DOM.chat.input.value.trim();
+            if (!message) return;
+
+            window.wsManager.sendMessage({
+                type: 'chat_message',
+                message: message,
+                username: currentUser.username,
+                avatar: currentUser.avatar
+            });
+
+            DOM.chat.input.value = '';
+        }
+
+        static cleanup() {
+            window.wsManager.removeMessageListener(ChatHandler.handleMessage);
+        }
+    }
+
 
   // Tooltip Management
   class TooltipManager {
@@ -1337,6 +1418,19 @@ function initializeHome() {
   ContextMenu.initialize();
   GameOptionsManager.initialize();
   OnlineGameModal.initialize();
+  ChatHandler.initialize();
+
+  // Cleanup on page unload
+  window.addEventListener('unload', () => {
+	  ChatHandler.cleanup();
+  });
+
+    // Event listener pour le bouton de jeu
+    if (DOM.game.playButton) {
+        DOM.game.playButton.addEventListener("click", () => {
+            GameActions.handlePlayButtonClick();
+        });
+    }
 
   DOM.game.playButton.addEventListener("click", () => {
     GameActions.handlePlayButtonClick();

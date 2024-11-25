@@ -1,29 +1,55 @@
-let chatSocket = null;
-// let gameSocket = null;
+const wsManager = {
+    chatSocket: null,
+    messageListeners: new Set(),
+	messageHistory: [],
 
-function initializeSockets() {
-	console.log('TEST INIT SOCKS IN WSM');
-    chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
-    // gameSocket = new WebSocket('wss://localhost:4430/wss/game/');
+    initializeChatSocket() {
+        if (this.chatSocket?.readyState === WebSocket.OPEN) {
+            return; // Déjà connecté
+        }
 
-    // Chat socket setup
-    chatSocket.onopen = () => {
-        console.log('Chat WebSocket Connected');
-    };
+        this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
 
-    chatSocket.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-        console.log('Chat message received:', data);
-    };
+        this.chatSocket.onopen = () => {
+            console.log('Chat WebSocket Connected');
+        };
 
-	// // Game socket setup
-	// GameSocket.onopen = () => {
-	// 	console.log('Game WebSocket Connected');
-	// };
+        this.chatSocket.onclose = () => {
+            console.log('Chat WebSocket disconnected');
+            // Tentative de reconnexion après 5 secondes
+            setTimeout(() => this.initializeChatSocket(), 5000);
+        };
 
-	// GameSocket.onmessage = (e) => {
-	// 	const data = JSON.parse(e.data);
-	// 	console.log('Game message received:', data);
-	// };
-    // Game socket setup (similar to Game)
-}
+        this.chatSocket.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+            // Stocker le message dans l'historique
+            this.messageHistory.push(data);
+            // Notifier les listeners
+            this.messageListeners.forEach(listener => listener(data));
+        };
+    },
+
+    // Méthode pour envoyer un message
+    sendMessage(message) {
+        if (this.chatSocket?.readyState === WebSocket.OPEN) {
+            this.chatSocket.send(JSON.stringify(message));
+        }
+    },
+
+	getMessageHistory() {
+        return this.messageHistory;
+    },
+
+    // Ajouter un listener pour les messages
+    addMessageListener(listener) {
+        this.messageListeners.add(listener);
+    },
+
+    // Retirer un listener
+    removeMessageListener(listener) {
+        this.messageListeners.delete(listener);
+    }
+};
+
+// Rendre l'objet disponible globalement
+window.wsManager = wsManager;

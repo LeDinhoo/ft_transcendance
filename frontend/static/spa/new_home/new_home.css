@@ -894,3 +894,113 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Henrik CHAT */
+
+/* Chat Container */
+.chatContainer {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 60px);
+    padding: var(--16px);
+    gap: var(--16px);
+}
+
+/* Chat Messages Area */
+.chatMessages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--12px);
+    padding-right: var(--8px);
+}
+
+/* Message Styles */
+.message {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--8px);
+    padding: var(--8px);
+    max-width: 80%;
+}
+
+.message.sent {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message.received {
+    margin-right: auto;
+}
+
+.messageAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.messageContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--4px);
+}
+
+.messageHeader {
+    font-size: var(--12px);
+    color: var(--dusty-grey);
+}
+
+.messageText {
+    background-color: var(--gluon-grey);
+    padding: var(--8px) var(--12px);
+    border-radius: var(--12px);
+    font-size: var(--14px);
+    color: var(--snow);
+}
+
+.message.sent .messageText {
+    background-color: #2B5DF5;
+}
+
+/* Input Area */
+.chatInputContainer {
+    display: flex;
+    gap: var(--8px);
+    padding: var(--8px);
+    background-color: var(--gluon-grey);
+    border-radius: var(--16px);
+}
+
+.chatInput {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--snow);
+    font-size: var(--14px);
+    padding: var(--8px);
+    outline: none;
+}
+
+.chatInput::placeholder {
+    color: var(--dusty-grey);
+}
+
+.sendButton {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.sendIcon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+}
