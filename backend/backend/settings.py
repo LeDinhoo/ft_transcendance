@@ -54,12 +54,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+	'daphne',
+	'channels',
     'django.contrib.staticfiles',
     'accounts',
 	'corsheaders',
 	'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
-	'channels',
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"
@@ -252,7 +253,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
     {
-        'NAME': 'accounts.validators.ComplexPasswordValidator', 
+        'NAME': 'accounts.validators.ComplexPasswordValidator',
     }
 ]
 

@@ -901,9 +901,11 @@ body {
 .chatContainer {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 60px);
-    padding: var(--16px);
+    height: 100%;              /* Prend toute la hauteur disponible */
+    width: 100%;              /* Prend toute la largeur disponible */
+    min-width: 300px;         /* Largeur minimale */
     gap: var(--16px);
+    background-color: var(--dark-grey);
 }
 
 /* Chat Messages Area */
@@ -914,6 +916,8 @@ body {
     flex-direction: column;
     gap: var(--12px);
     padding-right: var(--8px);
+	border-radius: var(--12px);
+    margin-bottom: var(--8px);
 }
 
 /* Message Styles */
@@ -922,7 +926,7 @@ body {
     align-items: flex-start;
     gap: var(--8px);
     padding: var(--8px);
-    max-width: 80%;
+    max-width: 90%;
 }
 
 .message.sent {
@@ -958,10 +962,22 @@ body {
     border-radius: var(--12px);
     font-size: var(--14px);
     color: var(--snow);
+	word-break: break-word;  /* Évite les débordements de texte */
 }
 
 .message.sent .messageText {
     background-color: #2B5DF5;
+}
+
+.chatTitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: var(--24px);
+    color: var(--snow);
+    font-weight: 600;
+    padding: var(--16px) 0;
+    /* border-bottom: 1px solid var(--dusty-grey); */ /* Optionnel : ajoute une ligne sous le titre */
 }
 
 /* Input Area */
@@ -971,6 +987,7 @@ body {
     padding: var(--8px);
     background-color: var(--gluon-grey);
     border-radius: var(--16px);
+	margin-top: auto;         /* Pousse la zone de saisie vers le bas */
 }
 
 .chatInput {
@@ -1004,3 +1021,4 @@ body {
     height: 20px;
     filter: brightness(0) invert(1);
 }
+
