@@ -36,6 +36,10 @@ const wsManager = {
                     this.messageHistory.push(data);
                     this.messageListeners.forEach(listener => listener(data));
                     break;
+
+				case 'user_list_update':
+					this.updateOnlinePlayersList(data.users);
+					break;
                     
                 case 'user_connected':
                     this.onlinePlayers.add(data.user);
@@ -64,7 +68,10 @@ const wsManager = {
         container.innerHTML = '';
         if (title) container.appendChild(title);
 
-        this.onlinePlayers.forEach(user => {
+		// Parser les users car ils sont en format JSON string
+        const parsedUsers = users.map(userStr => JSON.parse(userStr));
+
+        parsedUsers.forEach(user => {
             const playerDiv = document.createElement('div');
             playerDiv.className = 'onlinePlayers';
             playerDiv.innerHTML = `
@@ -75,6 +82,14 @@ const wsManager = {
                 </div>
                 <img src="/static/assets/icons/online.svg" class="onlineIcon">
             `;
+
+            // Ajouter des interactions
+            const nicknameDiv = playerDiv.querySelector('.onlineNickname');
+            nicknameDiv.addEventListener('click', () => {
+                // Ici vous pouvez ajouter des interactions comme
+                // ouvrir un profil, démarrer une conversation privée, etc.
+            });
+
             container.appendChild(playerDiv);
         });
     },
