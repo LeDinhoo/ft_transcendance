@@ -2,6 +2,7 @@ const wsManager = {
     chatSocket: null,
     messageListeners: new Set(),
 	messageHistory: [],
+	onlinePlayers: new Set(),
 
     initializeChatSocket() {
         if (this.chatSocket?.readyState === WebSocket.OPEN) {
@@ -14,19 +15,68 @@ const wsManager = {
             console.log('Chat WebSocket Connected');
         };
 
-        this.chatSocket.onclose = () => {
-            console.log('Chat WebSocket disconnected');
+        this.chatSocket.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+        };
+
+        this.chatSocket.onclose = (event) => {
+            console.log('Chat WebSocket disconnected, code:', event.code);
+            if (event.code === 4003) {
+                console.log('Authentication required');
+            }
             // Tentative de reconnexion après 5 secondes
             setTimeout(() => this.initializeChatSocket(), 5000);
         };
 
         this.chatSocket.onmessage = (e) => {
             const data = JSON.parse(e.data);
-            // Stocker le message dans l'historique
-            this.messageHistory.push(data);
-            // Notifier les listeners
-            this.messageListeners.forEach(listener => listener(data));
+            
+            switch (data.type) {
+                case 'chat_message':
+                    this.messageHistory.push(data);
+                    this.messageListeners.forEach(listener => listener(data));
+                    break;
+                    
+                case 'user_connected':
+                    this.onlinePlayers.add(data.user);
+                    this.updateOnlinePlayersList();
+                    break;
+                    
+                case 'user_disconnected':
+                    this.onlinePlayers.delete(data.user);
+                    this.updateOnlinePlayersList();
+                    break;
+                    
+                case 'online_users':
+                    this.onlinePlayers = new Set(data.users);
+                    this.updateOnlinePlayersList();
+                    break;
+            }
         };
+    },
+
+	updateOnlinePlayersList() {
+        const container = document.querySelector('.downLeftFrame');
+        if (!container) return;
+
+        // Garder le titre
+        const title = container.querySelector('.onlinePlayersTitle');
+        container.innerHTML = '';
+        if (title) container.appendChild(title);
+
+        this.onlinePlayers.forEach(user => {
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'onlinePlayers';
+            playerDiv.innerHTML = `
+                <div class="onlineFlag"></div>
+                <div class="onlineNickname">
+                    <img src="${user.avatar}" alt="avatar" class="onlineAvatar">
+                    ${user.username}
+                </div>
+                <img src="/static/assets/icons/online.svg" class="onlineIcon">
+            `;
+            container.appendChild(playerDiv);
+        });
     },
 
     // Méthode pour envoyer un message
