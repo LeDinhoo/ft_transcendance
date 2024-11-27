@@ -8,6 +8,18 @@ import { FontLoader } from "./libs/FontLoader.js";
 import { TextGeometry } from "./libs/TextGeometry.js";
 import { recordGame } from "./game.js";
 
+// Méthode globale pour envoyer le message au parent
+window.dispatchGameEnd = function (winner, player1Score, player2Score) {
+  if (window.parent !== window) {
+    window.parent.postMessage(
+      {
+        type: "gameComplete",
+        data: { winner, player1Score, player2Score },
+      },
+      "*"
+    );
+  }
+};
 
 export class Score3D {
   constructor(scene, camera, paddle1, paddle2, gamePlane) {
@@ -115,12 +127,15 @@ export class Score3D {
         const winner = this.score.player1 > this.score.player2 ? 1 : 2;
         this.gameOver = true;
         this.createVictoryText(winner);
-                    
+
         // Envoyer un message au parent indiquant la fin du jeu et le gagnant
         setTimeout(() => {
-          window.parent.postMessage({ type: "gameComplete", winner: `Player ${winner}` }, "*");
+          window.parent.postMessage(
+            { type: "gameComplete", winner: `Player ${winner}` },
+            "*"
+          );
         }, 700); // Délai de 2 secondes avant d'envoyer le message pour permettre l'affichage du message de victoire
-        
+
         return true;
       }
     }
@@ -192,6 +207,7 @@ export class Score3D {
 
     // Vérifier la condition de victoire
     this.checkWinCondition();
+    
   }
 
   createVictoryText(winner) {
@@ -409,103 +425,140 @@ export class Score3D {
   //   this.checkWinCondition();
   // }
 
+
+// Ajout dans la fonction dispatchGameEnd pour envoyer le message correctement
+// window.dispatchGameEnd = function (winner, player1Score, player2Score) {
+//   if (window.parent !== window) {
+//       window.parent.postMessage(
+//           {
+//               type: 'gameComplete',
+//               data: { winner, player1Score, player2Score },
+//           },
+//           '*'
+//       );
+//   }
+// };
+
+// Appel à dispatchGameEnd après l'enregistrement des scores dans Score3D
+// updateScore(player) {
+//   if (this.gameOver) return;
+
+//   if (player === 1) {
+//       this.score.player1++;
+//   } else {
+//       this.score.player2++;
+//   }
+
+//   // Code existant pour gérer les scores...
+
+//   if (this.checkWinCondition()) {
+//       const scoreUser = this.score.player1;
+//       const scoreOpponent = this.score.player2;
+//       const result = scoreUser > scoreOpponent;
+
+//       recordGame(scoreUser, scoreOpponent, result);
+//       window.dispatchGameEnd(result ? 1 : 2, scoreUser, scoreOpponent); // Ajout ici
+//   }
+// }
+
+
   updateScore(player) {
     if (this.gameOver) return;
 
     // Incrémenter le score en fonction du joueur
     if (player === 1) {
-        this.score.player1++;
+      this.score.player1++;
     } else {
-        this.score.player2++;
+      this.score.player2++;
     }
 
     // Vérifier que les paddles sont disponibles
     if (this.paddle1 && this.paddle2) {
-        // Condition spéciale pour le score 4-2
-        if (this.score.player1 === 4 && this.score.player2 === 2) {
-            // Changer la couleur des scores et des paddles
-            this.textMaterialLeft.color.setHex(0x1d995b);
-            this.textMaterialRight.color.setHex(0x1d995b);
+      // Condition spéciale pour le score 4-2
+      if (this.score.player1 === 4 && this.score.player2 === 2) {
+        // Changer la couleur des scores et des paddles
+        this.textMaterialLeft.color.setHex(0x1d995b);
+        this.textMaterialRight.color.setHex(0x1d995b);
 
-            // Changer la texture du plan
-            if (this.gamePlane && this.specialTexture) {
-                this.gamePlane.traverse((child) => {
-                    if (child.isMesh) {
-                        if (!this.originalPlaneMaterial) {
-                            this.originalPlaneMaterial = child.material.clone();
-                        }
-                        child.material.map = this.specialTexture;
-                        child.material.needsUpdate = true;
-                    }
-                });
+        // Changer la texture du plan
+        if (this.gamePlane && this.specialTexture) {
+          this.gamePlane.traverse((child) => {
+            if (child.isMesh) {
+              if (!this.originalPlaneMaterial) {
+                this.originalPlaneMaterial = child.material.clone();
+              }
+              child.material.map = this.specialTexture;
+              child.material.needsUpdate = true;
             }
-
-            // Changer la couleur des paddles
-            this.paddle1.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.color.setHex(0x1d995b);
-                }
-            });
-            this.paddle2.traverse((child) => {
-                if (child.isMesh) {
-                    child.material.color.setHex(0x1d995b);
-                }
-            });
-        } else {
-            // Restaurer la texture originale du plan
-            if (this.gamePlane && this.originalPlaneMaterial) {
-                this.gamePlane.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = this.originalPlaneMaterial.clone();
-                        child.material.needsUpdate = true;
-                    }
-                });
-            }
-
-            if (this.score.player1 > this.score.player2) {
-                this.textMaterialLeft.color.setHex(0xff4500);
-                this.textMaterialRight.color.setHex(0xff4500);
-
-                this.paddle1.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.setHex(0xff4500);
-                    }
-                });
-                this.paddle2.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.setHex(0x0d9bff);
-                    }
-                });
-            } else if (this.score.player2 > this.score.player1) {
-                this.textMaterialLeft.color.setHex(0x0d9bff);
-                this.textMaterialRight.color.setHex(0x0d9bff);
-
-                this.paddle1.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.setHex(0xff4500);
-                    }
-                });
-                this.paddle2.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.setHex(0x0d9bff);
-                    }
-                });
-            } else {
-                this.textMaterialLeft.color.setHex(0xff4500);
-                this.textMaterialRight.color.setHex(0x0d9bff);
-
-                this.paddle1.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.setHex(0xff4500);
-                    }
-                });
-                this.paddle2.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.color.setHex(0x0d9bff);
-                    }
-                });
-            }
+          });
         }
+
+        // Changer la couleur des paddles
+        this.paddle1.traverse((child) => {
+          if (child.isMesh) {
+            child.material.color.setHex(0x1d995b);
+          }
+        });
+        this.paddle2.traverse((child) => {
+          if (child.isMesh) {
+            child.material.color.setHex(0x1d995b);
+          }
+        });
+      } else {
+        // Restaurer la texture originale du plan
+        if (this.gamePlane && this.originalPlaneMaterial) {
+          this.gamePlane.traverse((child) => {
+            if (child.isMesh) {
+              child.material = this.originalPlaneMaterial.clone();
+              child.material.needsUpdate = true;
+            }
+          });
+        }
+
+        if (this.score.player1 > this.score.player2) {
+          this.textMaterialLeft.color.setHex(0xff4500);
+          this.textMaterialRight.color.setHex(0xff4500);
+
+          this.paddle1.traverse((child) => {
+            if (child.isMesh) {
+              child.material.color.setHex(0xff4500);
+            }
+          });
+          this.paddle2.traverse((child) => {
+            if (child.isMesh) {
+              child.material.color.setHex(0x0d9bff);
+            }
+          });
+        } else if (this.score.player2 > this.score.player1) {
+          this.textMaterialLeft.color.setHex(0x0d9bff);
+          this.textMaterialRight.color.setHex(0x0d9bff);
+
+          this.paddle1.traverse((child) => {
+            if (child.isMesh) {
+              child.material.color.setHex(0xff4500);
+            }
+          });
+          this.paddle2.traverse((child) => {
+            if (child.isMesh) {
+              child.material.color.setHex(0x0d9bff);
+            }
+          });
+        } else {
+          this.textMaterialLeft.color.setHex(0xff4500);
+          this.textMaterialRight.color.setHex(0x0d9bff);
+
+          this.paddle1.traverse((child) => {
+            if (child.isMesh) {
+              child.material.color.setHex(0xff4500);
+            }
+          });
+          this.paddle2.traverse((child) => {
+            if (child.isMesh) {
+              child.material.color.setHex(0x0d9bff);
+            }
+          });
+        }
+      }
     }
 
     if (!this.font) return;
@@ -514,46 +567,56 @@ export class Score3D {
 
     // Mise à jour de l'affichage du score gauche
     if (this.scoreTextLeft) {
-        this.scene.remove(this.scoreTextLeft);
-        const geometryLeft = new TextGeometry(
-            this.score.player1.toString(),
-            options
-        );
-        geometryLeft.center();
-        this.scoreTextLeft = new THREE.Mesh(geometryLeft, this.textMaterialLeft);
-        this.scoreTextLeft.rotation.x = -Math.PI / 2;
-        this.scene.add(this.scoreTextLeft);
+      this.scene.remove(this.scoreTextLeft);
+      const geometryLeft = new TextGeometry(
+        this.score.player1.toString(),
+        options
+      );
+      geometryLeft.center();
+      this.scoreTextLeft = new THREE.Mesh(geometryLeft, this.textMaterialLeft);
+      this.scoreTextLeft.rotation.x = -Math.PI / 2;
+      this.scene.add(this.scoreTextLeft);
     }
 
     // Mise à jour de l'affichage du score droit
     if (this.scoreTextRight) {
-        this.scene.remove(this.scoreTextRight);
-        const geometryRight = new TextGeometry(
-            this.score.player2.toString(),
-            options
-        );
-        geometryRight.center();
-        this.scoreTextRight = new THREE.Mesh(
-            geometryRight,
-            this.textMaterialRight
-        );
-        this.scoreTextRight.rotation.x = -Math.PI / 2;
-        this.scene.add(this.scoreTextRight);
+      this.scene.remove(this.scoreTextRight);
+      const geometryRight = new TextGeometry(
+        this.score.player2.toString(),
+        options
+      );
+      geometryRight.center();
+      this.scoreTextRight = new THREE.Mesh(
+        geometryRight,
+        this.textMaterialRight
+      );
+      this.scoreTextRight.rotation.x = -Math.PI / 2;
+      this.scene.add(this.scoreTextRight);
     }
 
     this.updatePosition();
 
     // Vérifier la condition de victoire après avoir mis à jour l'affichage
-    if (this.checkWinCondition()) {
-        // Déterminer les scores finaux et le résultat
+    // if (this.checkWinCondition()) {
+    //   // Déterminer les scores finaux et le résultat
+    //   const scoreUser = this.score.player1;
+    //   const scoreOpponent = this.score.player2;
+    //   const result = scoreUser > scoreOpponent; // true si le joueur 1 gagne, sinon false
+
+    //   this.endGame();
+    //   // Enregistrer la partie
+    //   // recordGame(scoreUser, scoreOpponent, result);
+    // }
+
+      if (this.checkWinCondition()) {
         const scoreUser = this.score.player1;
         const scoreOpponent = this.score.player2;
-        const result = scoreUser > scoreOpponent;  // true si le joueur 1 gagne, sinon false
+        const result = scoreUser > scoreOpponent;
 
-        // Enregistrer la partie
         recordGame(scoreUser, scoreOpponent, result);
+        window.dispatchGameEnd(result ? 1 : 2, scoreUser, scoreOpponent); // Ajout ici
     }
-}
+  }
 
   getScore() {
     return this.score;
@@ -561,6 +624,16 @@ export class Score3D {
 
   isGameOver() {
     return this.gameOver;
+  }
+
+  // Retourner le gagnant
+  getWinner() {
+    if (this.player1Score >= this.maxScore) {
+      return 1; // Joueur 1 est le gagnant
+    } else if (this.player2Score >= this.maxScore) {
+      return 2; // Joueur 2 est le gagnant
+    }
+    return null; // Aucun gagnant (jeu non terminé)
   }
 
   resetScore() {
@@ -603,6 +676,28 @@ export class Score3D {
 
       this.updatePosition();
     }
+  }
+
+  endGame() {
+    const scoreUser = this.score.player1;
+    const scoreOpponent = this.score.player2;
+    const result = scoreUser > scoreOpponent; // true si le joueur 1 gagne, sinon false
+
+    // Enregistrer la partie
+    recordGame(scoreUser, scoreOpponent, result);
+
+    // Envoyer un message au parent pour signaler la fin
+    if (window.parent !== window) {
+      window.parent.postMessage({
+        type: "gameComplete",
+        data: { scoreUser, scoreOpponent, result }
+      }, "*");
+    }
+
+    // Fermer la fenêtre/iframe
+    setTimeout(() => {
+      window.close();
+    }, 500); // Délai pour permettre à recordGame de terminer
   }
   dispose() {
     if (this.scoreTextLeft) {

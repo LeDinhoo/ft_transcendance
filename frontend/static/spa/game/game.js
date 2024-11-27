@@ -95,6 +95,81 @@ let previousBallDirectionX = 0;
 
 scene.background = new THREE.Color(0x111111);
 
+//////////////////////////////ajout partie pour le tournoi//////////////////////////
+// Au début de game.js
+if (window.gameCleanup) {
+  window.gameCleanup();
+}
+
+
+// Ajouter près du début de game.js
+// window.dispatchGameEnd = function(winner) {
+//   if (window.parent !== window) {
+//     window.parent.postMessage({
+//       type: 'gameComplete',
+//       data: { winner: winner - 1 }  // -1 car le tournament attend 0 ou 1
+//     }, '*');
+//   }
+// };
+
+window.dispatchGameEnd = function (winner, player1Score, player2Score) {
+  if (window.parent !== window) {
+    window.parent.postMessage(
+      {
+        type: "gameComplete",
+        data: {
+          winner: winner - 1, // -1 pour adapter au système parent
+          player1Score: player1Score,
+          player2Score: player2Score,
+          finalScores: {
+            player1: player1Score,
+            player2: player2Score,
+          },
+        },
+      },
+      "*"
+    );
+  }
+};
+
+
+
+window.gameCleanup = function() {
+  if (typeof renderer !== 'undefined') {
+    renderer.dispose();
+  }
+  if (typeof scene !== 'undefined') {
+    scene.traverse(object => {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach(material => material.dispose());
+        } else {
+          object.material.dispose();
+        }
+      }
+    });
+  }
+  if (typeof composer !== 'undefined') {
+    composer.dispose();
+  }
+
+  // Supprimer les event listeners
+  window.removeEventListener('resize', onWindowResize);
+  window.removeEventListener('keydown', null);
+  window.removeEventListener('keyup', null);
+
+  // Nettoyer les variables globales
+  window.scene = undefined;
+  window.camera = undefined;
+  window.renderer = undefined;
+  window.composer = undefined;
+  window.controls = undefined;
+}
+///////////////////////////////fin ajout pour le tournoi //////////////////////////////
+
 // Modifier la création du renderer
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -1265,6 +1340,41 @@ function animate() {
         resetBall();
         setTimeout(launchBall, 500);
       }
+    }
+    if (ball.position.x < paddle1.position.x) {
+      flashNeonBorder();
+      scoreSystem.updateScore(2); // Point pour joueur 2
+      if (scoreSystem.isGameOver()) {
+        isBallMoving = false;
+        ball.position.set(0, -100, 0);
+      
+        // Envoyer les scores et le gagnant au parent
+        const winner = scoreSystem.getWinner(); // Implémentez cette méthode pour retourner le gagnant
+        const player1Score = scoreSystem.getPlayer1Score();
+        const player2Score = scoreSystem.getPlayer2Score();
+        window.dispatchGameEnd(winner, player1Score, player2Score);
+      
+      } else {
+        resetBall();
+        setTimeout(launchBall, 500);
+      }
+    // } else if (ball.position.x > paddle2.position.x) {
+    //   flashNeonBorder();
+    //   scoreSystem.updateScore(1); // Point pour joueur 1
+    //   if (scoreSystem.isGameOver()) {
+    //     isBallMoving = false;
+    //     ball.position.set(0, -100, 0);
+      
+    //     // Envoyer les scores et le gagnant au parent
+    //     const winner = scoreSystem.getWinner(); // Implémentez cette méthode pour retourner le gagnant
+    //     const player1Score = scoreSystem.getPlayer1Score();
+    //     const player2Score = scoreSystem.getPlayer2Score();
+    //     window.dispatchGameEnd(winner, player1Score, player2Score);
+      
+    //   } else {
+    //     resetBall();
+    //     setTimeout(launchBall, 500);
+    //   }
     }
   }
 

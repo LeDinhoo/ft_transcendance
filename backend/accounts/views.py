@@ -237,15 +237,26 @@ def profile_view(request):
             # Si l'avatar est un fichier uploadé
             avatar_url = f"/media/{user.avatar}"
 
+        # Nombre de parties jouées
+    total_games = GameHistory.objects.filter(user=user).count()
+
+    # Nombre de victoires
+    total_wins = GameHistory.objects.filter(user=user, result=True).count()
+
+    # Calcul du ratio victoires
+    win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
+    
+
     response_data = {
         'username': user.username,
         'email': user.email,
         'avatar': avatar_url,
-        'is_2fa_enabled': user.is_2fa_enabled
+        'is_2fa_enabled': user.is_2fa_enabled,
+        'total_games': total_games,
+        'win_ratio': win_ratio
     }
 
     return JsonResponse(response_data, status=200)
-
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -1000,41 +1011,84 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def record_game(request):
+#     logger.info("Appel de record_game")
+
+#     data = request.data
+#     score_user = data.get('score_user')
+#     score_opponent = data.get('score_opponent')
+#     result = data.get('result')
+#     opponent_id = data.get('opponent_id')  # ID de l'opposant si enregistré
+#     opponent_name = data.get('opponent_name', 'IA')  # Nom de l'opposant, par défaut "IA"
+
+#     # Vérifier que les données sont présentes
+#     if score_user is None or score_opponent is None or result is None:
+#         return JsonResponse({'error': 'Missing data'}, status=400)
+
+#     # Trouver l'opposant si c'est un utilisateur enregistré
+#     opponent_user = None
+#     if opponent_id:
+#         try:
+#             opponent_user = CustomUser.objects.get(id=opponent_id)
+#         except CustomUser.DoesNotExist:
+#             return JsonResponse({'error': 'Opponent user not found'}, status=404)
+
+#     # Créer un nouvel enregistrement de partie
+#     game = GameHistory.objects.create(
+#         user=request.user,
+#         score_user=score_user,
+#         score_opponent=score_opponent,
+#         result=result,
+#         opponent_user=opponent_user,  # Opposant enregistré
+#         opponent_name=opponent_name if not opponent_user else None  # Nom si opposant temporaire ou IA
+#     )
+
+#     return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def record_game(request):
-    logger.info("Appel de record_game")
-
     data = request.data
     score_user = data.get('score_user')
     score_opponent = data.get('score_opponent')
     result = data.get('result')
-    opponent_id = data.get('opponent_id')  # ID de l'opposant si enregistré
-    opponent_name = data.get('opponent_name', 'IA')  # Nom de l'opposant, par défaut "IA"
+    longest_rally = data.get('longest_rally', 0)  # Par défaut 0
+    opponent_id = data.get('opponent_id')
+    opponent_name = data.get('opponent_name', 'IA')
 
-    # Vérifier que les données sont présentes
-    if score_user is None or score_opponent is None or result is None:
-        return JsonResponse({'error': 'Missing data'}, status=400)
+    if not all([score_user is not None, score_opponent is not None, result is not None]):
+        return JsonResponse({'error': 'Données manquantes'}, status=400)
 
-    # Trouver l'opposant si c'est un utilisateur enregistré
     opponent_user = None
     if opponent_id:
         try:
             opponent_user = CustomUser.objects.get(id=opponent_id)
         except CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'Opponent user not found'}, status=404)
+            return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
 
-    # Créer un nouvel enregistrement de partie
+    # Vérification si le longest_rally est supérieur au précédent
+    user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
+        Max('longest_rally')
+    )['longest_rally__max'] or 0
+
+    if longest_rally > user_longest_rally:
+        print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
+
     game = GameHistory.objects.create(
         user=request.user,
         score_user=score_user,
         score_opponent=score_opponent,
         result=result,
-        opponent_user=opponent_user,  # Opposant enregistré
-        opponent_name=opponent_name if not opponent_user else None  # Nom si opposant temporaire ou IA
+        longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
+        opponent_user=opponent_user,
+        opponent_name=opponent_name if not opponent_user else None
     )
 
-    return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
+    return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
 
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -1082,7 +1136,8 @@ def match_history(request):
             'score_opponent': game.score_opponent,
             'result': "VICTORY" if game.result else "DEFEAT",
             'opponent_avatar': opponent_avatar,
-            'user_avatar': user_avatar
+            'user_avatar': user_avatar,
+            'longest_rally': game.longest_rally  # Inclure longest_rally
         })
 
     return JsonResponse({'history': history})
@@ -1093,44 +1148,141 @@ from django.db.models import Count, F, Q, Avg, Max
 from .models import GameHistory
 
 
-# Vue pour récupérer les statistiques de l'utilisateur
+# # Vue pour récupérer les statistiques de l'utilisateur
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_user_statistics(request):
+#     user = request.user
+
+#     # Nombre de parties jouées
+#     total_games = GameHistory.objects.filter(user=user).count()
+
+#     # Nombre de victoires
+#     total_wins = GameHistory.objects.filter(user=user, result=True).count()
+
+#     # Calcul du ratio victoires
+#     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
+
+#     # Rank basé sur le ratio de victoires
+#     if win_ratio <= 33:
+#         rank = "*"
+#     elif win_ratio <= 66:
+#         rank = "**"
+#     else:
+#         rank = "***"
+
+#     # Calcul des autres statistiques (par exemple, power catch, ball speed, longest rally)
+#     # Ces champs doivent être définis dans votre modèle pour être récupérés
+#     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
+#     ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
+#     longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max']
+
+#     # Récupérer la valeur actuelle de longest_rally dans la base de données
+#     longest_rally_db = longest_rally_db or 0  # Valeur par défaut
+
+#     # Vérifiez si une nouvelle valeur de longest_rally est passée dans la requête
+#     new_longest_rally = request.GET.get('new_longest_rally')
+#     if new_longest_rally:
+#         try:
+#             new_longest_rally = int(new_longest_rally)
+#             if new_longest_rally > longest_rally_db:
+#                 # Mettre à jour la base de données
+#                 GameHistory.objects.filter(user=user).update(longest_rally=new_longest_rally)
+#                 longest_rally_db = new_longest_rally
+#         except ValueError:
+#             return JsonResponse({'error': 'Invalid longest_rally value'}, status=400)
+
+
+#     # Retourner les statistiques sous forme de JsonResponse
+#     statistics = {
+#         'rank': rank,
+#         'total_games': total_games,
+#         'total_wins': total_wins,
+#         'win_ratio': win_ratio,
+#         'power_catch_avg': power_catch_avg or 0,  # Valeur par défaut si aucune donnée
+#         'ball_speed_avg': ball_speed_avg or 0,    # Valeur par défaut si aucune donnée
+#         'longest_rally': longest_rally_db       
+#     }
+
+#     return JsonResponse(statistics, status=200)
+
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_user_statistics(request):
+#     user = request.user
+
+#     # Nombre de parties jouées
+#     total_games = GameHistory.objects.filter(user=user).count()
+
+#     # Nombre de victoires
+#     total_wins = GameHistory.objects.filter(user=user, result=True).count()
+
+#     # Calcul du ratio victoires
+#     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
+
+#     # Rank basé sur le ratio de victoires
+#     if win_ratio <= 33:
+#         rank = "*"
+#     elif win_ratio <= 66:
+#         rank = "**"
+#     else:
+#         rank = "***"
+
+#     # Calcul des autres statistiques
+#     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
+#     ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
+#     longest_rally_db = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max'] or 0  # Valeur par défaut
+
+#     # Vérifiez si une nouvelle valeur de longest_rally est passée dans la requête
+#     new_longest_rally = request.GET.get('new_longest_rally')
+#     if new_longest_rally:
+#         try:
+#             new_longest_rally = int(new_longest_rally)
+#             if new_longest_rally > longest_rally_db:
+#                 # Mettre à jour la base de données
+#                 GameHistory.objects.filter(user=user).update(longest_rally=new_longest_rally)
+#                 longest_rally_db = new_longest_rally
+#         except ValueError:
+#             return JsonResponse({'error': 'Invalid longest_rally value'}, status=400)
+
+#     statistics = {
+#         'rank': rank,
+#         'total_games': total_games,
+#         'total_wins': total_wins,
+#         'win_ratio': win_ratio,
+#         'power_catch_avg': power_catch_avg or 0,
+#         'ball_speed_avg': ball_speed_avg or 0,
+#         'longest_rally': longest_rally_db
+#     }
+
+#     return JsonResponse(statistics, status=200)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_statistics(request):
     user = request.user
 
-    # Nombre de parties jouées
+    # Statistiques générales
     total_games = GameHistory.objects.filter(user=user).count()
-
-    # Nombre de victoires
     total_wins = GameHistory.objects.filter(user=user, result=True).count()
-
-    # Calcul du ratio victoires
     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
 
-    # Rank basé sur le ratio de victoires
-    if win_ratio <= 33:
-        rank = "*"
-    elif win_ratio <= 66:
-        rank = "**"
-    else:
-        rank = "***"
+    rank = "***" if win_ratio > 66 else "**" if win_ratio > 33 else "*"
 
-    # Calcul des autres statistiques (par exemple, power catch, ball speed, longest rally)
-    # Ces champs doivent être définis dans votre modèle pour être récupérés
+    # Récupération des statistiques supplémentaires
     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
     ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
-    longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max']
+    longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max'] or 0
 
-    # Retourner les statistiques sous forme de JsonResponse
     statistics = {
         'rank': rank,
         'total_games': total_games,
         'total_wins': total_wins,
         'win_ratio': win_ratio,
-        'power_catch_avg': power_catch_avg or 0,  # Valeur par défaut si aucune donnée
-        'ball_speed_avg': ball_speed_avg or 0,    # Valeur par défaut si aucune donnée
-        'longest_rally': longest_rally or 0       # Valeur par défaut si aucune donnée
+        'power_catch_avg': power_catch_avg or 0,
+        'ball_speed_avg': ball_speed_avg or 0,
+        'longest_rally': longest_rally  # Retourne la meilleure valeur
     }
 
     return JsonResponse(statistics, status=200)

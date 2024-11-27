@@ -47,6 +47,7 @@ function initializeTournamentPage() {
 
       // Écoute des messages du jeu
       window.addEventListener("message", (event) => {
+        console.log("event.data: ", event.data);
         if (event.data.type === "scoreUpdate") {
           // Mise à jour des scores en cours de partie
           this.currentGameScores = {
@@ -55,6 +56,11 @@ function initializeTournamentPage() {
           };
         } else if (event.data.type === "gameComplete") {
           console.log("Game completed with data:", event.data.data);
+          console.log("event.data.player1score:", event.data.player1Score);
+          console.log("event.data.player2score:", event.data.player2Score);
+          console.log("event.data.winner:", event.data.winner);
+          console.log("event.data.finalscores:", event.data.finalScores);
+          
           this.endGame();
           progressTournament(event.data.data.winner, event.data.data.finalScores);
         }
@@ -172,9 +178,7 @@ function initializeTournamentPage() {
       if (matchNumber <= 4) {
         selector = `.tournamentSection1 .doubleMatch:nth-child(${matchNumber})`;
       } else if (matchNumber <= 6) {
-        selector = `.tournamentSection2 .doubleMatch:nth-child(${
-          matchNumber - 4
-        })`;
+        selector = `.tournamentSection2 .doubleMatch:nth-child(${matchNumber - 4})`;
       } else if (matchNumber === 7) {
         selector = `.tournamentSection3 .doubleMatch`;
       } else if (matchNumber === 8) {

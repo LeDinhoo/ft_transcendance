@@ -62,6 +62,15 @@
   <body>
     <div id="game"></div>
 
+    <script>
+      // Écouter les messages du tournoi
+      window.addEventListener('message', (event) => {
+        if (event.data.type === 'startGame') {
+          window.currentPlayers = event.data.data;
+        }
+      });
+      </script>
+
     <!-- Importation de lil-gui depuis un fichier local -->
     <!-- <script src="/static/spa/home/game/libs/lil-gui.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>

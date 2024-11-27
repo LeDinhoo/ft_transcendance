@@ -90,17 +90,19 @@
                 src="/static/assets/avatars/buffalo.png"
                 alt="avatar"
                 class="avatarImage"
+                id="avatarProfilUser"
               />
             </div>
-            <div class="nicknameSection">LeDinho</div>
+            <div class="nicknameSection" id="nicknameProfilUser">LeDinho</div>
           </div>
           <div class="rankSection">
             <img
               src="/static/assets/icons/bronze.png"
               alt="avatar"
               class="rankImage"
+              id="rankImage"
             />
-            Bronze
+            <div id="rankText">Bronze</div>
           </div>
         </div>
         <!-- Online Players Section -->
@@ -248,9 +250,9 @@
     <div class="rank-tooltip">
       <div class="tooltip-title">Ranking system</div>
       <div class="tooltip-content">
-        <div class="rank-row">Bronze: 0 - 5 victories</div>
-        <div class="rank-row">Silver: 5 - 10 victories</div>
-        <div class="rank-row">Gold: at least 10 victories</div>
+        <div class="rank-row">Bronze: 0 - 33% victories</div>
+        <div class="rank-row">Silver: 33 - 66% victories</div>
+        <div class="rank-row">Gold: 66 - 100% victories</div>
       </div>
     </div>
   </template>

@@ -146,12 +146,11 @@ function loadUserStatistics() {
       // document.getElementById("rank").innerText = data.rank;
       document.getElementById("total_games").innerText = data.total_games;
       // document.getElementById("total_wins").innerText = data.total_wins;
-      document.getElementById("win_ratio").innerText =
-        data.win_ratio.toFixed(2) + "%";
+      document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
       // document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
       // document.getElementById("top_speed").innerText =
       // data.ball_speed_avg.toFixed(2);
-      // document.getElementById("longest_rally").innerText = data.longest_rally;
+      document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
       console.error("Erreur lors du chargement des statistiques :", error);

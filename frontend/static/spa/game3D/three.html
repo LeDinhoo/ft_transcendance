@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pong 3D</title>
+  <style>
+    body {
+      margin: 0;
+    }
+    #game {
+      width: 80vw;
+      height: 80vh;
+    }
+  </style>
+  <!-- <script>
+    // Écouter les messages du tournoi et de fin de jeu
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'startGame') {
+        window.currentPlayers = event.data.data;
+      } else if (event.data.type === 'gameComplete') {
+        console.log('Game completed:', event.data);
+
+        // Afficher le gagnant et fermer l'iframe
+        alert(`Partie terminée ! Gagnant : Joueur ${event.data.data.winner}`);
+        closeFrame();
+      }
+    });
+
+    // Fonction pour fermer l'iframe
+    function closeFrame() {
+      // Supposons que cette page est affichée dans une iframe
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'closeFrame' }, '*'); // Message au parent pour fermer l'iframe
+      } else {
+        console.warn("Aucune iframe à fermer, cette page est en mode autonome.");
+      }
+    }
+  </script> -->
+</head>
+<body>
+  <div id="game"></div>
+
+  <!-- Importation de lil-gui depuis un fichier local -->
+  <!-- <script src="/static/spa/home/game/libs/lil-gui.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/static/spa/game3D/libs/three.module.js",
+        "three/examples/jsm/controls/OrbitControls": "/static/spa/game3D/libs/OrbitControls.js",
+        "three/examples/jsm/postprocessing/RenderPass": "/static/spa/game3D/libs/RenderPass.js",
+        "three/examples/jsm/postprocessing/UnrealBloomPass": "/static/spa/game3D/libs/UnrealBloomPass.js",
+        "three/examples/jsm/postprocessing/Pass": "/static/spa/game3D/libs/Pass.js",
+        "three/examples/jsm/shaders/CopyShader": "/static/spa/game3D/libs/CopyShader.js",
+        "three/examples/jsm/postprocessing/EffectComposer": "/static/spa/game3D/libs/EffectComposer.js",
+        "three/examples/jsm/loaders/GLTFLoader": "/static/spa/game3D/libs/GLTFLoader.js",
+        "three/examples/jsm/utils/BufferGeometryUtils": "/static/spa/game3D/libs/BufferGeometryUtils.js",
+        "three/examples/jsm/shaders/LuminosityHighPassShader": "/static/spa/game3D/libs/LuminosityHighPassShader.js",
+        "three/examples/jsm/postprocessing/MaskPass": "/static/spa/game3D/libs/MaskPass.js",
+        "three/examples/jsm/helpers/RectAreaLightHelper": "/static/spa/game3D/libs/RectAreaLightHelper.js",
+        "three/examples/jsm/loaders/FontLoader": "/static/spa/game3D/libs/FontLoader.js",
+        "three/examples/jsm/geometries/TextGeometry": "/static/spa/game3D/libs/TextGeometry.js",
+        "cannon-es": "/static/spa/game3D/libs/cannon-es.js"
+      }
+    }
+  </script>
+
+  <!-- Chargement des scripts du projet -->
+  <script type="module" src="/static/spa/game3D/main.js"></script>
+  <script type="module" src="/static/spa/game3D/light.js"></script>
+</body>
+</html>
