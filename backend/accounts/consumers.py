@@ -3,38 +3,35 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 # Dans consumers.py
 class ChatConsumer(AsyncWebsocketConsumer):
-    connected_users = set()
+    connected_users = {}  # Utiliser un dict avec l'ID comme clé
 
     async def connect(self):
         self.user = self.scope["user"]
         
-        # Vérifier si l'utilisateur est authentifié
         if self.user.is_anonymous:
             await self.close()
             return
 
         try:
-            # Créer les données utilisateur avec plus d'informations
             user_data = {
                 "id": self.user.id,
                 "username": self.user.username,
                 "avatar": str(self.user.avatar.url) if hasattr(self.user, 'avatar') and self.user.avatar else "/static/assets/avatars/ladybug.png",
-                "status": "online",  # Nous pouvons ajouter un statut
+                "status": "online",
             }
             
-            # Stocker les données de l'utilisateur
-            json_user_data = json.dumps(user_data)
-            ChatConsumer.connected_users.add(json_user_data)
+            # Stocker dans le dict
+            ChatConsumer.connected_users[self.user.id] = user_data
 
             await self.channel_layer.group_add("chat", self.channel_name)
             await self.accept()
 
-            # Envoyer la liste mise à jour à tout le monde
+            # Envoyer la liste mise à jour
             await self.channel_layer.group_send(
                 "chat",
                 {
                     "type": "user_list_update",
-                    "users": list(ChatConsumer.connected_users)
+                    "users": [json.dumps(user) for user in ChatConsumer.connected_users.values()]
                 }
             )
 
@@ -44,25 +41,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, 'user') and not self.user.is_anonymous:
-            # Retirer l'utilisateur de la liste
-            user_data = {
-                "id": self.user.id,
-                "username": self.user.username,
-                "avatar": str(self.user.avatar.url) if hasattr(self.user, 'avatar') and self.user.avatar else "/static/assets/avatars/ladybug.png",
-                "status": "online"
-            }
-            json_user_data = json.dumps(user_data)
-            ChatConsumer.connected_users.discard(json_user_data)
+            # Retirer du dict
+            ChatConsumer.connected_users.pop(self.user.id, None)
 
-            # Informer tout le monde de la mise à jour
             await self.channel_layer.group_send(
                 "chat",
                 {
                     "type": "user_list_update",
-                    "users": list(ChatConsumer.connected_users)
+                    "users": [json.dumps(user) for user in ChatConsumer.connected_users.values()]
                 }
             )
 
+        await self.channel_layer.group_discard("chat", self.channel_name)
         await self.channel_layer.group_discard("chat", self.channel_name)
 
     async def user_list_update(self, event):

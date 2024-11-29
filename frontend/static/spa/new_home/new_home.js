@@ -982,18 +982,52 @@ function initializeHome() {
 				const response = await fetch('/api/profil/', {
 					credentials: 'include'
 				});
-
+	
 				if (response.ok) {
 					currentUser = await response.json();
 					ChatHandler.setupEventListeners();
 					window.wsManager.addMessageListener(ChatHandler.handleMessage);
-					// Charger l'historique des messages
+					ChatHandler.initializeOnlinePlayers(); // Nouvelle ligne
 					const messageHistory = window.wsManager.getMessageHistory();
 					messageHistory.forEach(message => ChatHandler.handleMessage(message));
 				}
 			} catch (error) {
 				console.error('Erreur lors de l\'initialisation du chat:', error);
 			}
+		}
+	
+		// Ajouter cette nouvelle méthode
+		static initializeOnlinePlayers() {
+			const onlinePlayersContainer = document.querySelector('.downLeftFrame');
+			
+			window.wsManager.addOnlinePlayersListener((users) => {
+				if (!onlinePlayersContainer) return;
+				
+				// Vider le conteneur existant sauf le titre
+				const title = onlinePlayersContainer.querySelector('.onlinePlayersTitle');
+				onlinePlayersContainer.innerHTML = '';
+				if (title) onlinePlayersContainer.appendChild(title);
+		
+				// Parcourir tous les utilisateurs connectés
+				users.forEach(userJson => {
+					try {
+						const user = JSON.parse(userJson);
+						const playerElement = document.createElement('div');
+						playerElement.className = 'onlinePlayers';
+						playerElement.innerHTML = `
+							<div class="onlineFlag"></div>
+							<div class="onlineNickname">
+								<img src="${user.avatar}" alt="avatar" class="onlineAvatar">
+								${user.username}
+							</div>
+							<img src="/static/assets/icons/online.svg" class="onlineIcon">
+						`;
+						onlinePlayersContainer.appendChild(playerElement);
+					} catch (e) {
+						console.error('Erreur de parsing JSON:', e);
+					}
+				});
+			});
 		}
 
 		static setupEventListeners() {

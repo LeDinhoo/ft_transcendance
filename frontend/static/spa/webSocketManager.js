@@ -1,32 +1,13 @@
 const wsManager = {
     chatSocket: null,
     messageListeners: new Set(),
-	messageHistory: [],
-	onlinePlayers: new Set(),
+    messageHistory: [],
+    onlinePlayers: new Set(),
 
     initializeChatSocket() {
-        if (this.chatSocket?.readyState === WebSocket.OPEN) {
-            return; // Déjà connecté
-        }
+        if (this.chatSocket?.readyState === WebSocket.OPEN) return;
 
         this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
-
-        this.chatSocket.onopen = () => {
-            console.log('Chat WebSocket Connected');
-        };
-
-        this.chatSocket.onerror = (error) => {
-            console.error('WebSocket Error:', error);
-        };
-
-        this.chatSocket.onclose = (event) => {
-            console.log('Chat WebSocket disconnected, code:', event.code);
-            if (event.code === 4003) {
-                console.log('Authentication required');
-            }
-            // Tentative de reconnexion après 5 secondes
-            setTimeout(() => this.initializeChatSocket(), 5000);
-        };
 
         this.chatSocket.onmessage = (e) => {
             const data = JSON.parse(e.data);
@@ -36,42 +17,43 @@ const wsManager = {
                     this.messageHistory.push(data);
                     this.messageListeners.forEach(listener => listener(data));
                     break;
-
-				case 'user_list_update':
-					this.updateOnlinePlayersList(data.users);
-					break;
                     
-                case 'user_connected':
-                    this.onlinePlayers.add(data.user);
-                    this.updateOnlinePlayersList();
-                    break;
-                    
-                case 'user_disconnected':
-                    this.onlinePlayers.delete(data.user);
-                    this.updateOnlinePlayersList();
-                    break;
-                    
-                case 'online_users':
-                    this.onlinePlayers = new Set(data.users);
-                    this.updateOnlinePlayersList();
+                case 'user_list_update':
+                    try {
+                        this.onlinePlayers.clear(); // Vider la liste existante
+                        data.users.forEach(userStr => {
+                            try {
+                                const user = JSON.parse(userStr);
+                                this.onlinePlayers.add(user);
+                            } catch (e) {
+                                console.error('Error parsing user:', e);
+                            }
+                        });
+                        this.updateOnlinePlayersList([...this.onlinePlayers]);
+                    } catch (error) {
+                        console.error('Error updating users list:', error);
+                    }
                     break;
             }
         };
+
+        this.chatSocket.onerror = (error) => console.error('WebSocket Error:', error);
+
+        this.chatSocket.onclose = (event) => {
+            console.log('Chat WebSocket disconnected, code:', event.code);
+            setTimeout(() => this.initializeChatSocket(), 5000);
+        };
     },
 
-	updateOnlinePlayersList() {
+    updateOnlinePlayersList(users) {
         const container = document.querySelector('.downLeftFrame');
         if (!container) return;
 
-        // Garder le titre
         const title = container.querySelector('.onlinePlayersTitle');
         container.innerHTML = '';
         if (title) container.appendChild(title);
 
-		// Parser les users car ils sont en format JSON string
-        const parsedUsers = users.map(userStr => JSON.parse(userStr));
-
-        parsedUsers.forEach(user => {
+        users.forEach(user => {
             const playerDiv = document.createElement('div');
             playerDiv.className = 'onlinePlayers';
             playerDiv.innerHTML = `
@@ -82,39 +64,28 @@ const wsManager = {
                 </div>
                 <img src="/static/assets/icons/online.svg" class="onlineIcon">
             `;
-
-            // Ajouter des interactions
-            const nicknameDiv = playerDiv.querySelector('.onlineNickname');
-            nicknameDiv.addEventListener('click', () => {
-                // Ici vous pouvez ajouter des interactions comme
-                // ouvrir un profil, démarrer une conversation privée, etc.
-            });
-
             container.appendChild(playerDiv);
         });
     },
 
-    // Méthode pour envoyer un message
+
     sendMessage(message) {
         if (this.chatSocket?.readyState === WebSocket.OPEN) {
             this.chatSocket.send(JSON.stringify(message));
         }
     },
 
-	getMessageHistory() {
+    getMessageHistory() {
         return this.messageHistory;
     },
 
-    // Ajouter un listener pour les messages
     addMessageListener(listener) {
         this.messageListeners.add(listener);
     },
 
-    // Retirer un listener
     removeMessageListener(listener) {
         this.messageListeners.delete(listener);
     }
 };
 
-// Rendre l'objet disponible globalement
 window.wsManager = wsManager;

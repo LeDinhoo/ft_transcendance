@@ -200,64 +200,61 @@ body {
 }
 
 .onlinePlayersTitle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--24px);
-  color: var(--snow);
-  font-weight: 600;
-
-  top: 0;
-  background-color: var(--dark-grey);
-  width: 100%;
-  padding: var(--8px) 0;
-  z-index: 1;
+	position: sticky;
+	top: 0;
+	background-color: var(--dark-grey);
+	padding: var(--16px) 0;
+	font-size: var(--24px);
+	font-weight: 600;
+	text-align: center;
+	z-index: 10;
 }
 
 .onlinePlayers {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  gap: var(--12px);
-  height: 45px;
-  min-height: 45px;
-  width: 100%;
+	display: flex;
+	align-items: center;
+	padding: var(--8px) var(--16px);
+	gap: var(--12px);
+	transition: all 0.2s ease;
+	border-radius: var(--12px);
 }
-
-.onlineFlag {
-  width: 1.041vw;
-  height: 1.041vw;
-  border-radius: 100%;
-  background-color: limegreen;
+  
+  .onlinePlayers:hover {
+	background-color: var(--gluon-grey);
 }
 
 .onlineNickname {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--12px);
-  width: 12vw;
-  border: 3px solid var(--dusty-grey);
-  padding: 8px;
-  border-radius: var(--16px);
-  font-size: var(--16px);
-  color: var(--snow);
-  font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: var(--12px);
+	flex: 1;
+	font-weight: 500;
+	font-size: var(--16px);
+	color: var(--snow);
+	cursor: pointer;
+	padding: var(--8px) var(--12px);
+	border-radius: var(--12px);
+	border: 2px solid transparent;
+	transition: all 0.2s ease;
+}
+  
+  .onlineNickname:hover {
+	border-color: var(--liquid-lava);
+	background-color: rgba(255, 255, 255, 0.05);
 }
 
 .onlineAvatar {
-  width: 1.5vw;
-  height: 1.5vw;
-  object-fit: cover;
-  border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid var(--dusty-grey);
 }
 
 .onlineIcon {
-  width: 1.5vw;
-  height: 1.5vw;
-  object-fit: cover;
-  border-radius: 50%;
+	width: 20px;
+	height: 20px;
+	opacity: 0.7;
 }
 
 .game {
