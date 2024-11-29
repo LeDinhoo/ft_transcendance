@@ -1,9 +1,15 @@
+// import * as THREE from "three";
+// import { PaddlePower } from "./PowerBook.js";
+// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import { Grenade } from "./GrenadeFlash.js";
+// import { InverseShot } from "./InverseShot.js";
+// import { ModelLoader } from "./ModelLoader.js";
+
 import * as THREE from "three";
 import { PaddlePower } from "./PowerBook.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTFLoader } from "./libs/GLTFLoader.js";
 import { Grenade } from "./GrenadeFlash.js";
 import { InverseShot } from "./InverseShot.js";
-import { ReductShot } from "./ReductShot.js";
 import { ModelLoader } from "./ModelLoader.js";
 
 export class TemporaryCube {
@@ -35,7 +41,6 @@ export class TemporaryCube {
     this.oldPosition = { x: 0, z: 0 };
     this.isNearTop = false;
     this.isNearBottom = false;
-    this.initialPosition = null;
   }
 
   createCube(modelCache) {
@@ -56,7 +61,7 @@ export class TemporaryCube {
         this.power = "power2";
         break;
       case 2:
-        this.power = "power3";
+        this.power = "power2";
         break;
       default:
         break;
@@ -71,7 +76,7 @@ export class TemporaryCube {
         modelPath = "stylized_wooden_tankard.glb";
         break;
       case "power3":
-        modelPath = "tornado.glb";
+        modelPath = "capsule_item.glb";
         break;
       default:
         break;
@@ -86,7 +91,7 @@ export class TemporaryCube {
         scale = 17;
         break;
       case "power3":
-        scale = 0.6;
+        scale = 14;
         break;
       default:
         break;
@@ -133,7 +138,7 @@ export class TemporaryCube {
     if (this.cube.position.z === -360 || this.cube.position.z === 360) {
       if (
         Math.abs(this.cube.position.x - paddle.position.x) < 30 &&
-        Math.abs(this.cube.position.z - paddle.position.z) < 75
+        Math.abs(this.cube.position.z - paddle.position.z) < 65
       ) {
         return true;
       }
@@ -144,7 +149,7 @@ export class TemporaryCube {
   isApproaching(fixedPoint1, fixedPoint2) {
     if (!this.cube) return false;
 
-    // Afficher un cube rouge à la position de fixedPoint1
+    // // Afficher un cube rouge à la position de fixedPoint1
     // const geometry = new THREE.BoxGeometry(10, 10, 10);
     // const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
@@ -158,7 +163,6 @@ export class TemporaryCube {
     // this.scene.add(cube2);
 
     // Calcul de la distance pour fixedPoint1
-
     const currentDistance1 = Math.sqrt(
       Math.pow(this.cube.position.x - fixedPoint1.x, 2) +
         Math.pow(this.cube.position.z - fixedPoint1.z, 2)
@@ -212,28 +216,24 @@ export class TemporaryCube {
   }
 
   update(paddle1, paddle2) {
-    if (!this.cube) {
-      // console.warn("Cube is not initialized, skipping update.");
-      return;
-    }
     const { maxX, maxZ } = this.boundaries;
 
-    const Top = { x: 760, z: -360 };
-    const Bottom = { x: 760, z: 360 };
-    this.isApproaching(Top, Bottom);
+    // const Top = { x: 760, z: -360 };
+    // const Bottom = { x: 760, z: 360 };
+    // this.isApproaching(Top, Bottom);
 
     // Gérer les appels périodiques de isApproaching
-    // if (!this.lastApproachCallTime)
-    //   this.lastApproachCallTime = performance.now();
+    if (!this.lastApproachCallTime)
+      this.lastApproachCallTime = performance.now();
 
-    // const now = performance.now();
-    // if (now - this.lastApproachCallTime >= 500) {
+    const now = performance.now();
+    if (now - this.lastApproachCallTime >= 500) {
 
-    //   const Top = { x: 760, z: -360 };
-    //   const Bottom = { x: 760, z: 360 };
-    //   this.isApproaching(Top, Bottom);
-    //   this.lastApproachCallTime = now;
-    // }
+      const Top = { x: 760, z: -360 };
+      const Bottom = { x: 760, z: 360 };
+      this.isApproaching(Top, Bottom);
+      this.lastApproachCallTime = now;
+    }
 
     this.time += this.waveFrequency;
     if (this.cube) {
@@ -244,15 +244,9 @@ export class TemporaryCube {
         this.cube.position.y = this.groundY;
       }
 
-      if (this.power === "power3") {
-        this.cube.rotation.y += 0.2;
-        this.cube.rotation.x += 0;
-        this.cube.rotation.z += 0;
-      } else {
-        this.cube.rotation.y += 0.01;
-        this.cube.rotation.x += 0.01;
-        this.cube.rotation.z += 0.01;
-      }
+      this.cube.rotation.y += 0.01;
+      this.cube.rotation.x += 0.01;
+      this.cube.rotation.z += 0.01;
     }
 
     if (this.initialPosition.z === -maxZ) {
@@ -452,8 +446,6 @@ export class PowerManager {
     this.player2grenades = [];
     this.player1InverseShots = [];
     this.player2InverseShots = [];
-    this.player1ReductShots = [];
-    this.player2ReductShots = [];
     this.getStarted = false;
     this.paddlePower1 = paddlePower1;
     this.paddlePower2 = paddlePower2;
@@ -493,21 +485,6 @@ export class PowerManager {
     }
   }
 
-  createReductShot(player) {
-    const reductShot = new ReductShot(
-      this.scene,
-      player,
-      this.modelCache,
-      "tornado.glb",
-      this.modelLoader
-    );
-    if (player === 1) {
-      this.player1ReductShots.push(reductShot);
-    } else {
-      this.player2ReductShots.push(reductShot);
-    }
-  }
-
   createPower(player, power) {
     switch (power) {
       case "power1":
@@ -517,7 +494,6 @@ export class PowerManager {
         this.createInverseShot(player);
         break;
       case "power3":
-        this.createReductShot(player);
         break;
       default:
         break;
@@ -559,28 +535,6 @@ export class PowerManager {
       );
     }
     paddlePower.usePower("power2");
-  }
-
-  launchReductShot(player, paddleHeightTarget) {
-    const reductShots =
-      player === 1 ? this.player1ReductShots : this.player2ReductShots;
-    const reductShot = reductShots[0];
-    if (reductShot.getLocked()) {
-      return;
-    }
-    reductShots.splice(0, 1);
-    const paddle = player === 1 ? this.paddle1 : this.paddle2;
-    const paddlePower = player === 1 ? this.paddlePower1 : this.paddlePower2;
-    const target = player === 1 ? this.paddle2 : this.paddle1;
-    if (reductShot && reductShot.triggerAnimation) {
-      reductShot.triggerAnimation(
-        paddle,
-        this.animationManager,
-        target,
-        paddleHeightTarget
-      );
-    }
-    paddlePower.usePower("power3");
   }
 
   reset() {
@@ -665,14 +619,6 @@ export class PowerManager {
 
     this.paddle1 = paddle1;
     this.paddle2 = paddle2;
-
-    this.player1ReductShots.forEach((reductShot) => {
-      reductShot.update(paddle1, paddle2);
-    });
-
-    this.player2ReductShots.forEach((reductShot) => {
-      reductShot.update(paddle1, paddle2);
-    });
 
     this.player1InverseShots.forEach((inverseShot) => {
       inverseShot.update(paddle1, paddle2);

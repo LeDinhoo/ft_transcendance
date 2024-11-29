@@ -40,9 +40,12 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
-
+ALLOWED_HOSTS = [
+    'localhost',
+    'localhost:4430',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -50,13 +53,28 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
+    'django.contrib.messages',	
+    'daphne',
+	'channels',
     'django.contrib.staticfiles',
     'accounts',
 	'corsheaders',
 	'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
 ]
+
+ASGI_APPLICATION = "backend.asgi.application"
+
+# Redis channel layer config
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(os.environ.get('REDIS_HOST', 'redis'), 6379)],
+        },
+    },
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

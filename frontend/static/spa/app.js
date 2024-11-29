@@ -44,20 +44,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-
   async function redirectToLoginIfNeeded(path) {
     const requiresAuth = path !== "/login-register" && path !== "/";
     const authenticated = await isAuthenticated();
-  
+
     if (requiresAuth && !authenticated) {
-      console.warn("Utilisateur non authentifié. Redirection vers la page de connexion.");
+      console.warn(
+        "Utilisateur non authentifié. Redirection vers la page de connexion."
+      );
       navigateTo("/login-register");
       return true; // Indique qu'on a redirigé vers login
     }
-  
+
     return false; // L'utilisateur est authentifié ou aucune authentification n'est requise
   }
-  
 
   // Charger une page en fonction de l'URL
   async function loadComponent(
@@ -182,6 +182,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateNavBarVisibility(path);
 
+    if (isAuthenticated()) window.wsManager.initializeChatSocket();
+
     if (path === "/" || path === "/login-register") {
       loadComponent(
         "/static/spa/login/login.html",
@@ -197,9 +199,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (path === "/home") {
       loadComponent(
         "/static/spa/new_home/new_home.html",
-        "/static/spa/new_home/new_home.css", 
-        ["/static/spa/new_home/new_home.js",]
-        ).then(() => {
+        "/static/spa/new_home/new_home.css",
+        ["/static/spa/new_home/new_home.js"]
+      ).then(() => {
         initializeHome();
       });
     } else if (path === "/profil") {
@@ -218,12 +220,12 @@ document.addEventListener("DOMContentLoaded", function () {
         initializeAvatarFeature();
         initialize2FA();
       });
-    // } else if (path === "/custom") {
-    //   loadComponent(
-    //     "/static/spa/custom/custom.html",
-    //     "/static/spa/custom/custom.css",
-    //     ["/static/spa/custom/custom.js"]
-    //   );
+      // } else if (path === "/custom") {
+      //   loadComponent(
+      //     "/static/spa/custom/custom.html",
+      //     "/static/spa/custom/custom.css",
+      //     ["/static/spa/custom/custom.js"]
+      //   );
     } else if (path === "/tournament") {
       loadComponent(
         "/static/spa/tournament/tournament.html",
@@ -232,15 +234,14 @@ document.addEventListener("DOMContentLoaded", function () {
       ).then(() => {
         initializeTournamentPage();
       });
-    }
-      else if (path === "/settings") {
+    } else if (path === "/settings") {
       loadComponent(
-          "/static/spa/settings/settings.html",
-          "/static/spa/settings/settings.css",
-          ["/static/spa/settings/settings.js"]
-        ).then(() => {
-          initializeSettingsPage();
-        });
+        "/static/spa/settings/settings.html",
+        "/static/spa/settings/settings.css",
+        ["/static/spa/settings/settings.js"]
+      ).then(() => {
+        initializeSettingsPage();
+      });
     } else {
       appDiv.innerHTML = "<p>Page non trouvée.</p>";
     }

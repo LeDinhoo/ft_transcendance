@@ -11,9 +11,9 @@ export class NeonBorder {
     // Propriétés de couleur et d'intensité du flash
     this.originalNeonColor = 0xffffff;
     this.scoringFlashColor = 0xffffff;
-    this.flashDuration = 350;
+    this.flashDuration = 300;
     this.originalBloomStrength = 0.4;
-    this.flashBloomStrength = 4.5;
+    this.flashBloomStrength = 1.5;
 
     // Matériau pour les lignes néon
     this.neonMaterial = new THREE.LineBasicMaterial({
@@ -144,30 +144,11 @@ export class NeonBorder {
     this.updateLineWidth();
   }
 
-  resetNeonColorToWhite() {
-    //Attendre 1 seconde avant de réinitialiser la couleur
-    setTimeout(() => {
-      this.neonMaterial.color.setHex(0xffffff);
-      this.originalNeonColor = 0xffffff;
-      this.scoringFlashColor = 0xffffff;
-    }, 760);
-  }
-
-  flashNeonBorder(bloomPass, player, color = null) {
-    if (player === 1) {
-      this.originalNeonColor = 0xff8c3d;
-      this.scoringFlashColor = 0xff8c3d;
-    } else {
-      this.originalNeonColor = 0x3db8ff;
-      this.scoringFlashColor = 0x3db8ff;
-    }
-
-    if (color) {
-      this.originalNeonColor = color;
-      this.scoringFlashColor = color;
-    }
-    
+  flashNeonBorder(bloomPass) {
     if (!this.isFlashing) {
+      // console.log("Bloom strength:", bloomPass.strength);
+      // console.log("Material color:", this.neonMaterial.color.getHex());
+      // console.log("Linewidth:", this.neonMaterial.linewidth);
 
       this.isFlashing = true;
       const startTime = performance.now();

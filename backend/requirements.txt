@@ -20,6 +20,10 @@ pyOpenSSL
 python-dotenv==1.0.0
 uuid
 uvicorn==0.22.0  # Ajout de la dépendance Uvicorn
+channels==4.0.0
+daphne==4.0.0
+channels-redis==4.1.0      
+redis==5.0.1
 
 #Django>=3.2,<4.0
 #bcrypt==3.2.0

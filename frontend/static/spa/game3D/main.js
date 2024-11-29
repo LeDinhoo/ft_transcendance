@@ -43,6 +43,7 @@ import {
 import { PaddlePower } from "./PowerBook.js";
 import { AnimationManager } from "./AnimationManager.js";
 import { PaddleController } from "./PaddleController.js";
+import { HeightController } from "./PaddleHeightModififer.js";
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
@@ -54,9 +55,11 @@ export const camera = new THREE.PerspectiveCamera(
   4000
 );
 
-const gameAI = new AI();
+// const gameAI = new AI();
 
 export const PADDLE_HEIGHT = 135;
+const paddle1Height = new HeightController();
+const paddle2Height = new HeightController();
 const INITIAL_BALL_SPEED = 10;
 const SPEED_INCREMENT = 0.75;
 const MAX_BALL_SPEED = 27;
@@ -69,6 +72,8 @@ let isBallMoving = false;
 let scoreSystem;
 let gameStarted = false;
 let aiIsActive = false;
+
+let maxBallSpeed = INITIAL_BALL_SPEED;
 
 // export let longestRally = 0;
 
@@ -109,7 +114,7 @@ const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
   originalBloomStrength, // strength
   0.2, // radius
-  0.85 // threshold
+  0.3 // threshold
 );
 
 const composer = new EffectComposer(renderer, renderTarget);
@@ -119,8 +124,13 @@ composer.addPass(bloomPass);
 scoreSystem = new Score3D(scene, camera, null, null, null);
 
 function resetBall() {
-  ball.position.set(0, -100, 0);
+  ball.position.set(0, 0, 0);
   ball.visible = false;
+  //Apres 500ms la balle est visible
+  setTimeout(() => {
+    ball.visible = true;
+  }, 500);
+
   isBallMoving = false;
   ballVelocity.set(0, 0, 0);
   currentBallSpeed = INITIAL_BALL_SPEED;
@@ -327,11 +337,21 @@ keyboard.onSpace(() => {
     const scoreOpponent = scoreSystem.score.player2;
     const result = scoreUser > scoreOpponent;
 
-
     const longestRally = scoreSystem.getLongestRally();
     console.log("Fin du jeu - longestRally :", longestRally);
 
-    scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
+    console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
+
+    // scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
+    scoreSystem.recordGame(
+      scoreUser,
+      scoreOpponent,
+      result,
+      longestRally,
+      maxBallSpeed
+    );
+
+    maxBallSpeed = INITIAL_BALL_SPEED;
     resetBall();
     gameStarted = false;
     powerManager.stopGame();
@@ -446,36 +466,36 @@ window.addEventListener("keydown", (event) => {
 
 const animationManager = new AnimationManager(scene);
 
-const Inverse1 = new InverseShot(
-  scene,
-  1,
-  modelCache,
-  "stylized_wooden_tankard.glb",
-  modelLoader
-);
+// const Inverse1 = new InverseShot(
+//   scene,
+//   1,
+//   modelCache,
+//   "stylized_wooden_tankard.glb",
+//   modelLoader
+// );
 
-const Inverse2 = new InverseShot(
-  scene,
-  2,
-  modelCache,
-  "stylized_wooden_tankard.glb",
-  modelLoader
-);
+// const Inverse2 = new InverseShot(
+//   scene,
+//   2,
+//   modelCache,
+//   "stylized_wooden_tankard.glb",
+//   modelLoader
+// );
 
-const Reduce1 = new ReduceShot(
-  scene,
-  1,
-  modelCache,
-  "capsule_item.glb",
-  modelLoader
-);
-const Reduce2 = new ReduceShot(
-  scene,
-  2,
-  modelCache,
-  "capsule_item.glb",
-  modelLoader
-);
+// const Reduce1 = new ReduceShot(
+//   scene,
+//   1,
+//   modelCache,
+//   "capsule_item.glb",
+//   modelLoader
+// );
+// const Reduce2 = new ReduceShot(
+//   scene,
+//   2,
+//   modelCache,
+//   "capsule_item.glb",
+//   modelLoader
+// );
 
 const paddlePower1 = new PaddlePower();
 const paddlePower2 = new PaddlePower();
@@ -503,6 +523,9 @@ const paddle2Controller = new PaddleController(paddle2Speed, {
   down: "arrowdown",
 });
 
+const gameAI = new AI(paddlePower2, powerManager, paddle1Controller);
+
+
 //Switch AI on/off
 keyboard.onKey("j", () => {
   if (aiIsActive) {
@@ -520,7 +543,7 @@ keyboard.onKey("e", () => {
     powerManager.launchInverseShot(1, paddle2Controller);
     // paddle2Controller.activeReverse();
   } else if (paddle1 && paddlePower1.hasPower("power3")) {
-    Reduce1.startAnimation(paddle1.position);
+    powerManager.launchReductShot(1, paddle2Height);
   }
 });
 
@@ -532,7 +555,7 @@ keyboard.onKey("arrowleft", () => {
     powerManager.launchInverseShot(2, paddle1Controller);
     // paddle1Controller.activeReverse();
   } else if (paddle2 && paddlePower2.hasPower("power3")) {
-    Reduce2.startAnimation(paddle2.position);
+    powerManager.launchReductShot(2, paddle1Height);
   }
 });
 
@@ -552,6 +575,15 @@ function animate() {
   animationManager.update();
   paddle1Controller.assignPaddle(paddle1);
   paddle2Controller.assignPaddle(paddle2);
+  paddle1Height.assignPaddle(paddle1);
+  paddle2Height.assignPaddle(paddle2);
+  paddle1Height.updatePaddleModelHeight();
+  paddle2Height.updatePaddleModelHeight();
+  paddle2Controller.updateColor();
+  paddle1Controller.updateColor();
+
+  let height1 = paddle1Height.getHeight();
+  let height2 = paddle2Height.getHeight(); 
 
   if (!scoreSystem.isGameOver()) {
     paddle1Controller.move(boundaries, gameStarted, keyboard, PADDLE_HEIGHT);
@@ -560,26 +592,26 @@ function animate() {
     }
   }
 
-  if (paddle1 && paddle2) {
-    if (paddlePower1.hasPower("power1")) {
-      // Grenade1.update(paddle1, paddlePower1, animationManager);
-    }
-    if (paddlePower1.hasPower("power2")) {
-      // Inverse1.update(paddle1, paddlePower1, paddle2);
-    }
-    if (paddlePower1.hasPower("power3")) {
-      Reduce1.update(paddle1, paddlePower1, paddle2);
-    }
-    if (paddlePower2.hasPower("power1")) {
-      // Grenade2.update(paddle2, paddlePower2);
-    }
-    if (paddlePower2.hasPower("power2")) {
-      // Inverse2.update(paddle2, paddlePower2, paddle1);
-    }
-    if (paddlePower2.hasPower("power3")) {
-      Reduce2.update(paddle2, paddlePower2, paddle1);
-    }
-  }
+  // if (paddle1 && paddle2) {
+  //   if (paddlePower1.hasPower("power1")) {
+  //     // Grenade1.update(paddle1, paddlePower1, animationManager);
+  //   }
+  //   if (paddlePower1.hasPower("power2")) {
+  //     // Inverse1.update(paddle1, paddlePower1, paddle2);
+  //   }
+  //   if (paddlePower1.hasPower("power3")) {
+  //     Reduce1.update(paddle1, paddlePower1, paddle2);
+  //   }
+  //   if (paddlePower2.hasPower("power1")) {
+  //     // Grenade2.update(paddle2, paddlePower2);
+  //   }
+  //   if (paddlePower2.hasPower("power2")) {
+  //     // Inverse2.update(paddle2, paddlePower2, paddle1);
+  //   }
+  //   if (paddlePower2.hasPower("power3")) {
+  //     Reduce2.update(paddle2, paddlePower2, paddle1);
+  //   }
+  // }
 
   flashEffect.update();
 
@@ -595,11 +627,14 @@ function animate() {
         boundaries
       );
       gameAI.loadPowerManager(powerManager);
-      gameAI.updatePowerManager();
+      gameAI.updatePowerManager(paddle2, paddle2Height, paddle1Height, paddle1, paddle2Controller);
     }
 
     ball.position.x += ballVelocity.x;
     ball.position.z += ballVelocity.z;
+
+    const ballRadius = 10;
+
 
     if (Math.abs(ball.position.z) > boundaries.maxZ) {
       ballVelocity.z *= -1;
@@ -619,9 +654,14 @@ function animate() {
           MAX_BALL_SPEED
         );
 
+        // Mettez à jour la vitesse maximale atteinte
+        if (currentBallSpeed > maxBallSpeed) {
+          maxBallSpeed = currentBallSpeed;
+        }
+
         const relativeImpactZ =
-          (ball.position.z - paddle1.position.z) / (PADDLE_HEIGHT / 2);
-        const bounceAngle = (relativeImpactZ * Math.PI) / 3;
+          (ball.position.z - paddle1.position.z) / (height1 / 2);
+        const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
         ballVelocity.x = currentBallSpeed * Math.cos(bounceAngle);
         ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
         scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
@@ -642,9 +682,13 @@ function animate() {
           MAX_BALL_SPEED
         );
 
+        if (currentBallSpeed > maxBallSpeed) {
+          maxBallSpeed = currentBallSpeed;
+        }
+
         const relativeImpactZ =
-          (ball.position.z - paddle2.position.z) / (PADDLE_HEIGHT / 2);
-        const bounceAngle = (relativeImpactZ * Math.PI) / 3;
+          (ball.position.z - paddle2.position.z) / (height2 / 2);
+        const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
         ballVelocity.x = -currentBallSpeed * Math.cos(bounceAngle);
         ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
         // longestRally++;
@@ -653,8 +697,15 @@ function animate() {
       }
     }
 
+
+    ///////////////////////////merge en cours //////////////////// en dessous pas traitee
+
     if (ball.position.x < paddle1.position.x) {
-      neonBorder.flashNeonBorder(bloomPass);
+      neonBorder.flashNeonBorder(bloomPass, 2);
+      setTimeout(() => {
+        neonBorder.flashNeonBorder(bloomPass, 2);
+      }, 370);
+      neonBorder.resetNeonColorToWhite();
       scoreSystem.updateScore(2);
       if (scoreSystem.isGameOver()) {
         powerManager.stopGame();
@@ -673,7 +724,11 @@ function animate() {
         // setTimeout(AI.resetLastUpdate, 100);
       }
     } else if (ball.position.x > paddle2.position.x) {
-      neonBorder.flashNeonBorder(bloomPass);
+      neonBorder.flashNeonBorder(bloomPass, 1);
+      setTimeout(() => {
+        neonBorder.flashNeonBorder(bloomPass, 1);
+      }, 370);
+      neonBorder.resetNeonColorToWhite();
       scoreSystem.updateScore(1);
       if (scoreSystem.isGameOver()) {
         powerManager.stopGame();

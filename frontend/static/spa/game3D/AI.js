@@ -1,5 +1,5 @@
 export class AI {
-  constructor() {
+  constructor(paddlePower, powerManager, controller) {
     // AI States
     this.enabled = true;
     this.PADDLE_SPEED = 10;
@@ -20,10 +20,19 @@ export class AI {
     this.lastBallVelocity = { x: 0, z: 0 };
     this.lastBallCheck = 0;
     this.lastResetTime = 0;
-    this.RESET_GRACE_PERIOD = 2000;
+    this.RESET_GRACE_PERIOD = 2500;
     this.powerManager = null;
     this.isPowerLoaded = false;
     this.previousStates = [];
+    this.isPowerWasNear = false;
+    this.Power1NearTop = false;
+    this.Power1NearBottom = false;
+    this.Power2NearTop = false;
+    this.Power2NearBottom = false;
+    this.paddlePower = paddlePower;
+    this.controller = controller;
+    this.powerManager = powerManager;
+    this.isErrorApplied = false;
 
     // AI Constants
     this.POSITIONS = {
@@ -35,40 +44,40 @@ export class AI {
     };
 
     this.UPDATE_INTERVAL = 1000;
-    this.PADDLE_HEIGHT = 130;
+    this.PADDLE_HEIGHT = 135;
 
     // Difficulty Settings
     this.DIFFICULTY = {
       EASY: {
         name: "EASY",
         color: "#22c55e",
-        errorDuration: 100,
-        errorChance: 0.4,
-        followDelay: 100,
-        minFollowDuration: 230,
-        maxFollowDuration: 530,
-        minPauseDuration: 230,
-        maxPauseDuration: 500,
-        errorMargin: 10,
-        errorPanic: 6,
-      },
-      MEDIUM: {
-        name: "MEDIUM",
-        color: "#eab308",
-        errorDuration: 200,
-        errorChance: 0.1,
-        followDelay: 700,
+        errorDuration: 350,
+        errorChance: 0.5,
+        followDelay: 1000,
         minFollowDuration: 230,
         maxFollowDuration: 530,
         minPauseDuration: 230,
         maxPauseDuration: 500,
         errorMargin: 20,
+        errorPanic: 6,
+      },
+      MEDIUM: {
+        name: "MEDIUM",
+        color: "#eab308",
+        errorDuration: 350,
+        errorChance: 0.2,
+        followDelay: 700,
+        minFollowDuration: 230,
+        maxFollowDuration: 530,
+        minPauseDuration: 230,
+        maxPauseDuration: 500,
+        errorMargin: 10,
         errorPanic: 0,
       },
       HARD: {
         name: "HARD",
         color: "#ef4444",
-        errorDuration: 100,
+        errorDuration: 300,
         errorChance: 0.05,
         followDelay: 400,
         minFollowDuration: 430,
@@ -96,7 +105,7 @@ export class AI {
     if (powerManager && !this.isPowerLoaded) {
       this.powerManager = powerManager;
       this.isPowerLoaded = true;
-      console.log("Power Manager loaded:", this.powerManager);
+      // console.log("Power Manager loaded:", this.powerManager);
     }
   }
 
@@ -138,6 +147,95 @@ export class AI {
     }
   }
 
+  updatePowerManager(
+    paddle,
+    paddle2Height,
+    paddle1Height,
+    paddleTarget,
+    controller
+  ) {
+    const currentTime = performance.now(); // Temps actuel
+    if (!this.lastCubeCheck || currentTime - this.lastCubeCheck >= 1000) {
+      // console.log("Checking cubes...");
+      const cubes = this.powerManager.getCubeList();
+
+      cubes.forEach((cube, index) => {
+        if (cube) {
+          const isNear = cube.getIsNear();
+          if (index === 0) {
+            this.Power1NearTop = isNear.isNearTop;
+            this.Power1NearBottom = isNear.isNearBottom;
+          }
+          if (index === 1) {
+            this.Power2NearTop = isNear.isNearTop;
+            this.Power2NearBottom = isNear.isNearBottom;
+          }
+        }
+      });
+
+      this.lastCubeCheck = currentTime; // Met à jour le moment de la dernière vérification
+    }
+
+    // Mise à jour des autres paramètres, exécutée en boucle
+    this.PADDLE_HEIGHT = paddle2Height.getHeight();
+    this.usePower(paddle, paddle1Height, paddleTarget);
+
+    if (controller.getIsReversed()) {
+      if (!this.isErrorApplied) {
+        this.ERROR_CHANCE += 0.3;
+        this.ERROR_DURATION += 100;
+        // console.log("AI is reversed, difficulty increased!");
+        this.isErrorApplied = true;
+      }
+    } else if (this.isErrorApplied) {
+      this.ERROR_CHANCE -= 1;
+      this.ERROR_DURATION -= 300;
+      // console.log("AI is back to normal, difficulty decreased!");
+      this.isErrorApplied = false;
+    }
+  }
+
+  // updatePowerManager(
+  //   paddle,
+  //   paddle2Height,
+  //   paddle1Height,
+  //   paddleTarget,
+  //   controller
+  // ) {
+  //   const cubes = this.powerManager.getCubeList();
+
+  //   cubes.forEach((cube, index) => {
+  //     if (cube) {
+  //       const isNear = cube.getIsNear();
+  //       if (index === 0) {
+  //         this.Power1NearTop = isNear.isNearTop;
+  //         this.Power1NearBottom = isNear.isNearBottom;
+  //       }
+  //       if (index === 1) {
+  //         this.Power2NearTop = isNear.isNearTop;
+  //         this.Power2NearBottom = isNear.isNearBottom;
+  //       }
+  //     }
+  //   });
+  //   this.PADDLE_HEIGHT = paddle2Height.getHeight();
+  //   this.usePower(paddle, paddle1Height, paddleTarget);
+
+  //   if (controller.getIsReversed()) {
+  //     // controller.changePaddleColor(paddle);
+  //     if (!this.isErrorApplied) {
+  //       this.ERROR_CHANCE += 0.3;
+  //       this.ERROR_DURATION += 100;
+  //       console.log("AI is reversed, difficulty increased!");
+  //       this.isErrorApplied = true;
+  //     }
+  //   } else if (this.isErrorApplied) {
+  //     this.ERROR_CHANCE -= 1;
+  //     this.ERROR_DURATION -= 300;
+  //     console.log("AI is back to normal, difficulty decreased!");
+  //     this.isErrorApplied = false;
+  //   }
+  // }
+
   calculatePaddleTarget(impactPoint) {
     let targetZ = impactPoint.z;
     const offsetDot = 7;
@@ -162,61 +260,49 @@ export class AI {
     return targetZ + this.targetOffset;
   }
 
-  // updatePowerManager() {
-  //   const cubes = this.powerManager.getCubeList();
-  //   if (cubes[0]) {
-  //     const isNear = cubes[0].getIsNear();
-  //     if (isNear.isNearTop || isNear.isNearBottom) {
-  //       if (isNear.isNearTop) {
-  //         console.log("Power 1 near top");
-  //       } else {
-  //         console.log("Power 1 near bottom");
-  //       }
-  //     }
-  //   }
-  //   if (cubes[1]) {
-  //     const isNear = cubes[1].getIsNear();
-  //     if (isNear.isNearTop || isNear.isNearBottom) {
-  //       if (isNear.isNearTop) {
-  //         console.log("Power 2 near top");
-  //       } else {
-  //         console.log("Power 2 near bottom");
-  //       }
-  //     }
-  //   }
-  // }
+  whenToUseGrenade(paddleTarget) {
+    const currentTime = performance.now();
+    const randomTime = Math.floor(Math.random() * (4000 - 1000 + 1) + 1000);
+    if (currentTime - this.lastUpdate >= randomTime) {
+      this.powerManager.launchGrenade(2, paddleTarget);
+      this.lastUpdate = currentTime;
+    }
+  }
 
-  updatePowerManager() {
-    const cubes = this.powerManager.getCubeList();
+  whenToUseInverseShot(paddle, paddleTarget) {
+    const paddleZ = paddle.position.z;
+    const targetZ = paddleTarget.position.z;
+    const distance = Math.abs(paddleZ - targetZ);
+    if (distance < 50) {
+      this.powerManager.launchInverseShot(2, this.controller);
+    }
+  }
 
-    cubes.forEach((cube, index) => {
-      // Si l'état précédent n'existe pas pour ce cube, initialisez-le
-      if (!this.previousStates[index]) {
-        this.previousStates[index] = { isNearTop: false, isNearBottom: false };
+  whenToUseReduct(paddleHeight, paddle) {
+    const currentTime = performance.now();
+    const randomTime = Math.floor(Math.random() * (5000 - 1000 + 1) + 1000);
+    if (
+      currentTime - this.lastUpdate >= randomTime &&
+      paddle.position.z < 150 &&
+      paddle.position.z > -150
+    ) {
+      this.powerManager.launchReductShot(2, paddleHeight);
+      this.lastUpdate = currentTime;
+    }
+  }
+
+  usePower(paddle, paddle1Height, paddleTarget) {
+    if (this.paddlePower && this.powerManager) {
+      if (this.paddlePower.hasPower("power1")) {
+        this.whenToUseGrenade(paddleTarget);
       }
-
-      const isNear = cube.getIsNear();
-
-      // Vérifiez si l'état actuel de isNearTop diffère de l'état précédent
-      if (isNear.isNearTop !== this.previousStates[index].isNearTop) {
-        if (isNear.isNearTop) {
-          console.log(`Power ${index + 1} near top (true)`);
-        } else {
-          console.log(`Power ${index + 1} no longer near top (false)`);
-        }
-        this.previousStates[index].isNearTop = isNear.isNearTop; // Mettez à jour l'état précédent
+      if (this.paddlePower.hasPower("power2")) {
+        this.whenToUseInverseShot(paddle, paddleTarget);
       }
-
-      // Vérifiez si l'état actuel de isNearBottom diffère de l'état précédent
-      if (isNear.isNearBottom !== this.previousStates[index].isNearBottom) {
-        if (isNear.isNearBottom) {
-          console.log(`Power ${index + 1} near bottom (true)`);
-        } else {
-          console.log(`Power ${index + 1} no longer near bottom (false)`);
-        }
-        this.previousStates[index].isNearBottom = isNear.isNearBottom; // Mettez à jour l'état précédent
+      if (this.paddlePower.hasPower("power3")) {
+        this.whenToUseReduct(paddle1Height, paddle);
       }
-    });
+    }
   }
 
   move(paddle, ball, ballVelocity, impactPoint, boundaries) {
@@ -238,10 +324,44 @@ export class AI {
     if (this.lastBallVelocity.x > 0) {
       this.handleInterceptionMode(currentTime, ball, impactPoint, paddle);
     } else {
-      this.handleFollowMode(currentTime);
+      if (this.Power1NearBottom) {
+        this.movePaddleDown(paddle, boundaries);
+      } else if (this.Power1NearTop) {
+        this.movePaddleUp(paddle, boundaries);
+      } else if (this.Power2NearBottom) {
+        this.movePaddleDown(paddle, boundaries);
+      } else if (this.Power2NearTop) {
+        this.movePaddleUp(paddle, boundaries);
+      } else {
+        this.handleFollowMode(currentTime);
+      }
     }
 
     this.applyPaddleMovement(paddle, currentTime, boundaries);
+  }
+
+  movePaddleUp(paddle, boundaries) {
+    if (!paddle) return;
+
+    if (paddle.position.z > boundaries.minZ + this.PADDLE_HEIGHT / 2) {
+      paddle.position.z -= this.PADDLE_SPEED;
+    }
+    // paddle.position.z -= this.PADDLE_SPEED;
+
+    // const paddleLimit = boundaries.maxZ - this.PADDLE_HEIGHT / 2;
+    // paddle.position.z = Math.max(-paddleLimit, paddle.position.z);
+  }
+
+  movePaddleDown(paddle, boundaries) {
+    if (!paddle) return;
+
+    if (paddle.position.z < boundaries.maxZ - this.PADDLE_HEIGHT / 2) {
+      paddle.position.z += this.PADDLE_SPEED;
+    }
+    // paddle.position.z += this.PADDLE_SPEED;
+
+    // const paddleLimit = boundaries.maxZ - this.PADDLE_HEIGHT / 2;
+    // paddle.position.z = Math.min(paddleLimit, paddle.position.z);
   }
 
   resetLastUpdate() {
@@ -249,30 +369,65 @@ export class AI {
     this.lastResetTime = performance.now();
   }
 
+  // handleInterceptionMode(currentTime, ball, impactPoint, paddle) {
+  //   this.isFollowing = false;
+  //   this.followStartTime = 0;
+
+  //   if (currentTime - this.lastUpdate >= this.UPDATE_INTERVAL) {
+  //     if (ball.x < 0) {
+  //       const positions = Object.values(this.POSITIONS);
+  //       this.currentTarget =
+  //         positions[Math.floor(Math.random() * positions.length)];
+  //       const isInGracePeriod =
+  //         currentTime - this.lastResetTime < this.RESET_GRACE_PERIOD;
+
+  //       if (isInGracePeriod) {
+  //         this.targetOffset = 0;
+  //       } else {
+  //         const ballSpeed = Math.sqrt(
+  //           this.lastBallVelocity.x * this.lastBallVelocity.x +
+  //             this.lastBallVelocity.z * this.lastBallVelocity.z
+  //         );
+  //         const panicMargin = this.ERROR_MARGIN + ballSpeed * this.ERROR_PANIC;
+  //         this.targetOffset = (Math.random() - 1) * panicMargin;
+  //       }
+  //     }
+
+  //     this.lastTargetZ = this.calculatePaddleTarget(impactPoint);
+  //     this.lastUpdate = currentTime;
+
+  //     if (Math.random() < this.ERROR_CHANCE && !this.isInError) {
+  //       this.isInError = true;
+  //       this.errorStartTime = currentTime;
+  //       this.correctDirection = Math.sign(this.lastTargetZ - paddle.position.z);
+  //     }
+  //   }
+  // }
+
   handleInterceptionMode(currentTime, ball, impactPoint, paddle) {
+    // Désactivation du mode de suivi
     this.isFollowing = false;
     this.followStartTime = 0;
 
+    // Mise à jour si l'intervalle est dépassé
     if (currentTime - this.lastUpdate >= this.UPDATE_INTERVAL) {
+      console.log("AI is in interception mode...");
       if (ball.x < 0) {
+        // Choix aléatoire d'une nouvelle cible
         const positions = Object.values(this.POSITIONS);
         this.currentTarget =
           positions[Math.floor(Math.random() * positions.length)];
-        const isInGracePeriod =
-          currentTime - this.lastResetTime < this.RESET_GRACE_PERIOD;
 
-        if (isInGracePeriod) {
-          this.targetOffset = 0;
-        } else {
-          const ballSpeed = Math.sqrt(
-            this.lastBallVelocity.x * this.lastBallVelocity.x +
-              this.lastBallVelocity.z * this.lastBallVelocity.z
-          );
-          const panicMargin = this.ERROR_MARGIN + ballSpeed * this.ERROR_PANIC;
-          this.targetOffset = (Math.random() - 1) * panicMargin;
-        }
+        // Gestion des erreurs après période de grâce
+        // const isInGracePeriod =
+        //   currentTime - this.lastResetTime < this.RESET_GRACE_PERIOD;
+        // this.targetOffset = isInGracePeriod
+        //   ? 0
+        //   : (Math.random() - 1) *
+        //     (this.ERROR_MARGIN + ballSpeed * this.ERROR_PANIC);
       }
 
+      // Calcul de la cible et gestion des erreurs
       this.lastTargetZ = this.calculatePaddleTarget(impactPoint);
       this.lastUpdate = currentTime;
 

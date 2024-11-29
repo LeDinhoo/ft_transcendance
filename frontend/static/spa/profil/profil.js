@@ -1,3 +1,59 @@
+function updateProfilOnProfil() {
+  console.log("fonction updateprofilonProfil appelee...")
+  fetch("/api/profil/", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.username && data.email) {
+        // document.getElementById("nicknameProfilUser").innerText = data.username;
+
+        const win_ratio = data.win_ratio ?? 0;
+        const totalGames = data.total_games ?? 0;
+        console.log("total games : ", totalGames);
+
+        if (win_ratio < 33) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/bronze.png";
+          document.getElementById("rankText").innerText = "Bronze";
+        } else if (win_ratio < 66 && win_ratio >= 33) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/silver.png";
+          document.getElementById("rankText").innerText = "Silver";
+        } else if (
+          (win_ratio < 80 && win_ratio >= 66) ||
+          (win_ratio >= 66 && totalGames < 5)
+        ) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/gold.png";
+          document.getElementById("rankText").innerText = "Gold";
+        } else if (win_ratio >= 80 && totalGames >= 5) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/platinium.png";
+          document.getElementById("rankText").innerText = "Platinium";
+        }
+
+        // const avatarUrl =
+        //   data.avatar && data.avatar.trim()
+        //     ? data.avatar
+        //     : "/static/assets/avatars/buffalo.png";
+        // document.getElementById("avatarProfilUser").src = avatarUrl;
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la récupération du profil :", error);
+    });
+}
+
 function resetPasswordFields() {
   const newFrame = document.getElementById("newFrame");
   const newPlusFrame = document.getElementById("newPlusFrame");
@@ -10,7 +66,6 @@ function resetPasswordFields() {
   }
 }
 
-// Fonction pour afficher un message de confirmation
 function showConfirmationMessage(message) {
   const confirmationMessage = document.createElement("div");
   confirmationMessage.className = "confirmation-message";
@@ -18,19 +73,16 @@ function showConfirmationMessage(message) {
 
   document.body.appendChild(confirmationMessage);
 
-  // Supprimer le message après 3 secondes
   setTimeout(() => {
     confirmationMessage.remove();
   }, 3000);
 }
 
-// Fonction pour initialiser la gestion du mot de passe
 function initializePasswordManagement() {
   const newFrame = document.getElementById("newFrame");
   const newPlusFrame = document.getElementById("newPlusFrame");
   const toggleChangePassword = document.getElementById("toggleChangePassword");
 
-  // Supprimer tous les anciens écouteurs pour éviter les conflits
   const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
   toggleChangePassword.parentNode.replaceChild(
     cloneToggleChangePassword,
@@ -48,7 +100,7 @@ function initializePasswordManagement() {
 function loadMatchHistory() {
   fetch("/api/match-history/", {
     method: "GET",
-    credentials: "include", // Le cookie est automatiquement envoyé par le navigateur
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -56,7 +108,7 @@ function loadMatchHistory() {
     .then((response) => response.json())
     .then((data) => {
       if (data.history) {
-        updateMatchHistoryUI(data.history); // Appel de la fonction pour mettre à jour l'interface
+        updateMatchHistoryUI(data.history);
       }
     })
     .catch((error) =>
@@ -68,56 +120,49 @@ function loadMatchHistory() {
 }
 
 function updateMatchHistoryUI(history) {
-  console.log("fonction updateMatchHistory appele");
-
   const matchHistoryDiv = document.querySelector(".matchHistory");
-  matchHistoryDiv.innerHTML = ""; // Réinitialise le contenu
+  matchHistoryDiv.innerHTML = `
+    <div class="settingsHistory">Match History</div>
+    <div class="matches-container"></div>
+  `;
 
-  // Limiter l'affichage aux 5 derniers matchs
-  const recentMatches = history.slice(0, 5); // Prenez les 5 premiers éléments (les plus récents)
+  const matchesContainer = matchHistoryDiv.querySelector(".matches-container");
+  const recentMatches = history.slice(0, 5);
 
   recentMatches.forEach((match) => {
     const matchResume = document.createElement("div");
     matchResume.className = "matchResume";
 
-    // Avatar de l'utilisateur
     const userAvatar = document.createElement("img");
     userAvatar.className = "avatarHistory";
     userAvatar.src = match.user_avatar;
     userAvatar.alt = "User Avatar";
 
-    // Score de l'utilisateur
     const userScore = document.createElement("div");
     userScore.className = "scorePlayer";
     userScore.textContent = match.score_user;
 
-    // Séparateur
     const separator = document.createElement("div");
     separator.className = "separatorMatch";
     separator.textContent = "-";
 
-    // Score de l'adversaire
     const opponentScore = document.createElement("div");
     opponentScore.className = "scorePlayer";
     opponentScore.textContent = match.score_opponent;
 
-    // Avatar de l'adversaire
     const opponentAvatar = document.createElement("img");
     opponentAvatar.className = "avatarHistory";
     opponentAvatar.src = match.opponent_avatar;
     opponentAvatar.alt = "Opponent Avatar";
 
-    // Résultat (victoire ou défaite)
     const resultLabel = document.createElement("div");
     resultLabel.className = "resultLabel";
     resultLabel.textContent = match.result;
 
-    // Appliquer une couleur grise pour les défaites (style en ligne)
     if (match.result === "DEFEAT") {
-      resultLabel.style.color = "#878787"; // Gris clair pour les défaites
+      resultLabel.style.color = "#878787";
     }
 
-    // Ajout des éléments au conteneur de résumé de match
     matchResume.appendChild(userAvatar);
     matchResume.appendChild(userScore);
     matchResume.appendChild(separator);
@@ -125,7 +170,6 @@ function updateMatchHistoryUI(history) {
     matchResume.appendChild(opponentAvatar);
     matchResume.appendChild(resultLabel);
 
-    // Ajout à l'historique des matchs
     matchHistoryDiv.appendChild(matchResume);
   });
 }
@@ -133,7 +177,7 @@ function updateMatchHistoryUI(history) {
 function loadUserStatistics() {
   fetch("/api/user/statistics/", {
     method: "GET",
-    credentials: "include", // Permet d'envoyer le cookie de session
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -142,13 +186,11 @@ function loadUserStatistics() {
     .then((data) => {
       console.log("Statistiques de l'utilisateur :", data);
 
-      // Affichage des statistiques dans l'interface
-      // document.getElementById("rank").innerText = data.rank;
       document.getElementById("total_games").innerText = data.total_games;
       // document.getElementById("total_wins").innerText = data.total_wins;
       document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
       // document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
-      // document.getElementById("top_speed").innerText =
+      document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
       // data.ball_speed_avg.toFixed(2);
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
@@ -317,11 +359,17 @@ function initializeProfilePage() {
         document.getElementById("playerFrame").innerText = data.username;
         document.getElementById("username").value = data.username;
         document.getElementById("registerEmail").value = data.email;
-
+  
         if ("is_2fa_enabled" in data) {
           updateUI2FAStatus(data.is_2fa_enabled);
         }
-
+  
+        // Mise à jour du rank
+        if (data.rank) {
+          document.getElementById("profileRankIcon").src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
+          document.getElementById("profileRankText").textContent = data.rank;
+        }
+  
         avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
       }
     })
@@ -329,22 +377,18 @@ function initializeProfilePage() {
       console.error("Erreur lors de la récupération du profil:", error);
     });
 
-  // Charger l'historique des matchs de l'utilisateur
   loadMatchHistory();
   loadUserStatistics();
+  updateProfilOnProfil();
 }
 
-/////////////////////////////////////////////////////////////////// 2FA ///////////////////////////////////////////////////////////////////////
-
 function showTwoFactorPopup() {
-  // Vérifiez si une pop-up existe déjà
   const existingPopup = document.querySelector(".popup-overlay");
   if (existingPopup) {
     console.log("Une pop-up 2FA existe déjà, pas besoin de recréer.");
     return;
   }
 
-  // Création de la nouvelle pop-up
   console.log("Création d'une nouvelle pop-up 2FA...");
   const popup = document.createElement("div");
   popup.className = "popup-overlay";
@@ -368,7 +412,6 @@ function showTwoFactorPopup() {
 
   document.body.appendChild(popup);
 
-  // Configurez les inputs pour la pop-up
   setupCodeInputsForProfile();
   startCountdown(10 * 60);
 
@@ -383,7 +426,7 @@ function setupCodeInputsForProfile() {
     if (index === 0) input.focus();
 
     input.addEventListener("input", (e) => {
-      e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Permet uniquement les chiffres
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
 
       if (e.target.value && index < inputs.length - 1) {
         inputs[index + 1].focus();
@@ -422,7 +465,7 @@ async function verifyTwoFactorCodeForProfile(code) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ code }), // Pas besoin de `user_id`
+      body: JSON.stringify({ code }),
     });
 
     const data = await response.json();
@@ -476,7 +519,6 @@ https: function updateUI2FAStatus(enabled) {
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
 
-  // Vérifier si les éléments nécessaires sont présents
   if (!toggle2FAButton || !verificationFrame) {
     console.error(
       "Éléments pour la mise à jour de l'interface 2FA introuvables."
@@ -484,18 +526,12 @@ https: function updateUI2FAStatus(enabled) {
     return;
   }
 
-  // Mettre à jour la classe et le contenu du bouton de basculement
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
-    <svg>
-      <use href="/static/assets/icons/sprite.svg#${
-        enabled ? "unlock" : "lock"
-      }"></use>
-    </svg>
-    ${enabled ? "2FA ON" : "2FA OFF"}
-  `;
+ <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
+  ${enabled ? "2FA ON" : "2FA OFF"}
+`;
 
-  // Masquer le cadre de vérification (si applicable)
   verificationFrame.style.display = "none";
 
   console.log(
@@ -508,16 +544,15 @@ function initialize2FA() {
 
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
-  let is2FAEnabled = false; // Initialiser la variable
+  let is2FAEnabled = false;
 
   if (!toggle2FAButton || !verificationFrame) {
     console.error("Éléments pour la gestion de la 2FA introuvables.");
     return;
   }
 
-  // Vérifiez le statut initial de la 2FA
   fetch("/api/profil/", {
-    credentials: "include", // Envoie les cookies
+    credentials: "include",
   })
     .then((response) => {
       if (!response.ok) {
@@ -527,22 +562,20 @@ function initialize2FA() {
     })
     .then((data) => {
       if (data.is_2fa_enabled !== undefined) {
-        is2FAEnabled = data.is_2fa_enabled; // Mettre à jour le statut initial
-        updateUI2FAStatus(is2FAEnabled); // Mettre à jour l'interface utilisateur
+        is2FAEnabled = data.is_2fa_enabled;
+        updateUI2FAStatus(is2FAEnabled);
       }
     })
     .catch((error) => {
       console.error("Erreur lors de la récupération du statut 2FA :", error);
     });
 
-  // Supprimer les anciens écouteurs d'événements
   const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
   toggle2FAButton.parentNode.replaceChild(
     cloneToggle2FAButton,
     toggle2FAButton
   );
 
-  // Ajouter un nouvel écouteur au bouton de basculement
   cloneToggle2FAButton.addEventListener("click", () => {
     const action = is2FAEnabled ? "disable" : "enable";
 
@@ -562,13 +595,12 @@ function initialize2FA() {
       })
       .then((data) => {
         if (action === "enable") {
-          // Vérifier et éviter la duplication de pop-ups
           if (!document.querySelector(".popup-overlay")) {
-            showTwoFactorPopup(); // Afficher la pop-up pour entrer le code
+            showTwoFactorPopup();
           }
           showConfirmationMessage("Code de vérification envoyé par email.");
         } else {
-          is2FAEnabled = false; // Mettre à jour le statut local
+          is2FAEnabled = false;
           updateUI2FAStatus(is2FAEnabled);
           showConfirmationMessage("2FA désactivé avec succès.");
         }
@@ -579,8 +611,6 @@ function initialize2FA() {
       });
   });
 }
-
-////////////////////////////////////////////////////////POP UPS AVATAR //////////////////////////////////////////////////////////////
 
 const avatarUrls = [
   "/static/assets/avatars/abeille.png",
@@ -636,20 +666,17 @@ function createAvatarGrid() {
         avatarOption.appendChild(img);
 
         avatarOption.addEventListener("click", () => {
-          // Supprimer la sélection précédente
           if (selectedAvatar) {
             selectedAvatar.classList.remove("selected");
           }
-          // Mettre à jour la nouvelle sélection
           avatarOption.classList.add("selected");
           selectedAvatar = avatarOption;
           tempSelectedSrc = img.src;
 
-          // Activer le bouton
           if (applyButton) {
             applyButton.disabled = false;
           }
-          console.log("Avatar sélectionné:", tempSelectedSrc); // Debug
+          console.log("Avatar sélectionné:", tempSelectedSrc);
         });
 
         rowDiv.appendChild(avatarOption);
@@ -660,11 +687,9 @@ function createAvatarGrid() {
 }
 
 function initializeAvatarFeature() {
-  // const accessToken = localStorage.getItem("access_token");
   const modal = document.getElementById("avatarModal");
   const applyButton = document.getElementById("applyButton");
 
-  // Création de la grille
   createAvatarGrid();
 
   if (applyButton) {
@@ -678,10 +703,8 @@ function initializeAvatarFeature() {
 
         fetch("/api/profil/update/", {
           method: "PATCH",
-          // headers: {
-          //     Authorization: `Bearer ${accessToken}`,
-          // },
-          credentials: "include", // Le cookie est automatiquement envoyé par le navigateur
+
+          credentials: "include",
           body: formData,
         })
           .then((response) => {
@@ -691,14 +714,13 @@ function initializeAvatarFeature() {
             return response.json();
           })
           .then((data) => {
-            console.log("Réponse reçue:", data); // Debug
-            // Mettre à jour tous les avatars sur la page
+            console.log("Réponse reçue:", data);
+
             const avatarElements = document.querySelectorAll(".avatarImg");
             avatarElements.forEach((element) => {
-              element.src = data.avatar; // Utiliser l'URL renvoyée par le serveur
+              element.src = data.avatar;
             });
 
-            // Mettre à jour l'avatar dans le profil si présent
             const avatarDisplay = document.getElementById("avatarDisplay");
             if (avatarDisplay) {
               avatarDisplay.src = data.avatar;
@@ -717,10 +739,8 @@ function initializeAvatarFeature() {
 
   window.openModal = function () {
     if (modal) {
-      // Afficher la modal
       modal.style.display = "flex";
 
-      // Réinitialiser toute sélection précédente
       const previousSelected = document.querySelector(
         ".avatar-option.selected"
       );
@@ -728,11 +748,9 @@ function initializeAvatarFeature() {
         previousSelected.classList.remove("selected");
       }
 
-      // Réinitialiser les variables de sélection
       selectedAvatar = null;
       tempSelectedSrc = null;
 
-      // Désactiver le bouton Apply
       if (applyButton) {
         applyButton.disabled = true;
       }
@@ -750,7 +768,6 @@ function initializeAvatarFeature() {
     }
   };
 
-  // Gestion du clic en dehors de la modal
   if (modal) {
     modal.addEventListener("click", (e) => {
       if (e.target === modal) {

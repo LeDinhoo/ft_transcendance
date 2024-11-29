@@ -12,6 +12,15 @@ services:
     env_file:
       - .env
 
+  redis:  # Nouveau service Redis
+    image: redis:latest
+    container_name: redis
+    restart: always
+    networks:
+      - transcendence-network
+    volumes:
+      - redis_data:/data  # Pour sauvegarder les données Redis
+
   backend:
     restart: always
     container_name: backend
@@ -27,6 +36,7 @@ services:
       - "8443"
     depends_on:
       - database
+      - redis
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -57,6 +67,8 @@ volumes:
     name: postgre_data
   media:
     name: media_volume
+  redis_data:  # Nouveau volume pour Redis
+    name: redis_data
 
 networks:
   transcendence-network:

@@ -150,6 +150,8 @@ export class Score3D {
     this.removeVictoryText(); // Supprimer le texte de victoire
     this.createPressSpaceText(); // Réafficher "PRESS SPACE"
     this.gameOver = false; // Réinitialiser l'état de fin de partie
+
+    maxBallSpeed = INITIAL_BALL_SPEED;
   }
 
   checkWinCondition() {
@@ -547,28 +549,30 @@ export class Score3D {
 
   // Méthode pour enregistrer le jeu avec longestRally
   // Méthode dans la classe Score3D
-  recordGame(scoreUser, scoreOpponent, result, longestRally) {
+  recordGame(scoreUser, scoreOpponent, result, longestRally, maxBallSpeed) {
     console.log("recordGame appelée avec :", {
       scoreUser,
       scoreOpponent,
       result,
       longestRally,
+      maxBallSpeed,
     });
     const data = {
       score_user: scoreUser,
       score_opponent: scoreOpponent,
       result: result,
       longest_rally: longestRally, // Ajout de longestRally
+      max_ball_speed: maxBallSpeed,
     };
-  
+
     console.log("Données envoyées :", data);
     const csrftoken = getCookie("csrftoken");
-  
+
     fetch("/api/record-game/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
+        // "X-CSRFToken": csrftoken,
       },
       credentials: "include",
       body: JSON.stringify(data),
@@ -583,7 +587,6 @@ export class Score3D {
       })
       .catch((error) => console.error("Erreur :", error));
   }
-  
 
   // Exemple de fonction utilitaire pour récupérer les cookies CSRF
   // function getCookie(name) {

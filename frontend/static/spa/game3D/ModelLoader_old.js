@@ -1,6 +1,11 @@
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// import * as THREE from "three";
+// import { scene } from "./main.js";
+
+import { GLTFLoader } from "./libs/GLTFLoader.js";
 import * as THREE from "three";
 import { scene } from "./main.js";
+
 
 export class ModelLoader {
   constructor(scoreSystem) {
@@ -61,9 +66,7 @@ export class ModelLoader {
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = false;
-            //ff7c2c
-            //ff4500 de base
-            child.material.color.setHex(0xff5500);
+            child.material.color.setHex(0xff4500);
             child.material.roughness = 0.3;
             child.material.metalness = 0.5;
           }

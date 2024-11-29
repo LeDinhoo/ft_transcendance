@@ -58,7 +58,7 @@ class GameHistory(models.Model):
 
     # Statistiques supplémentaires
     power_catch = models.IntegerField(default=0)  # Exemple : puissance de la prise
-    ball_speed = models.FloatField(default=0.0)  # Exemple : vitesse de la balle
+    max_ball_speed = models.FloatField(default=0.0)  # Exemple : vitesse de la balle
     longest_rally = models.IntegerField(default=0)  # Exemple : durée du rallye le plus long
     
     def __str__(self):

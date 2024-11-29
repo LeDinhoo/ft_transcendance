@@ -1426,6 +1426,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 function updateProfilOnHome() {
+  console.log("fonction updateprofilonhome appelee...")
   fetch("/api/profil/", {
     method: "GET",
     credentials: "include",
@@ -1518,11 +1519,326 @@ function initializeHome() {
       friendsList: document.getElementById("friendsList"),
       playersList: document.getElementById("onlinePlayersList"),
     },
+    chat: {
+      messages: document.getElementById("chatMessages"),
+      input: document.getElementById("messageInput"),
+      sendButton: document.getElementById("sendMessage"),
+    },
   };
 
   updateProfilOnHome();
 
   let isGameInitialized = false;
+  let currentUser = null;
+
+  class ChatHandler {
+    static async initialize() {
+      try {
+        const response = await fetch("/api/profil/", {
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          currentUser = await response.json();
+          ChatHandler.blockedUsers = new Set();
+          ChatHandler.setupEventListeners();
+          ChatHandler.initializeContextMenu();
+          window.wsManager.addMessageListener(ChatHandler.handleMessage);
+
+          const messageHistory = window.wsManager.getMessageHistory();
+          messageHistory.forEach((message) =>
+            ChatHandler.handleMessage(message)
+          );
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'initialisation du chat:", error);
+      }
+    }
+
+    static setupEventListeners() {
+      if (DOM.chat.sendButton) {
+        DOM.chat.sendButton.addEventListener("click", ChatHandler.sendMessage);
+      }
+
+      if (DOM.chat.input) {
+        DOM.chat.input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            ChatHandler.sendMessage();
+          }
+        });
+      }
+    }
+
+    static initializeContextMenu() {
+      const chatMessages = DOM.chat.messages;
+      let activeMenu = null;
+
+      chatMessages.addEventListener("click", (e) => {
+        const avatar = e.target.closest(".messageAvatar");
+        if (!avatar) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (activeMenu) {
+          activeMenu.remove();
+          activeMenu = null;
+        }
+
+        const messageElement = avatar.closest(".message");
+        const username =
+          messageElement.querySelector(".messageHeader").textContent;
+        const avatarSrc = avatar.src;
+        const isBlocked = ChatHandler.blockedUsers.has(username);
+
+        const menu = document.createElement("div");
+        menu.className = "chat-context-menu";
+        menu.innerHTML = `
+            <div class="chat-menu-option" data-action="profile">
+                See profile
+            </div>
+            <div class="chat-menu-option" data-action="add-friend">
+                Add friend
+            </div>
+            <div class="chat-menu-option" data-action="block">
+                ${isBlocked ? "Unblock user" : "Block user"}
+            </div>
+            <div class="chat-menu-option" data-action="private-message">
+                Private message
+            </div>
+        `;
+
+        document.body.appendChild(menu);
+        const rect = avatar.getBoundingClientRect();
+        ChatHandler.positionMenuWithinViewport(menu, rect);
+
+        activeMenu = menu;
+
+        menu.addEventListener("click", (e) => {
+          const option = e.target.closest(".chat-menu-option");
+          if (!option) return;
+
+          const action = option.dataset.action;
+          if (action === "profile") {
+            const playerData = {
+              nickname: username,
+              avatar: avatarSrc,
+              rank: "Bronze",
+              stats: { totalGames: 0, winRate: "0%" },
+            };
+            ProfileModal.show(playerData);
+          } else if (action === "add-friend") {
+            ContextMenu.showConfirmation(username);
+          } else if (action === "block") {
+            ChatHandler.toggleBlockUser(username);
+            ChatHandler.showBlockConfirmation(username, !isBlocked);
+          } else if (action === "private-message") {
+            ChatHandler.startPrivateMessage(username);
+          }
+
+          menu.remove();
+          activeMenu = null;
+        });
+      });
+
+      document.addEventListener("click", (e) => {
+        if (
+          activeMenu &&
+          !e.target.closest(".chat-context-menu") &&
+          !e.target.closest(".messageAvatar")
+        ) {
+          activeMenu.remove();
+          activeMenu = null;
+        }
+      });
+
+      chatMessages.addEventListener("scroll", () => {
+        if (activeMenu) {
+          activeMenu.remove();
+          activeMenu = null;
+        }
+      });
+    }
+
+    static toggleBlockUser(username) {
+      if (ChatHandler.blockedUsers.has(username)) {
+        ChatHandler.blockedUsers.delete(username);
+      } else {
+        ChatHandler.blockedUsers.add(username);
+      }
+
+      const messages = DOM.chat.messages.querySelectorAll(".message");
+      messages.forEach((message) => {
+        const messageUsername =
+          message.querySelector(".messageHeader").textContent;
+        if (messageUsername === username) {
+          message.style.opacity = ChatHandler.blockedUsers.has(username)
+            ? "0.5"
+            : "1";
+          const messageText = message.querySelector(".messageText");
+          if (ChatHandler.blockedUsers.has(username)) {
+            messageText.dataset.originalText = messageText.textContent;
+            messageText.textContent = "Message blocked";
+          } else {
+            messageText.textContent =
+              messageText.dataset.originalText || messageText.textContent;
+          }
+        }
+      });
+    }
+
+    static showBlockConfirmation(username, isBlocking) {
+      const homePageMain = document.querySelector(".homePageMain");
+      if (!homePageMain) return;
+
+      const confirmation = document.createElement("div");
+      confirmation.classList.add("confirmation-animation");
+      confirmation.innerHTML = `
+          <div class="confirmation-icon"></div>
+          <div class="confirmation-text">
+              ${
+                isBlocking
+                  ? `User ${username} has been blocked`
+                  : `User ${username} has been unblocked`
+              }
+          </div>
+      `;
+
+      homePageMain.appendChild(confirmation);
+      setTimeout(() => confirmation.remove(), 2000);
+    }
+
+    static startPrivateMessage(username) {
+      if (!DOM.chat.input) return;
+
+      DOM.chat.input.value = `/pm ${username} `;
+      DOM.chat.input.focus();
+    }
+
+    static handleMessage(data) {
+      if (!DOM.chat.messages) return;
+
+      if (ChatHandler.blockedUsers.has(data.username)) {
+        data.originalMessage = data.message;
+        data.message = "Message blocked";
+      }
+
+      const isCurrentUser =
+        currentUser && data.username === currentUser.username;
+      const messageElement = document.createElement("div");
+      messageElement.className = `message ${
+        isCurrentUser ? "sent" : "received"
+      }`;
+
+      if (ChatHandler.blockedUsers.has(data.username)) {
+        messageElement.style.opacity = "0.5";
+      }
+
+      if (data.type === "private_message") {
+        messageElement.classList.add("private-message");
+      }
+
+      messageElement.innerHTML = `
+          <img src="${data.avatar}" 
+              alt="${data.username}" 
+              class="messageAvatar"
+              title="Click for options">
+          <div class="messageContent">
+              <div class="messageHeader">${data.username}</div>
+              <div class="messageText" ${
+                ChatHandler.blockedUsers.has(data.username)
+                  ? 'data-original-text="' + data.originalMessage + '"'
+                  : ""
+              }>${data.message}</div>
+          </div>
+      `;
+
+      DOM.chat.messages.appendChild(messageElement);
+      DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
+    }
+
+    static sendMessage() {
+      if (!DOM.chat.input || !currentUser) return;
+
+      const message = DOM.chat.input.value.trim();
+      if (!message) return;
+
+      const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+      if (pmMatch) {
+        const [, recipient, privateMessage] = pmMatch;
+        window.wsManager.sendMessage({
+          type: "private_message",
+          message: privateMessage,
+          username: currentUser.username,
+          avatar: currentUser.avatar,
+          recipient: recipient,
+        });
+      } else {
+        window.wsManager.sendMessage({
+          type: "chat_message",
+          message: message,
+          username: currentUser.username,
+          avatar: currentUser.avatar,
+        });
+      }
+
+      DOM.chat.input.value = "";
+    }
+
+    static positionMenuWithinViewport(menu, rect) {
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const menuHeight = menu.offsetHeight;
+      const menuWidth = menu.offsetWidth;
+
+      let top;
+      if (rect.bottom + menuHeight + 5 > viewportHeight) {
+        top = Math.max(5, rect.top - menuHeight - 5);
+      } else {
+        top = rect.bottom + 5;
+      }
+
+      let left;
+      if (rect.left + menuWidth + 5 > viewportWidth) {
+        left = Math.max(5, viewportWidth - menuWidth - 5);
+      } else {
+        left = rect.left;
+      }
+
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+    }
+
+    static cleanup() {
+      window.wsManager.removeMessageListener(ChatHandler.handleMessage);
+
+      const activeMenu = document.querySelector(".chat-context-menu");
+      if (activeMenu) {
+        activeMenu.remove();
+      }
+
+      if (DOM.chat.sendButton) {
+        DOM.chat.sendButton.removeEventListener(
+          "click",
+          ChatHandler.sendMessage
+        );
+      }
+
+      if (DOM.chat.input) {
+        DOM.chat.input.removeEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            ChatHandler.sendMessage();
+          }
+        });
+      }
+
+      if (DOM.chat.messages) {
+        DOM.chat.messages.innerHTML = "";
+      }
+
+      ChatHandler.blockedUsers.clear();
+    }
+  }
 
   // Tooltip Management
   class TooltipManager {
@@ -1621,22 +1937,39 @@ function initializeHome() {
   // Context Menu Management
   class ContextMenu {
     static initialize() {
+      const homePageMain = document.querySelector(".homePageMain");
+      const downLeftFrame = document.querySelector(".downLeftFrame");
+      if (!homePageMain || !downLeftFrame) return;
+
       const contextMenuTemplate = document.getElementById(
         "contextMenuTemplate"
       );
       if (!contextMenuTemplate) return;
 
       const contextMenu = contextMenuTemplate.content.cloneNode(true);
-      document.body.appendChild(contextMenu);
+      downLeftFrame.appendChild(contextMenu);
 
-      const contextMenuElement = document.querySelector(".player-context-menu");
+      const contextMenuElement = downLeftFrame.querySelector(
+        ".player-context-menu"
+      );
+      if (!contextMenuElement) return;
 
-      document.body.addEventListener("click", (e) => {
-        if (e.target.closest(".onlineNickname")) {
-          const nickname = e.target.closest(".onlineNickname");
+      downLeftFrame.style.position = "relative";
+      contextMenuElement.style.position = "absolute";
+      contextMenuElement.style.zIndex = "100";
+
+      downLeftFrame.addEventListener("click", (e) => {
+        const nickname = e.target.closest(".onlineNickname");
+        if (nickname) {
+          e.preventDefault();
           const rect = nickname.getBoundingClientRect();
-          contextMenuElement.style.top = `${rect.bottom + window.scrollY}px`;
-          contextMenuElement.style.left = `${rect.left + window.scrollX}px`;
+          const frameRect = downLeftFrame.getBoundingClientRect();
+
+          const top = rect.bottom - frameRect.top;
+          const left = rect.left - frameRect.left;
+
+          contextMenuElement.style.top = `${top}px`;
+          contextMenuElement.style.left = `${left}px`;
           contextMenuElement.style.display = "block";
           contextMenuElement.dataset.player = nickname.textContent.trim();
         } else if (!e.target.closest(".player-context-menu")) {
@@ -1646,6 +1979,8 @@ function initializeHome() {
 
       contextMenuElement.addEventListener("click", (e) => {
         const action = e.target.dataset.action;
+        if (!action) return;
+
         const player = contextMenuElement.dataset.player;
 
         if (action === "profile") {
@@ -1659,19 +1994,29 @@ function initializeHome() {
         } else if (action === "add-friend") {
           ContextMenu.showConfirmation(player);
         }
+
         contextMenuElement.style.display = "none";
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!downLeftFrame.contains(e.target)) {
+          contextMenuElement.style.display = "none";
+        }
       });
     }
 
     static showConfirmation(player) {
+      const homePageMain = document.querySelector(".homePageMain");
+      if (!homePageMain) return;
+
       const confirmation = document.createElement("div");
       confirmation.classList.add("confirmation-animation");
       confirmation.innerHTML = `
-        <div class="confirmation-icon"></div>
-        <div class="confirmation-text">Friend request sent to ${player}</div>
-      `;
-      document.body.appendChild(confirmation);
+            <div class="confirmation-icon"></div>
+            <div class="confirmation-text">Friend request sent to ${player}</div>
+        `;
 
+      homePageMain.appendChild(confirmation);
       setTimeout(() => confirmation.remove(), 2000);
     }
   }
@@ -1683,14 +2028,20 @@ function initializeHome() {
         elements.forEach((el) => el.classList.remove("option-selected"));
         selectedElement.classList.add("option-selected");
       };
-
+    
       DOM.game.options.forEach((option) => {
+        if (option.textContent.trim() === "CLASSIC PONG") {
+          option.classList.add("option-selected");
+        }
         option.addEventListener("click", () =>
           handleSelection(DOM.game.options, option)
         );
       });
-
+    
       DOM.game.modeOptions.forEach((option) => {
+        if (option.textContent.trim() === "AGAINST AI") {
+          option.classList.add("option-selected");
+        }
         option.addEventListener("click", () =>
           handleSelection(DOM.game.modeOptions, option)
         );
@@ -1818,89 +2169,6 @@ function initializeHome() {
     }
   }
 
-  // // Partie existante pour démarrer le jeu
-  // window.addEventListener('message', (event) => {
-  //   if (event.data.type === 'startGame') {
-  //     console.log('Lancement du jeu...');
-  //     window.currentPlayers = event.data.data; // Si des données sur les joueurs sont fournies
-  //   } else if (event.data.type === 'gameComplete') {
-  //     console.log(`Fin du jeu : gagnant - Joueur ${event.data.data?.winner}`);
-  //   }
-  // });
-
-  // function startMatch() {
-  //   if (!isGameInitialized) {
-  //     console.log("startMatch() appelée.");
-  //     isGameInitialized = true;
-
-  //     const loadingIndicator = document.createElement("div");
-  //     loadingIndicator.innerText = "Chargement du jeu...";
-  //     loadingIndicator.style.cssText = `
-  //       color: white;
-  //       font-size: 20px;
-  //       text-align: center;
-  //       margin-top: 20px;
-  //     `;
-  //     document.body.appendChild(loadingIndicator);
-
-  //     const modal = document.createElement("div");
-  //     modal.id = "gameModal";
-  //     modal.style.cssText = `
-  //       position: fixed;
-  //       top: 0;
-  //       left: 0;
-  //       width: 100vw;
-  //       height: 100vh;
-  //       background: rgba(0, 0, 0, 0.9);
-  //       z-index: 1000;
-  //       display: flex;
-  //       flex-direction: column;
-  //       justify-content: center;
-  //       align-items: center;
-  //     `;
-
-  //     const iframe = document.createElement("iframe");
-  //     iframe.src = "/static/spa/game3D/three.html";
-  //     iframe.style.cssText = `
-  //       width: 100%;
-  //       height: 100%;
-  //       border: none;
-  //     `;
-
-  //     iframe.onload = () => {
-  //       document.body.removeChild(loadingIndicator);
-  //       console.log("Jeu chargé.");
-
-  //       setTimeout(() => {
-  //         iframe.contentWindow.focus();
-  //         console.log("Focus défini sur l'iframe.");
-  //       }, 100);
-  //     };
-
-  //     modal.appendChild(iframe);
-  //     document.body.appendChild(modal);
-
-  //     // Gérer les messages de l'iframe
-  //     window.addEventListener("message", (event) => {
-  //       console.log("Message reçu depuis l'iframe :", event.data);
-
-  //       if (event.data.type === "gameComplete") {
-  //         console.log(`Le gagnant est: ${event.data.data?.winner}`);
-  //         setTimeout(() => {
-  //           if (document.body.contains(modal)) {
-  //             document.body.removeChild(modal);
-  //             console.log("Modal fermée automatiquement après la fin du jeu.");
-  //             isGameInitialized = false;
-  //           }
-  //         }, 250);
-  //         updateProfilOnHome();
-  //       }
-  //     });
-  //   } else {
-  //     console.log("Le jeu est déjà initialisé.");
-  //   }
-  // }
-
   function startMatch() {
     if (!isGameInitialized) {
       console.log("startMatch() appelée.");
@@ -1979,117 +2247,23 @@ function initializeHome() {
     }
   }
 
-
-  //   function startMatch() {
-  //   if (!isGameInitialized) {
-  //     console.log("startMatch() appelée.");
-  //     isGameInitialized = true;
-
-  //     const loadingIndicator = document.createElement("div");
-  //     loadingIndicator.innerText = "Chargement du jeu...";
-  //     loadingIndicator.style.cssText = `
-  //       color: white;
-  //       font-size: 20px;
-  //       text-align: center;
-  //       margin-top: 20px;
-  //     `;
-  //     document.body.appendChild(loadingIndicator);
-
-  //     const modal = document.createElement("div");
-  //     modal.id = "gameModal";
-  //     modal.style.cssText = `
-  //       position: fixed;
-  //       top: 0;
-  //       left: 0;
-  //       width: 100vw;
-  //       height: 100vh;
-  //       background: rgba(0, 0, 0, 0.9);
-  //       z-index: 1000;
-  //       display: flex;
-  //       flex-direction: column;
-  //       justify-content: center;
-  //       align-items: center;
-  //     `;
-
-  //     const iframe = document.createElement("iframe");
-  //     iframe.src = "/static/spa/game3D/three.html";
-  //     iframe.style.cssText = `
-  //       width: 100%;
-  //       height: 100%;
-  //       border: none;
-  //     `;
-
-  //     // Inject a script into the iframe after it's loaded
-  //     iframe.onload = () => {
-  //       document.body.removeChild(loadingIndicator);
-  //       console.log("Jeu chargé.");
-
-  //       try {
-  //         const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-
-  //         const script = `
-  //           // Variable globale pour indiquer si le jeu est terminé
-  //           window.isGameComplete = false;
-
-  //           // Simulation : Terminer le jeu après 5 secondes
-  //           setTimeout(() => {
-  //             window.isGameComplete = true;
-  //           }, 5000);
-  //         `;
-
-  //         // Crée un élément script et l'ajoute au DOM de l'iframe
-  //         const scriptElement = iframeDocument.createElement("script");
-  //         scriptElement.textContent = script;
-  //         iframeDocument.body.appendChild(scriptElement);
-
-  //         console.log("Script injecté dans l'iframe.");
-  //       } catch (error) {
-  //         console.error("Erreur lors de l'injection du script dans l'iframe :", error);
-  //       }
-
-  //       // Surveille l'état du jeu via l'iframe
-  //       const interval = setInterval(() => {
-  //         try {
-  //           if (iframe.contentWindow.isGameComplete) {
-  //             clearInterval(interval);
-  //             console.log("Le jeu est terminé (via script injecté).");
-  //             closeGameModal(modal);
-  //             updateProfilOnHome();
-  //           }
-  //         } catch (error) {
-  //           console.error("Erreur lors de la vérification de l'état du jeu :", error);
-  //         }
-  //       }, 500);
-
-  //       // Focus sur l'iframe après un léger délai
-  //       setTimeout(() => {
-  //         iframe.contentWindow.focus();
-  //         console.log("Focus défini sur l'iframe.");
-  //       }, 100);
-  //     };
-
-  //     modal.appendChild(iframe);
-  //     document.body.appendChild(modal);
-  //   } else {
-  //     console.log("Le jeu est déjà initialisé.");
-  //   }
-  // }
-
-  // // Fonction pour fermer le modal
-  // function closeGameModal(modal) {
-  //   if (modal && document.body.contains(modal)) {
-  //     document.body.removeChild(modal);
-  //     console.log("Modal fermé automatiquement après la fin du jeu.");
-  //     isGameInitialized = false;
-  //   }
-  // }
-
   // Initialize all components
   TooltipManager.initializeTooltips();
   ProfileModal.initialize();
   ContextMenu.initialize();
   GameOptionsManager.initialize();
   OnlineGameModal.initialize();
+  ChatHandler.initialize();
+
+  window.addEventListener("unload", () => {
+    ChatHandler.cleanup();
+  });
+
+  if (DOM.game.playButton) {
+    DOM.game.playButton.addEventListener("click", () => {
+      GameActions.handlePlayButtonClick();
+    });
+  }
 
   DOM.game.playButton.addEventListener("click", () => {
     GameActions.handlePlayButtonClick();

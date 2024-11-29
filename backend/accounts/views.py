@@ -1058,6 +1058,11 @@ def record_game(request):
     longest_rally = data.get('longest_rally', 0)  # Par défaut 0
     opponent_id = data.get('opponent_id')
     opponent_name = data.get('opponent_name', 'IA')
+    max_ball_speed = data.get('max_ball_speed', 0)
+
+    if max_ball_speed is None:
+        return JsonResponse({'error': 'Données incorrectes : max_ball_speed manquant'}, status=400)
+
 
     if not all([score_user is not None, score_opponent is not None, result is not None]):
         return JsonResponse({'error': 'Données manquantes'}, status=400)
@@ -1077,6 +1082,11 @@ def record_game(request):
     if longest_rally > user_longest_rally:
         print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
 
+    user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
+
+    if max_ball_speed > user_max_ball_speed:
+        print(f"Mise à jour du max ball speed : {max_ball_speed} (ancien : {user_max_ball_speed})")
+
     game = GameHistory.objects.create(
         user=request.user,
         score_user=score_user,
@@ -1084,7 +1094,8 @@ def record_game(request):
         result=result,
         longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
         opponent_user=opponent_user,
-        opponent_name=opponent_name if not opponent_user else None
+        opponent_name=opponent_name if not opponent_user else None,
+        max_ball_speed = max_ball_speed if max_ball_speed > user_max_ball_speed else user_max_ball_speed,
     )
 
     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
@@ -1137,7 +1148,8 @@ def match_history(request):
             'result': "VICTORY" if game.result else "DEFEAT",
             'opponent_avatar': opponent_avatar,
             'user_avatar': user_avatar,
-            'longest_rally': game.longest_rally  # Inclure longest_rally
+            'longest_rally': game.longest_rally,  # Inclure longest_rally
+            'max_ball_speed': game.max_ball_speed
         })
 
     return JsonResponse({'history': history})
@@ -1272,7 +1284,7 @@ def get_user_statistics(request):
 
     # Récupération des statistiques supplémentaires
     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
-    ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
+    max_ball_speed = GameHistory.objects.filter(user=user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
     longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max'] or 0
 
     statistics = {
@@ -1281,7 +1293,7 @@ def get_user_statistics(request):
         'total_wins': total_wins,
         'win_ratio': win_ratio,
         'power_catch_avg': power_catch_avg or 0,
-        'ball_speed_avg': ball_speed_avg or 0,
+        'max_ball_speed': max_ball_speed,
         'longest_rally': longest_rally  # Retourne la meilleure valeur
     }
 
