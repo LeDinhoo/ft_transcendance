@@ -1,5 +1,3 @@
-import * as THREE from "three";
-
 export class AnimationManager {
   constructor(scene) {
     this.scene = scene;

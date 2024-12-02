@@ -26,7 +26,7 @@ export class ModelLoader {
 
   loadGamePlane() {
     return new Promise((resolve) => {
-      this.loader.load("./plan.glb", (gltf) => {
+      this.loader.load("./models/GamePlan.glb", (gltf) => {
         this.gamePlane = gltf.scene;
         this.gamePlane.rotation.y = Math.PI / 2;
         scene.add(this.gamePlane);
@@ -51,7 +51,7 @@ export class ModelLoader {
 
   loadPaddle1() {
     return new Promise((resolve) => {
-      this.loader.load("./paddle1.glb", (gltf) => {
+      this.loader.load("/models/Paddle.glb", (gltf) => {
         this.paddle1 = gltf.scene;
         this.centerObject(this.paddle1);
         this.paddle1.rotation.y = Math.PI;
@@ -61,8 +61,6 @@ export class ModelLoader {
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = false;
-            //ff7c2c
-            //ff4500 de base
             child.material.color.setHex(0xff5500);
             child.material.roughness = 0.3;
             child.material.metalness = 0.5;
@@ -78,7 +76,7 @@ export class ModelLoader {
 
   loadPaddle2() {
     return new Promise((resolve) => {
-      this.loader.load("./paddle1.glb", (gltf) => {
+      this.loader.load("/models/Paddle.glb", (gltf) => {
         this.paddle2 = gltf.scene;
         this.centerObject(this.paddle2);
         this.paddle2.rotation.y = Math.PI;
@@ -129,14 +127,14 @@ export class ModelCache {
   loadModel(path) {
     return new Promise((resolve, reject) => {
       if (this.cache[path]) {
-        resolve(this.cache[path].clone()); // Retourne une copie pour éviter les conflits
+        resolve(this.cache[path].clone());
       } else {
         const loader = new GLTFLoader();
         loader.load(
           path,
           (gltf) => {
-            this.cache[path] = gltf.scene; // Stocker dans le cache
-            resolve(gltf.scene.clone()); // Retourne une copie
+            this.cache[path] = gltf.scene;
+            resolve(gltf.scene.clone());
           },
           undefined,
           (error) => reject(error)

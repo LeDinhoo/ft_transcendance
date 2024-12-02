@@ -1,49 +1,24 @@
-// import * as THREE from "three";
-// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-// import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-// import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-// import { Score3D } from "./Score3D.js";
-// import { AI } from "./AI.js";
-// import { ModelLoader, ModelCache } from "./ModelLoader.js";
-// import { KeyboardManager } from "./KeyboardManager.js";
-// import { NeonBorder } from "./NeonBorder.js";
-// import { FlashEffect } from "./FlashEffect.js";
-// import { InverseShot } from "./InverseShot.js";
-// import { ReduceShot } from "./ReduceShot.js";
-// import { PowerManager } from "./PowerManager.js";
-// import {
-//   createCornerSpheres,
-//   updateOnResize,
-//   adjustCameraToRectangle,
-// } from "./BoundariesWithSphere.js";
-// import { PaddlePower } from "./PowerBook.js";
-// import { AnimationManager } from "./AnimationManager.js";
-// import { PaddleController } from "./PaddleController.js";
-
 import * as THREE from "three";
-import { OrbitControls } from "./libs/OrbitControls.js";
-import { EffectComposer } from "./libs/EffectComposer.js";
-import { RenderPass } from "./libs/RenderPass.js";
-import { UnrealBloomPass } from "./libs/UnrealBloomPass.js";
-import { Score3D } from "./Score3D.js";
-import { AI } from "./AI.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { Score3D } from "./Score.js";
+import { AI } from "./GameAI.js";
 import { ModelLoader, ModelCache } from "./ModelLoader.js";
 import { KeyboardManager } from "./KeyboardManager.js";
 import { NeonBorder } from "./NeonBorder.js";
 import { FlashEffect } from "./FlashEffect.js";
-import { InverseShot } from "./InverseShot.js";
-import { ReduceShot } from "./ReduceShot.js";
-import { TemporaryCube, PowerManager } from "./PowerManager.js";
+import { PowerManager } from "./PowerManager.js";
 import {
   createCornerSpheres,
   updateOnResize,
   adjustCameraToRectangle,
-} from "./BoundariesWithSphere.js";
+} from "./Boundaries.js";
 import { PaddlePower } from "./PowerBook.js";
 import { AnimationManager } from "./AnimationManager.js";
 import { PaddleController } from "./PaddleController.js";
-import { HeightController } from "./PaddleHeightModififer.js";
+import { HeightController } from "./HeightModifier.js";
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
@@ -55,11 +30,9 @@ export const camera = new THREE.PerspectiveCamera(
   4000
 );
 
-// const gameAI = new AI();
-
 export const PADDLE_HEIGHT = 135;
-const paddle1Height = new HeightController();
-const paddle2Height = new HeightController();
+const heightController1 = new HeightController();
+const heightController2 = new HeightController();
 const INITIAL_BALL_SPEED = 10;
 const SPEED_INCREMENT = 0.75;
 const MAX_BALL_SPEED = 27;
@@ -72,10 +45,7 @@ let isBallMoving = false;
 let scoreSystem;
 let gameStarted = false;
 let aiIsActive = false;
-
-let maxBallSpeed = INITIAL_BALL_SPEED;
-
-// export let longestRally = 0;
+export let longestRally = 0;
 
 const keyboard = new KeyboardManager();
 
@@ -148,9 +118,8 @@ function resetBall() {
 function launchBall() {
   if (isBallMoving || scoreSystem.isGameOver()) return;
 
-  // Ajouter la balle à la scène quand le jeu commence
-  scene.add(ball); // Ajout de la balle à la scène
-  ball.visible = true; // Rendre la balle visible lorsque le jeu commence
+  scene.add(ball);
+  ball.visible = true;
   gameStarted = true;
 
   const angle = ((Math.random() * 90 - 45) * Math.PI) / 180;
@@ -161,19 +130,6 @@ function launchBall() {
 
   isBallMoving = true;
 }
-
-// function centerObject(object) {
-//   const box = new THREE.Box3().setFromObject(object);
-//   const center = box.getCenter(new THREE.Vector3());
-
-//   object.traverse((child) => {
-//     if (child.isMesh) {
-//       child.geometry.translate(-center.x, -center.y, -center.z);
-//     }
-//   });
-
-//   object.position.add(center);
-// }
 
 function calculatePaddlePosition() {
   const fov = (camera.fov * Math.PI) / 180;
@@ -223,10 +179,18 @@ const percentages = [
   { x: 95, z: 90 }, // Coin 4
 ];
 
-//A Mettre a jour avec les nouveaux modeles
+let modelsPreloaded = false;
+
 async function preloadModels() {
+  if (modelsPreloaded) {
+    return;
+  }
+
   try {
-    await modelCache.loadModel("white_sunglasses.glb");
+    await modelCache.loadModel("/static/spa/game3D/models/Dynamite.glb");
+    await modelCache.loadModel("/static/spa/game3D/models/Beer.glb");
+    await modelCache.loadModel("/static/spa/game3D/models/Tornado.glb");
+    modelsPreloaded = true;
   } catch (error) {
     console.error("Erreur lors du préchargement des modèles : ", error);
   }
@@ -295,76 +259,19 @@ function getBoundariesFromCorners() {
 
 let boundaries = getBoundariesFromCorners();
 
-// function closeWindowGame()
-// {
-//   window.close();
-// }
-// function closeWindowGame() {
-//   console.log("Jeu terminé, notification envoyée au parent.");
-//   const message = {
-//     type: "gameComplete",
-//     data: { winner: scoreSystem.getWinner() },
-//   };
-//   console.log("Message envoyé au parent :", message);
-//   if (window.parent) {
-//     // Vérifiez si le parent est accessible et envoyez un message
-//     window.parent.postMessage(message,"*");
-//   }
-//   window.close();
-// }
-
-function closeWindowGame() {
-  const message = {
-    type: "gameComplete",
-    data: { winner: scoreSystem.getWinner() },
-  };
-  console.log("Message envoyé au parent :", message);
-
-  if (window.parent && window.parent !== window) {
-    // Envoyer un message au parent pour lui signaler la fin du jeu
-    window.parent.postMessage(message, "*");
-  } else {
-    console.error(
-      "Impossible d'envoyer un message au parent : window.parent inaccessible."
-    );
-  }
-}
-
 keyboard.onSpace(() => {
   if (scoreSystem.isGameOver()) {
-    const winner = scoreSystem.getWinner();
-    const scoreUser = scoreSystem.score.player1;
-    const scoreOpponent = scoreSystem.score.player2;
-    const result = scoreUser > scoreOpponent;
-
-    const longestRally = scoreSystem.getLongestRally();
-    console.log("Fin du jeu - longestRally :", longestRally);
-
-    console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
-
-    // scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
-    scoreSystem.recordGame(
-      scoreUser,
-      scoreOpponent,
-      result,
-      longestRally,
-      maxBallSpeed
-    );
-
-    maxBallSpeed = INITIAL_BALL_SPEED;
     resetBall();
     gameStarted = false;
     powerManager.stopGame();
-    console.log("Quiting Game");
-    closeWindowGame();
-    // closeWindowGame();
+    // console.log("Quiting Game");
     // Fonction pour fermer la fenetre
   } else if (!isBallMoving && !gameStarted) {
     resetBall();
     setTimeout(launchBall, 500);
     gameStarted = true;
     powerManager.startGame();
-    console.log("Launch First Game");
+    // console.log("Launch First Game");
   }
 });
 
@@ -440,19 +347,19 @@ function updateTrajectory() {
 
 const difficultyDisplay = document.createElement("div");
 difficultyDisplay.style.cssText = `
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  color: white;
-  font-family: Arial, sans-serif;
-  font-weight: bold;
-  font-size: 16px;
-  z-index: 1000;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-`;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      font-size: 16px;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      `;
 
 document.body.appendChild(difficultyDisplay);
 
@@ -465,38 +372,6 @@ window.addEventListener("keydown", (event) => {
 });
 
 const animationManager = new AnimationManager(scene);
-
-// const Inverse1 = new InverseShot(
-//   scene,
-//   1,
-//   modelCache,
-//   "stylized_wooden_tankard.glb",
-//   modelLoader
-// );
-
-// const Inverse2 = new InverseShot(
-//   scene,
-//   2,
-//   modelCache,
-//   "stylized_wooden_tankard.glb",
-//   modelLoader
-// );
-
-// const Reduce1 = new ReduceShot(
-//   scene,
-//   1,
-//   modelCache,
-//   "capsule_item.glb",
-//   modelLoader
-// );
-// const Reduce2 = new ReduceShot(
-//   scene,
-//   2,
-//   modelCache,
-//   "capsule_item.glb",
-//   modelLoader
-// );
-
 const paddlePower1 = new PaddlePower();
 const paddlePower2 = new PaddlePower();
 
@@ -511,13 +386,11 @@ const powerManager = new PowerManager(
   modelLoader
 );
 
-// Assignation des touches a ce moment la
 const paddle1Controller = new PaddleController(paddle1Speed, {
   up: "w",
   down: "s",
 });
 
-// Assignation des touches a ce moment la
 const paddle2Controller = new PaddleController(paddle2Speed, {
   up: "arrowup",
   down: "arrowdown",
@@ -525,8 +398,6 @@ const paddle2Controller = new PaddleController(paddle2Speed, {
 
 const gameAI = new AI(paddlePower2, powerManager, paddle1Controller);
 
-
-//Switch AI on/off
 keyboard.onKey("j", () => {
   if (aiIsActive) {
     aiIsActive = false;
@@ -539,11 +410,9 @@ keyboard.onKey("e", () => {
   if (paddle1 && paddlePower1.hasPower("power1")) {
     powerManager.launchGrenade(1);
   } else if (paddle1 && paddlePower1.hasPower("power2")) {
-    // Inverse1.startAnimation(paddle1.position);
     powerManager.launchInverseShot(1, paddle2Controller);
-    // paddle2Controller.activeReverse();
   } else if (paddle1 && paddlePower1.hasPower("power3")) {
-    powerManager.launchReductShot(1, paddle2Height);
+    powerManager.launchReductShot(1, heightController2);
   }
 });
 
@@ -551,69 +420,49 @@ keyboard.onKey("arrowleft", () => {
   if (paddle2 && paddlePower2.hasPower("power1")) {
     powerManager.launchGrenade(2);
   } else if (paddle2 && paddlePower2.hasPower("power2")) {
-    // Inverse2.startAnimation(paddle2.position);
     powerManager.launchInverseShot(2, paddle1Controller);
-    // paddle1Controller.activeReverse();
   } else if (paddle2 && paddlePower2.hasPower("power3")) {
-    powerManager.launchReductShot(2, paddle1Height);
+    powerManager.launchReductShot(2, heightController1);
   }
 });
-
-// let previousTime = performance.now(); // Temps précédent
-// let fps = 0; // Variable pour stocker les FPS
-
-// function calculateFPS() {
-//   const currentTime = performance.now(); // Temps actuel
-//   const deltaTime = currentTime - previousTime; // Temps écoulé entre les frames
-//   fps = 1000 / deltaTime; // Calcul des FPS (1 seconde divisée par le temps entre les frames)
-//   previousTime = currentTime; // Mettre à jour le temps précédent
-// }
 
 function animate() {
   requestAnimationFrame(animate);
   preloadModels();
+
   animationManager.update();
+
   paddle1Controller.assignPaddle(paddle1);
   paddle2Controller.assignPaddle(paddle2);
-  paddle1Height.assignPaddle(paddle1);
-  paddle2Height.assignPaddle(paddle2);
-  paddle1Height.updatePaddleModelHeight();
-  paddle2Height.updatePaddleModelHeight();
+  heightController1.assignPaddle(paddle1);
+  heightController2.assignPaddle(paddle2);
+
+  heightController1.updatePaddleModelHeight();
+  heightController2.updatePaddleModelHeight();
+
   paddle2Controller.updateColor();
   paddle1Controller.updateColor();
 
-  let height1 = paddle1Height.getHeight();
-  let height2 = paddle2Height.getHeight(); 
+  flashEffect.update();
+
+  const ballRadius = 10;
 
   if (!scoreSystem.isGameOver()) {
-    paddle1Controller.move(boundaries, gameStarted, keyboard, PADDLE_HEIGHT);
+    paddle1Controller.move(
+      boundaries,
+      gameStarted,
+      keyboard,
+      heightController1.getHeight()
+    );
     if (!aiIsActive) {
-      paddle2Controller.move(boundaries, gameStarted, keyboard, PADDLE_HEIGHT);
+      paddle2Controller.move(
+        boundaries,
+        gameStarted,
+        keyboard,
+        heightController2.getHeight()
+      );
     }
   }
-
-  // if (paddle1 && paddle2) {
-  //   if (paddlePower1.hasPower("power1")) {
-  //     // Grenade1.update(paddle1, paddlePower1, animationManager);
-  //   }
-  //   if (paddlePower1.hasPower("power2")) {
-  //     // Inverse1.update(paddle1, paddlePower1, paddle2);
-  //   }
-  //   if (paddlePower1.hasPower("power3")) {
-  //     Reduce1.update(paddle1, paddlePower1, paddle2);
-  //   }
-  //   if (paddlePower2.hasPower("power1")) {
-  //     // Grenade2.update(paddle2, paddlePower2);
-  //   }
-  //   if (paddlePower2.hasPower("power2")) {
-  //     // Inverse2.update(paddle2, paddlePower2, paddle1);
-  //   }
-  //   if (paddlePower2.hasPower("power3")) {
-  //     Reduce2.update(paddle2, paddlePower2, paddle1);
-  //   }
-  // }
-
-  flashEffect.update();
 
   if (isBallMoving && !scoreSystem.isGameOver()) {
     updateTrajectory();
@@ -627,18 +476,23 @@ function animate() {
         boundaries
       );
       gameAI.loadPowerManager(powerManager);
-      gameAI.updatePowerManager(paddle2, paddle2Height, paddle1Height, paddle1, paddle2Controller);
+      gameAI.updatePowerManager(
+        paddle2,
+        heightController2,
+        heightController1,
+        paddle1,
+        paddle2Controller
+      );
     }
 
     ball.position.x += ballVelocity.x;
     ball.position.z += ballVelocity.z;
 
-    const ballRadius = 10;
-
-
-    if (Math.abs(ball.position.z) > boundaries.maxZ) {
+    if (Math.abs(ball.position.z) + ballRadius > boundaries.maxZ) {
       ballVelocity.z *= -1;
-      ball.position.z = Math.sign(ball.position.z) * boundaries.maxZ;
+
+      const direction = Math.sign(ball.position.z);
+      ball.position.z = direction * (boundaries.maxZ - ballRadius - 0.5);
     }
 
     if (ballVelocity.x < 0) {
@@ -647,25 +501,21 @@ function animate() {
       if (
         ball.position.x <= paddleLeftX + 30 &&
         ball.position.x >= paddleLeftX - 30 &&
-        Math.abs(ball.position.z - paddle1.position.z) < PADDLE_HEIGHT / 1.8
+        Math.abs(ball.position.z - paddle1.position.z) <
+          heightController1.getHeight() / 1.8
       ) {
         currentBallSpeed = Math.min(
           currentBallSpeed + SPEED_INCREMENT,
           MAX_BALL_SPEED
         );
 
-        // Mettez à jour la vitesse maximale atteinte
-        if (currentBallSpeed > maxBallSpeed) {
-          maxBallSpeed = currentBallSpeed;
-        }
-
         const relativeImpactZ =
-          (ball.position.z - paddle1.position.z) / (height1 / 2);
+          (ball.position.z - paddle1.position.z) /
+          (heightController1.getHeight() / 2);
         const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
         ballVelocity.x = currentBallSpeed * Math.cos(bounceAngle);
         ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
-        scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
-        // longestRally++;
+        longestRally++;
       }
     }
 
@@ -675,32 +525,25 @@ function animate() {
       if (
         ball.position.x >= paddleRightX - 30 &&
         ball.position.x <= paddleRightX + 30 &&
-        Math.abs(ball.position.z - paddle2.position.z) < PADDLE_HEIGHT / 1.8
+        Math.abs(ball.position.z - paddle2.position.z) <
+          heightController2.getHeight() / 1.8
       ) {
         currentBallSpeed = Math.min(
           currentBallSpeed + SPEED_INCREMENT,
           MAX_BALL_SPEED
         );
 
-        if (currentBallSpeed > maxBallSpeed) {
-          maxBallSpeed = currentBallSpeed;
-        }
-
         const relativeImpactZ =
-          (ball.position.z - paddle2.position.z) / (height2 / 2);
+          (ball.position.z - paddle2.position.z) /
+          (heightController2.getHeight() / 2);
         const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
         ballVelocity.x = -currentBallSpeed * Math.cos(bounceAngle);
         ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
-        // longestRally++;
-        scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
-        // scoreSystem.setLongestRally(longestRally); // Mettez à jour longestRally dans Score3D
+        longestRally++;
       }
     }
 
-
-    ///////////////////////////merge en cours //////////////////// en dessous pas traitee
-
-    if (ball.position.x < paddle1.position.x) {
+    if (ball.position.x < paddle1.position.x - 10) {
       neonBorder.flashNeonBorder(bloomPass, 2);
       setTimeout(() => {
         neonBorder.flashNeonBorder(bloomPass, 2);
@@ -711,19 +554,15 @@ function animate() {
         powerManager.stopGame();
         isBallMoving = false;
         ball.position.set(0, -100, 0);
-        // Grenade1.cleanCube();
-        // Grenade2.cleanCube();
         paddlePower1.deactivateAllPowers();
         paddlePower2.deactivateAllPowers();
-        //export longestRally;
-        console.log("Longest Rally player gauche:", longestRally);
+        // console.log("Longest Rally :", longestRally);
         longestRally = 0;
       } else {
         resetBall();
-        setTimeout(launchBall, 500);
-        // setTimeout(AI.resetLastUpdate, 100);
+        setTimeout(launchBall, 1250);
       }
-    } else if (ball.position.x > paddle2.position.x) {
+    } else if (ball.position.x > paddle2.position.x + 10) {
       neonBorder.flashNeonBorder(bloomPass, 1);
       setTimeout(() => {
         neonBorder.flashNeonBorder(bloomPass, 1);
@@ -734,17 +573,13 @@ function animate() {
         powerManager.stopGame();
         isBallMoving = false;
         ball.position.set(0, -100, 0);
-        // Grenade1.cleanCube();
-        // Grenade2.cleanCube();
         paddlePower1.deactivateAllPowers();
         paddlePower2.deactivateAllPowers();
-        //export longestRally;
-        console.log("Longest Rally player droite:", longestRally);
+        // console.log("Longest Rally :", longestRally);
         longestRally = 0;
       } else {
         resetBall();
-        setTimeout(launchBall, 500);
-        // setTimeout(AI.resetLastUpdate, 550);
+        setTimeout(launchBall, 1250);
       }
     }
   }
@@ -753,62 +588,7 @@ function animate() {
     powerManager.update(paddle1, paddle2, gameStarted);
   }
 
-  // Calcul des FPS
-  // calculateFPS();
-
-  // Vous pouvez afficher les FPS dans la console ou sur l'écran
-  // console.clear();
-  // console.log(`FPS: ${Math.round(fps)}`);
-
   composer.render();
 }
-
-// export function recordGame(scoreUser, scoreOpponent, result) {
-//   console.log("fonction recordGame appele");
-//   const data = {
-//     score_user: scoreUser,
-//     score_opponent: scoreOpponent,
-//     result: result, // true pour victoire, false pour défaite
-//     // longest_rally: longestRally,
-//   };
-
-//   console.log("data :", data.score_user, data.score_opponent, data.result);
-//   const csrftoken = getCookie("crsftoken");
-//   console.log("CRSF TOKEN: ", csrftoken);
-//   fetch("/api/record-game/", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "X-CSRFToken": getCookie("csrftoken"), // Récupère le token CSRF
-//     },
-//     credentials: "include", // Permet d'envoyer les cookies d'authentification
-//     body: JSON.stringify(data),
-//   })
-//     .then((response) => response.json())
-//     .then((data) => {
-//       if (data.message) {
-//         console.log(data.message); // Confirmation
-//       } else if (data.error) {
-//         console.error(data.error); // Affiche une erreur si présente
-//       }
-//     })
-//     .catch((error) => console.error("Error:", error));
-// }
-
-// Fonction utilitaire pour récupérer le token CSRF
-// function getCookie(name) {
-//   let cookieValue = null;
-//   if (document.cookie && document.cookie !== "") {
-//     const cookies = document.cookie.split(";");
-//     for (let i = 0; i < cookies.length; i++) {
-//       const cookie = cookies[i].trim();
-//       if (cookie.substring(0, name.length + 1) === name + "=") {
-//         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-//         break;
-//       }
-//     }
-//   }
-//   return cookieValue;
-// }
 
 animate();

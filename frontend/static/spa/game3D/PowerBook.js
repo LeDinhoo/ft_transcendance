@@ -1,9 +1,8 @@
-// PaddlePower.js
 export class PaddlePower {
   constructor() {
-    this.power1 = false; // Exemple : pouvoir 1 (ex: agrandir le paddle)
-    this.power2 = false; // Exemple : pouvoir 2 (ex: accélérer la balle)
-    this.power3 = false; // Exemple : pouvoir 3 (ex: invincibilité)
+    this.power1 = false;
+    this.power2 = false;
+    this.power3 = false;
   }
 
   hasPower(powerName) {
@@ -12,10 +11,9 @@ export class PaddlePower {
 
   usePower(powerName) {
     if (this.hasPower(powerName)) {
-      // console.log(`Utilisation du pouvoir ${powerName}`);
       this[powerName] = false;
     } else {
-      // console.warn(`Le pouvoir ${powerName} n'est pas activé.`);
+      console.warn(`Le pouvoir ${powerName} n'existe pas.`);
     }
   }
 

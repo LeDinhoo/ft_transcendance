@@ -1,10 +1,7 @@
 import * as THREE from "three";
-import { PaddlePower } from "./PowerBook.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { Grenade } from "./GrenadeFlash.js";
-import { InverseShot } from "./InverseShot.js";
-import { ReductShot } from "./ReductShot.js";
-import { ModelLoader } from "./ModelLoader.js";
+import { Grenade } from "./PowerGrenadeFlash.js";
+import { InverseShot } from "./PowerInverseShot.js";
+import { ReductShot } from "./PowerReductShot.js";
 
 export class TemporaryCube {
   constructor(
@@ -65,13 +62,13 @@ export class TemporaryCube {
     let modelPath = null;
     switch (this.power) {
       case "power1":
-        modelPath = "dynamite.glb";
+        modelPath = "/models/Dynamite.glb";
         break;
       case "power2":
-        modelPath = "stylized_wooden_tankard.glb";
+        modelPath = "/models/Beer.glb";
         break;
       case "power3":
-        modelPath = "tornado.glb";
+        modelPath = "/models/Tornado.glb";
         break;
       default:
         break;
@@ -120,15 +117,6 @@ export class TemporaryCube {
     return pivot;
   }
 
-  // getPowerPositions() {
-  //   const positions = [];
-  //   // if (this.cube.position.z === -360 || this.cube.position.z === 360) {
-  //   positions.push(this.cube.position.x);
-  //   positions.push(this.cube.position.z);
-  //   // }
-  //   return positions;
-  // }
-
   checkCollisionWithPaddle(paddle) {
     if (this.cube.position.z === -360 || this.cube.position.z === 360) {
       if (
@@ -144,21 +132,6 @@ export class TemporaryCube {
   isApproaching(fixedPoint1, fixedPoint2) {
     if (!this.cube) return false;
 
-    // Afficher un cube rouge à la position de fixedPoint1
-    // const geometry = new THREE.BoxGeometry(10, 10, 10);
-    // const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-    // const cube1 = new THREE.Mesh(geometry, material);
-    // cube1.position.set(fixedPoint1.x, 5, fixedPoint1.z);
-    // this.scene.add(cube1);
-
-    // // Afficher un cube rouge à la position de fixedPoint2
-    // const cube2 = new THREE.Mesh(geometry, material);
-    // cube2.position.set(fixedPoint2.x, 5, fixedPoint2.z);
-    // this.scene.add(cube2);
-
-    // Calcul de la distance pour fixedPoint1
-
     const currentDistance1 = Math.sqrt(
       Math.pow(this.cube.position.x - fixedPoint1.x, 2) +
         Math.pow(this.cube.position.z - fixedPoint1.z, 2)
@@ -168,7 +141,6 @@ export class TemporaryCube {
         Math.pow(this.oldPosition.z - fixedPoint1.z, 2)
     );
 
-    // Calcul de la distance pour fixedPoint2
     const currentDistance2 = Math.sqrt(
       Math.pow(this.cube.position.x - fixedPoint2.x, 2) +
         Math.pow(this.cube.position.z - fixedPoint2.z, 2)
@@ -178,30 +150,21 @@ export class TemporaryCube {
         Math.pow(this.oldPosition.z - fixedPoint2.z, 2)
     );
 
-    // Mettre à jour l'ancienne position pour le prochain calcul
     this.oldPosition.x = this.cube.position.x;
     this.oldPosition.z = this.cube.position.z;
 
-    // Vérification pour fixedPoint1
     if (currentDistance1 < 300) {
-      // console.log(`Distance au point fixe 1 : ${currentDistance1}`);
       if (currentDistance1 < previousDistance1) {
-        // console.log("Le cube se rapproche du point fixe 1.");
         this.isNearTop = true;
       } else {
-        // console.log("Le cube s'éloigne du point fixe 1.");
         this.isNearTop = false;
       }
     }
 
-    // Vérification pour fixedPoint2
     if (currentDistance2 < 300) {
-      // console.log(`Distance au point fixe 2 : ${currentDistance2}`);
       if (currentDistance2 < previousDistance2) {
-        // console.log("Le cube se rapproche du point fixe 2.");
         this.isNearBottom = true;
       } else {
-        // console.log("Le cube s'éloigne du point fixe 2.");
         this.isNearBottom = false;
       }
     }
@@ -213,7 +176,6 @@ export class TemporaryCube {
 
   update(paddle1, paddle2) {
     if (!this.cube) {
-      // console.warn("Cube is not initialized, skipping update.");
       return;
     }
     const { maxX, maxZ } = this.boundaries;
@@ -221,19 +183,6 @@ export class TemporaryCube {
     const Top = { x: 760, z: -360 };
     const Bottom = { x: 760, z: 360 };
     this.isApproaching(Top, Bottom);
-
-    // Gérer les appels périodiques de isApproaching
-    // if (!this.lastApproachCallTime)
-    //   this.lastApproachCallTime = performance.now();
-
-    // const now = performance.now();
-    // if (now - this.lastApproachCallTime >= 500) {
-
-    //   const Top = { x: 760, z: -360 };
-    //   const Bottom = { x: 760, z: 360 };
-    //   this.isApproaching(Top, Bottom);
-    //   this.lastApproachCallTime = now;
-    // }
 
     this.time += this.waveFrequency;
     if (this.cube) {
@@ -402,7 +351,6 @@ export class TemporaryCube {
         this.scene.remove(this.cube);
         this.paddlePower1.setPower(this.power);
         this.powerManager.createPower(1, this.power);
-        // console.log("Collision avec le paddle 1");
         const index = this.powerManager.cubes.indexOf(this);
         if (index !== -1) {
           this.powerManager.cubes.splice(index, 1);
@@ -416,7 +364,6 @@ export class TemporaryCube {
         this.scene.remove(this.cube);
         this.paddlePower2.setPower(this.power);
         this.powerManager.createPower(2, this.power);
-        console.log("Collision avec le paddle 2");
         const index = this.powerManager.cubes.indexOf(this);
         if (index !== -1) {
           this.powerManager.cubes.splice(index, 1);
@@ -469,7 +416,7 @@ export class PowerManager {
       this.flashEffect,
       player,
       this.modelCache,
-      "dynamite.glb"
+      "/models/Dynamite.glb"
     );
     if (player === 1) {
       this.player1grenades.push(grenade);
@@ -483,7 +430,7 @@ export class PowerManager {
       this.scene,
       player,
       this.modelCache,
-      "stylized_wooden_tankard.glb",
+      "/models/Beer.glb",
       this.modelLoader
     );
     if (player === 1) {
@@ -498,7 +445,7 @@ export class PowerManager {
       this.scene,
       player,
       this.modelCache,
-      "tornado.glb",
+      "/models/Tornado.glb",
       this.modelLoader
     );
     if (player === 1) {
@@ -635,26 +582,6 @@ export class PowerManager {
       this.cubes.push(cube);
     }
   }
-
-  // displayPowersPositions() {
-  //   this.cubes.forEach((cube) => {
-  //     console.log(cube.getPowerPositions());
-  //   });
-  // }
-
-  // getPower1Position() {
-  //   if (this.cubes[0]) {
-  //     return this.cubes[0].getPowerPositions();
-  //   }
-  //   return null;
-  // }
-
-  // getPower2Position() {
-  //   if (this.cubes[1]) {
-  //     return this.cubes[1].getPowerPositions();
-  //   }
-  //   return null;
-  // }
 
   getCubeList() {
     return this.cubes;

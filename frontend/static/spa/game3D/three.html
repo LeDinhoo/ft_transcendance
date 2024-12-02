@@ -1,74 +1,44 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pong 3D</title>
-  <style>
-    body {
-      margin: 0;
-    }
-    #game {
-      width: 80vw;
-      height: 80vh;
-    }
-  </style>
-  <!-- <script>
-    // Écouter les messages du tournoi et de fin de jeu
-    window.addEventListener('message', (event) => {
-      if (event.data.type === 'startGame') {
-        window.currentPlayers = event.data.data;
-      } else if (event.data.type === 'gameComplete') {
-        console.log('Game completed:', event.data);
-
-        // Afficher le gagnant et fermer l'iframe
-        alert(`Partie terminée ! Gagnant : Joueur ${event.data.data.winner}`);
-        closeFrame();
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pong 3D</title>
+    <style>
+      body {
+        margin: 0;
       }
-    });
-
-    // Fonction pour fermer l'iframe
-    function closeFrame() {
-      // Supposons que cette page est affichée dans une iframe
-      if (window.parent !== window) {
-        window.parent.postMessage({ type: 'closeFrame' }, '*'); // Message au parent pour fermer l'iframe
-      } else {
-        console.warn("Aucune iframe à fermer, cette page est en mode autonome.");
+      #game {
+        width: 80vw;
+        height: 80vh;
       }
-    }
-  </script> -->
-</head>
-<body>
-  <div id="game"></div>
-
-  <!-- Importation de lil-gui depuis un fichier local -->
-  <!-- <script src="/static/spa/home/game/libs/lil-gui.min.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "/static/spa/game3D/libs/three.module.js",
-        "three/examples/jsm/controls/OrbitControls": "/static/spa/game3D/libs/OrbitControls.js",
-        "three/examples/jsm/postprocessing/RenderPass": "/static/spa/game3D/libs/RenderPass.js",
-        "three/examples/jsm/postprocessing/UnrealBloomPass": "/static/spa/game3D/libs/UnrealBloomPass.js",
-        "three/examples/jsm/postprocessing/Pass": "/static/spa/game3D/libs/Pass.js",
-        "three/examples/jsm/shaders/CopyShader": "/static/spa/game3D/libs/CopyShader.js",
-        "three/examples/jsm/postprocessing/EffectComposer": "/static/spa/game3D/libs/EffectComposer.js",
-        "three/examples/jsm/loaders/GLTFLoader": "/static/spa/game3D/libs/GLTFLoader.js",
-        "three/examples/jsm/utils/BufferGeometryUtils": "/static/spa/game3D/libs/BufferGeometryUtils.js",
-        "three/examples/jsm/shaders/LuminosityHighPassShader": "/static/spa/game3D/libs/LuminosityHighPassShader.js",
-        "three/examples/jsm/postprocessing/MaskPass": "/static/spa/game3D/libs/MaskPass.js",
-        "three/examples/jsm/helpers/RectAreaLightHelper": "/static/spa/game3D/libs/RectAreaLightHelper.js",
-        "three/examples/jsm/loaders/FontLoader": "/static/spa/game3D/libs/FontLoader.js",
-        "three/examples/jsm/geometries/TextGeometry": "/static/spa/game3D/libs/TextGeometry.js",
-        "cannon-es": "/static/spa/game3D/libs/cannon-es.js"
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+          "three/examples/jsm/loaders/GLTFLoader": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/loaders/GLTFLoader.js",
+          "three/examples/jsm/controls/OrbitControls": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/controls/OrbitControls.js",
+          "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js",
+          "three/examples/jsm/postprocessing/EffectComposer": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/EffectComposer.js",
+          "three/examples/jsm/postprocessing/RenderPass": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/RenderPass.js",
+          "three/examples/jsm/postprocessing/UnrealBloomPass": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/UnrealBloomPass.js",
+          "three/examples/jsm/postprocessing/Pass": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/Pass.js",
+          "three/examples/jsm/shaders/CopyShader": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/shaders/CopyShader.js",
+          "three/examples/jsm/postprocessing/MaskPass": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/MaskPass.js",
+          "three/examples/jsm/shaders/LuminosityHighPassShader": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/shaders/LuminosityHighPassShader.js",
+          "three/examples/jsm/helpers/RectAreaLightHelper": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/helpers/RectAreaLightHelper.js",
+          "three/examples/jsm/loaders/FontLoader": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/loaders/FontLoader.js",
+          "three/examples/jsm/geometries/TextGeometry": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/geometries/TextGeometry.js",
+          "stats.js": "https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"
+        }
       }
-    }
-  </script>
-
-  <!-- Chargement des scripts du projet -->
-  <script type="module" src="/static/spa/game3D/main.js"></script>
-  <script type="module" src="/static/spa/game3D/light.js"></script>
-</body>
+    </script>
+    <script type="module" src="main.js"></script>
+    <script type="module" src="Light.js"></script>
+  </body>
 </html>

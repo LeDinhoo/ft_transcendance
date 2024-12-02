@@ -16,7 +16,7 @@ export class PaddleController {
     }
 
     this.paddle = paddle;
-    console.log("Paddle assigned:", this.paddle);
+    // console.log("Paddle assigned:", this.paddle);
   }
 
   getRemainingReverseTime() {
@@ -29,12 +29,12 @@ export class PaddleController {
     originalColorHex = null
   ) {
     if (!paddle) {
-      console.error("Le paddle spécifié est null ou non chargé.");
+      // console.error("Le paddle spécifié est null ou non chargé.");
       return;
     }
 
     // Si la couleur d'origine n'est pas spécifiée, la déterminer dynamiquement
-    const defaultOriginalColor = this.paddle == paddle2 ? 0x0d9bff : 0xff4500;
+    const defaultOriginalColor = this.paddle == paddle2 ? 0x0d9bff : 0xff5500;
     const targetColorHex = this.isReversed
       ? reverseColorHex
       : originalColorHex || defaultOriginalColor;
@@ -84,25 +84,58 @@ export class PaddleController {
     return this.paddle.position.z;
   }
 
+  getIsReversed() {
+    return this.isReversed;
+  }
+
+  updateColor() {
+    this.changePaddleColor(this.paddle);
+  }
+
   move(boundaries, gameStarted, keyboard, PADDLE_HEIGHT) {
     if (!this.paddle || !gameStarted) return;
 
-    this.changePaddleColor(this.paddle);
+    // this.changePaddleColor(this.paddle);
     // console.log("Remaining reverse time:", this.remainingReverseTime);
 
-    const paddleLimit = boundaries.maxZ - PADDLE_HEIGHT / 2;
+    let paddleLimitBot, paddleLimitTop;
+
+    if (PADDLE_HEIGHT === 67.5) {
+      paddleLimitBot = boundaries.maxZ - (PADDLE_HEIGHT + 13) / 2;
+      paddleLimitTop = boundaries.minZ + (PADDLE_HEIGHT + 13) / 2;
+    } else {
+      paddleLimitBot = boundaries.maxZ - (PADDLE_HEIGHT + 9) / 2;
+      paddleLimitTop = boundaries.minZ + (PADDLE_HEIGHT + 9) / 2;
+    }
     const upKey = this.isReversed ? this.controls.down : this.controls.up;
     const downKey = this.isReversed ? this.controls.up : this.controls.down;
 
-    if (
-      keyboard.isPressed(upKey) &&
-      this.paddle.position.z > boundaries.minZ + PADDLE_HEIGHT / 2
-    ) {
+    if (keyboard.isPressed(upKey) && this.paddle.position.z > paddleLimitTop) {
       this.paddle.position.z -= this.paddleSpeed;
     }
 
-    if (keyboard.isPressed(downKey) && this.paddle.position.z < paddleLimit) {
+    if (
+      keyboard.isPressed(downKey) &&
+      this.paddle.position.z < paddleLimitBot
+    ) {
       this.paddle.position.z += this.paddleSpeed;
+    }
+
+    // Si la taille revient a la normale, ajuster la position
+    if (PADDLE_HEIGHT === 135) {
+      if (this.paddle.position.z > paddleLimitBot) {
+        this.paddle.position.z = paddleLimitBot;
+      }
+      if (this.paddle.position.z < paddleLimitTop) {
+        this.paddle.position.z = paddleLimitTop;
+      }
+    } else {
+      if (this.paddle.position.z > paddleLimitBot) {
+        this.paddle.position.z = paddleLimitBot;
+      }
+      if (this.paddle.position.z < paddleLimitTop) {
+        this.paddle.position.z = paddleLimitTop;
+      }
     }
   }
 }

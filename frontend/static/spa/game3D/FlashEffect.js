@@ -8,7 +8,7 @@ export class FlashEffect {
     this.isFlashing = false;
     this.flashDuration = 500;
     this.flashStartTime = 0;
-    this.flashPhase = "idle"; // 'full', 'fadeOut'
+    this.flashPhase = "idle";
     this.flashIntensity = 0;
 
     this.createFlashOverlay();
@@ -33,14 +33,13 @@ export class FlashEffect {
   handleResize() {
     if (this.flashPlane) {
       const distance = Math.abs(this.flashPlane.position.z);
-      const height = 2 * Math.tan((this.camera.fov * Math.PI) / 360) * distance; // Hauteur de la vue
-      const width = height * this.camera.aspect; // Largeur de la vue
-      this.flashPlane.scale.set(width, height, 1); // Mettre à jour la taille du plan
+      const height = 2 * Math.tan((this.camera.fov * Math.PI) / 360) * distance;
+      const width = height * this.camera.aspect;
+      this.flashPlane.scale.set(width, height, 1);
     }
   }
 
   triggerFlash() {
-    // Réinitialiser le flash en cours
     this.isFlashing = true;
     this.flashStartTime = Date.now();
     this.flashPhase = "full";

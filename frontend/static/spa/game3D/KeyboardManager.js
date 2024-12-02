@@ -31,7 +31,6 @@ export class KeyboardManager {
             this.onSpacePress?.();
         }
 
-        // Exécute le callback associé à la touche si il existe
         const callback = this.callbacks.get(key);
         if (callback) {
             callback();
@@ -57,7 +56,6 @@ export class KeyboardManager {
         this.onSpacePress = callback;
     }
 
-    // Nouvelle méthode pour ajouter des callbacks pour n'importe quelle touche
     onKey(key, callback) {
         this.callbacks.set(key.toLowerCase(), callback);
     }
