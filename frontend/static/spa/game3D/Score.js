@@ -20,10 +20,12 @@ export class Score3D {
     this.directionalLight = null; // DirectionalLight
     this.lightTarget = null; // Target pour la lumière
     this.gameOver = false;
-    this.WINNING_SCORE = 5;
+    this.WINNING_SCORE = 1;
     this.POINT_DIFFERENCE_REQUIRED = 2;
     this.fontLoader = new FontLoader();
     this.pressSpaceText = null;
+    this.longestRally = 0; // Initialisation ici
+
     // Matériau pour le score du joueur 1 (Orange)
     this.textMaterialLeft = new THREE.MeshStandardMaterial({
       color: 0xff5500,
@@ -141,6 +143,8 @@ export class Score3D {
     this.removeVictoryText(); // Supprimer le texte de victoire
     this.createPressSpaceText(); // Réafficher "PRESS SPACE"
     this.gameOver = false; // Réinitialiser l'état de fin de partie
+
+    maxBallSpeed = INITIAL_BALL_SPEED;
   }
 
   checkWinCondition() {
@@ -482,11 +486,89 @@ export class Score3D {
     this.updatePosition();
 
     // Vérifier la condition de victoire après avoir mis à jour l'affichage
-    this.checkWinCondition();
+    // this.checkWinCondition();
+
+    if (this.checkWinCondition()) {
+      // Déterminer les scores finaux et le résultat
+      const scoreUser = this.score.player1;
+      const scoreOpponent = this.score.player2;
+      const result = scoreUser > scoreOpponent; // true si le joueur 1 gagne, sinon false
+      // const longestRally = longestRally;
+
+      // Enregistrer la partie
+      // recordGame(scoreUser, scoreOpponent, result);
+    }
   }
+  
 
   getScore() {
     return this.score;
+  }
+
+  getWinner() {
+    if (!this.isGameOver()) {
+      return null; // Aucun gagnant si le jeu n'est pas encore terminé
+    }
+
+    if (this.score.player1 > this.score.player2) {
+      return "Blue"; // Joueur 1 (Blue) gagne
+    } else if (this.score.player2 > this.score.player1) {
+      return "Orange"; // Joueur 2 (Orange) gagne
+    } else {
+      return "Draw"; // En cas d'égalité (bien que cela soit rare dans votre logique)
+    }
+  }
+
+  setLongestRally(value) {
+    if (typeof value === "number" && value >= 0) {
+      this.longestRally = value;
+      console.log("longestRally mis à jour :", this.longestRally);
+    } else {
+      console.error("Invalid value for longestRally");
+    }
+  }
+
+  getLongestRally() {
+    return this.longestRally;
+  }
+
+  recordGame(scoreUser, scoreOpponent, result, longestRally, maxBallSpeed) {
+    console.log("recordGame appelée avec :", {
+      scoreUser,
+      scoreOpponent,
+      result,
+      longestRally,
+      maxBallSpeed,
+    });
+    const data = {
+      score_user: scoreUser,
+      score_opponent: scoreOpponent,
+      result: result,
+      longest_rally: longestRally, // Ajout de longestRally
+      max_ball_speed: maxBallSpeed,
+    };
+
+    console.log("Données envoyées :", data);
+    const csrftoken = getCookie("csrftoken");
+
+    fetch("/api/record-game/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // "X-CSRFToken": csrftoken,
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+          console.log(data.message); // Confirmation
+        } else if (data.error) {
+          console.error(data.error); // Affiche une erreur
+        }
+      })
+      .catch((error) => console.error("Erreur :", error));
   }
 
   isGameOver() {
@@ -557,4 +639,19 @@ export class Score3D {
       this.victoryMaterial.dispose();
     }
   }
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
 }

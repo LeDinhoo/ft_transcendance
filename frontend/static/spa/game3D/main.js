@@ -45,7 +45,10 @@ let isBallMoving = false;
 let scoreSystem;
 let gameStarted = false;
 let aiIsActive = false;
-export let longestRally = 0;
+// export let longestRally = 0;
+
+let maxBallSpeed = INITIAL_BALL_SPEED;
+
 
 const keyboard = new KeyboardManager();
 
@@ -259,11 +262,51 @@ function getBoundariesFromCorners() {
 
 let boundaries = getBoundariesFromCorners();
 
+
+function closeWindowGame() {
+  const message = {
+    type: "gameComplete",
+    data: { winner: scoreSystem.getWinner() },
+  };
+  console.log("Message envoyé au parent :", message);
+
+  if (window.parent && window.parent !== window) {
+    // Envoyer un message au parent pour lui signaler la fin du jeu
+    window.parent.postMessage(message, "*");
+  } else {
+    console.error(
+      "Impossible d'envoyer un message au parent : window.parent inaccessible."
+    );
+  }
+}
+
 keyboard.onSpace(() => {
   if (scoreSystem.isGameOver()) {
+    const winner = scoreSystem.getWinner();
+    const scoreUser = scoreSystem.score.player1;
+    const scoreOpponent = scoreSystem.score.player2;
+    const result = scoreUser > scoreOpponent;
+
+    const longestRally = scoreSystem.getLongestRally();
+    console.log("Fin du jeu - longestRally :", longestRally);
+
+    console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
+
+    // scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
+    scoreSystem.recordGame(
+      scoreUser,
+      scoreOpponent,
+      result,
+      longestRally,
+      maxBallSpeed
+    );
+
+    maxBallSpeed = INITIAL_BALL_SPEED;
+
     resetBall();
     gameStarted = false;
     powerManager.stopGame();
+    closeWindowGame();
     // console.log("Quiting Game");
     // Fonction pour fermer la fenetre
   } else if (!isBallMoving && !gameStarted) {
@@ -509,13 +552,18 @@ function animate() {
           MAX_BALL_SPEED
         );
 
+        if (currentBallSpeed > maxBallSpeed) {
+          maxBallSpeed = currentBallSpeed;
+        }
+
         const relativeImpactZ =
           (ball.position.z - paddle1.position.z) /
           (heightController1.getHeight() / 2);
         const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
         ballVelocity.x = currentBallSpeed * Math.cos(bounceAngle);
         ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
-        longestRally++;
+        scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
+        // longestRally++;
       }
     }
 
@@ -533,13 +581,18 @@ function animate() {
           MAX_BALL_SPEED
         );
 
+        if (currentBallSpeed > maxBallSpeed) {
+          maxBallSpeed = currentBallSpeed;
+        }
+
         const relativeImpactZ =
           (ball.position.z - paddle2.position.z) /
           (heightController2.getHeight() / 2);
         const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
         ballVelocity.x = -currentBallSpeed * Math.cos(bounceAngle);
         ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
-        longestRally++;
+        scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
+        // longestRally++;
       }
     }
 
