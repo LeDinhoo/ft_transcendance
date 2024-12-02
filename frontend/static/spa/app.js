@@ -186,8 +186,8 @@ document.addEventListener("DOMContentLoaded", function () {
 	// if (isAuthenticated)
 	// 	initializeChatSocket();
 
-	if (isAuthenticated())
-		window.wsManager.initializeChatSocket();
+	// if (isAuthenticated())
+	window.wsManager.initializeChatSocket();
 
     if (path === "/" || path === "/login-register") {
       loadComponent(

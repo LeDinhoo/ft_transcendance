@@ -1483,6 +1483,7 @@ function updateProfilOnHome() {
 
 function initializeHome() {
 	console.log("fonction initializeHome appelée..");
+	wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
 	// Constants and DOM Elements
 	const PLAYER_STATUSES = {

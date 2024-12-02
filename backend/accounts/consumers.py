@@ -13,18 +13,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         try:
-			avatar_url = str(self.user.avatar)
-			if avatar_url.startswith('assets/avatars/'):
-				avatar_url = f"/static/{avatar_url}"
-			else:
-				avatar_url = f"/media/{avatar_url}"
+            avatar_url = str(self.user.avatar)
+            if avatar_url.startswith('assets/avatars/'):
+                avatar_url = f"/static/{avatar_url}"
+            else:
+                avatar_url = f"/media/{avatar_url}"
 
-			user_data = {
-				"id": self.user.id,
-				"username": self.user.username,
-				"avatar": avatar_url,
-				"status": "online"
-			}
+            user_data = {
+                "id": self.user.id,
+                "username": self.user.username,
+                "avatar": avatar_url,
+                "status": "online"
+            }
 
             # Stocker dans le dict
             ChatConsumer.connected_users[self.user.id] = user_data
@@ -58,7 +58,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-        await self.channel_layer.group_discard("chat", self.channel_name)
         await self.channel_layer.group_discard("chat", self.channel_name)
 
     async def user_list_update(self, event):
@@ -116,27 +115,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def game_message(self, event):
         # Send message to WebSocket
-        await self.send(text_data=json.dumps(event["message"]))
-
-class ChatConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        await self.channel_layer.group_add("chat", self.channel_name)
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard("chat", self.channel_name)
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        await self.channel_layer.group_send(
-            "chat",
-            {
-                "type": "chat_message",
-                "message": data
-            }
-        )
-
-    async def chat_message(self, event):
         await self.send(text_data=json.dumps(event["message"]))
 
 
