@@ -1,7 +1,7 @@
 const wsManager = {
     chatSocket: null,
     messageListeners: new Set(),
-    messageHistory: [],
+	messageHistory: [],
     onlinePlayers: new Set(),
 
     initializeChatSocket() {
@@ -9,15 +9,25 @@ const wsManager = {
 
         this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
 
+        this.chatSocket.onopen = () => {
+            console.log('Chat WebSocket Connected');
+        };
+
+        this.chatSocket.onclose = () => {
+            console.log('Chat WebSocket disconnected');
+            // Tentative de reconnexion après 5 secondes
+            setTimeout(() => this.initializeChatSocket(), 5000);
+        };
+
         this.chatSocket.onmessage = (e) => {
             const data = JSON.parse(e.data);
-            
+
             switch (data.type) {
                 case 'chat_message':
                     this.messageHistory.push(data);
                     this.messageListeners.forEach(listener => listener(data));
                     break;
-                    
+
                 case 'user_list_update':
                     try {
                         this.onlinePlayers.clear(); // Vider la liste existante
@@ -69,23 +79,27 @@ const wsManager = {
     },
 
 
+    // Méthode pour envoyer un message
     sendMessage(message) {
         if (this.chatSocket?.readyState === WebSocket.OPEN) {
             this.chatSocket.send(JSON.stringify(message));
         }
     },
 
-    getMessageHistory() {
+	getMessageHistory() {
         return this.messageHistory;
     },
 
+    // Ajouter un listener pour les messages
     addMessageListener(listener) {
         this.messageListeners.add(listener);
     },
 
+    // Retirer un listener
     removeMessageListener(listener) {
         this.messageListeners.delete(listener);
     }
 };
 
+// Rendre l'objet disponible globalement
 window.wsManager = wsManager;

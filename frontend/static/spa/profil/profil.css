@@ -2,6 +2,37 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--dark-void);
+  font-family: "Inter", sans-serif;
+  color: var(--snow);
+}
+
+.app {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--dark-void);
+  padding: var(--24px);
+  gap: var(--16px);
+  overflow: hidden;
+}
+
 .profilSection {
   width: 100%;
   display: flex;
@@ -39,72 +70,27 @@
   padding: 0 var(--24px);
 }
 
-
-/* .avatarButtons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--16px);
-} */
-
-
 .avatarButtons {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--16px);
-  position: relative; /* Pour le positionnement du frame */
+  position: relative;
 }
 
-
-/* Bouton 2FA */
 .btn-icon#toggle2FAButton {
-  position: relative; /* Pour servir de référence au frame */
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--8px);
   padding: 0 var(--16px) 0 var(--16px);
 }
 
-.btn-icon#toggle2FAButton::before {
-  content: '';
-  position: absolute;
-  left: var(--16px); /* Aligne avec le padding */
-  width: 1.041vw;
-  height: 1.041vw;
-  border-radius: 100%;
-  background-color: rgb(247, 0, 0);
+.btn-icon svg {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
 }
-
-/* Ajoutez cette nouvelle règle pour décaler le texte */
-.btn-icon#toggle2FAButton span {
-  margin-left: calc(1.041vw + var(--8px)); /* Largeur de la pastille + petit espacement */
-}
-
-
-/* Style pour quand le 2FA est activé */
-.btn-icon#toggle2FAButton.enabled::before {
-  background-color: limegreen;
-}
-
-
-/* #2faVerificationFrame {
-  position: absolute;
-  top: calc(100% + var(--8px));
-  left: 50%;
-  transform: translate(-50%, 0);
-  background-color: var(--dark-grey);
-  padding: var(--16px);
-  border-radius: var(--radius-lg);
-  border: var(--dusty-grey) solid var(--4px);
-  display: none;
-  z-index: 1000;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--16px);
-  white-space: nowrap;
-} */
-
 
 #2faVerificationFrame {
   position: absolute;
@@ -118,17 +104,16 @@
   z-index: 1000;
   flex-direction: row;
   align-items: center;
-  gap: var(--16px); /* Utilise le même gap que les autres éléments */
+  gap: var(--16px);
 }
 
-/* Ajustement spécifique pour l'input et le bouton dans le frame */
 #2faVerificationFrame .inputFrame,
 #2faVerificationFrame #verificationCode {
-  margin-right: 0; /* Retire toute marge par défaut */
+  margin-right: 0;
 }
 
 #2faVerificationFrame .btn-icon {
-  margin-left: 0; /* Retire toute marge par défaut */
+  margin-left: 0;
 }
 
 #2faVerificationFrame.visible {
@@ -136,7 +121,6 @@
   align-items: center;
   gap: var(--16px);
 }
-
 
 #verificationCode {
   width: 8vw;
@@ -147,10 +131,9 @@
   color: var(--snow);
   padding: 0 var(--8px);
   font-size: var(--16px);
-  text-align: center; /* Centre le texte */
+  text-align: center;
 }
 
-/* Pour le bouton confirm dans le frame de vérification */
 #2faVerificationFrame .btn-icon img {
   width: 16px;
   height: 16px;
@@ -158,15 +141,13 @@
   transition: filter 0.2s ease;
 }
 
-/* Pour s'assurer que tous les logos dans les boutons ont la même apparence au survol */
 #2faVerificationFrame .btn-icon:hover img {
   filter: brightness(0) invert(1);
 }
 
-/* Ajustement des boutons pour qu'ils aient la même taille */
 .btn-icon {
-  height: 2.5vw; /* Hauteur fixe pour tous les boutons */
-  min-width: 6vw; /* Largeur minimale pour les boutons */
+  height: 2.5vw;
+  min-width: 6vw;
   padding: 0 var(--16px);
 }
 
@@ -189,7 +170,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 2.vw;
+  gap: 2vw;
   background-color: var(--dark-grey);
 }
 
@@ -198,34 +179,13 @@
   height: 100%;
   border-radius: var(--radius-lg);
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   gap: var(--16px);
 }
 
-.matchHistory {
-  width: 100%;
-  height: 100%;
-  flex-grow: 1;
-  background-color: var(--dark-grey);
-  border-radius: var(--radius-lg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-}
-
-.matchStats {
-  width: 100%;
-  height: 22.903vw;
-  background-color: var(--dark-grey);
-  border-radius: var(--radius-lg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-}
 
 .playerProfilFrame {
   display: flex;
@@ -250,7 +210,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 100%;
-  padding: 0.5vw; /* Pour garder une marge par rapport au border */
+  padding: 0.5vw;
 }
 
 .playerFrame {
@@ -297,6 +257,23 @@
   align-items: center;
 }
 
+.settingsTitles {
+  font-size: var(--32px);
+  font-weight: 600;
+  color: var(--snow);
+  width: 100%;
+  text-align: center;
+  margin-bottom: var(--16px);
+}
+
+.settingsHistory {
+  font-size: var(--32px);
+  font-weight: 600;
+  color: var(--snow);
+  text-align: center;
+  margin-bottom: var(--16px);
+}
+
 .modifyButtonsFrame {
   display: flex;
   justify-content: center;
@@ -320,11 +297,16 @@
 }
 
 .matchHistory {
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+  background-color: var(--dark-grey);
+  border-radius: var(--radius-lg);
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  gap: var(--36px);
+  align-items: center;
+  gap: var(--16px);
+  padding: var(--24px);
 }
 
 .matchResume {
@@ -332,6 +314,20 @@
   justify-content: center;
   align-items: center;
   gap: var(--12px);
+  width: 100%;
+  padding: var(--8px) 0;
+}
+
+.matchResume + .matchResume {
+  margin-top: 0;
+}
+
+.matches-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-y: auto;
+  gap: var(--8px);
 }
 
 .scorePlayer {
@@ -363,12 +359,63 @@
   object-fit: cover;
 }
 
+
+
 .matchStats {
+  width: 100%;
+  height: 22.903vw;
+  background-color: var(--dark-grey);
+  border-radius: var(--radius-lg);
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--16px);
   flex-direction: column;
+  padding: var(--16px);
+  gap: var(--12px);
+}
+
+.statName {
+  width: 10.833vw;
+  height: var(--40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--16px);
+  padding: 0 var(--16px);
+  color: var(--snow);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statName,
+.statNumber {
+  width: 10.833vw;
+  height: var(--40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--16px);
+  padding-left: var(--16px);
+  color: var(--snow);
+  font-weight: 600;
+  font-size: var(--12px);
+}
+
+.statNumber {
+  width: 6.25vw;
+  height: var(--40px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--16px);
+  padding: 0 var(--16px);
+  color: var(--snow);
+  font-weight: 600;
 }
 
 .statsFrame {
@@ -377,29 +424,8 @@
   align-items: center;
   flex-direction: row;
   gap: var(--12px);
+  width: 100%;
 }
-
-.statName,
-.statNumber {
-  width: 10.833vw;
-  height: var(--40px);
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  border: var(--dusty-grey) solid var(--4px);
-  border-radius: var(--16px);
-  padding-left: var(--16px);
-  color: var(--snow);
-  font-weight: 600;
-}
-
-.statNumber {
-  width: 6.25vw;
-}
-
-
-/* 2 */
-
 
 .modal {
   display: none;
@@ -415,7 +441,7 @@
 
 .modal-content {
   background-color: var(--dark-grey);
-  width: 450px;
+  width: 600px;
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);
@@ -429,7 +455,7 @@
   padding: 0.75rem;
   border-bottom: 1px solid var(--dusty-grey);
   color: var(--snow);
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 600;
   font-family: "Inter", sans-serif;
 }
@@ -438,6 +464,7 @@
   display: flex;
   flex-direction: column;
   padding: 0.75rem;
+  max-height: 400px;
   gap: 0.5rem;
 }
 
@@ -448,8 +475,8 @@
 }
 
 .avatar-option {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -484,7 +511,7 @@
   padding: 0.5rem 1rem;
   border: 1px solid var(--dusty-grey);
   border-radius: var(--radius-lg);
-  font-size: 12px;
+  font-size: 14px;
   height: auto;
   min-width: auto;
   display: flex;
@@ -579,11 +606,6 @@
   opacity: 0.7;
 }
 
-
-
-/* 2fa pop up */
-
-/* Styles pour le popup 2FA */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -659,4 +681,50 @@
   color: #666;
   margin-top: 10px;
   font-size: 0.9rem;
+}
+
+
+.profilInfoContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--70px);
+}
+
+.playerProfilFrame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: var(--16px);
+}
+
+.rankSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: var(--4px);
+  padding: var(--16px) var(--8px);
+  border: 4px solid var(--dusty-grey);
+  border-radius: var(--16px);
+  font-size: var(--16px);
+  color: var(--snow);
+  font-weight: 600;
+}
+
+.rankImage {
+  width: 6.3vw;
+  height: 6.3vw;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+
+.popuplogo {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+  transition: filter 0.2s ease;
 }

@@ -36,7 +36,7 @@ services:
       - "8443"
     depends_on:
       - database
-      - redis  # Ajout de la dépendance à Redis
+      - redis
     dns:
       - 8.8.8.8
       - 8.8.4.4

@@ -24,7 +24,6 @@
   align-items: center;
   flex-direction: column;
   cursor: pointer;
-  cursor: pointer;
 }
 
 .icon {
@@ -79,12 +78,11 @@
   transform: translateY(0);
 } */
 
-
 .logout {
   display: flex;
   position: absolute;
-  right: 2rem;
-  top: 1rem; /* Position fixe en haut */
+  right: var(--24px);
+  top: 2vw;
   cursor: pointer;
   flex-direction: column;
   align-items: center;
@@ -120,12 +118,12 @@
 
 @media screen and (max-width: 768px) {
   .logout {
-      right: 1rem;
-      top: 0.75rem;
+    right: 1rem;
+    top: 0.75rem;
   }
 
   .logout-icon {
-      width: var(--24px);
-      height: var(--24px);
+    width: var(--24px);
+    height: var(--24px);
   }
 }

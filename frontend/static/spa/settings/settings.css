@@ -1,12 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background-color: var(--dark-void);
   font-family: "Inter", sans-serif;
   color: var(--snow);
+}
+
+.app {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .main {
@@ -19,31 +33,58 @@ body {
   padding: var(--24px);
   gap: var(--16px);
   overflow: hidden;
-  position: relative;
 }
 
 .mainSettings {
   display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  gap: var(--24px);
+}
+
+.settingsWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  gap: var(--16px);
+  padding: var(--16px);
+  background-color: var(--gluon-grey);
+  border-radius: var(--24px);
+  min-height: 0;
+}
+
+.settingsContent {
+  display: flex;
   justify-content: center;
   width: 100%;
   gap: var(--24px);
-  height: calc(100vh - 200px);
-  overflow: visible;
+  flex: 1;
+  min-height: 0;
+}
+
+.settingsContent .leftSettings,
+.settingsContent .rightSettings {
+  background-color: var(--dark-grey);
+  border: none;
+  border-radius: var(--radius-xl);
+  padding: var(--24px);
+  width: 50%;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .leftSettings,
 .rightSettings {
-  background-color: var(--gluon-grey);
-  border: 1px solid var(--dark-grey);
-  border-radius: var(--radius-lg);
+  background-color: var(--dark-grey);
+  border: none;
+  border-radius: var(--radius-xl);
   padding: var(--24px);
-  width: 48%;
+  width: 50%;
   height: calc(100% - var(--32px));
   overflow-y: auto;
-  position: relative;
-  isolation: isolate;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
 
 .settings-group {
@@ -54,25 +95,24 @@ body {
 
 .settings-title {
   font-size: var(--24px);
+  font-weight: 700;
   color: var(--snow);
   margin-bottom: var(--16px);
   padding-bottom: var(--12px);
-  border-bottom: 1px solid var(--slate-grey);
-  text-align: center;
+  border-bottom: 2px solid var(--snow);
 }
 
 .setting-item {
-  background: var(--dark-grey);
+  background: var(--gluon-grey);
   border-radius: var(--radius-lg);
-  padding: var(--16px);
-  margin-bottom: var(--12px);
+  padding: var(--24px);
+  margin-bottom: var(--16px);
 }
 
 .setting-label {
-  color: var(--snow);
   font-size: var(--16px);
+  font-weight: 600;
   margin-bottom: var(--8px);
-  display: block;
 }
 
 .options-group {
@@ -83,23 +123,24 @@ body {
 }
 
 .option-button {
-  background: var(--slate-grey);
-  border: 2px solid transparent;
-  color: var(--snow);
+  background: var(--gluon-grey);
+  border: 3px solid var(--dusty-grey);
   padding: var(--8px) var(--16px);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  min-width: var(--70px);
-  font-size: var(--14px);
-  transition: all 0.2s ease;
+  border-radius: var(--radius-lg);
+  font-size: var(--12px);
+  font-weight: 600;
+  min-width: 100px;
+  color: var(--snow);
 }
 
 .option-button:hover {
+  transform: scale(1.05);
   border-color: var(--liquid-lava);
 }
 
 .option-button.active {
   background: var(--liquid-lava);
+  color: var(--snow);
   border-color: transparent;
 }
 
@@ -155,7 +196,7 @@ body {
   width: var(--70px);
   text-align: center;
   cursor: pointer;
-  font-size: var(--14px);
+  font-size: var(--12px);
   transition: border-color 0.2s;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -209,49 +250,84 @@ body {
 }
 
 .saveSettings {
-  width: 100%;
   display: flex;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-xl);
+  flex-direction: row;
   justify-content: center;
-  padding: var(--12px) 0;
-  background: var(--dark-void);
-  position: absolute;
-  bottom: var(--24px);
-  left: 0;
-  z-index: 1000;
+  align-items: center;
+  padding: var(--54px) var(--0px);
+  background-color: var(--dark-grey);
+  color: var(--snow);
+  position: relative;
+  margin-top: auto;
 }
 
 .save-button {
-  background: var(--liquid-lava);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  background-color: var(--liquid-lava);
+  gap: var(--8px);
+  padding: var(--8px) var(--16px);
+  border-radius: var(--16px);
   color: var(--snow);
+  font-size: var(--24px);
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
   border: none;
-  padding: var(--12px) var(--32px);
-  border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: var(--16px);
-  min-width: 200px;
-  transition: transform 0.2s;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--12px) var(--32px);
 }
 
 .save-button:hover {
-  transform: translateY(-2px);
+  transform: translateX(-50%) scale(1.05);
+  transition: transform 0.2s ease;
 }
 
-@media (max-width: 1024px) {
+@media screen and (max-width: 1200px) {
+  .settingsContent {
+    flex-direction: column;
+  }
+
+  .settingsContent .leftSettings,
+  .settingsContent .rightSettings {
+    width: 100%;
+  }
+}
+
+.controls-subtitle {
+  font-size: var(--24px);
+  font-weight: 600;
+  margin-bottom: var(--24px);
+  padding-bottom: var(--12px);
+}
+
+.key-input {
+  background: var(--gluon-grey);
+  border: 3px solid var(--dusty-grey);
+  border-radius: var(--radius-lg);
+  padding: var(--8px) var(--16px);
+  font-size: var(--12px);
+  font-weight: 600;
+}
+
+@media screen and (max-width: 1200px) {
   .mainSettings {
     flex-direction: column;
-    align-items: center;
   }
 
   .leftSettings,
   .rightSettings {
-    width: 80%;
-    min-height: auto;
+    width: 100%;
   }
-}
 
-@media (max-width: 768px) {
-  .leftSettings,
-  .rightSettings {
-    width: 95%;
+  .settings-title {
+    font-size: var(--16px);
   }
 }
