@@ -416,7 +416,7 @@ export class PowerManager {
       this.flashEffect,
       player,
       this.modelCache,
-      "/models/Dynamite.glb"
+      "/static/spa/game3D/models/Dynamite.glb"
     );
     if (player === 1) {
       this.player1grenades.push(grenade);
@@ -430,7 +430,7 @@ export class PowerManager {
       this.scene,
       player,
       this.modelCache,
-      "/models/Beer.glb",
+      "/static/spa/game3D/models/Beer.glb",
       this.modelLoader
     );
     if (player === 1) {
@@ -445,7 +445,7 @@ export class PowerManager {
       this.scene,
       player,
       this.modelCache,
-      "/models/Tornado.glb",
+      "/static/spa/game3D/models/Tornado.glb",
       this.modelLoader
     );
     if (player === 1) {

@@ -2007,7 +2007,7 @@ function initializeHome() {
 			const homePageMain = document.querySelector(".homePageMain");
       if (!homePageMain) return;
 
-      constconfirmation = document.createElement("div");
+      const confirmation = document.createElement("div");
 			confirmation.classList.add("confirmation-animation");
 			confirmation.innerHTML = `
         <div class="confirmation-icon"></div>
@@ -2124,65 +2124,65 @@ function initializeHome() {
 		}
 	}
 
-	// Manage Game Actions
-	class GameActions {
-		static handlePlayButtonClick() {
-			const selectedGame = Array.from(DOM.game.options).find((option) =>
-				option.classList.contains("option-selected")
-			);
-			const selectedMode = Array.from(DOM.game.modeOptions).find((option) =>
-				option.classList.contains("option-selected")
-			);
+    // Manage Game Actions
+    class GameActions {
+        static handlePlayButtonClick() {
+            const selectedGame = Array.from(DOM.game.options).find((option) =>
+                option.classList.contains("option-selected")
+            );
+            const selectedMode = Array.from(DOM.game.modeOptions).find((option) =>
+                option.classList.contains("option-selected")
+            );
 
-			if (!selectedGame || !selectedMode) {
-				alert("Please select both a game type and a mode!");
-				return;
-			}
+            if (!selectedGame || !selectedMode) {
+                alert("Please select both a game type and a mode!");
+                return;
+            }
 
-			const gameType = selectedGame.textContent.trim();
-			const modeType = selectedMode.textContent.trim();
+            const gameType = selectedGame.textContent.trim();
+            const modeType = selectedMode.textContent.trim();
 
-			console.log(`Selected Game: ${gameType}, Selected Mode: ${modeType}`);
+            console.log(`Selected Game: ${gameType}, Selected Mode: ${modeType}`);
 
-			if (gameType === "CLASSIC PONG" && modeType === "AGAINST AI") {
-				console.log("Launching Classic Pong against AI...");
-				startMatch();
-			} else if (gameType === "CLASSIC PONG" && modeType === "TOURNAMENT") {
-				console.log("Redirecting to /tournament...");
-				window.location.href = "/tournament";
-			} else if (gameType === "POWER PONG" && modeType === "TOURNAMENT") {
-				console.log("Redirecting to /tournament...");
-				window.location.href = "/tournament";
-			} else if (
-				(gameType === "CLASSIC PONG" || gameType === "POWER PONG") &&
-				modeType === "ONLINE"
-			) {
-				console.log(`Launching ${gameType} Online...`);
-				OnlineGameModal.show();
-			} else {
-				console.log(`${gameType} ${modeType} mode is not implemented yet.`);
-			}
-		}
-	}
+            if (gameType === "CLASSIC PONG" && modeType === "AGAINST AI") {
+                console.log("Launching Classic Pong against AI...");
+                startMatch();
+            } else if (gameType === "CLASSIC PONG" && modeType === "TOURNAMENT") {
+                console.log("Redirecting to /tournament...");
+                window.location.href = "/tournament";
+            } else if (gameType === "POWER PONG" && modeType === "TOURNAMENT") {
+                console.log("Redirecting to /tournament...");
+                window.location.href = "/tournament";
+            } else if (
+                (gameType === "CLASSIC PONG" || gameType === "POWER PONG") &&
+                modeType === "ONLINE"
+            ) {
+                console.log(`Launching ${gameType} Online...`);
+                OnlineGameModal.show();
+            } else {
+                console.log(`${gameType} ${modeType} mode is not implemented yet.`);
+            }
+        }
+    }
 
-	function startMatch() {
-		if (!isGameInitialized) {
-			console.log("startMatch() appelée.");
-			isGameInitialized = true;
+    function startMatch() {
+        if (!isGameInitialized) {
+            console.log("startMatch() appelée.");
+            isGameInitialized = true;
 
-			const loadingIndicator = document.createElement("div");
-			loadingIndicator.innerText = "Chargement du jeu...";
-			loadingIndicator.style.cssText = `
+            const loadingIndicator = document.createElement("div");
+            loadingIndicator.innerText = "Chargement du jeu...";
+            loadingIndicator.style.cssText = `
         color: white;
         font-size: 20px;
         text-align: center;
         margin-top: 20px;
       `;
-			document.body.appendChild(loadingIndicator);
+            document.body.appendChild(loadingIndicator);
 
-			const modal = document.createElement("div");
-			modal.id = "gameModal";
-			modal.style.cssText = `
+            const modal = document.createElement("div");
+            modal.id = "gameModal";
+            modal.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
@@ -2196,68 +2196,72 @@ function initializeHome() {
         align-items: center;
       `;
 
-			const iframe = document.createElement("iframe");
-			iframe.src = "/static/spa/game3D/three.html";
-			iframe.style.cssText = `
+            const iframe = document.createElement("iframe");
+            iframe.src = "/static/spa/game3D/three.html";
+            iframe.style.cssText = `
         width: 100%;
         height: 100%;
         border: none;
       `;
 
-			iframe.onload = () => {
-				document.body.removeChild(loadingIndicator);
-				console.log("Jeu chargé.");
+            iframe.onload = () => {
+                document.body.removeChild(loadingIndicator);
+                console.log("Jeu chargé.");
 
-				setTimeout(() => {
-					iframe.contentWindow.focus();
-					console.log("Focus défini sur l'iframe.");
-				}, 100);
-			};
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    console.log("Focus défini sur l'iframe.");
+                }, 100);
+            };
 
-			modal.appendChild(iframe);
-			document.body.appendChild(modal);
+            modal.appendChild(iframe);
+            document.body.appendChild(modal);
 
-			// Gestionnaire des messages envoyés par l'iframewindow.addEventListener("message", (event) => {
-				console.log("Message reçu par le parent :", event);if (event.data.type === "gameComplete") {
-					console.log(`Le gagnant est: ${event.data.data.winner}`);
-					closeGameModal(modal);
-          updateProfilOnHome();
-						} else {
-						console.log("Message non reconnu :", event.data);
-				}
-			});
-		} else {
-			console.log("Le jeu est déjà initialisé.");
-		}
-	}
+            // Gestionnaire des messages envoyés par l'iframe
+            window.addEventListener("message", (event) => {
+                console.log("Message reçu par le parent :", event);
 
-  function closeGameModal(modal) {
-    if (modal && document.body.contains(modal)) {
-      document.body.removeChild(modal);
-      console.log("Modal fermé automatiquement après la fin du jeu.");
-      isGameInitialized = false;
+                if (event.data.type === "gameComplete") {
+                    console.log(`Le gagnant est : ${event.data.data.winner}`);
+                    closeGameModal(modal);
+                    updateProfilOnHome();
+                } else {
+                    console.log("Message non reconnu :", event.data);
+                }
+            });
+        } else {
+            console.log("Le jeu est déjà initialisé.");
+        }
     }
-  }
 
-  // Initialize all components
-  TooltipManager.initializeTooltips();
-  ProfileModal.initialize();
-  ContextMenu.initialize();
-  GameOptionsManager.initialize();
-  OnlineGameModal.initialize();
-  ChatHandler.initialize();
 
-  window.addEventListener("unload", () => {
-    ChatHandler.cleanup();
-  });
+    function closeGameModal(modal) {
+        if (modal && document.body.contains(modal)) {
+            document.body.removeChild(modal);
+            console.log("Modal fermé automatiquement après la fin du jeu.");
+            isGameInitialized = false;
+        }
+    }
 
-  if (DOM.game.playButton) {
-    DOM.game.playButton.addEventListener("click", () => {
-      GameActions.handlePlayButtonClick();
+    // Initialize all components
+    TooltipManager.initializeTooltips();
+    ProfileModal.initialize();
+    ContextMenu.initialize();
+    GameOptionsManager.initialize();
+    OnlineGameModal.initialize();
+    ChatHandler.initialize();
+
+    window.addEventListener("unload", () => {
+        ChatHandler.cleanup();
     });
-  }
 
-	DOM.game.playButton.addEventListener("click", () => {
-		GameActions.handlePlayButtonClick();
-	});
+    if (DOM.game.playButton) {
+        DOM.game.playButton.addEventListener("click", () => {
+            GameActions.handlePlayButtonClick();
+        });
+    }
+
+    DOM.game.playButton.addEventListener("click", () => {
+        GameActions.handlePlayButtonClick();
+    });
 }
