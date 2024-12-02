@@ -62,13 +62,13 @@ export class TemporaryCube {
     let modelPath = null;
     switch (this.power) {
       case "power1":
-        modelPath = "/models/Dynamite.glb";
+        modelPath = "/static/spa/game3D/models/Dynamite.glb";
         break;
       case "power2":
-        modelPath = "/models/Beer.glb";
+        modelPath = "/static/spa/game3D/models/Beer.glb";
         break;
       case "power3":
-        modelPath = "/models/Tornado.glb";
+        modelPath = "/static/spa/game3D/models/Tornado.glb";
         break;
       default:
         break;

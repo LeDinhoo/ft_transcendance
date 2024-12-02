@@ -26,7 +26,7 @@ export class ModelLoader {
 
   loadGamePlane() {
     return new Promise((resolve) => {
-      this.loader.load("./models/GamePlan.glb", (gltf) => {
+      this.loader.load("/static/spa/game3D/models/GamePlan.glb", (gltf) => {
         this.gamePlane = gltf.scene;
         this.gamePlane.rotation.y = Math.PI / 2;
         scene.add(this.gamePlane);
@@ -51,7 +51,7 @@ export class ModelLoader {
 
   loadPaddle1() {
     return new Promise((resolve) => {
-      this.loader.load("/models/Paddle.glb", (gltf) => {
+      this.loader.load("/static/spa/game3D/models/Paddle.glb", (gltf) => {
         this.paddle1 = gltf.scene;
         this.centerObject(this.paddle1);
         this.paddle1.rotation.y = Math.PI;
@@ -76,7 +76,7 @@ export class ModelLoader {
 
   loadPaddle2() {
     return new Promise((resolve) => {
-      this.loader.load("/models/Paddle.glb", (gltf) => {
+      this.loader.load("/static/spa/game3D/models/Paddle.glb", (gltf) => {
         this.paddle2 = gltf.scene;
         this.centerObject(this.paddle2);
         this.paddle2.rotation.y = Math.PI;
