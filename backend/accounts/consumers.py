@@ -13,12 +13,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         try:
-            user_data = {
-                "id": self.user.id,
-                "username": self.user.username,
-                "avatar": str(self.user.avatar.url) if hasattr(self.user, 'avatar') and self.user.avatar else "/static/assets/avatars/ladybug.png",
-                "status": "online",
-            }
+			avatar_url = str(self.user.avatar)
+			if avatar_url.startswith('assets/avatars/'):
+				avatar_url = f"/static/{avatar_url}"
+			else:
+				avatar_url = f"/media/{avatar_url}"
+
+			user_data = {
+				"id": self.user.id,
+				"username": self.user.username,
+				"avatar": avatar_url,
+				"status": "online"
+			}
 
             # Stocker dans le dict
             ChatConsumer.connected_users[self.user.id] = user_data
@@ -132,3 +138,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event["message"]))
+
+
+# SI L'AVATAR BEUG DANS LA LISTE DE JOUEURS CONNECTES OU DANS LE CHAT 
+
+# # Dans le ChatConsumer, modifier la partie de connect() qui gère l'avatar
+# avatar_url = str(self.user.avatar)
+# if avatar_url.startswith('assets/avatars/'):
+#     avatar_url = f"/static/{avatar_url}"
+# else:
+#     avatar_url = f"/media/{avatar_url}"
+
+# user_data = {
+#     "id": self.user.id,
+#     "username": self.user.username,
+#     "avatar": avatar_url,
+#     "status": "online"
+# }
+            # user_data = {
+            #     "id": self.user.id,
+            #     "username": self.user.username,
+            #     "avatar": str(self.user.avatar.url) if hasattr(self.user, 'avatar') and self.user.avatar else "/static/assets/avatars/ladybug.png",
+            #     "status": "online",
+            # }
