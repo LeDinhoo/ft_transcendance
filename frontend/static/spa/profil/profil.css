@@ -10,7 +10,7 @@ body {
   height: 100vh;
   background-color: var(--dark-void);
   font-family: "Inter", sans-serif;
-  color: var(--snow);
+  /* color: var(--snow); */
 }
 
 .app {

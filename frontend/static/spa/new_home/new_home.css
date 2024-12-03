@@ -178,8 +178,8 @@ body {
 }
 
 .avatarImage {
-  width: 70%;
-  height: 70%;
+  width: 90%;
+  height: 90%;
   object-fit: cover;
   border-radius: 50%;
 }
@@ -1052,7 +1052,7 @@ body {
   gap: var(--8px);
   background-color: var(--dark-grey);
   border-radius: var(--12px);
-  padding: var(--8px);
+  padding: var(--4px);
 }
 
 .chatInputContainer {
@@ -1238,4 +1238,197 @@ body {
   content: "(Private) ";
   font-size: 0.8em;
   opacity: 0.8;
+}
+
+
+
+
+
+/* Styliser la scrollbar pour les conteneurs avec défilement */
+.downLeftFrame,
+.chatMessages {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--dusty-grey) var(--dark-grey);
+}
+
+/* Chrome, Edge, Safari */
+.downLeftFrame::-webkit-scrollbar,
+.chatMessages::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.downLeftFrame::-webkit-scrollbar-track,
+.chatMessages::-webkit-scrollbar-track {
+  background: var(--dark-grey);
+  border-radius: 4px;
+}
+
+.downLeftFrame::-webkit-scrollbar-thumb,
+.chatMessages::-webkit-scrollbar-thumb {
+  background: var(--dusty-grey);
+  border-radius: 4px;
+  border: 2px solid var(--dark-grey);
+}
+
+.downLeftFrame::-webkit-scrollbar-thumb:hover,
+.chatMessages::-webkit-scrollbar-thumb:hover {
+  background: var(--dusty-grey);
+}
+
+/* Améliorer le comportement du scroll */
+.downLeftFrame {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 8px; /* Compensation pour la scrollbar */
+}
+
+.chatMessages {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 8px;
+}
+
+/* Cacher les scrollbars sur les appareils mobiles */
+@media (max-width: 768px) {
+  .downLeftFrame,
+  .chatMessages {
+    scrollbar-width: none;
+  }
+  
+  .downLeftFrame::-webkit-scrollbar,
+  .chatMessages::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+
+/* remote */
+
+
+.game-invitation-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.game-invitation-content {
+  position: relative;
+  background-color: var(--dark-grey);
+  margin: 10% auto;
+  padding: 24px;
+  border-radius: var(--24px);
+  width: 90%;
+  max-width: 500px;
+  animation: slideIn 0.3s ease-in-out;
+}
+
+.game-invitation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--gluon-grey);
+  padding-bottom: 16px;
+}
+
+.game-invitation-header h2 {
+  color: var(--snow);
+  font-size: var(--24px);
+  margin: 0;
+}
+
+.close-invitation {
+  color: var(--snow);
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-invitation:hover {
+  color: var(--liquid-lava);
+}
+
+.inviter-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.inviter-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--dusty-grey);
+}
+
+.inviter-name {
+  color: var(--snow);
+  font-size: var(--20px);
+  font-weight: 600;
+}
+
+.game-settings {
+  background-color: var(--gluon-grey);
+  padding: 16px;
+  border-radius: var(--16px);
+  margin-bottom: 24px;
+}
+
+.game-settings h3 {
+  color: var(--snow);
+  margin: 0 0 12px 0;
+  font-size: var(--18px);
+}
+
+.settings-details {
+  color: var(--snow);
+  font-size: var(--16px);
+}
+
+.settings-details p {
+  margin: 8px 0;
+}
+
+.game-invitation-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.accept-btn, .decline-btn {
+  padding: 12px 24px;
+  border-radius: var(--16px);
+  border: none;
+  font-size: var(--16px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.accept-btn {
+  background-color: var(--liquid-lava);
+  color: var(--snow);
+}
+
+.decline-btn {
+  background-color: var(--gluon-grey);
+  color: var(--snow);
+}
+
+.accept-btn:hover, .decline-btn:hover {
+  transform: scale(1.05);
 }
