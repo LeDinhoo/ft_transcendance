@@ -48,3 +48,15 @@ A ete fait sur cette branche en + :
 
 - mis a jour de la page home avec les donnees du profil(username, avatar, rank text + icons).
 - platinium en + au niveau du badge.
+
+
+
+
+
+
+
+
+
+HENRIK 
+
+- rajouter la fonction pour update online players lors du premier appelle a new_home js
