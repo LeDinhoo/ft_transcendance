@@ -58,7 +58,7 @@ let currentUser = null;
 
 function initializeHome() {
 	console.log("fonction initializeHome appelée..");
-	wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
+	// wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 	// ContextMenu.initialize(); //DOESNT WORK 
 	console.log("TEST1\n");
 	
@@ -846,6 +846,7 @@ function initializeHome() {
   OnlineGameModal.initialize();
   ChatHandler.initialize();
   GameInvitationManager.initialize(); // Ajouter cette ligne
+  wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
   window.addEventListener("unload", () => {
     ChatHandler.cleanup();
@@ -1077,7 +1078,7 @@ const GameInvitationManager = {
   },
 };
 
-// Initialiser le gestionnaire d'invitations
-document.addEventListener("DOMContentLoaded", () => {
-  GameInvitationManager.initialize();
-});
+// // Initialiser le gestionnaire d'invitations
+// document.addEventListener("DOMContentLoaded", () => {
+//   GameInvitationManager.initialize();
+// });
