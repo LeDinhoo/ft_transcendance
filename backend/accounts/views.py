@@ -1298,3 +1298,55 @@ def get_user_statistics(request):
     }
 
     return JsonResponse(statistics, status=200)
+
+
+from .models import GameHostOptions
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_game_settings(request):
+    try:
+        # Récupérer les premiers paramètres dans la base de données
+        settings = GameHostOptions.objects.first()
+        if settings:
+            data = {
+                'isPowerActivated': settings.IsPowerActivated,
+                'isIaActivated': settings.IsIaActivated,
+#                 'ScoreToWin': settings.ScoreToWin,
+#                 'BallSpeed': settings.BallSpeed,
+            }
+        else:
+            # Paramètres par défaut
+            data = {
+                'isPowerActivated': False,
+                'isIaActivated': False,
+#                 'ScoreToWin': 5,
+#                 'BallSpeed': 1.0,
+            }
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def set_game_settings(request):
+    if request.method == 'POST':
+        try:
+            # Parse les données JSON envoyées par le client
+            data = json.loads(request.body)
+
+            # Récupérer ou créer les paramètres
+            settings, created = GameHostOptions.objects.get_or_create(id=1)  # Assurez-vous d'avoir un seul jeu de paramètres
+            settings.isPowerActivated = data.get('isPowerActivated', settings.isPowerActivated)
+            settings.isIaActivated = data.get('isIaActivated', settings.isIaActivated)
+#             settings.ScoreToWin = data.get('ScoreToWin', settings.ScoreToWin)
+#             settings.BallSpeed = data.get('BallSpeed', settings.BallSpeed)
+            settings.save()
+
+            return JsonResponse({'message': 'Settings updated successfully'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)

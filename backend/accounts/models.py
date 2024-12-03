@@ -63,3 +63,13 @@ class GameHistory(models.Model):
     
     def __str__(self):
         return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"
+
+
+class GameHostOptions(models.Model):
+    isPowerActivated = models.BooleanField(default=False)
+    isIaActivated = models.BooleanField(default=False)
+#     ScoreToWin = models.IntegerField(default=5)
+#     BallSpeed = models.FloatField(default=1.0)
+
+    def __str__(self):
+        return f"GameHostOptions: {self.IsPowerActivated}, {self.IsIaActivated}"

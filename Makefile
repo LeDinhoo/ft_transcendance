@@ -6,7 +6,7 @@ all: up
 
 
 up :
-	docker-compose -f $(DOCKER_FILE) up --build
+	docker-compose -f $(DOCKER_FILE) up --build -d
 
 upd:
 	docker-compose -f $(DOCKER_FILE) up -d --build

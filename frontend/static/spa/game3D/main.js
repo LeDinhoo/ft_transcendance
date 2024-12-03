@@ -1,36 +1,33 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-import { Score3D } from "./Score.js";
-import { AI } from "./GameAI.js";
-import { ModelLoader, ModelCache } from "./ModelLoader.js";
-import { KeyboardManager } from "./KeyboardManager.js";
-import { NeonBorder } from "./NeonBorder.js";
-import { FlashEffect } from "./FlashEffect.js";
-import { PowerManager } from "./PowerManager.js";
-import {
-  createCornerSpheres,
-  updateOnResize,
-  adjustCameraToRectangle,
-} from "./Boundaries.js";
-import { PaddlePower } from "./PowerBook.js";
-import { AnimationManager } from "./AnimationManager.js";
-import { PaddleController } from "./PaddleController.js";
-import { HeightController } from "./HeightModifier.js";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer";
+import {RenderPass} from "three/examples/jsm/postprocessing/RenderPass";
+import {UnrealBloomPass} from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import {Score3D} from "./Score.js";
+import {AI} from "./GameAI.js";
+import {ModelLoader, ModelCache} from "./ModelLoader.js";
+import {KeyboardManager} from "./KeyboardManager.js";
+import {NeonBorder} from "./NeonBorder.js";
+import {FlashEffect} from "./FlashEffect.js";
+import {PowerManager} from "./PowerManager.js";
+import {createCornerSpheres, updateOnResize, adjustCameraToRectangle,} from "./Boundaries.js";
+import {PaddlePower} from "./PowerBook.js";
+import {AnimationManager} from "./AnimationManager.js";
+import {PaddleController} from "./PaddleController.js";
+import {HeightController} from "./HeightModifier.js";
+import {GameHostOptions} from "./GameHostOptions.js";
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x111111);
 
 export const camera = new THREE.PerspectiveCamera(
-  45,
-  window.innerWidth / window.innerHeight,
-  1,
-  4000
+	45,
+	window.innerWidth / window.innerHeight,
+	1,
+	4000
 );
 
-export const PADDLE_HEIGHT = 135;
+export let isPowerActivated = false;
 const heightController1 = new HeightController();
 const heightController2 = new HeightController();
 const INITIAL_BALL_SPEED = 10;
@@ -45,7 +42,6 @@ let isBallMoving = false;
 let scoreSystem;
 let gameStarted = false;
 let aiIsActive = false;
-// export let longestRally = 0;
 
 let maxBallSpeed = INITIAL_BALL_SPEED;
 
@@ -55,10 +51,10 @@ const keyboard = new KeyboardManager();
 scene.background = new THREE.Color(0x111111);
 
 const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  powerPreference: "high-performance",
-  precision: "mediump",
-  samples: 2,
+	antialias: true,
+	powerPreference: "high-performance",
+	precision: "mediump",
+	samples: 2,
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -69,25 +65,25 @@ renderer.toneMappingExposure = 1.5;
 document.getElementById("game").appendChild(renderer.domElement);
 
 const renderTarget = new THREE.WebGLRenderTarget(
-  window.innerWidth,
-  window.innerHeight,
-  {
-    samples: 2,
-    minFilter: THREE.LinearFilter,
-    magFilter: THREE.LinearFilter,
-    format: THREE.RGBAFormat,
-    colorSpace: THREE.SRGBColorSpace,
-  }
+	window.innerWidth,
+	window.innerHeight,
+	{
+		samples: 2,
+		minFilter: THREE.LinearFilter,
+		magFilter: THREE.LinearFilter,
+		format: THREE.RGBAFormat,
+		colorSpace: THREE.SRGBColorSpace,
+	}
 );
 
 camera.position.set(0, 1000, 0);
 
 const renderScene = new RenderPass(scene, camera);
 const bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  originalBloomStrength, // strength
-  0.2, // radius
-  0.3 // threshold
+	new THREE.Vector2(window.innerWidth, window.innerHeight),
+	originalBloomStrength, // strength
+	0.2, // radius
+	0.3 // threshold
 );
 
 const composer = new EffectComposer(renderer, renderTarget);
@@ -97,62 +93,62 @@ composer.addPass(bloomPass);
 scoreSystem = new Score3D(scene, camera, null, null, null);
 
 function resetBall() {
-  ball.position.set(0, 0, 0);
-  ball.visible = false;
-  //Apres 500ms la balle est visible
-  setTimeout(() => {
-    ball.visible = true;
-  }, 500);
+	ball.position.set(0, 0, 0);
+	ball.visible = false;
+	//Apres 500ms la balle est visible
+	setTimeout(() => {
+		ball.visible = true;
+	}, 500);
 
-  isBallMoving = false;
-  ballVelocity.set(0, 0, 0);
-  currentBallSpeed = INITIAL_BALL_SPEED;
+	isBallMoving = false;
+	ballVelocity.set(0, 0, 0);
+	currentBallSpeed = INITIAL_BALL_SPEED;
 
-  trajectoryLine.visible = false;
-  impactPoint.visible = false;
+	trajectoryLine.visible = false;
+	impactPoint.visible = false;
 
-  setTimeout(() => {
-    if (!scoreSystem.isGameOver()) {
-      ball.position.set(0, 15, 0);
-    }
-  }, 500);
+	setTimeout(() => {
+		if (!scoreSystem.isGameOver()) {
+			ball.position.set(0, 15, 0);
+		}
+	}, 500);
 }
 
 function launchBall() {
-  if (isBallMoving || scoreSystem.isGameOver()) return;
+	if (isBallMoving || scoreSystem.isGameOver()) return;
 
-  scene.add(ball);
-  ball.visible = true;
-  gameStarted = true;
+	scene.add(ball);
+	ball.visible = true;
+	gameStarted = true;
 
-  const angle = ((Math.random() * 90 - 45) * Math.PI) / 180;
-  const direction = Math.random() < 0.5 ? 1 : -1;
+	const angle = ((Math.random() * 90 - 45) * Math.PI) / 180;
+	const direction = Math.random() < 0.5 ? 1 : -1;
 
-  ballVelocity.x = direction * Math.cos(angle) * currentBallSpeed;
-  ballVelocity.z = Math.sin(angle) * currentBallSpeed;
+	ballVelocity.x = direction * Math.cos(angle) * currentBallSpeed;
+	ballVelocity.z = Math.sin(angle) * currentBallSpeed;
 
-  isBallMoving = true;
+	isBallMoving = true;
 }
 
 function calculatePaddlePosition() {
-  const fov = (camera.fov * Math.PI) / 180;
-  const heightAtZero = 2 * Math.tan(fov / 2) * camera.position.y;
-  const widthAtZero = heightAtZero * camera.aspect;
+	const fov = (camera.fov * Math.PI) / 180;
+	const heightAtZero = 2 * Math.tan(fov / 2) * camera.position.y;
+	const widthAtZero = heightAtZero * camera.aspect;
 
-  const paddleWidth = 40;
-  const offset = widthAtZero * 0.03 + paddleWidth / 2;
-  const boundary = widthAtZero / 2;
+	const paddleWidth = 40;
+	const offset = widthAtZero * 0.03 + paddleWidth / 2;
+	const boundary = widthAtZero / 2;
 
-  return {
-    leftPaddleX: Math.round(-boundary + offset),
-    rightPaddleX: Math.round(boundary - offset),
-  };
+	return {
+		leftPaddleX: Math.round(-boundary + offset),
+		rightPaddleX: Math.round(boundary - offset),
+	};
 }
 
 function updatePaddlePositions() {
-  const positions = calculatePaddlePosition();
-  if (paddle1) paddle1.position.x = positions.leftPaddleX;
-  if (paddle2) paddle2.position.x = positions.rightPaddleX;
+	const positions = calculatePaddlePosition();
+	if (paddle1) paddle1.position.x = positions.leftPaddleX;
+	if (paddle2) paddle2.position.x = positions.rightPaddleX;
 }
 
 const modelLoader = new ModelLoader(scoreSystem);
@@ -161,42 +157,42 @@ const modelCache = new ModelCache();
 export let paddle1, paddle2, gamePlane;
 
 modelLoader
-  .loadAllModels()
-  .then(
-    ({
-      gamePlane: loadedGamePlane,
-      paddle1: loadedPaddle1,
-      paddle2: loadedPaddle2,
-    }) => {
-      gamePlane = loadedGamePlane;
-      paddle1 = loadedPaddle1;
-      paddle2 = loadedPaddle2;
-      updatePaddlePositions();
-    }
-  );
+	.loadAllModels()
+	.then(
+		({
+			 gamePlane: loadedGamePlane,
+			 paddle1: loadedPaddle1,
+			 paddle2: loadedPaddle2,
+		 }) => {
+			gamePlane = loadedGamePlane;
+			paddle1 = loadedPaddle1;
+			paddle2 = loadedPaddle2;
+			updatePaddlePositions();
+		}
+	);
 
 const percentages = [
-  { x: 95, z: 90 }, // Coin 1
-  { x: 95, z: 90 }, // Coin 2
-  { x: 95, z: 90 }, // Coin 3
-  { x: 95, z: 90 }, // Coin 4
+	{x: 95, z: 90}, // Coin 1
+	{x: 95, z: 90}, // Coin 2
+	{x: 95, z: 90}, // Coin 3
+	{x: 95, z: 90}, // Coin 4
 ];
 
 let modelsPreloaded = false;
 
 async function preloadModels() {
-  if (modelsPreloaded) {
-    return;
-  }
+	if (modelsPreloaded) {
+		return;
+	}
 
-  try {
-    await modelCache.loadModel("/static/spa/game3D/models/Dynamite.glb");
-    await modelCache.loadModel("/static/spa/game3D/models/Beer.glb");
-    await modelCache.loadModel("/static/spa/game3D/models/Tornado.glb");
-    modelsPreloaded = true;
-  } catch (error) {
-    console.error("Erreur lors du préchargement des modèles : ", error);
-  }
+	try {
+		await modelCache.loadModel("/static/spa/game3D/models/Dynamite.glb");
+		await modelCache.loadModel("/static/spa/game3D/models/Beer.glb");
+		await modelCache.loadModel("/static/spa/game3D/models/Tornado.glb");
+		modelsPreloaded = true;
+	} catch (error) {
+		console.error("Erreur lors du préchargement des modèles : ", error);
+	}
 }
 
 const cornerSpheres = createCornerSpheres(scene, percentages);
@@ -207,12 +203,12 @@ const neonBorder = new NeonBorder(scene, cornerSpheres, camera);
 const ballGeometry = new THREE.SphereGeometry(10, 32, 32);
 
 const ballMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
-  emissive: 0xffffff,
-  emissiveIntensity: 1,
-  roughness: 0,
-  metalness: 1,
-  toneMapped: true,
+	color: 0xffffff,
+	emissive: 0xffffff,
+	emissiveIntensity: 1,
+	roughness: 0,
+	metalness: 1,
+	toneMapped: true,
 });
 
 const ball = new THREE.Mesh(ballGeometry, ballMaterial);
@@ -227,103 +223,102 @@ controls.enableZoom = false;
 controls.enablePan = false;
 
 function onWindowResize() {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderTarget.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderTarget.setSize(window.innerWidth, window.innerHeight);
+	composer.setSize(window.innerWidth, window.innerHeight);
 
-  updateOnResize(camera, cornerSpheres, percentages);
-  neonBorder.updateBorderSize();
-  boundaries = getBoundariesFromCorners();
-  flashEffect.handleResize();
+	updateOnResize(camera, cornerSpheres, percentages);
+	neonBorder.updateBorderSize();
+	boundaries = getBoundariesFromCorners();
+	flashEffect.handleResize();
 }
 
 window.addEventListener("resize", onWindowResize, false);
 
 function getBoundariesFromCorners() {
-  const minX = Math.min(
-    cornerSpheres[0].position.x,
-    cornerSpheres[2].position.x
-  );
-  const maxX = Math.max(
-    cornerSpheres[1].position.x,
-    cornerSpheres[3].position.x
-  );
-  const minZ = Math.min(
-    cornerSpheres[0].position.z,
-    cornerSpheres[1].position.z
-  );
-  const maxZ = Math.max(
-    cornerSpheres[2].position.z,
-    cornerSpheres[3].position.z
-  );
+	const minX = Math.min(
+		cornerSpheres[0].position.x,
+		cornerSpheres[2].position.x
+	);
+	const maxX = Math.max(
+		cornerSpheres[1].position.x,
+		cornerSpheres[3].position.x
+	);
+	const minZ = Math.min(
+		cornerSpheres[0].position.z,
+		cornerSpheres[1].position.z
+	);
+	const maxZ = Math.max(
+		cornerSpheres[2].position.z,
+		cornerSpheres[3].position.z
+	);
 
-  return { minX, maxX, minZ, maxZ };
+	return {minX, maxX, minZ, maxZ};
 }
 
 let boundaries = getBoundariesFromCorners();
 
 
 function closeWindowGame() {
-  const message = {
-    type: "gameComplete",
-    data: { winner: scoreSystem.getWinner() },
-  };
-  console.log("Message envoyé au parent :", message);
+	const message = {
+		type: "gameComplete",
+		data: {winner: scoreSystem.getWinner()},
+	};
+	console.log("Message envoyé au parent :", message);
 
-  if (window.parent && window.parent !== window) {
-    // Envoyer un message au parent pour lui signaler la fin du jeu
-    window.parent.postMessage(message, "*");
-  } else {
-    console.error(
-      "Impossible d'envoyer un message au parent : window.parent inaccessible."
-    );
-  }
+	if (window.parent && window.parent !== window) {
+		window.parent.postMessage(message, "*");
+	} else {
+		console.error(
+			"Impossible d'envoyer un message au parent : window.parent inaccessible."
+		);
+	}
 }
 
 keyboard.onSpace(() => {
-  if (scoreSystem.isGameOver()) {
-    const winner = scoreSystem.getWinner();
-    const scoreUser = scoreSystem.score.player1;
-    const scoreOpponent = scoreSystem.score.player2;
-    const result = scoreUser > scoreOpponent;
+	if (scoreSystem.isGameOver()) {
+		const winner = scoreSystem.getWinner();
+		const scoreUser = scoreSystem.score.player1;
+		const scoreOpponent = scoreSystem.score.player2;
+		const result = scoreUser > scoreOpponent;
 
-    const longestRally = scoreSystem.getLongestRally();
-    console.log("Fin du jeu - longestRally :", longestRally);
+		const longestRally = scoreSystem.getLongestRally();
+		console.log("Fin du jeu - longestRally :", longestRally);
 
-    console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
+		console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
 
-    // scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
-    scoreSystem.recordGame(
-      scoreUser,
-      scoreOpponent,
-      result,
-      longestRally,
-      maxBallSpeed
-    );
+		// scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
+		scoreSystem.recordGame(
+			scoreUser,
+			scoreOpponent,
+			result,
+			longestRally,
+			maxBallSpeed
+		);
 
-    maxBallSpeed = INITIAL_BALL_SPEED;
+		maxBallSpeed = INITIAL_BALL_SPEED;
 
-    resetBall();
-    gameStarted = false;
-    powerManager.stopGame();
-    closeWindowGame();
-    // console.log("Quiting Game");
-    // Fonction pour fermer la fenetre
-  } else if (!isBallMoving && !gameStarted) {
-    resetBall();
-    setTimeout(launchBall, 500);
-    gameStarted = true;
-    powerManager.startGame();
-    // console.log("Launch First Game");
-  }
+		resetBall();
+		gameStarted = false;
+		powerManager.stopGame();
+		closeWindowGame();
+		// console.log("Quiting Game");
+		// Fonction pour fermer la fenetre
+	} else if (!isBallMoving && !gameStarted) {
+		resetBall();
+		setTimeout(launchBall, 500);
+		gameStarted = true;
+		powerManager.startGame();
+		// console.log("Launch First Game");
+	}
 });
 
 const flashEffect = new FlashEffect(camera, scene, ball);
 
 const trajectoryMaterial = new THREE.LineBasicMaterial({
-  color: 0x00ff00,
-  transparent: true,
-  opacity: 0,
+	color: 0x00ff00,
+	transparent: true,
+	opacity: 0,
 });
 
 const trajectoryGeometry = new THREE.BufferGeometry();
@@ -332,9 +327,9 @@ scene.add(trajectoryLine);
 
 const impactGeometry = new THREE.SphereGeometry(5, 16, 16);
 const impactMaterial = new THREE.MeshBasicMaterial({
-  color: 0xff0000,
-  transparent: true,
-  opacity: 0,
+	color: 0xff0000,
+	transparent: true,
+	opacity: 0,
 });
 
 const impactPoint = new THREE.Mesh(impactGeometry, impactMaterial);
@@ -342,50 +337,50 @@ scene.add(impactPoint);
 impactPoint.visible = false;
 
 function updateTrajectory() {
-  if (!isBallMoving) {
-    trajectoryLine.visible = false;
-    impactPoint.visible = false;
-    return;
-  }
+	if (!isBallMoving) {
+		trajectoryLine.visible = false;
+		impactPoint.visible = false;
+		return;
+	}
 
-  trajectoryLine.visible = true;
-  impactPoint.visible = true;
+	trajectoryLine.visible = true;
+	impactPoint.visible = true;
 
-  const points = [];
-  let finalPosition = null;
+	const points = [];
+	let finalPosition = null;
 
-  let tempPos = new THREE.Vector3(
-    ball.position.x,
-    ball.position.y,
-    ball.position.z
-  );
-  let tempVel = new THREE.Vector3(ballVelocity.x, 0, ballVelocity.z);
+	let tempPos = new THREE.Vector3(
+		ball.position.x,
+		ball.position.y,
+		ball.position.z
+	);
+	let tempVel = new THREE.Vector3(ballVelocity.x, 0, ballVelocity.z);
 
-  const maxPoints = Math.floor(170 * (INITIAL_BALL_SPEED / currentBallSpeed));
-  const numPoints = Math.max(5, maxPoints);
+	const maxPoints = Math.floor(170 * (INITIAL_BALL_SPEED / currentBallSpeed));
+	const numPoints = Math.max(5, maxPoints);
 
-  for (let i = 0; i < numPoints; i++) {
-    points.push(tempPos.clone());
+	for (let i = 0; i < numPoints; i++) {
+		points.push(tempPos.clone());
 
-    tempPos.x += tempVel.x;
-    tempPos.z += tempVel.z;
+		tempPos.x += tempVel.x;
+		tempPos.z += tempVel.z;
 
-    if (tempPos.x < boundaries.minX || tempPos.x > boundaries.maxX) {
-      finalPosition = tempPos.clone();
-      break;
-    }
+		if (tempPos.x < boundaries.minX || tempPos.x > boundaries.maxX) {
+			finalPosition = tempPos.clone();
+			break;
+		}
 
-    if (tempPos.z < boundaries.minZ || tempPos.z > boundaries.maxZ) {
-      tempVel.z *= -1;
-      tempPos.z = Math.sign(tempPos.z) * boundaries.maxZ;
-    }
-  }
+		if (tempPos.z < boundaries.minZ || tempPos.z > boundaries.maxZ) {
+			tempVel.z *= -1;
+			tempPos.z = Math.sign(tempPos.z) * boundaries.maxZ;
+		}
+	}
 
-  if (finalPosition) {
-    impactPoint.position.set(finalPosition.x, 15, finalPosition.z);
-  }
+	if (finalPosition) {
+		impactPoint.position.set(finalPosition.x, 15, finalPosition.z);
+	}
 
-  trajectoryGeometry.setFromPoints(points);
+	trajectoryGeometry.setFromPoints(points);
 }
 
 const difficultyDisplay = document.createElement("div");
@@ -407,11 +402,11 @@ difficultyDisplay.style.cssText = `
 document.body.appendChild(difficultyDisplay);
 
 window.addEventListener("keydown", (event) => {
-  if (event.key === "c" || event.key === "C") {
-    const newDifficulty = gameAI.cycleDifficulty();
-    difficultyDisplay.textContent = `AI: ${newDifficulty.name}`;
-    difficultyDisplay.style.backgroundColor = newDifficulty.color;
-  }
+	if (event.key === "c" || event.key === "C") {
+		const newDifficulty = gameAI.cycleDifficulty();
+		difficultyDisplay.textContent = `AI: ${newDifficulty.name}`;
+		difficultyDisplay.style.backgroundColor = newDifficulty.color;
+	}
 });
 
 const animationManager = new AnimationManager(scene);
@@ -419,229 +414,245 @@ const paddlePower1 = new PaddlePower();
 const paddlePower2 = new PaddlePower();
 
 const powerManager = new PowerManager(
-  scene,
-  boundaries,
-  paddlePower1,
-  paddlePower2,
-  modelCache,
-  flashEffect,
-  animationManager,
-  modelLoader
+	scene,
+	boundaries,
+	paddlePower1,
+	paddlePower2,
+	modelCache,
+	flashEffect,
+	animationManager,
+	modelLoader,
 );
 
+function handleMessage(event) {
+	if (event.data.type === "setOptions") {
+		console.log("Received options from parent :", event.data.data);
+		const {options, isAI, power} = event.data.data;
+		console.log("Game Options :", options);
+		console.log("AI :", isAI);
+		console.log("Power :", power);
+
+		aiIsActive = !!isAI;
+
+		if (!power) {
+			isPowerActivated = false;
+			powerManager.deactivatePowers();
+		} else {
+			isPowerActivated = true;
+			powerManager.activatePowers();
+		}
+
+		window.removeEventListener("message", handleMessage);
+	}
+}
+
+window.addEventListener("message", handleMessage);
+
 const paddle1Controller = new PaddleController(paddle1Speed, {
-  up: "w",
-  down: "s",
+	up: "w",
+	down: "s",
 });
 
 const paddle2Controller = new PaddleController(paddle2Speed, {
-  up: "arrowup",
-  down: "arrowdown",
+	up: "arrowup",
+	down: "arrowdown",
 });
 
 const gameAI = new AI(paddlePower2, powerManager, paddle1Controller);
 
-keyboard.onKey("j", () => {
-  if (aiIsActive) {
-    aiIsActive = false;
-  } else {
-    aiIsActive = true;
-  }
-});
-
 keyboard.onKey("e", () => {
-  if (paddle1 && paddlePower1.hasPower("power1")) {
-    powerManager.launchGrenade(1);
-  } else if (paddle1 && paddlePower1.hasPower("power2")) {
-    powerManager.launchInverseShot(1, paddle2Controller);
-  } else if (paddle1 && paddlePower1.hasPower("power3")) {
-    powerManager.launchReductShot(1, heightController2);
-  }
+	if (paddle1 && paddlePower1.hasPower("power1")) {
+		powerManager.launchGrenade(1);
+	} else if (paddle1 && paddlePower1.hasPower("power2")) {
+		powerManager.launchInverseShot(1, paddle2Controller);
+	} else if (paddle1 && paddlePower1.hasPower("power3")) {
+		powerManager.launchReductShot(1, heightController2);
+	}
 });
 
 keyboard.onKey("arrowleft", () => {
-  if (paddle2 && paddlePower2.hasPower("power1")) {
-    powerManager.launchGrenade(2);
-  } else if (paddle2 && paddlePower2.hasPower("power2")) {
-    powerManager.launchInverseShot(2, paddle1Controller);
-  } else if (paddle2 && paddlePower2.hasPower("power3")) {
-    powerManager.launchReductShot(2, heightController1);
-  }
+	if (paddle2 && paddlePower2.hasPower("power1")) {
+		powerManager.launchGrenade(2);
+	} else if (paddle2 && paddlePower2.hasPower("power2")) {
+		powerManager.launchInverseShot(2, paddle1Controller);
+	} else if (paddle2 && paddlePower2.hasPower("power3")) {
+		powerManager.launchReductShot(2, heightController1);
+	}
 });
 
 function animate() {
-  requestAnimationFrame(animate);
-  preloadModels();
+	requestAnimationFrame(animate);
+	preloadModels();
 
-  animationManager.update();
+	animationManager.update();
 
-  paddle1Controller.assignPaddle(paddle1);
-  paddle2Controller.assignPaddle(paddle2);
-  heightController1.assignPaddle(paddle1);
-  heightController2.assignPaddle(paddle2);
+	paddle1Controller.assignPaddle(paddle1);
+	paddle2Controller.assignPaddle(paddle2);
+	heightController1.assignPaddle(paddle1);
+	heightController2.assignPaddle(paddle2);
 
-  heightController1.updatePaddleModelHeight();
-  heightController2.updatePaddleModelHeight();
+	heightController1.updatePaddleModelHeight();
+	heightController2.updatePaddleModelHeight();
 
-  paddle2Controller.updateColor();
-  paddle1Controller.updateColor();
+	paddle2Controller.updateColor();
+	paddle1Controller.updateColor();
 
-  flashEffect.update();
+	flashEffect.update();
 
-  const ballRadius = 10;
+	const ballRadius = 10;
 
-  if (!scoreSystem.isGameOver()) {
-    paddle1Controller.move(
-      boundaries,
-      gameStarted,
-      keyboard,
-      heightController1.getHeight()
-    );
-    if (!aiIsActive) {
-      paddle2Controller.move(
-        boundaries,
-        gameStarted,
-        keyboard,
-        heightController2.getHeight()
-      );
-    }
-  }
+	if (!scoreSystem.isGameOver()) {
+		paddle1Controller.move(
+			boundaries,
+			gameStarted,
+			keyboard,
+			heightController1.getHeight()
+		);
+		if (!aiIsActive) {
+			paddle2Controller.move(
+				boundaries,
+				gameStarted,
+				keyboard,
+				heightController2.getHeight()
+			);
+		}
+	}
 
-  if (isBallMoving && !scoreSystem.isGameOver()) {
-    updateTrajectory();
+	if (isBallMoving && !scoreSystem.isGameOver()) {
+		updateTrajectory();
 
-    if (aiIsActive) {
-      gameAI.move(
-        paddle2,
-        ball.position,
-        ballVelocity,
-        impactPoint.position,
-        boundaries
-      );
-      gameAI.loadPowerManager(powerManager);
-      gameAI.updatePowerManager(
-        paddle2,
-        heightController2,
-        heightController1,
-        paddle1,
-        paddle2Controller
-      );
-    }
+		if (aiIsActive) {
+			gameAI.move(
+				paddle2,
+				ball.position,
+				ballVelocity,
+				impactPoint.position,
+				boundaries
+			);
+			gameAI.loadPowerManager(powerManager);
+			gameAI.updatePowerManager(
+				paddle2,
+				heightController2,
+				heightController1,
+				paddle1,
+				paddle2Controller
+			);
+		}
 
-    ball.position.x += ballVelocity.x;
-    ball.position.z += ballVelocity.z;
+		ball.position.x += ballVelocity.x;
+		ball.position.z += ballVelocity.z;
 
-    if (Math.abs(ball.position.z) + ballRadius > boundaries.maxZ) {
-      ballVelocity.z *= -1;
+		if (Math.abs(ball.position.z) + ballRadius > boundaries.maxZ) {
+			ballVelocity.z *= -1;
 
-      const direction = Math.sign(ball.position.z);
-      ball.position.z = direction * (boundaries.maxZ - ballRadius - 0.5);
-    }
+			const direction = Math.sign(ball.position.z);
+			ball.position.z = direction * (boundaries.maxZ - ballRadius - 0.5);
+		}
 
-    if (ballVelocity.x < 0) {
-      const paddleLeftX = paddle1.position.x;
+		if (ballVelocity.x < 0) {
+			const paddleLeftX = paddle1.position.x;
 
-      if (
-        ball.position.x <= paddleLeftX + 30 &&
-        ball.position.x >= paddleLeftX - 30 &&
-        Math.abs(ball.position.z - paddle1.position.z) <
-          heightController1.getHeight() / 1.8
-      ) {
-        currentBallSpeed = Math.min(
-          currentBallSpeed + SPEED_INCREMENT,
-          MAX_BALL_SPEED
-        );
+			if (
+				ball.position.x <= paddleLeftX + 30 &&
+				ball.position.x >= paddleLeftX - 30 &&
+				Math.abs(ball.position.z - paddle1.position.z) <
+				heightController1.getHeight() / 1.8
+			) {
+				currentBallSpeed = Math.min(
+					currentBallSpeed + SPEED_INCREMENT,
+					MAX_BALL_SPEED
+				);
 
-        if (currentBallSpeed > maxBallSpeed) {
-          maxBallSpeed = currentBallSpeed;
-        }
+				if (currentBallSpeed > maxBallSpeed) {
+					maxBallSpeed = currentBallSpeed;
+				}
 
-        const relativeImpactZ =
-          (ball.position.z - paddle1.position.z) /
-          (heightController1.getHeight() / 2);
-        const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
-        ballVelocity.x = currentBallSpeed * Math.cos(bounceAngle);
-        ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
-        scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
-        // longestRally++;
-      }
-    }
+				const relativeImpactZ =
+					(ball.position.z - paddle1.position.z) /
+					(heightController1.getHeight() / 2);
+				const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
+				ballVelocity.x = currentBallSpeed * Math.cos(bounceAngle);
+				ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
+				scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
+				// longestRally++;
+			}
+		}
 
-    if (ballVelocity.x > 0) {
-      const paddleRightX = paddle2.position.x;
+		if (ballVelocity.x > 0) {
+			const paddleRightX = paddle2.position.x;
 
-      if (
-        ball.position.x >= paddleRightX - 30 &&
-        ball.position.x <= paddleRightX + 30 &&
-        Math.abs(ball.position.z - paddle2.position.z) <
-          heightController2.getHeight() / 1.8
-      ) {
-        currentBallSpeed = Math.min(
-          currentBallSpeed + SPEED_INCREMENT,
-          MAX_BALL_SPEED
-        );
+			if (
+				ball.position.x >= paddleRightX - 30 &&
+				ball.position.x <= paddleRightX + 30 &&
+				Math.abs(ball.position.z - paddle2.position.z) <
+				heightController2.getHeight() / 1.8
+			) {
+				currentBallSpeed = Math.min(
+					currentBallSpeed + SPEED_INCREMENT,
+					MAX_BALL_SPEED
+				);
 
-        if (currentBallSpeed > maxBallSpeed) {
-          maxBallSpeed = currentBallSpeed;
-        }
+				if (currentBallSpeed > maxBallSpeed) {
+					maxBallSpeed = currentBallSpeed;
+				}
 
-        const relativeImpactZ =
-          (ball.position.z - paddle2.position.z) /
-          (heightController2.getHeight() / 2);
-        const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
-        ballVelocity.x = -currentBallSpeed * Math.cos(bounceAngle);
-        ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
-        scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
-        // longestRally++;
-      }
-    }
+				const relativeImpactZ =
+					(ball.position.z - paddle2.position.z) /
+					(heightController2.getHeight() / 2);
+				const bounceAngle = (relativeImpactZ * (65 * Math.PI)) / 180;
+				ballVelocity.x = -currentBallSpeed * Math.cos(bounceAngle);
+				ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
+				scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
+				// longestRally++;
+			}
+		}
 
-    if (ball.position.x < paddle1.position.x - 10) {
-      neonBorder.flashNeonBorder(bloomPass, 2);
-      setTimeout(() => {
-        neonBorder.flashNeonBorder(bloomPass, 2);
-      }, 370);
-      neonBorder.resetNeonColorToWhite();
-      scoreSystem.updateScore(2);
-      if (scoreSystem.isGameOver()) {
-        powerManager.stopGame();
-        isBallMoving = false;
-        ball.position.set(0, -100, 0);
-        paddlePower1.deactivateAllPowers();
-        paddlePower2.deactivateAllPowers();
-        // console.log("Longest Rally :", longestRally);
-        longestRally = 0;
-      } else {
-        resetBall();
-        setTimeout(launchBall, 1250);
-      }
-    } else if (ball.position.x > paddle2.position.x + 10) {
-      neonBorder.flashNeonBorder(bloomPass, 1);
-      setTimeout(() => {
-        neonBorder.flashNeonBorder(bloomPass, 1);
-      }, 370);
-      neonBorder.resetNeonColorToWhite();
-      scoreSystem.updateScore(1);
-      if (scoreSystem.isGameOver()) {
-        powerManager.stopGame();
-        isBallMoving = false;
-        ball.position.set(0, -100, 0);
-        paddlePower1.deactivateAllPowers();
-        paddlePower2.deactivateAllPowers();
-        // console.log("Longest Rally :", longestRally);
-        longestRally = 0;
-      } else {
-        resetBall();
-        setTimeout(launchBall, 1250);
-      }
-    }
-  }
+		if (ball.position.x < paddle1.position.x - 10) {
+			neonBorder.flashNeonBorder(bloomPass, 2);
+			setTimeout(() => {
+				neonBorder.flashNeonBorder(bloomPass, 2);
+			}, 370);
+			neonBorder.resetNeonColorToWhite();
+			scoreSystem.updateScore(2);
+			if (scoreSystem.isGameOver()) {
+				powerManager.stopGame();
+				isBallMoving = false;
+				ball.position.set(0, -100, 0);
+				paddlePower1.deactivateAllPowers();
+				paddlePower2.deactivateAllPowers();
+				// console.log("Longest Rally :", longestRally);
+				// longestRally = 0;
+			} else {
+				resetBall();
+				setTimeout(launchBall, 1250);
+			}
+		} else if (ball.position.x > paddle2.position.x + 10) {
+			neonBorder.flashNeonBorder(bloomPass, 1);
+			setTimeout(() => {
+				neonBorder.flashNeonBorder(bloomPass, 1);
+			}, 370);
+			neonBorder.resetNeonColorToWhite();
+			scoreSystem.updateScore(1);
+			if (scoreSystem.isGameOver()) {
+				powerManager.stopGame();
+				isBallMoving = false;
+				ball.position.set(0, -100, 0);
+				paddlePower1.deactivateAllPowers();
+				paddlePower2.deactivateAllPowers();
+				// console.log("Longest Rally :", longestRally);
+				// longestRally = 0;
+			} else {
+				resetBall();
+				setTimeout(launchBall, 1250);
+			}
+		}
+	}
 
-  if (!scoreSystem.isGameOver()) {
-    powerManager.update(paddle1, paddle2, gameStarted);
-  }
+	if (!scoreSystem.isGameOver()) {
+		powerManager.update(paddle1, paddle2, gameStarted);
+	}
 
-  composer.render();
+	composer.render();
 }
 
 animate();
