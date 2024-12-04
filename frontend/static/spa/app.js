@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     return false; // L'utilisateur est authentifié ou aucune authentification n'est requise
   }
-  
+
 
   // Charger une page en fonction de l'URL
   async function loadComponent(

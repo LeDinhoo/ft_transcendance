@@ -1,17 +1,16 @@
-.:
+Makefile
+TODO.txt
 backend
 database
 docker-compose.yml
 frontend
-Makefile
 structure.txt
-TODO.txt
 
 ./backend:
+Dockerfile
 accounts
 backend
 certs
-Dockerfile
 entrypoint.sh
 gunicorn.crt
 gunicorn.key
@@ -23,22 +22,30 @@ staticfiles
 templates
 
 ./backend/accounts:
+__init__.py
+__pycache__
 admin.py
 apps.py
 authentication.py
 consumers.py
 forms.py
-__init__.py
 middleware.py
 migrations
 models.py
-__pycache__
 routing.py
 templates
 tests.py
 urls.py
 validators.py
 views.py
+
+./backend/accounts/__pycache__:
+__init__.cpython-310.pyc
+admin.cpython-310.pyc
+apps.cpython-310.pyc
+models.cpython-310.pyc
+urls.cpython-310.pyc
+views.cpython-310.pyc
 
 ./backend/accounts/migrations:
 0001_initial.py
@@ -48,14 +55,6 @@ __pycache__
 ./backend/accounts/migrations/__pycache__:
 __init__.cpython-310.pyc
 
-./backend/accounts/__pycache__:
-admin.cpython-310.pyc
-apps.cpython-310.pyc
-__init__.cpython-310.pyc
-models.cpython-310.pyc
-urls.cpython-310.pyc
-views.cpython-310.pyc
-
 ./backend/accounts/templates:
 email
 
@@ -63,9 +62,9 @@ email
 2fa_code.html
 
 ./backend/backend:
-asgi.py
 __init__.py
 __pycache__
+asgi.py
 settings.py
 staticfiles
 urls.py
@@ -110,6 +109,8 @@ select2.css
 select2.min.css
 
 ./backend/backend/staticfiles/admin/img:
+LICENSE
+README.txt
 calendar-icons.svg
 gis
 icon-addlink.svg
@@ -124,8 +125,6 @@ icon-unknown.svg
 icon-viewlink.svg
 icon-yes.svg
 inline-delete.svg
-LICENSE
-README.txt
 search.svg
 selector-icons.svg
 sorting-icons.svg
@@ -137,6 +136,8 @@ move_vertex_off.svg
 move_vertex_on.svg
 
 ./backend/backend/staticfiles/admin/js:
+SelectBox.js
+SelectFilter2.js
 actions.js
 admin
 autocomplete.js
@@ -150,10 +151,8 @@ inlines.js
 jquery.init.js
 nav_sidebar.js
 popup_response.js
-prepopulate_init.js
 prepopulate.js
-SelectBox.js
-SelectFilter2.js
+prepopulate_init.js
 theme.js
 urlify.js
 vendor
@@ -168,13 +167,13 @@ select2
 xregexp
 
 ./backend/backend/staticfiles/admin/js/vendor/jquery:
+LICENSE.txt
 jquery.js
 jquery.min.js
-LICENSE.txt
 
 ./backend/backend/staticfiles/admin/js/vendor/select2:
-i18n
 LICENSE.md
+i18n
 select2.full.js
 select2.full.min.js
 
@@ -252,11 +251,11 @@ img
 js
 
 ./backend/backend/staticfiles/rest_framework/css:
-bootstrap.min.css
-bootstrap.min.css.map
 bootstrap-theme.min.css
 bootstrap-theme.min.css.map
 bootstrap-tweaks.css
+bootstrap.min.css
+bootstrap.min.css.map
 default.css
 font-awesome-4.0.3.css
 prettify.css
@@ -292,8 +291,8 @@ glyphicons-halflings-regular.woff
 glyphicons-halflings-regular.woff2
 
 ./backend/backend/staticfiles/rest_framework/img:
-glyphicons-halflings.png
 glyphicons-halflings-white.png
+glyphicons-halflings.png
 grid.png
 
 ./backend/backend/staticfiles/rest_framework/js:
@@ -322,8 +321,8 @@ gunicorn.key
 Dockerfile
 
 ./frontend:
-certs
 Dockerfile
+certs
 nginx.conf
 static
 templates
@@ -380,8 +379,8 @@ flag-swe.svg
 
 ./frontend/static/assets/icons:
 42_Logo.svg
-addcircle.svg
 add_friend.svg
+addcircle.svg
 bronze.png
 check.svg
 close.svg
@@ -409,14 +408,14 @@ trash.svg
 trophy.svg
 upload.svg
 user-plus.svg
-vibility_off.png
 vibility.png
+vibility_off.png
 victory.svg
 
 ./frontend/static/assets/icons_bis:
 42_Logo.svg
-addcircle.svg
 add_friend.svg
+addcircle.svg
 bronze.png
 check.svg
 close.svg
@@ -441,8 +440,8 @@ trash.svg
 trophy.svg
 upload.svg
 user-plus.svg
-vibility_off.png
 vibility.png
+vibility_off.png
 victory.svg
 
 ./frontend/static/css:
@@ -479,15 +478,11 @@ custom.js
 AnimationManager.js
 Boundaries.js
 FlashEffect.js
-font
 GameAI.js
 HeightModifier.js
 KeyboardManager.js
-libs
 Light.js
-main.js
 ModelLoader.js
-models
 NeonBorder.js
 PaddleController.js
 PowerBook.js
@@ -496,6 +491,10 @@ PowerInverseShot.js
 PowerManager.js
 PowerReductShot.js
 Score.js
+font
+libs
+main.js
+models
 three.html
 
 ./frontend/static/spa/game3D/font:
@@ -503,7 +502,6 @@ Mishmash_Regular.json
 
 ./frontend/static/spa/game3D/libs:
 BufferGeometryUtils.js
-cannon-es.js
 CopyShader.js
 EffectComposer.js
 FontLoader.js
@@ -516,8 +514,9 @@ RectAreaLightHelper.js
 RenderPass.js
 ShaderPass.js
 TextGeometry.js
-three.module.js
 UnrealBloomPass.js
+cannon-es.js
+three.module.js
 
 ./frontend/static/spa/game3D/models:
 Beer.glb
@@ -533,15 +532,15 @@ home.html
 home.js
 
 ./frontend/static/spa/home/game:
+Mishmash_Regular.json
+Score3D.js
 asse.jpg
 game.js
 guiControls.js
 light.js
-Mishmash_Regular.json
 paddle1.glb
 paddle2.glb
 plan.glb
-Score3D.js
 three.html
 
 ./frontend/static/spa/login:
@@ -553,9 +552,11 @@ registerShowHide.js
 visibilityPassword.js
 
 ./frontend/static/spa/new_home:
+config.js
 new_home.css
 new_home.html
 new_home.js
+stash_new_home.js
 
 ./frontend/static/spa/profil:
 profil.css
