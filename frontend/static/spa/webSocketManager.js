@@ -105,7 +105,6 @@
 // window.wsManager = wsManager;
 
 
-
 const wsManager = {
     chatSocket: null,
     messageListeners: new Set(),
@@ -117,7 +116,7 @@ const wsManager = {
 
         this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
 
-		console.log('TEST\n:NEW SOCKET CREATED\n');
+        console.log('TEST\n:NEW SOCKET CREATED\n');
 
         this.chatSocket.onopen = () => {
             console.log('Chat WebSocket Connected');
@@ -129,9 +128,9 @@ const wsManager = {
         };
 
         this.chatSocket.onmessage = (e) => {
-            console.log("Raw WebSocket message received:", e.data); // Debug log
+            console.log("Raw WebSocket message received:", e.data);
             const data = JSON.parse(e.data);
-            console.log("Parsed message:", data); // Debug log
+            console.log("Parsed message:", data);
 
             switch (data.type) {
                 case 'chat_message':
@@ -139,13 +138,23 @@ const wsManager = {
                     this.messageListeners.forEach(listener => listener(data));
                     break;
 
+                case 'private_message':
+                    console.log("Private message received:", data);
+                    if (window.currentUser &&
+                        (data.username === window.currentUser.username ||
+                         data.recipient === window.currentUser.username)) {
+                        this.messageHistory.push(data);
+                        this.messageListeners.forEach(listener => listener(data));
+                    }
+                    break;
+
                 case 'game_invitation':
-                    console.log("Game invitation received:", data); // Debug log
+                    console.log("Game invitation received:", data);
                     this.messageListeners.forEach(listener => listener(data));
                     break;
 
                 case 'game_invitation_response':
-                    console.log("Game invitation response received:", data); // Debug log
+                    console.log("Game invitation response received:", data);
                     this.messageListeners.forEach(listener => listener(data));
                     break;
 
@@ -167,7 +176,7 @@ const wsManager = {
                     break;
 
                 default:
-                    console.log("Unhandled message type:", data.type); // Debug log
+                    console.log("Unhandled message type:", data.type);
             }
         };
 
@@ -199,13 +208,45 @@ const wsManager = {
         });
     },
 
-    sendMessage(message) {
-        if (this.chatSocket?.readyState === WebSocket.OPEN) {
-            console.log("Sending WebSocket message:", message); // Debug log
-            this.chatSocket.send(JSON.stringify(message));
+    sendMessage() {
+        const chatInput = document.getElementById('messageInput');
+        if (!chatInput || !window.currentUser) return;
+
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Vérifier si c'est un message privé
+        const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+        if (pmMatch) {
+            // Extraire le destinataire et le message
+            const [, recipient, privateMessage] = pmMatch;
+
+            // Envoyer le message privé
+            this.chatSocket.send(JSON.stringify({
+                type: "private_message",
+                message: privateMessage,
+                username: window.currentUser.username,
+                avatar: window.currentUser.avatar,
+                recipient: recipient
+            }));
         } else {
-            console.error("WebSocket not ready. State:", this.chatSocket?.readyState);
+            // Message normal
+            this.chatSocket.send(JSON.stringify({
+                type: "chat_message",
+                message: message,
+                username: window.currentUser.username,
+                avatar: window.currentUser.avatar
+            }));
         }
+        chatInput.value = "";
+    },
+
+    startPrivateMessage(username) {
+        const chatInput = document.getElementById('messageInput');
+        if (!chatInput) return;
+
+        chatInput.value = `/pm ${username} `;
+        chatInput.focus();
     },
 
     getMessageHistory() {
@@ -218,7 +259,54 @@ const wsManager = {
 
     removeMessageListener(listener) {
         this.messageListeners.delete(listener);
+    },
+
+    handleMessage(data) {
+        const chatMessages = document.getElementById('chatMessages');
+        if (!chatMessages) return;
+
+        if (ChatHandler.blockedUsers.has(data.username)) {
+            data.originalMessage = data.message;
+            data.message = "Message blocked";
+        }
+
+        const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
+        const messageElement = document.createElement("div");
+
+        messageElement.className = `message ${isCurrentUser ? "sent" : "received"}`;
+
+        if (data.type === "private_message") {
+            messageElement.classList.add("private-message");
+        }
+
+        if (ChatHandler.blockedUsers.has(data.username)) {
+            messageElement.style.opacity = "0.5";
+        }
+
+        let messageHeader = data.username;
+        if (data.type === "private_message") {
+            messageHeader += ` → ${data.recipient}`;
+        }
+
+        messageElement.innerHTML = `
+            <img src="${data.avatar}"
+                alt="${data.username}"
+                class="messageAvatar"
+                title="Click for options">
+            <div class="messageContent">
+                <div class="messageHeader">${messageHeader}</div>
+                <div class="messageText" ${
+                    ChatHandler.blockedUsers.has(data.username)
+                        ? 'data-original-text="' + data.originalMessage + '"'
+                        : ""
+                }>${data.message}</div>
+            </div>
+        `;
+
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 };
 
+// Rendre l'objet disponible globalement
 window.wsManager = wsManager;
