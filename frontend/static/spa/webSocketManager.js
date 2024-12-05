@@ -272,17 +272,24 @@ const wsManager = {
 
         const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
         const messageElement = document.createElement("div");
+        
+        // Construction de la classe de base du message
+        let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
 
-        messageElement.className = `message ${isCurrentUser ? "sent" : "received"}`;
-
+        // Ajouter la classe private-message si c'est un message privé
+        // Que ce soit pour l'expéditeur OU le destinataire
         if (data.type === "private_message") {
-            messageElement.classList.add("private-message");
+            messageClasses.push("private-message");
         }
+
+        // Appliquer toutes les classes
+        messageElement.className = messageClasses.join(" ");
 
         if (ChatHandler.blockedUsers.has(data.username)) {
             messageElement.style.opacity = "0.5";
         }
 
+        // Construction de l'en-tête du message
         let messageHeader = data.username;
         if (data.type === "private_message") {
             messageHeader += ` → ${data.recipient}`;

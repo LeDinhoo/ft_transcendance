@@ -1432,3 +1432,15 @@ body {
 .accept-btn:hover, .decline-btn:hover {
   transform: scale(1.05);
 }
+
+.message.private-message .messageText {
+    background-color: var(--liquid-lava);
+}
+
+.message.private-message::before {
+    content: "(Private)";
+    font-size: 0.8em;
+    color: var(--liquid-lava);                
+    opacity: 0.8;
+    margin-right: 4px;
+}
