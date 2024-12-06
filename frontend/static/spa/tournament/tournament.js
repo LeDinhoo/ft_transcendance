@@ -1,5 +1,5 @@
 function initializeTournamentPage() {
-  console.log("fonction initializetournament game appele ...")
+  console.log("fonction initializetournament game appele ...");
 
   const DEFAULT_AVATAR = "/static/assets/icons/pending.svg";
 
@@ -51,18 +51,26 @@ function initializeTournamentPage() {
         if (event.data.type === "scoreUpdate") {
           // Mise à jour des scores en cours de partie
           this.currentGameScores = {
-            player1: event.data.data.player1Score,
-            player2: event.data.data.player2Score,
+            player1: event.data.data.finalScores.player1Score,
+            player2: event.data.data.finalScores.player2Score,
           };
         } else if (event.data.type === "gameComplete") {
-          console.log("Game completed with data:", event.data.data);
-          console.log("event.data.player1score:", event.data.player1Score);
-          console.log("event.data.player2score:", event.data.player2Score);
-          console.log("event.data.winner:", event.data.winner);
-          console.log("event.data.finalscores:", event.data.finalScores);
-          
+          const winner = event.data.data.winner;
+          const finalScores = event.data.data.finalScores;
+          console.log("winner : ", winner);
+          console.log("finalScores : ", finalScores);
+
+          // console.log("Game completed with data:", event.data.data);
+          // console.log("event.data.player1score:", event.data.player1Score);
+          // console.log("event.data.player2score:", event.data.player2Score);
+          // console.log("event.data.winner:", event.data.winner);
+          // console.log("event.data.finalscores:", event.data.finalScores);
+
           this.endGame();
-          progressTournament(event.data.data.winner, event.data.data.finalScores);
+          progressTournament(
+            winner,
+            finalScores
+          );
         }
       });
     }
@@ -76,7 +84,10 @@ function initializeTournamentPage() {
 
       const currentMatch =
         this.tournamentState.matches[this.tournamentState.currentMatch];
-      console.log("Starting game for match:", this.tournamentState.currentMatch);
+      console.log(
+        "Starting game for match:",
+        this.tournamentState.currentMatch
+      );
       console.log("Current match data:", currentMatch);
 
       if (
@@ -88,7 +99,53 @@ function initializeTournamentPage() {
       }
 
       this.gameContainer.style.display = "block";
-      this.gameContainer.src = "/static/spa/game/three.html";
+      this.gameContainer.src = "/static/spa/game3D/three.html";
+
+      this.gameContainer.onload = () => {
+        console.log(
+          "Game loaded, sending players:",
+          currentMatch.player1,
+          currentMatch.player2
+        );
+        this.gameContainer.contentWindow.postMessage(
+          {
+            type: "startGame",
+            data: {
+              player1: currentMatch.player1,
+              player2: currentMatch.player2,
+            },
+          },
+          "*"
+        );
+        this.gameContainer.focus();
+      };
+    }
+
+        startGame() {
+      // Reset scores for new game
+      this.currentGameScores = {
+        player1: 0,
+        player2: 0,
+      };
+
+      const currentMatch =
+        this.tournamentState.matches[this.tournamentState.currentMatch];
+      console.log(
+        "Starting game for match:",
+        this.tournamentState.currentMatch
+      );
+      console.log("Current match data:", currentMatch);
+
+      if (
+        !currentMatch ||
+        this.tournamentState.currentMatch >= this.tournamentState.matches.length
+      ) {
+        console.log("No more matches to play");
+        return;
+      }
+
+      this.gameContainer.style.display = "block";
+      this.gameContainer.src = "/static/spa/game3D/three.html";
 
       this.gameContainer.onload = () => {
         console.log(
@@ -178,7 +235,9 @@ function initializeTournamentPage() {
       if (matchNumber <= 4) {
         selector = `.tournamentSection1 .doubleMatch:nth-child(${matchNumber})`;
       } else if (matchNumber <= 6) {
-        selector = `.tournamentSection2 .doubleMatch:nth-child(${matchNumber - 4})`;
+        selector = `.tournamentSection2 .doubleMatch:nth-child(${
+          matchNumber - 4
+        })`;
       } else if (matchNumber === 7) {
         selector = `.tournamentSection3 .doubleMatch`;
       } else if (matchNumber === 8) {
@@ -410,6 +469,7 @@ function initializeTournamentPage() {
       if (match.winner) {
         const winnerIndex =
           match.player1 && match.winner.name === match.player1.name ? 0 : 1;
+
         scores.forEach((scoreElement, scoreIndex) => {
           scoreElement.textContent =
             scoreIndex === 0 ? match.score1 : match.score2;
@@ -434,8 +494,8 @@ function initializeTournamentPage() {
 
   function progressTournament(winnerIndex, finalScores) {
     const currentMatch = tournamentState.matches[tournamentState.currentMatch];
-    const winner =
-      winnerIndex === 0 ? currentMatch.player1 : currentMatch.player2;
+    // const winner =
+    //   winnerIndex === 0 ? currentMatch.player1 : currentMatch.player2;
     const playerCount = getSelectedPlayerCount();
 
     // Déterminer si c'est le dernier match
@@ -443,12 +503,19 @@ function initializeTournamentPage() {
       (playerCount === 4 && tournamentState.currentMatch === 2) ||
       (playerCount === 8 && tournamentState.currentMatch === 6);
 
+    if (finalScores.player1 > finalScores.player2) {
+      currentMatch.winner = currentMatch.player1;
+    } else if (finalScores.player2 > finalScores.player1) {
+      currentMatch.winner = currentMatch.player2;
+    } else {
+      currentMatch.winner = null; // En cas d'égalité, aucun gagnant
+    }
     // Set the actual scores from the game
     currentMatch.score1 = finalScores.player1;
     currentMatch.score2 = finalScores.player2;
-    currentMatch.winner = winner;
+    // currentMatch.winner = winner;
     tournamentState.matchResults[tournamentState.currentMatch] = {
-      winner: winner,
+      winner: currentMatch.winner,
       scores: finalScores,
     };
 
@@ -456,24 +523,24 @@ function initializeTournamentPage() {
       if (tournamentState.currentMatch < 2) {
         // Premier tour (matchs 0 et 1)
         if (tournamentState.currentMatch === 0) {
-          tournamentState.matches[2].player1 = winner;
+          tournamentState.matches[2].player1 = currentMatch.winner;
         } else {
-          tournamentState.matches[2].player2 = winner;
+          tournamentState.matches[2].player2 = currentMatch.winner;
         }
       } else if (tournamentState.currentMatch === 2) {
         // Finale
         const finalMatch = tournamentState.matches[2];
-        finalMatch.winner = winner;
+        finalMatch.winner = currentMatch.winner;
 
         // Créer le match virtuel pour l'affichage final
         tournamentState.matches[3] = {
           matchId: 3,
           round: 3,
-          player1: winner,
+          player1: currentMatch.winner,
           player2: null,
           score1: finalScores.player1,
           score2: finalScores.player2,
-          winner: winner,
+          winner: currentMatch.winner,
         };
       }
     } else if (playerCount === 8) {
@@ -482,38 +549,56 @@ function initializeTournamentPage() {
         const nextRoundMatchIndex =
           4 + Math.floor(tournamentState.currentMatch / 2);
         if (tournamentState.currentMatch % 2 === 0) {
-          tournamentState.matches[nextRoundMatchIndex].player1 = winner;
+          tournamentState.matches[nextRoundMatchIndex].player1 = currentMatch.winner;
         } else {
-          tournamentState.matches[nextRoundMatchIndex].player2 = winner;
+          tournamentState.matches[nextRoundMatchIndex].player2 = currentMatch.winner;
         }
       } else if (tournamentState.currentMatch < 6) {
         // Demi-finales (matchs 4 et 5)
         if (tournamentState.currentMatch === 4) {
-          tournamentState.matches[6].player1 = winner;
+          tournamentState.matches[6].player1 = currentMatch.winner;
         } else {
-          tournamentState.matches[6].player2 = winner;
+          tournamentState.matches[6].player2 = currentMatch.winner;
         }
       } else if (tournamentState.currentMatch === 6) {
         // Finale
         const finalMatch = tournamentState.matches[6];
-        finalMatch.winner = winner;
+        finalMatch.winner = currentMatch.winner;
 
         // Créer le match virtuel pour l'affichage final
         tournamentState.matches[7] = {
           matchId: 7,
           round: 4,
-          player1: winner,
+          player1: currentMatch.winner,
           player2: null,
           score1: finalScores.player1,
           score2: finalScores.player2,
-          winner: winner,
+          winner: currentMatch.winner,
         };
       }
     }
 
     // Montrer l'animation appropriée et mettre à jour l'affichage
+    // if (isLastMatch) {
+    //   showTournamentWinner(currentMatch.winner, finalScores);
+    //   setTimeout(() => {
+    //     tournamentState.currentMatch++;
+    //     updateBracketDisplay();
+    //     updateCurrentMatchIndicators();
+    //     updatePlayButton();
+    //     setTimeout(highlightFinalWinner, 1000);
+    //   }, 500);
+    // } else {
+    //   showMatchVictory(winner, finalScores.player1, finalScores.player2);
+    //   setTimeout(() => {
+    //     tournamentState.currentMatch++;
+    //     updateBracketDisplay();
+    //     updateCurrentMatchIndicators();
+    //     updatePlayButton();
+    //   }, 500);
+    // }
     if (isLastMatch) {
-      showTournamentWinner(winner, finalScores);
+      showTournamentWinner(currentMatch.winner, finalScores);
       setTimeout(() => {
         tournamentState.currentMatch++;
         updateBracketDisplay();
@@ -522,7 +607,11 @@ function initializeTournamentPage() {
         setTimeout(highlightFinalWinner, 1000);
       }, 500);
     } else {
-      showMatchVictory(winner, finalScores.player1, finalScores.player2);
+      showMatchVictory(
+        currentMatch.winner,
+        finalScores.player1,
+        finalScores.player2
+      );
       setTimeout(() => {
         tournamentState.currentMatch++;
         updateBracketDisplay();
@@ -603,7 +692,9 @@ function initializeTournamentPage() {
   }
 
   function startTournament() {
-    const playerInputs = document.querySelectorAll(".player-entry .player-input");
+    const playerInputs = document.querySelectorAll(
+      ".player-entry .player-input"
+    );
     const playerAvatars = document.querySelectorAll(
       ".player-entry .player-avatar"
     );
@@ -677,43 +768,42 @@ function initializeTournamentPage() {
   // });
 
   // Par cette version (à l'intérieur de la fonction initializeTournamentPage) :
-gameManager = new TournamentGameManager(tournamentState);
+  gameManager = new TournamentGameManager(tournamentState);
 
-// const playButton = document.querySelector(".buttonPlay");
-if (playButton) {
+  // const playButton = document.querySelector(".buttonPlay");
+  if (playButton) {
     playButton.addEventListener("click", () => {
-        if (!tournamentState.isStarted) {
-            const playerCount = getSelectedPlayerCount();
-            openTournamentConfig(playerCount);
-        } else {
-            gameManager.startGame();
-        }
+      if (!tournamentState.isStarted) {
+        const playerCount = getSelectedPlayerCount();
+        openTournamentConfig(playerCount);
+      } else {
+        gameManager.startGame();
+      }
     });
-}
+  }
 
-const startButton = document.querySelector(".start-tournament-btn");
-if (startButton) {
+  const startButton = document.querySelector(".start-tournament-btn");
+  if (startButton) {
     startButton.addEventListener("click", startTournament);
-}
+  }
 
-const resetButton = document.querySelector(".reset-btn");
-if (resetButton) {
+  const resetButton = document.querySelector(".reset-btn");
+  if (resetButton) {
     resetButton.addEventListener("click", () => {
-        location.reload();
+      location.reload();
     });
-}
+  }
 
-const closeButton = document.querySelector(".close-icon");
-if (closeButton) {
+  const closeButton = document.querySelector(".close-icon");
+  if (closeButton) {
     closeButton.addEventListener("click", closeTournamentConfig);
-}
+  }
 
-optionButtons.forEach((button) => {
+  optionButtons.forEach((button) => {
     button.addEventListener("click", (event) => {
-        handleOptionChange(event.target.id);
+      handleOptionChange(event.target.id);
     });
-});
-  
+  });
 
   handleOptionChange("4");
 

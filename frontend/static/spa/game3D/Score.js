@@ -20,11 +20,13 @@ export class Score3D {
     this.directionalLight = null; // DirectionalLight
     this.lightTarget = null; // Target pour la lumière
     this.gameOver = false;
-    this.WINNING_SCORE = 1;
+    this.WINNING_SCORE = 5;
     this.POINT_DIFFERENCE_REQUIRED = 2;
     this.fontLoader = new FontLoader();
     this.pressSpaceText = null;
     this.longestRally = 0; // Initialisation ici
+    this.maxLongestrally = 0;
+
 
     // Matériau pour le score du joueur 1 (Orange)
     this.textMaterialLeft = new THREE.MeshStandardMaterial({
@@ -505,6 +507,14 @@ export class Score3D {
     return this.score;
   }
 
+  getScorePlayer1() {
+    return this.score.player1;
+  }
+
+  getScorePlayer2() {
+    return this.score.player2;
+  }
+
   getWinner() {
     if (!this.isGameOver()) {
       return null; // Aucun gagnant si le jeu n'est pas encore terminé
@@ -530,6 +540,21 @@ export class Score3D {
 
   getLongestRally() {
     return this.longestRally;
+  }
+
+  setMaxLongestRally(value) {
+    if (typeof value === "number" && value >= 0) {
+      if (value > this.maxLongestrally) {
+        this.maxLongestrally = value;
+        console.log("Max longest rally mis à jour :", this.maxLongestrally);
+      }
+    } else {
+      console.error("Valeur invalide pour maxLongestRally :", value);
+    }
+  }
+
+  getMaxLongestRally() {
+    return this.maxLongestrally;
   }
 
   recordGame(scoreUser, scoreOpponent, result, longestRally, maxBallSpeed) {
