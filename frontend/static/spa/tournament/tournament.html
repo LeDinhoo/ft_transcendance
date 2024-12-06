@@ -246,7 +246,7 @@
   </div>
   </div>
   
-  <div id="tournamentConfig" class="popup-overlay">
+  <!-- <div id="tournamentConfig" class="popup-overlay">
   <div class="popup-content">
     <div class="popup-header">
       <h2 class="h2Title">Configuration du tournoi</h2>
@@ -260,6 +260,38 @@
       </button>
     </div>
   </div>
+  </div> -->
+
+
+  <div id="tournamentConfig" class="popup-overlay">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h2 class="h2Title">Configuration du tournoi</h2>
+        <img class="close-icon" src="/static/assets/icons/close_white.svg" />
+      </div>
+      <div id="players-container" class="players-list">
+        <!-- Ce contenu est généré dynamiquement mais voici le template pour chaque joueur -->
+        <div class="player-entry">
+          <img class="player-avatar" src="/static/assets/avatars/default.png" />
+          <div class="player-controls">
+            <input type="text" class="player-input" placeholder="Entrez un pseudo" />
+            <div class="bot-toggle">
+              <label class="switch">
+                <input type="checkbox" class="bot-checkbox">
+                <span class="slider round"></span>
+              </label>
+              <span class="bot-label">Bot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="popup-footer">
+        <button class="start-tournament-btn">
+          <img class="playIcon" src="/static/assets/icons/play.svg" />
+          START TOURNAMENT
+        </button>
+      </div>
+    </div>
   </div>
   
   <div class="victory-overlay">

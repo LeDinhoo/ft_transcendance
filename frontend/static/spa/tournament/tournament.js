@@ -67,10 +67,7 @@ function initializeTournamentPage() {
           // console.log("event.data.finalscores:", event.data.finalScores);
 
           this.endGame();
-          progressTournament(
-            winner,
-            finalScores
-          );
+          progressTournament(winner, finalScores);
         }
       });
     }
@@ -121,7 +118,7 @@ function initializeTournamentPage() {
       };
     }
 
-        startGame() {
+    startGame() {
       // Reset scores for new game
       this.currentGameScores = {
         player1: 0,
@@ -160,6 +157,16 @@ function initializeTournamentPage() {
               player1: currentMatch.player1,
               player2: currentMatch.player2,
             },
+          },
+          "*"
+        );
+        const options = null;
+        const isAI = false;
+        const power = true;
+        this.gameContainer.contentWindow.postMessage(
+          {
+            type: "setOptions",
+            data: { options, isAI, power },
           },
           "*"
         );
@@ -288,6 +295,42 @@ function initializeTournamentPage() {
     tournamentConfig.style.display = "none";
   }
 
+  // function generatePlayerFields(count) {
+  //   const container = document.getElementById("players-container");
+  //   container.innerHTML = "";
+
+  //   const avatars = [
+  //     "bullfinch.png",
+  //     "clown-fish.png",
+  //     "hedgehog.png",
+  //     "ladybug.png",
+  //     "mouse.png",
+  //     "parrot.png",
+  //     "penguin.png",
+  //     "pig.png",
+  //   ];
+
+  //   container.innerHTML += `
+  //     <div class="player-entry">
+  //       <img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
+  //       <input type="text" class="player-input" value="YourNickname" />
+  //     </div>
+  //   `;
+
+  //   for (let i = 1; i < count; i++) {
+  //     const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+  //     container.innerHTML += `
+  //       <div class="player-entry">
+  //         <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
+  //         <input type="text" class="player-input" value="Bot Player ${i}" />
+  //         <button class="add-friend-btn">
+  //           <img src="/static/assets/icons/add_friend.svg" style="filter: none;" />
+  //         </button>
+  //       </div>
+  //     `;
+  //   }
+  // }
+
   function generatePlayerFields(count) {
     const container = document.getElementById("players-container");
     container.innerHTML = "";
@@ -302,26 +345,64 @@ function initializeTournamentPage() {
       "penguin.png",
       "pig.png",
     ];
-
+    // Premier joueur (toujours humain)
     container.innerHTML += `
-      <div class="player-entry">
-        <img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
-        <input type="text" class="player-input" value="YourNickname" />
-      </div>
+        <div class="player-entry">
+            <img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
+            <div class="player-controls">
+                <input type="text" class="player-input" value="YourNickname" />
+            </div>
+        </div>
     `;
 
+    // Autres joueurs
     for (let i = 1; i < count; i++) {
       const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
       container.innerHTML += `
-        <div class="player-entry">
-          <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
-          <input type="text" class="player-input" value="Bot Player ${i}" />
-          <button class="add-friend-btn">
-            <img src="/static/assets/icons/add_friend.svg" style="filter: none;" />
-          </button>
-        </div>
-      `;
+            <div class="player-entry">
+                <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
+                <div class="player-controls">
+                    <input type="text" class="player-input" value="Bot Player ${i}" />
+                    <div class="bot-toggle">
+                        <label class="switch">
+                            <input type="checkbox" class="bot-checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="bot-label">Bot</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
+
+    // Ajouter les event listeners pour les toggles
+    const botCheckboxes = document.querySelectorAll(".bot-checkbox");
+    botCheckboxes.forEach((checkbox, index) => {
+      const input = checkbox
+        .closest(".player-entry")
+        .querySelector(".player-input");
+
+      // État initial
+      if (checkbox.checked) {
+        input.classList.add("bot-active");
+        input.readOnly = true;
+        input.value = `Bot Player ${index + 1}`;
+      }
+
+      // Event listener pour le changement
+      checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          input.classList.add("bot-active");
+          input.readOnly = true;
+          input.value = `Bot Player ${index + 1}`;
+        } else {
+          input.classList.remove("bot-active");
+          input.readOnly = false;
+          input.value = "";
+          input.placeholder = "Entrez un pseudo";
+        }
+      });
+    });
   }
 
   function shuffleArray(array) {
@@ -549,9 +630,11 @@ function initializeTournamentPage() {
         const nextRoundMatchIndex =
           4 + Math.floor(tournamentState.currentMatch / 2);
         if (tournamentState.currentMatch % 2 === 0) {
-          tournamentState.matches[nextRoundMatchIndex].player1 = currentMatch.winner;
+          tournamentState.matches[nextRoundMatchIndex].player1 =
+            currentMatch.winner;
         } else {
-          tournamentState.matches[nextRoundMatchIndex].player2 = currentMatch.winner;
+          tournamentState.matches[nextRoundMatchIndex].player2 =
+            currentMatch.winner;
         }
       } else if (tournamentState.currentMatch < 6) {
         // Demi-finales (matchs 4 et 5)

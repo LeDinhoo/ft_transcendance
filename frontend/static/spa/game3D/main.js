@@ -472,11 +472,11 @@ function handleMessage(event) {
 		aiIsActive = !!isAI;
 
 		if (!power) {
-			isPowerActivated = true;
-			powerManager.activatePowers();
-		} else {
 			isPowerActivated = false;
 			powerManager.deactivatePowers();
+		} else {
+			isPowerActivated = true;
+			powerManager.activatePowers();
 		}
 
 		window.removeEventListener("message", handleMessage);
