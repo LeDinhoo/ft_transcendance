@@ -1298,3 +1298,70 @@ def get_user_statistics(request):
     }
 
     return JsonResponse(statistics, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_friend_request(request):
+    receiver_id = request.data.get('receiver_id')
+    
+    try:
+        receiver = CustomUser.objects.get(id=receiver_id)
+        if request.user.friendships.filter(to_user=receiver).exists():
+            return JsonResponse({'message': 'Une demande existe déjà'}, status=400)
+            
+        FriendShip.objects.create(from_user=request.user, to_user=receiver)
+        return JsonResponse({'message': 'Demande envoyée'})
+        
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'message': 'Utilisateur non trouvé'}, status=404)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def handle_friend_request(request):
+    request_id = request.data.get('request_id')
+    action = request.data.get('action')
+    
+    try:
+        friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
+        friendship.status = 'accepted' if action == 'accept' else 'rejected'
+        friendship.save()
+        
+        if action == 'accept':
+            # Créer la relation inverse automatiquement
+            FriendShip.objects.create(
+                from_user=request.user, 
+                to_user=friendship.from_user,
+                status='accepted'
+            )
+            
+        return JsonResponse({'message': f'Demande {action}ée'})
+        
+    except FriendShip.DoesNotExist:
+        return JsonResponse({'message': 'Demande non trouvée'}, status=404)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_friends(request):
+    friends = request.user.friends.filter(friendship__status='accepted')
+    return JsonResponse({
+        'friends': [{
+            'id': friend.id,
+            'username': friend.username,
+            'avatar': str(friend.avatar)
+        } for friend in friends]
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_pending_requests(request):
+    pending = request.user.friend_requests.filter(status='pending')
+    return JsonResponse({
+        'pending_requests': [{
+            'request_id': req.id,
+            'sender': {
+                'id': req.from_user.id,
+                'username': req.from_user.username,
+                'avatar': str(req.from_user.avatar)
+            }
+        } for req in pending]
+    })

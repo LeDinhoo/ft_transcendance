@@ -29,4 +29,9 @@ urlpatterns = [
     # path('2fa/verify/', Verify2FAView.as_view(), name='verify_2fa'),
     path('test-email/', TestEmailView.as_view(), name='test_email'),
 
+	# Friend request URLs
+    path('friends/send-request/', views.send_friend_request, name='send_friend_request'),
+    path('friends/handle-request/', views.handle_friend_request, name='handle_friend_request'),
+    path('friends/list/', views.get_friends, name='get_friends'),
+    path('friends/pending/', views.get_pending_requests, name='get_pending_requests'),
 ]

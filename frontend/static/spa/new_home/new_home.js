@@ -150,6 +150,14 @@ function initializeHome() {
       }
     }
 
+	static showNotification(message) {
+		const notification = document.createElement("div");
+		notification.classList.add("notification");
+		notification.textContent = message;
+		document.body.appendChild(notification);
+		setTimeout(() => notification.remove(), 3000);
+	}
+
     static initializeContextMenu() {
       const chatMessages = DOM.chat.messages;
       let activeMenu = null;
@@ -193,12 +201,44 @@ function initializeHome() {
             </div>
         `;
 
+		menu.addEventListener("click", async (e) => {
+			const option = e.target.closest(".chat-menu-option");
+			if (!option) return;
+		
+			const action = option.dataset.action;
+			
+			if (action === "add-friend") {
+				try {
+					const response = await fetch('/api/friends/send-request/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						credentials: 'include',
+						body: JSON.stringify({ receiver_id: userId })
+					});
+		
+					const data = await response.json();
+					if (response.ok) {
+						ChatHandler.showNotification('Friend request sent successfully');
+					} else {
+						ChatHandler.showNotification(data.message || 'Error sending friend request');
+					}
+				} catch (error) {
+					console.error('Error:', error);
+					ChatHandler.showNotification('Error sending friend request');
+				}
+			}
+			menu.remove();
+			activeMenu = null;
+		});
+
         document.body.appendChild(menu);
         const rect = avatar.getBoundingClientRect();
         ChatHandler.positionMenuWithinViewport(menu, rect);
 
         activeMenu = menu;
-
+		
         menu.addEventListener("click", (e) => {
           const option = e.target.closest(".chat-menu-option");
           if (!option) return;
@@ -932,6 +972,61 @@ function initializeHome() {
 //     console.log("Modal display set to block");
 //     console.log("Modal should be displayed now"); // Pour debug
 //   },
+
+// Friend Request Functions
+async function loadPendingFriendRequests() {
+    try {
+        const response = await fetch('/api/friends/pending/', {
+            credentials: 'include'
+        });
+        const data = await response.json();
+        displayPendingRequests(data.pending_requests);
+    } catch (error) {
+        console.error('Error loading friend requests:', error);
+    }
+}
+
+function displayPendingRequests(requests) {
+    const friendRequestsList = document.getElementById('friendRequestsList');
+    if (!friendRequestsList) return;
+
+    const requestsHTML = requests.map(request => `
+        <div class="friendRequest">
+            <img src="${request.sender.avatar}" alt="Avatar" class="requestAvatar">
+            <div class="requestInfo">
+                <div class="requestUsername">${request.sender.username}</div>
+            </div>
+            <div class="requestActions">
+                <button class="acceptButton" onclick="handleFriendRequest(${request.request_id}, 'accept')">Accept</button>
+                <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')">Reject</button>
+            </div>
+        </div>
+    `).join('');
+
+    friendRequestsList.innerHTML = requestsHTML || '<div class="no-requests">No pending friend requests</div>';
+}
+
+async function handleFriendRequest(requestId, action) {
+    try {
+        const response = await fetch('/api/friends/handle-request/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                request_id: requestId,
+                action: action
+            })
+        });
+
+        if (response.ok) {
+            loadPendingFriendRequests();
+        }
+    } catch (error) {
+        console.error('Error handling friend request:', error);
+    }
+}
 
 const GameInvitationManager = {
   activeInvitations: new Map(),

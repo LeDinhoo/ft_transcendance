@@ -225,6 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resetPasswordFields();
         initializePasswordVisibility();
         initializeAvatarFeature();
+		loadFriendRequests();
         initialize2FA();
       });
       // } else if (path === "/custom") {

@@ -776,3 +776,53 @@ function initializeAvatarFeature() {
     });
   }
 }
+
+function loadFriendRequests() {
+    fetch('/api/friends/pending/', {
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        const requestsList = document.getElementById('friendRequestsList');
+        if (!data.pending_requests.length) {
+            requestsList.innerHTML = '<div class="no-requests">No pending friend requests</div>';
+            return;
+        }
+
+        requestsList.innerHTML = data.pending_requests.map(request => `
+            <div class="friendRequest">
+                <img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
+                <div class="requestInfo">
+                    <div class="requestUsername">${request.sender.username}</div>
+                </div>
+                <div class="requestActions">
+                    <button class="acceptButton" onclick="handleFriendRequest(${request.request_id}, 'accept')">
+                        Accept
+                    </button>
+                    <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')">
+                        Reject
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    })
+    .catch(error => console.error('Error loading friend requests:', error));
+}
+
+function handleFriendRequest(requestId, action) {
+    fetch('/api/friends/handle-request/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ request_id: requestId, action })
+    })
+    .then(response => response.json())
+    .then(() => {
+        loadFriendRequests(); // Recharger la liste après l'action
+    })
+    .catch(error => console.error('Error handling friend request:', error));
+}
+
+

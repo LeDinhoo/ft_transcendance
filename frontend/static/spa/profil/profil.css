@@ -227,8 +227,17 @@ body {
   font-weight: 600;
 }
 
-.inputForChanges,
+/* .inputForChanges,
 .onlineFriendsFrame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--16px);
+  flex-direction: column;
+  width: 15.625vw;
+} */
+
+.inputForChanges {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -289,12 +298,12 @@ body {
   background-color: limegreen;
 }
 
-.friendsAndNickname {
+/* .friendsAndNickname {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--16px);
-}
+} */
 
 .matchHistory {
   width: 100%;
@@ -727,4 +736,77 @@ body {
   height: 24px;
   margin-right: 4px;
   transition: filter 0.2s ease;
+}
+
+/* HENRIK LIST AMI */
+
+.friendRequestsTitle {
+    position: sticky;
+    top: 0;
+    background-color: var(--dark-grey);
+    padding: var(--16px) 0;
+    font-size: var(--24px);
+    font-weight: 600;
+    text-align: center;
+    z-index: 10;
+}
+
+.friendRequestsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--12px);
+}
+
+.friendRequest {
+    display: flex;
+    align-items: center;
+    padding: var(--12px);
+    background-color: var(--gluon-grey);
+    border-radius: var(--12px);
+    gap: var(--12px);
+}
+
+.requestAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--dusty-grey);
+}
+
+.requestInfo {
+    flex: 1;
+}
+
+.requestUsername {
+    color: var(--snow);
+    font-weight: 500;
+}
+
+.requestActions {
+    display: flex;
+    gap: var(--8px);
+}
+
+.acceptButton, .rejectButton {
+    padding: var(--8px) var(--16px);
+    border-radius: var(--8px);
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: transform 0.2s ease;
+}
+
+.acceptButton {
+    background-color: var(--liquid-lava);
+    color: var(--snow);
+}
+
+.rejectButton {
+    background-color: var(--dusty-grey);
+    color: var(--snow);
+}
+
+.acceptButton:hover, .rejectButton:hover {
+    transform: scale(1.05);
 }
