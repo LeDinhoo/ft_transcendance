@@ -136,6 +136,45 @@ function initializeHome() {
       }
     }
 
+	static async sendFriendRequest(messageElement) {
+		const userId = messageElement.querySelector(".messageHeader").dataset.userId;
+		console.log("UserId found:", userId); // Debug log
+		console.log("Full message element:", messageElement); // Debug log
+
+		if (!userId) {
+			console.error('No user ID found');
+			ChatHandler.showNotification('Unable to send friend request: User ID not found');
+			return;
+		}
+		// Vérifier si l'utilisateur essaie de s'envoyer une demande à lui-même
+		if (userId === String(window.currentUser.id)) {
+			ChatHandler.showNotification('You cannot send a friend request to yourself');
+			return;
+		}
+
+		try {
+			const response = await fetch('/api/friends/send-request/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+				body: JSON.stringify({ receiver_id: userId })
+			});
+
+			const data = await response.text(); // Pour voir le contenu exact de la réponse
+			console.log("Response data:", data); // Debug log
+
+			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}, response: ${data}`);
+			const jsonData = JSON.parse(data);
+
+			ChatHandler.showNotification(jsonData.message || 'Friend request sent successfully');
+		} catch (error) {
+			console.error('Error:', error);
+			ChatHandler.showNotification('Error sending friend request');
+		}
+	}
+
     static setupEventListeners() {
       if (DOM.chat.sendButton) {
         DOM.chat.sendButton.addEventListener("click", ChatHandler.sendMessage);
@@ -201,45 +240,14 @@ function initializeHome() {
             </div>
         `;
 
-		menu.addEventListener("click", async (e) => {
-			const option = e.target.closest(".chat-menu-option");
-			if (!option) return;
-		
-			const action = option.dataset.action;
-			
-			if (action === "add-friend") {
-				try {
-					const response = await fetch('/api/friends/send-request/', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						credentials: 'include',
-						body: JSON.stringify({ receiver_id: userId })
-					});
-		
-					const data = await response.json();
-					if (response.ok) {
-						ChatHandler.showNotification('Friend request sent successfully');
-					} else {
-						ChatHandler.showNotification(data.message || 'Error sending friend request');
-					}
-				} catch (error) {
-					console.error('Error:', error);
-					ChatHandler.showNotification('Error sending friend request');
-				}
-			}
-			menu.remove();
-			activeMenu = null;
-		});
 
         document.body.appendChild(menu);
         const rect = avatar.getBoundingClientRect();
         ChatHandler.positionMenuWithinViewport(menu, rect);
 
         activeMenu = menu;
-		
-        menu.addEventListener("click", (e) => {
+
+        menu.addEventListener("click", async (e) => {
           const option = e.target.closest(".chat-menu-option");
           if (!option) return;
 
@@ -261,7 +269,7 @@ function initializeHome() {
             };
             ProfileModal.show(playerData);
           } else if (action === "add-friend") {
-            ContextMenu.showConfirmation(username);
+            await ChatHandler.sendFriendRequest(messageElement);
           } else if (action === "block") {
             ChatHandler.toggleBlockUser(username);
             ChatHandler.showBlockConfirmation(username, !isBlocked);
@@ -372,18 +380,18 @@ function initializeHome() {
       }
 
       messageElement.innerHTML = `
-          <img src="${data.avatar}"
-              alt="${data.username}"
-              class="messageAvatar"
-              title="Click for options">
-          <div class="messageContent">
-              <div class="messageHeader">${data.username}</div>
-              <div class="messageText" ${
-                ChatHandler.blockedUsers.has(data.username)
-                  ? 'data-original-text="' + data.originalMessage + '"'
-                  : ""
-              }>${data.message}</div>
-          </div>
+        <img src="${data.avatar}"
+            alt="${data.username}"
+            class="messageAvatar"
+            title="Click for options">
+        <div class="messageContent">
+            <div class="messageHeader"
+                 data-user-id="${data.userId}"
+                 data-username="${data.username}">
+                ${data.username}
+            </div>
+            <div class="messageText">${data.message}</div>
+        </div>
       `;
 
       DOM.chat.messages.appendChild(messageElement);

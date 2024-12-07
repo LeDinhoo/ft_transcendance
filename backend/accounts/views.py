@@ -245,7 +245,7 @@ def profile_view(request):
 
     # Calcul du ratio victoires
     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
-    
+
 
     response_data = {
         'username': user.username,
@@ -334,7 +334,7 @@ def update_profile_view(request):
             avatar_url = f"/static/{user.avatar}"
         else:
             avatar_url = f"/media/{user.avatar}"
-    
+
     print("URL de l'avatar renvoyée:", avatar_url)  # Debug
 
     return JsonResponse({
@@ -399,14 +399,14 @@ from rest_framework.exceptions import AuthenticationFailed
 @permission_classes([AllowAny])
 def auto_refresh_token_view(request):
     refresh_token = request.data.get('refresh')
-    
+
     if not refresh_token:
         return Response({'error': 'Refresh token is required'}, status=400)
-    
+
     try:
         token = RefreshToken(refresh_token)
         new_access_token = str(token.access_token)
-        
+
         return Response({
             'access': new_access_token
         }, status=200)
@@ -557,11 +557,11 @@ def callback_42(request):
 
             # Chercher l'utilisateur par intra_42_id
             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
-            
+
             if user is None:
                 # Si non trouvé, chercher par email
                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
-                
+
                 if existing_user:
                     existing_user.intra_42_id = user_data['id']
                     existing_user.is_42_user = True
@@ -581,13 +581,13 @@ def callback_42(request):
                 try:
                     logger.info(f"Attempting to download avatar from: {avatar_url}")
                     avatar_response = requests.get(avatar_url, timeout=10)
-                    
+
                     if avatar_response.status_code == 200:
                         logger.info("Avatar download successful")
-                        
+
                         # Créer un nom de fichier unique
                         file_name = f"42_avatar_{user.username}_{user.id}.jpg"
-                        
+
                         # Sauvegarder l'image
                         user.avatar.save(
                             file_name,
@@ -597,7 +597,7 @@ def callback_42(request):
                         logger.info(f"Avatar saved to: {user.avatar.path}")
                     else:
                         logger.error(f"Failed to download avatar. Status code: {avatar_response.status_code}")
-                
+
                 except Exception as e:
                     logger.error(f"Failed to save avatar: {str(e)}")
                     logger.exception("Detailed error:")
@@ -1213,7 +1213,7 @@ from .models import GameHistory
 #         'win_ratio': win_ratio,
 #         'power_catch_avg': power_catch_avg or 0,  # Valeur par défaut si aucune donnée
 #         'ball_speed_avg': ball_speed_avg or 0,    # Valeur par défaut si aucune donnée
-#         'longest_rally': longest_rally_db       
+#         'longest_rally': longest_rally_db
 #     }
 
 #     return JsonResponse(statistics, status=200)
@@ -1299,43 +1299,85 @@ def get_user_statistics(request):
 
     return JsonResponse(statistics, status=200)
 
+from .models import FriendShip
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
     receiver_id = request.data.get('receiver_id')
-    
+    print(f"Received friend request with receiver_id: {receiver_id}")  # Debug log
+    print(f"Request data: {request.data}")  # Debug log
+
+    if not receiver_id:
+        print("No receiver_id found in request")  # Debug log
+        return JsonResponse({
+            'message': 'Receiver ID is required'
+        }, status=400)
+
     try:
+        if str(request.user.id) == str(receiver_id):
+            return JsonResponse({
+                'message': 'You cannot send a friend request to yourself'
+            }, status=400)
+
         receiver = CustomUser.objects.get(id=receiver_id)
-        if request.user.friendships.filter(to_user=receiver).exists():
-            return JsonResponse({'message': 'Une demande existe déjà'}, status=400)
-            
-        FriendShip.objects.create(from_user=request.user, to_user=receiver)
-        return JsonResponse({'message': 'Demande envoyée'})
-        
+
+        existing_request = FriendShip.objects.filter(
+            from_user=request.user,
+            to_user=receiver
+        ).first()
+
+        if existing_request:
+            if existing_request.status == 'pending':
+                return JsonResponse({
+                    'message': 'A friend request is already pending'
+                }, status=400)
+            elif existing_request.status == 'accepted':
+                return JsonResponse({
+                    'message': 'You are already friends'
+                }, status=400)
+
+        FriendShip.objects.create(
+            from_user=request.user,
+            to_user=receiver,
+            status='pending'
+        )
+
+        return JsonResponse({
+            'message': 'Friend request sent successfully'
+        }, status=200)
+
     except CustomUser.DoesNotExist:
-        return JsonResponse({'message': 'Utilisateur non trouvé'}, status=404)
+        return JsonResponse({
+            'message': 'User not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in send_friend_request: {str(e)}")
+        return JsonResponse({
+            'message': 'An error occurred while processing the request'
+        }, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def handle_friend_request(request):
     request_id = request.data.get('request_id')
     action = request.data.get('action')
-    
+
     try:
         friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
         friendship.status = 'accepted' if action == 'accept' else 'rejected'
         friendship.save()
-        
+
         if action == 'accept':
             # Créer la relation inverse automatiquement
             FriendShip.objects.create(
-                from_user=request.user, 
+                from_user=request.user,
                 to_user=friendship.from_user,
                 status='accepted'
             )
-            
+
         return JsonResponse({'message': f'Demande {action}ée'})
-        
+
     except FriendShip.DoesNotExist:
         return JsonResponse({'message': 'Demande non trouvée'}, status=404)
 

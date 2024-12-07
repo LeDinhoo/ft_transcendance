@@ -81,11 +81,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        print("Debug - User ID being sent:", self.user.id)  # Debug log
+        message_data = {
+            **data,
+            'userId': str(self.user.id),  # CHANGEMENT : Convertir l'ID en string
+        }
         await self.channel_layer.group_send(
             "chat",
             {
                 "type": "chat_message",
-                "message": data
+                "message": message_data
             }
         )
 
@@ -118,7 +123,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event["message"]))
 
 
-# SI L'AVATAR BEUG DANS LA LISTE DE JOUEURS CONNECTES OU DANS LE CHAT 
+# SI L'AVATAR BEUG DANS LA LISTE DE JOUEURS CONNECTES OU DANS LE CHAT
 
 # # Dans le ChatConsumer, modifier la partie de connect() qui gère l'avatar
 # avatar_url = str(self.user.avatar)
