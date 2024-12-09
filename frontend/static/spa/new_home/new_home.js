@@ -137,17 +137,23 @@ function initializeHome() {
     }
 
 	static async sendFriendRequest(messageElement) {
-		const userId = messageElement.querySelector(".messageHeader").dataset.userId;
-		console.log("UserId found:", userId); // Debug log
-		console.log("Full message element:", messageElement); // Debug log
+		const headerElement = messageElement.querySelector(".messageHeader");
+		const userId = headerElement?.dataset?.userId;
+
+		// Debug logs
+		console.log("sendFriendRequest - Element:", messageElement);
+		console.log("sendFriendRequest - headerElement:", headerElement);
+		console.log("sendFriendRequest - userId:", userId);
+		console.log("sendFriendRequest - currentUser.id:", window.currentUser?.id);
 
 		if (!userId) {
 			console.error('No user ID found');
 			ChatHandler.showNotification('Unable to send friend request: User ID not found');
 			return;
 		}
-		// Vérifier si l'utilisateur essaie de s'envoyer une demande à lui-même
-		if (userId === String(window.currentUser.id)) {
+
+		// Vérification côté client
+		if (userId === String(window.currentUser?.id)) {
 			ChatHandler.showNotification('You cannot send a friend request to yourself');
 			return;
 		}
@@ -159,16 +165,21 @@ function initializeHome() {
 					'Content-Type': 'application/json',
 				},
 				credentials: 'include',
-				body: JSON.stringify({ receiver_id: userId })
+				body: JSON.stringify({
+					receiver_id: userId.trim() // Assurez-vous qu'il n'y a pas d'espaces
+				})
 			});
 
-			const data = await response.text(); // Pour voir le contenu exact de la réponse
-			console.log("Response data:", data); // Debug log
+			const data = await response.text();
+			console.log("Response raw data:", data); // Debug log
 
-			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}, response: ${data}`);
-			const jsonData = JSON.parse(data);
-
-			ChatHandler.showNotification(jsonData.message || 'Friend request sent successfully');
+			try {
+				const jsonData = JSON.parse(data);
+				ChatHandler.showNotification(jsonData.message || 'Friend request sent successfully');
+			} catch (e) {
+				console.error('Error parsing response:', e);
+				ChatHandler.showNotification('Error processing server response');
+			}
 		} catch (error) {
 			console.error('Error:', error);
 			ChatHandler.showNotification('Error sending friend request');
@@ -198,108 +209,112 @@ function initializeHome() {
 	}
 
     static initializeContextMenu() {
-      const chatMessages = DOM.chat.messages;
-      let activeMenu = null;
-	  console.log("TEST2\n");
+		const chatMessages = DOM.chat.messages;
+		let activeMenu = null;
 
-      chatMessages.addEventListener("click", (e) => {
-        const avatar = e.target.closest(".messageAvatar");
-        if (!avatar) return;
+		chatMessages.addEventListener("click", async (e) => {
+			const avatar = e.target.closest(".messageAvatar");
+			if (!avatar) return;
 
-        e.preventDefault();
-        e.stopPropagation();
+			e.preventDefault();
+			e.stopPropagation();
 
-        if (activeMenu) {
-          activeMenu.remove();
-          activeMenu = null;
-        }
+			if (activeMenu) {
+				activeMenu.remove();
+				activeMenu = null;
+			}
 
-        const messageElement = avatar.closest(".message");
-        const username =
-          messageElement.querySelector(".messageHeader").textContent;
-        const avatarSrc = avatar.src;
-        const isBlocked = ChatHandler.blockedUsers.has(username);
+			const messageElement = avatar.closest(".message");
+			const headerElement = messageElement.querySelector(".messageHeader");
+			const userId = headerElement.dataset.userId;
+			const username = headerElement.textContent.trim();
+			const avatarSrc = avatar.src;
+			const isBlocked = ChatHandler.blockedUsers.has(username);
 
-        const menu = document.createElement("div");
-        menu.className = "chat-context-menu";
-        menu.innerHTML = `
-            <div class="chat-menu-option" data-action="send-invitation">
-        Send online invitation
-    </div>
+			// Vérification si c'est notre message
+			const isOwnMessage = userId === String(window.currentUser.id);
+			console.log('Comparaison des IDs :', {
+				messageUserId: userId,
+				currentUserId: window.currentUser.id,
+				isOwnMessage: isOwnMessage
+			});
+
+			const menu = document.createElement("div");
+			menu.className = "chat-context-menu";
+
+			menu.innerHTML = `
             <div class="chat-menu-option" data-action="profile">
                 See profile
             </div>
-            <div class="chat-menu-option" data-action="add-friend">
-                Add friend
-            </div>
+            ${!isOwnMessage ? `
+                <div class="chat-menu-option" data-action="add-friend">
+                    Add friend
+                </div>
+                <div class="chat-menu-option" data-action="send-invitation">
+                    Send online invitation
+                </div>
+            ` : ''}
             <div class="chat-menu-option" data-action="block">
                 ${isBlocked ? "Unblock user" : "Block user"}
             </div>
             <div class="chat-menu-option" data-action="private-message">
                 Private message
             </div>
-        `;
+            `;
 
+			document.body.appendChild(menu);
+			const rect = avatar.getBoundingClientRect();
+			ChatHandler.positionMenuWithinViewport(menu, rect);
 
-        document.body.appendChild(menu);
-        const rect = avatar.getBoundingClientRect();
-        ChatHandler.positionMenuWithinViewport(menu, rect);
+			activeMenu = menu;
 
-        activeMenu = menu;
+			menu.addEventListener("click", async (e) => {
+				const option = e.target.closest(".chat-menu-option");
+				if (!option) return;
 
-        menu.addEventListener("click", async (e) => {
-          const option = e.target.closest(".chat-menu-option");
-          if (!option) return;
+				const action = option.dataset.action;
+				if (action === "send-invitation") {
+					console.log("Sending invitation from chat to:", username);
+					GameInvitationManager.sendInvitation(username);
+				} else if (action === "profile") {
+					const playerData = {
+						nickname: username,
+						avatar: avatarSrc,
+						rank: "Bronze",
+						stats: { totalGames: 0, winRate: "0%" },
+					};
+					ProfileModal.show(playerData);
+				} else if (action === "add-friend") {
+					await ChatHandler.sendFriendRequest(messageElement);
+				} else if (action === "block") {
+					ChatHandler.toggleBlockUser(username);
+					ChatHandler.showBlockConfirmation(username, !isBlocked);
+				} else if (action === "private-message") {
+					ChatHandler.startPrivateMessage(username);
+				}
 
-          const action = option.dataset.action;
-          if (action === "send-invitation") {
-            const messageElement = avatar.closest(".message");
-            const username =
-              messageElement.querySelector(".messageHeader").textContent;
-            console.log("Sending invitation from chat to:", username); // Pour debug
-            GameInvitationManager.sendInvitation(username);
-            menu.remove();
-            activeMenu = null;
-          } else if (action === "profile") {
-            const playerData = {
-              nickname: username,
-              avatar: avatarSrc,
-              rank: "Bronze",
-              stats: { totalGames: 0, winRate: "0%" },
-            };
-            ProfileModal.show(playerData);
-          } else if (action === "add-friend") {
-            await ChatHandler.sendFriendRequest(messageElement);
-          } else if (action === "block") {
-            ChatHandler.toggleBlockUser(username);
-            ChatHandler.showBlockConfirmation(username, !isBlocked);
-          } else if (action === "private-message") {
-            ChatHandler.startPrivateMessage(username);
-          }
+				menu.remove();
+				activeMenu = null;
+			});
+		});
 
-          menu.remove();
-          activeMenu = null;
-        });
-      });
+		document.addEventListener("click", (e) => {
+			if (activeMenu &&
+				!e.target.closest(".chat-context-menu") &&
+				!e.target.closest(".messageAvatar")
+			) {
+				activeMenu.remove();
+				activeMenu = null;
+			}
+		});
 
-      document.addEventListener("click", (e) => {
-        if (
-          activeMenu &&
-          !e.target.closest(".chat-context-menu") &&
-          !e.target.closest(".messageAvatar")
-        ) {
-          activeMenu.remove();
-          activeMenu = null;
-        }
-      });
-
-      chatMessages.addEventListener("scroll", () => {
-        if (activeMenu) {
-          activeMenu.remove();
-          activeMenu = null;
-        }
-      });
-    }
+		chatMessages.addEventListener("scroll", () => {
+			if (activeMenu) {
+				activeMenu.remove();
+				activeMenu = null;
+			}
+		});
+	}
 
     static toggleBlockUser(username) {
       if (ChatHandler.blockedUsers.has(username)) {
