@@ -259,7 +259,7 @@ body {
 	background-color: var(--dark-grey);
 }
 
-.settingsTitles,
+/* .settingsTitles,
 .friendsTitle {
 	font-size: var(--32px);
 	font-weight: 600;
@@ -268,14 +268,24 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-}
+} */
 
-.settingsTitles {
+/* .settingsTitles {
     font-size: var(--32px);
     font-weight: 600;
     color: var(--snow);
     width: 100%;
     text-align: left;
+    margin-bottom: var(--24px);
+} */
+
+.settingsTitles, 
+.friendsTitle {
+    font-size: var(--32px);
+    font-weight: 600;
+    color: var(--snow);
+    justify-content: center;
+    text-align: center;
     margin-bottom: var(--24px);
 }
 
@@ -756,23 +766,23 @@ body {
 }
 
 .friendRequestsList {
-    height: calc(100% - 60px);
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--12px);
+	height: calc(100% - 60px);
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	gap: var(--12px);
 }
 
 .friendRequestsList:empty {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .friendRequestsList:empty::after {
-    color: var(--liquid-lava);
-    font-size: var(--32px);
-    font-weight: 600;
+	color: var(--liquid-lava);
+	font-size: var(--32px);
+	font-weight: 600;
 }
 
 .friendRequest {
