@@ -1385,25 +1385,52 @@ def handle_friend_request(request):
 @permission_classes([IsAuthenticated])
 def get_friends(request):
     friends = request.user.friends.filter(friendship__status='accepted')
-    return JsonResponse({
-        'friends': [{
+    friends_list = []
+    
+    for friend in friends:
+        if friend.avatar:
+            if str(friend.avatar).startswith('assets/avatars/'):
+                friend_avatar = f"/static/{friend.avatar}"
+            else:
+                friend_avatar = friend.avatar.url
+        else:
+            friend_avatar = '/static/assets/avatars/ladybug.png'
+            
+        friends_list.append({
             'id': friend.id,
             'username': friend.username,
-            'avatar': str(friend.avatar)
-        } for friend in friends]
+            'avatar': friend_avatar
+        })
+    
+    return JsonResponse({
+        'friends': friends_list
     })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_pending_requests(request):
     pending = request.user.friend_requests.filter(status='pending')
-    return JsonResponse({
-        'pending_requests': [{
+    pending_requests = []
+    
+    for req in pending:
+        # Gérer l'avatar de l'expéditeur
+        if req.from_user.avatar:
+            if str(req.from_user.avatar).startswith('assets/avatars/'):
+                sender_avatar = f"/static/{req.from_user.avatar}"
+            else:
+                sender_avatar = req.from_user.avatar.url
+        else:
+            sender_avatar = '/static/assets/avatars/ladybug.png'
+            
+        pending_requests.append({
             'request_id': req.id,
             'sender': {
                 'id': req.from_user.id,
                 'username': req.from_user.username,
-                'avatar': str(req.from_user.avatar)
+                'avatar': sender_avatar
             }
-        } for req in pending]
+        })
+    
+    return JsonResponse({
+        'pending_requests': pending_requests
     })
