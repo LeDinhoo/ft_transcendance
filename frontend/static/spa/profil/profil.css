@@ -786,21 +786,28 @@ body {
 }
 
 .friendRequest {
-	display: flex;
-	align-items: center;
-	padding: var(--12px);
-	background-color: var(--gluon-grey);
-	border-radius: var(--12px);
-	gap: var(--12px);
+    display: flex;
+    align-items: center;
+    padding: var(--24px);
+    background-color: var(--gluon-grey);
+    border: 3px solid var(--dusty-grey);
+    border-radius: var(--radius-lg);
+    gap: var(--12px);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.friendRequest:hover {
+    transform: scale(1.05);
+    border-color: var(--liquid-lava);
 }
 
 .requestAvatar {
-	width: 40px;
-	height: 40px;
+	width: 60px;
+	height: 60px;
 	border-radius: 50%;
 	object-fit: cover;
 	border: 2px solid var(--dusty-grey);
-}
+ }
 
 .requestInfo {
 	flex: 1;
@@ -808,10 +815,11 @@ body {
 
 .requestUsername {
 	color: var(--snow);
-	font-weight: 500;
-}
+	font-weight: 600;
+	font-size: var(--16px);
+ }
 
-.requestActions {
+ .requestActions {
 	display: flex;
 	gap: var(--8px);
 }
@@ -839,4 +847,15 @@ body {
 .acceptButton:hover,
 .rejectButton:hover {
 	transform: scale(1.05);
+}
+
+.no-requests {
+    background: var(--gluon-grey);
+    border: 3px solid var(--dusty-grey);
+    border-radius: var(--radius-lg);
+    padding: var(--24px);
+    font-size: var(--12px);
+    font-weight: 600;
+    text-align: center;
+    color: var(--snow);
 }

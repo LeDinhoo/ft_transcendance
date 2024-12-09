@@ -172,7 +172,7 @@ body {
   border: 3px solid var(--dusty-grey);
   padding: var(--8px) var(--16px);
   border-radius: var(--16px);
-  font-size: var(--16px);
+  font-size: 1rem;
   color: var(--snow);
   font-weight: 600;
 }
@@ -338,15 +338,6 @@ body {
   justify-content: center;
   align-items: center;
   font-size: var(--20px);
-  color: var(--snow);
-  font-weight: 600;
-}
-
-.chatTitle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--24px);
   color: var(--snow);
   font-weight: 600;
 }
@@ -955,9 +946,9 @@ body {
 .message {
   display: flex;
   align-items: flex-start;
-  gap: var(--8px);
-  padding: var(--8px);
-  max-width: 90%;
+  gap: var(--12px);
+  padding: var(--12px);
+  max-width: 95%;
   position: relative;
 }
 
@@ -970,19 +961,6 @@ body {
   margin-right: auto;
 }
 
-.messageAvatar {
-  width: 40px;
-  height: 40px;
-  padding: 4px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--dusty-grey);
-  background-color: var(--dark-grey);
-  flex-shrink: 0;
-  margin-top: auto;
-  margin-bottom: 4px;
-}
-
 .messageContent {
   display: flex;
   flex-direction: column;
@@ -991,9 +969,9 @@ body {
 }
 
 .messageHeader {
-  font-size: var(--12px);
+  font-size: 14px;
   color: var(--dusty-grey);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   text-align: left;
 }
 
@@ -1012,9 +990,9 @@ body {
 
 .messageText {
   background-color: var(--gluon-grey);
-  padding: var(--8px) var(--12px);
+  padding: 12px 16px;
   border-radius: var(--12px);
-  font-size: var(--14px);
+  font-size: 16px;
   color: var(--snow);
   word-break: break-word;
   max-width: fit-content;
@@ -1039,10 +1017,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: var(--24px);
+  font-size: var(--44px);
   color: var(--snow);
-  font-weight: 600;
-  padding: var(--16px) 0;
+  font-weight: 700;
 }
 
 .messageInputWrapper {
@@ -1135,8 +1112,8 @@ body {
 }
 
 .messageAvatar {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   padding: 4px;
   border-radius: 50%;
   object-fit: cover;
