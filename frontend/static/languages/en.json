@@ -57,5 +57,40 @@
             "profile": "See profile",
             "addFriend": "Add friend request"
         }
-    }
+    },
+	"profil": {
+		"account": {
+			"settings": "Account Settings"
+		},
+		"friend": {
+			"requests": "Friend Requests"
+		},
+		"match": {
+			"history": "Match History"
+		},
+		"stats": {
+			"gamesPlayed": "Gameplay played",
+			"winRatio": "Win ratio",
+			"longestRally": "Longest Rally",
+			"topSpeed": "Top Speed"
+		},
+		"buttons": {
+			"modify": "Modify",
+			"saveChanges": "Save Changes",
+			"upload": "Upload",
+			"chooseAvatar": "Choose Avatar",
+			"enable2FA": "Enable 2FA",
+			"confirm2FA": "Confirm",
+			"cancel": "Cancel",
+			"apply": "Apply"
+		},
+		"inputLabels": {
+			"username": "Username",
+			"email": "E-mail",
+			"password": "Password",
+			"newPassword": "New Password",
+			"confirmNewPassword": "Confirm New Password",
+			"verificationCode": "Verification Code"
+		}
+	}		
 }
