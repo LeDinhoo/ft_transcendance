@@ -1,11 +1,32 @@
 function ensureHumanFirst(player1, player2, gameManager) {
+  // Vérification si un ou les deux joueurs sont indéfinis
+  if (!player1 || !player2) {
+    console.error(
+      "One or both players are undefined in ensureHumanFirst:",
+      player1,
+      player2
+    );
+    // Si un joueur est manquant, on retourne les joueurs existants
+    return [player1, player2];
+  }
+
+  // Vérifier si chaque joueur est un bot ou un humain
   const player1IsBot = gameManager.isBot(player1);
   const player2IsBot = gameManager.isBot(player2);
 
+  // Si les deux joueurs sont humains, ne rien changer
+  if (!player1IsBot && !player2IsBot) {
+    console.log(`Both players are human. No swapping needed.`);
+    return [player1, player2];
+  }
+
+  // Si player1 est un bot et player2 est humain, on swap pour placer l'humain en premier
   if (player1IsBot && !player2IsBot) {
     console.log(`Swapping players to make human player1.`);
     return [player2, player1]; // Retourne l'humain en tant que player1
   }
+
+  // Sinon, ne rien changer (cas où player1 est humain et player2 est un bot, ou les deux sont bots)
   return [player1, player2];
 }
 
@@ -154,7 +175,63 @@ function initializeTournamentPage() {
         player2IsBot
       );
 
-      // Charger le conteneur de jeu
+      // Simulation si les deux joueurs sont des bots
+      if (player1IsBot && player2IsBot) {
+        console.log("Simulating match between two bots...");
+
+        // Fonction pour simuler des scores avec la règle des 2 points d'écart
+        const simulateScores = () => {
+          let score1 = 0;
+          let score2 = 0;
+
+          while (true) {
+            score1 = Math.floor(Math.random() * 6); // Génère un score entre 0 et 5
+            score2 = Math.floor(Math.random() * 6);
+
+            // Vérifier si la partie respecte les règles :
+            // - Score maximal de 5
+            // - 2 points d'écart si le score atteint 4-4
+            if (
+              Math.max(score1, score2) === 5 &&
+              Math.abs(score1 - score2) >= 2
+            ) {
+              break;
+            }
+          }
+          return { score1, score2 };
+        };
+
+        // Simuler les scores
+        const { score1: simulatedScore1, score2: simulatedScore2 } =
+          simulateScores();
+
+        // Déterminer le gagnant basé sur les scores
+        const simulatedWinner =
+          simulatedScore1 > simulatedScore2
+            ? currentMatch.player1
+            : currentMatch.player2;
+
+        console.log(
+          "Simulation complete. Winner:",
+          simulatedWinner,
+          "Scores:",
+          {
+            player1: simulatedScore1,
+            player2: simulatedScore2,
+          }
+        );
+
+        // Passer les résultats simulés à progressTournament
+        progressTournament(
+          null, // winnerIndex n'est pas utilisé ici
+          { player1: simulatedScore1, player2: simulatedScore2 },
+          this
+        );
+
+        return; // Sortir de la fonction pour éviter de charger le conteneur de jeu
+      }
+
+      // Charger le conteneur de jeu uniquement si ce n'est pas une simulation
       this.gameContainer.style.display = "block";
       this.gameContainer.src = "/static/spa/game3D/three.html";
 
@@ -175,6 +252,7 @@ function initializeTournamentPage() {
           },
           "*"
         );
+
         if (!player1IsBot && player2IsBot) {
           const options = null;
           const isAI = true;
@@ -186,22 +264,9 @@ function initializeTournamentPage() {
             },
             "*"
           );
-        }
-        // Par défaut, on ne change pas les options si ce ne sont pas des bots
-        else if (!player1IsBot && !player2IsBot) {
+        } else if (!player1IsBot && !player2IsBot) {
           const options = null;
           const isAI = false;
-          const power = true;
-          this.gameContainer.contentWindow.postMessage(
-            {
-              type: "setOptions",
-              data: { options, isAI, power },
-            },
-            "*"
-          );
-        } else if (player1IsBot && player2IsBot) {
-          const options = null;
-          const isAI = true;
           const power = true;
           this.gameContainer.contentWindow.postMessage(
             {
@@ -518,238 +583,78 @@ function initializeTournamentPage() {
     }
   }
 
-  // function updateBracketDisplay() {
-  //   const activeShape = document.querySelector(".shape.active");
-  //   const matches = activeShape.querySelectorAll(".doubleMatch");
-  //   const playerCount = getSelectedPlayerCount();
-
-  //   matches.forEach((matchElement, index) => {
-  //     const match = tournamentState.matches[index];
-  //     if (!match) return;
-
-  //     // Mise à jour des joueurs
-  //     const players = matchElement.querySelectorAll(".player");
-  //     const scores = matchElement.querySelectorAll(".score");
-
-  //     players.forEach((playerElement, playerIndex) => {
-  //       const nickname = playerElement.querySelector(".nickname");
-  //       const avatar = playerElement.querySelector(".logo");
-
-  //       // Si c'est la case finale
-  //       if (index === (playerCount === 4 ? 3 : 7)) {
-  //         const finalWinner =
-  //           tournamentState.matches[playerCount === 4 ? 2 : 6]?.winner;
-  //         if (finalWinner) {
-  //           nickname.textContent = finalWinner.name;
-  //           avatar.src = finalWinner.avatar;
-  //           playerElement.classList.add("winner");
-  //           scores[0]?.classList.add("winner");
-  //         } else {
-  //           nickname.textContent = "";
-  //           avatar.src = DEFAULT_AVATAR;
-  //           playerElement.classList.remove("winner");
-  //           scores[0]?.classList.remove("winner");
-  //         }
-  //         return;
-  //       }
-
-  //       // Pour tous les autres matches
-  //       const currentPlayer = playerIndex === 0 ? match.player1 : match.player2;
-  //       if (currentPlayer) {
-  //         nickname.textContent = currentPlayer.name;
-  //         avatar.src = currentPlayer.avatar;
-
-  //         // Vérifier si ce joueur est le gagnant du match
-  //         if (match.winner && match.winner.name === currentPlayer.name) {
-  //           playerElement.classList.add("winner");
-  //           scores[playerIndex]?.classList.add("winner");
-  //         } else {
-  //           playerElement.classList.remove("winner");
-  //           scores[playerIndex]?.classList.remove("winner");
-  //         }
-  //       } else {
-  //         nickname.textContent = "";
-  //         avatar.src = DEFAULT_AVATAR;
-  //         playerElement.classList.remove("winner");
-  //         scores[playerIndex]?.classList.remove("winner");
-  //       }
-  //     });
-
-  //     // Mise à jour des scores
-  //     if (match.winner) {
-  //       const winnerIndex =
-  //         match.player1 && match.winner.name === match.player1.name ? 0 : 1;
-
-  //       scores.forEach((scoreElement, scoreIndex) => {
-  //         scoreElement.textContent =
-  //           scoreIndex === 0 ? match.score1 : match.score2;
-  //       });
-  //     }
-  //   });
-
-  //   updateCurrentMatchIndicators();
-  // }
-
-  // function updateBracketDisplay() {
-  //   const activeShape = document.querySelector(".shape.active");
-  //   if (!activeShape) return;
-
-  //   function updateMatchElement(element, match) {
-  //       if (!element || !match) return;
-  //       const players = element.querySelectorAll(".player");
-  //       const scores = element.querySelectorAll(".score");
-
-  //       // Cas spÃ©cial pour la finale
-  //       if (element.closest(".tournamentSection4")) {
-  //           const finalPlayer = players[0];
-  //           if (match.winner) {
-  //               finalPlayer.querySelector(".nickname").textContent = match.winner.name;
-  //               finalPlayer.querySelector(".logo").src = match.winner.avatar;
-  //               finalPlayer.classList.add("winner-final");
-  //           }
-  //           return;
-  //       }
-  //       if (players.length >= 2 && scores.length >= 2) {
-  //           // Joueur 1
-  //           if (match.player1) {
-  //               players[0].querySelector(".nickname").textContent = match.player1.name;
-  //               players[0].querySelector(".logo").src = match.player1.avatar;
-  //               scores[0].textContent = match.score1;
-  //           }
-
-  //           // Joueur 2
-  //           if (match.player2) {
-  //               players[1].querySelector(".nickname").textContent = match.player2.name;
-  //               players[1].querySelector(".logo").src = match.player2.avatar;
-  //               scores[1].textContent = match.score2;
-  //           }
-
-  //           // Gagnant
-  //           if (match.winner) {
-  //               players.forEach(player => {
-  //                   if (player.querySelector(".nickname").textContent === match.winner.name) {
-  //                       player.classList.add("winner");
-  //                   }
-  //               });
-  //           }
-  //       }
-  //   }
-
-  //   // Matches du premier tour
-  //   const firstRoundMatches = activeShape.querySelectorAll(".tournamentSection2 .doubleMatch");
-  //   firstRoundMatches.forEach((matchElement, index) => {
-  //       if (tournamentState.matches[index]) {
-  //           updateMatchElement(matchElement, tournamentState.matches[index]);
-  //       }
-  //   });
-
-  //   // Demi-finale
-  //   const semifinal = activeShape.querySelector(".tournamentSection3 .doubleMatch");
-  //   if (semifinal && tournamentState.matches[2]) {
-  //       updateMatchElement(semifinal, tournamentState.matches[2]);
-  //   }
-
-  //   // Finale
-  //   const final = activeShape.querySelector(".tournamentSection4 .doubleMatch");
-  //   if (final && tournamentState.matches[3]) {
-  //       updateMatchElement(final, tournamentState.matches[3]);
-  //   }
-
-  //   updateCurrentMatchIndicators();
-  // }
-
   function updateBracketDisplay() {
     const activeShape = document.querySelector(".shape.active");
-    if (!activeShape) return;
+    const matches = activeShape.querySelectorAll(".doubleMatch");
+    const playerCount = getSelectedPlayerCount();
 
-    function updateMatchElement(element, match) {
-      if (!element || !match) return;
-      const players = element.querySelectorAll(".player");
-      const scores = element.querySelectorAll(".score");
+    matches.forEach((matchElement, index) => {
+      // **1. Gestion spéciale pour l'affichage du vainqueur final**
+      const isFinalWinnerDisplay = index === (playerCount === 4 ? 3 : 7); // Dernier élément visuel
+      if (isFinalWinnerDisplay) {
+        const finalMatchIndex = playerCount === 4 ? 2 : 6; // Match final logique
+        const finalMatch = tournamentState.matches[finalMatchIndex];
 
-      // Cas spécial pour la finale
-      if (element.closest(".tournamentSection4")) {
-        const finalPlayer = players[0];
-        if (match.winner) {
-          // Vérification que le gagnant a un nom et un avatar
-          if (match.winner.name && match.winner.avatar) {
-            finalPlayer.querySelector(".nickname").textContent =
-              match.winner.name;
-            finalPlayer.querySelector(".logo").src = match.winner.avatar;
-            finalPlayer.classList.add("winner-final");
+        const winnerElement = matchElement.querySelector(".player");
+        const winnerName = winnerElement.querySelector(".nickname");
+        const winnerAvatar = winnerElement.querySelector(".logo");
+
+        if (finalMatch?.winner) {
+          // Mettre à jour l'affichage du vainqueur
+          winnerName.textContent = finalMatch.winner.name;
+          winnerAvatar.src = finalMatch.winner.avatar;
+          winnerElement.classList.add("winner-final");
+        } else {
+          // Réinitialiser si aucun gagnant
+          winnerName.textContent = "";
+          winnerAvatar.src = DEFAULT_AVATAR;
+          winnerElement.classList.remove("winner-final");
+        }
+        return; // Ne pas traiter cet élément comme un match
+      }
+
+      // **2. Traitement des autres matchs**
+      const match = tournamentState.matches[index];
+      if (!match) return;
+
+      const players = matchElement.querySelectorAll(".player");
+      const scores = matchElement.querySelectorAll(".score");
+
+      players.forEach((playerElement, playerIndex) => {
+        const nickname = playerElement.querySelector(".nickname");
+        const avatar = playerElement.querySelector(".logo");
+
+        const currentPlayer = playerIndex === 0 ? match.player1 : match.player2;
+        if (currentPlayer) {
+          nickname.textContent = currentPlayer.name;
+          avatar.src = currentPlayer.avatar;
+
+          // Vérifier si ce joueur est le gagnant du match
+          if (match.winner && match.winner.name === currentPlayer.name) {
+            playerElement.classList.add("winner");
+            scores[playerIndex]?.classList.add("winner");
           } else {
-            console.log(
-              "Le gagnant de la finale est mal défini:",
-              match.winner
-            );
+            playerElement.classList.remove("winner");
+            scores[playerIndex]?.classList.remove("winner");
           }
         } else {
-          console.log("Aucun gagnant défini pour la finale:", match);
+          nickname.textContent = "";
+          avatar.src = DEFAULT_AVATAR;
+          playerElement.classList.remove("winner");
+          scores[playerIndex]?.classList.remove("winner");
         }
-        return;
-      }
+      });
 
-      if (players.length >= 2 && scores.length >= 2) {
-        // Joueur 1
-        if (match.player1) {
-          players[0].querySelector(".nickname").textContent =
-            match.player1.name;
-          players[0].querySelector(".logo").src = match.player1.avatar;
-          scores[0].textContent = match.score1;
-        }
-
-        // Joueur 2
-        if (match.player2) {
-          players[1].querySelector(".nickname").textContent =
-            match.player2.name;
-          players[1].querySelector(".logo").src = match.player2.avatar;
-          scores[1].textContent = match.score2;
-        }
-
-        // Gagnant
-        if (match.winner) {
-          // Vérification que le gagnant a un nom
-          if (match.winner.name) {
-            players.forEach((player) => {
-              if (
-                player.querySelector(".nickname").textContent ===
-                match.winner.name
-              ) {
-                player.classList.add("winner");
-              }
-            });
-          } else {
-            console.log("Le gagnant du match est mal défini:", match);
-          }
+      // Mise à jour des scores
+      scores.forEach((scoreElement, scoreIndex) => {
+        if (match.player1 && match.player2) {
+          scoreElement.textContent =
+            scoreIndex === 0 ? match.score1 : match.score2;
         } else {
-          console.log("Aucun gagnant défini pour ce match:", match);
+          scoreElement.textContent = "";
         }
-      }
-    }
-
-    // Matches du premier tour
-    const firstRoundMatches = activeShape.querySelectorAll(
-      ".tournamentSection2 .doubleMatch"
-    );
-    firstRoundMatches.forEach((matchElement, index) => {
-      if (tournamentState.matches[index]) {
-        updateMatchElement(matchElement, tournamentState.matches[index]);
-      }
+      });
     });
-
-    // Demi-finale
-    const semifinal = activeShape.querySelector(
-      ".tournamentSection3 .doubleMatch"
-    );
-    if (semifinal && tournamentState.matches[2]) {
-      updateMatchElement(semifinal, tournamentState.matches[2]);
-    }
-
-    // Finale
-    const final = activeShape.querySelector(".tournamentSection4 .doubleMatch");
-    if (final && tournamentState.matches[3]) {
-      updateMatchElement(final, tournamentState.matches[3]);
-    }
 
     updateCurrentMatchIndicators();
   }
@@ -783,12 +688,7 @@ function initializeTournamentPage() {
 
     const playerCount = getSelectedPlayerCount();
 
-    // Déterminer si c'est le dernier match
-    const isLastMatch =
-      (playerCount === 4 && tournamentState.currentMatch === 2) ||
-      (playerCount === 8 && tournamentState.currentMatch === 6);
-
-    // Déterminer le vainqueur
+    // **1. Déterminer le gagnant**
     if (finalScores.player1 > finalScores.player2) {
       currentMatch.winner = currentMatch.player1;
     } else if (finalScores.player2 > finalScores.player1) {
@@ -799,50 +699,143 @@ function initializeTournamentPage() {
         Math.random() < 0.5 ? currentMatch.player1 : currentMatch.player2;
     }
 
-    console.log("Vainqueur de la finale:", currentMatch.winner);
+    if (!currentMatch.winner) {
+      console.error(
+        `No winner defined for match ${tournamentState.currentMatch}`
+      );
+      return;
+    }
 
-    // Mise à jour des scores
+    console.log(
+      `Match ${tournamentState.currentMatch} winner:`,
+      currentMatch.winner
+    );
+
+    // **2. Mise à jour des scores**
     currentMatch.score1 = finalScores.player1;
     currentMatch.score2 = finalScores.player2;
 
+    // **3. Stocker les résultats**
     tournamentState.matchResults[tournamentState.currentMatch] = {
       winner: currentMatch.winner,
       scores: finalScores,
     };
 
+    // **4. Mise à jour des joueurs pour les prochains matchs**
     if (playerCount === 4) {
-      if (tournamentState.currentMatch < 2) {
+      if (
+        tournamentState.currentMatch === 0 ||
+        tournamentState.currentMatch === 1
+      ) {
+        const finalMatchIndex = 2; // Match 2 est la finale
+        const nextMatch = tournamentState.matches[finalMatchIndex];
+        if (!nextMatch) {
+          console.error(`Final match (${finalMatchIndex}) is not initialized.`);
+          return;
+        }
+
+        // Ajout de validation et initialisation des joueurs
+        if (!nextMatch.player1) {
+          nextMatch.player1 = currentMatch.winner;
+        } else {
+          nextMatch.player2 = currentMatch.winner;
+        }
+
         const [newPlayer1, newPlayer2] = ensureHumanFirst(
-          currentMatch.winner,
-          tournamentState.matches[2]?.player2,
+          nextMatch.player1,
+          nextMatch.player2,
           gameManager
         );
-        tournamentState.matches[2].player1 = newPlayer1;
-        tournamentState.matches[2].player2 = newPlayer2;
+
+        console.log(
+          `Updating final match ${finalMatchIndex} with players:`,
+          newPlayer1,
+          newPlayer2
+        );
+        nextMatch.player1 = newPlayer1;
+        nextMatch.player2 = newPlayer2;
       }
     } else if (playerCount === 8) {
       if (tournamentState.currentMatch < 4) {
+        // Quarts de finale -> Demi-finales
         const nextRoundMatchIndex =
           4 + Math.floor(tournamentState.currentMatch / 2);
+        const nextMatch = tournamentState.matches[nextRoundMatchIndex];
+        if (!nextMatch) {
+          console.error(
+            `Next round match (${nextRoundMatchIndex}) is not initialized.`
+          );
+          return;
+        }
+
+        if (!nextMatch.player1) {
+          nextMatch.player1 = currentMatch.winner;
+        } else {
+          nextMatch.player2 = currentMatch.winner;
+        }
+
         const [newPlayer1, newPlayer2] = ensureHumanFirst(
-          currentMatch.winner,
-          tournamentState.matches[nextRoundMatchIndex]?.player2,
+          nextMatch.player1,
+          nextMatch.player2,
           gameManager
         );
-        tournamentState.matches[nextRoundMatchIndex].player1 = newPlayer1;
-        tournamentState.matches[nextRoundMatchIndex].player2 = newPlayer2;
+
+        console.log(
+          `Updating semi-final match ${nextRoundMatchIndex} with players:`,
+          newPlayer1,
+          newPlayer2
+        );
+        nextMatch.player1 = newPlayer1;
+        nextMatch.player2 = newPlayer2;
+      } else if (
+        tournamentState.currentMatch >= 4 &&
+        tournamentState.currentMatch < 6
+      ) {
+        // Demi-finales -> Finale
+        const finalMatchIndex = 6; // Match 6 est la finale
+        const nextMatch = tournamentState.matches[finalMatchIndex];
+        if (!nextMatch) {
+          console.error(`Final match (${finalMatchIndex}) is not initialized.`);
+          return;
+        }
+
+        if (!nextMatch.player1) {
+          nextMatch.player1 = currentMatch.winner;
+        } else {
+          nextMatch.player2 = currentMatch.winner;
+        }
+
+        const [newPlayer1, newPlayer2] = ensureHumanFirst(
+          nextMatch.player1,
+          nextMatch.player2,
+          gameManager
+        );
+
+        console.log(
+          `Updating final match ${finalMatchIndex} with players:`,
+          newPlayer1,
+          newPlayer2
+        );
+        nextMatch.player1 = newPlayer1;
+        nextMatch.player2 = newPlayer2;
       }
     }
 
-    // Affichage des résultats et progression
+    // **5. Vérifier si c'est le dernier match**
+    const isLastMatch =
+      (playerCount === 4 && tournamentState.currentMatch === 2) ||
+      (playerCount === 8 && tournamentState.currentMatch === 6);
+
+    // **6. Affichage des résultats et progression**
     if (isLastMatch) {
       showTournamentWinner(currentMatch.winner, finalScores);
       setTimeout(() => {
+        console.log("Final match winner:", tournamentState.matches[2]?.winner);
         tournamentState.currentMatch++;
         updateBracketDisplay();
         updateCurrentMatchIndicators();
         updatePlayButton();
-        setTimeout(highlightFinalWinner, 1000);
+        highlightFinalWinner();
       }, 500);
     } else {
       showMatchVictory(
@@ -859,8 +852,6 @@ function initializeTournamentPage() {
     }
   }
 
-
-
   function updatePlayButton() {
     const playerCount = getSelectedPlayerCount();
     const lastMatchIndex = playerCount === 4 ? 3 : 7;
@@ -868,10 +859,12 @@ function initializeTournamentPage() {
     const nextMatch = tournamentState.matches[tournamentState.currentMatch];
     const playButton = document.querySelector(".buttonPlay");
 
+    console.log("current match :", tournamentState.currentMatch);
+
     if (isLastMatch) {
       playButton.innerHTML = `
-        <span class="button-text">Tournament Complete!</span>
-      `;
+            <span class="button-text">Tournament Complete!</span>
+        `;
       playButton.classList.add("tournament-complete");
       playButton.disabled = true;
 
@@ -882,10 +875,23 @@ function initializeTournamentPage() {
 
     if (!nextMatch || !nextMatch.player1 || !nextMatch.player2) {
       playButton.innerHTML = `
-        <img class="playIcon" src="/static/assets/icons/play.svg" />
-        <span class="button-text">Waiting for next matches</span>
-      `;
+            <img class="playIcon" src="/static/assets/icons/play.svg" />
+            <span class="button-text">Waiting for next matches</span>
+        `;
       playButton.disabled = true;
+      return;
+    }
+
+    // Vérifier si les deux joueurs du prochain match sont des bots
+    const player1IsBot = gameManager.isBot(nextMatch.player1);
+    const player2IsBot = gameManager.isBot(nextMatch.player2);
+
+    if (player1IsBot && player2IsBot) {
+      playButton.innerHTML = `
+            <img class="playIcon" src="/static/assets/icons/play.svg" />
+            <span class="button-text">Simulate Bots Match</span>
+        `;
+      playButton.disabled = false;
       return;
     }
 
@@ -897,8 +903,8 @@ function initializeTournamentPage() {
     }
 
     playButton.innerHTML = `
-      <img class="playIcon" src="/static/assets/icons/play.svg" />
-      <span class="button-text">${matchText}</span>
+        <img class="playIcon" src="/static/assets/icons/play.svg" />
+        <span class="button-text">${matchText}</span>
     `;
     playButton.disabled = false;
   }
