@@ -613,36 +613,92 @@ def callback_42(request):
 
             # Préparer la réponse HTML avec les données
             response = HttpResponse(f"""
-                <!DOCTYPE html>
-                <html>
-                    <head>
-                        <title>Authentication Successful</title>
-                        <script>
-                            if (window.opener) {{
-                                // Envoyer un message à la fenêtre principale
-                                console.log('Sending success message to main window...');
-                                window.opener.postMessage({{
-                                    type: 'auth_success'
-                                }}, 'https://localhost:4430');
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Authentication Successful</title>
+                    <style>
+                        /* Style général pour la page */
+                        body {{
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            background-color: #222225;
+                            font-family: "Inter", sans-serif;
+                        }}
 
-                                // Rediriger la fenêtre principale
-                                console.log('Redirecting main window...');
-                                window.opener.location.href = 'https://localhost:4430/home';
+                        /* Style du cadre principal */
+                        .titleFrame {{
+                            width: 100%;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                        }}
 
-                                // Fermer cette fenêtre après un court délai
-                                setTimeout(() => {{
-                                    console.log('Closing popup window...');
-                                    window.close();
-                                }}, 300);
+
+                        /* Titre principal */
+                        .title2FA {{
+                            font-size: 28px;
+                            font-weight: 600;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            color: #fbfbfb;
+                        }}
+
+                        /* Animation de redirection */
+                        .redirecting {{
+                            font-size: 16px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            font-style: italic;
+                            animation: fadeInOut 1s ease-in-out infinite;
+                            color: #ff710d;
+                        }}
+
+                        @keyframes fadeInOut {{
+                            0%, 100% {{
+                                opacity: 1;
                             }}
-                        </script>
-                    </head>
-                    <body>
-                        <h1>Authentication Successful!</h1>
-                        <p>Redirecting...</p>
-                    </body>
-                </html>
+                            50% {{
+                                opacity: 0.5;
+                            }}
+                        }}
+                    </style>
+                    <script>
+                        if (window.opener) {{
+                            // Envoyer un message à la fenêtre principale
+                            console.log('Sending success message to main window...');
+                            window.opener.postMessage({{
+                                type: 'auth_success'
+                            }}, 'https://localhost:4430');
+
+                            // Rediriger la fenêtre principale
+                            console.log('Redirecting main window...');
+                            window.opener.location.href = 'https://localhost:4430/home';
+
+                            // Fermer cette fenêtre après un court délai
+                            setTimeout(() => {{
+                                console.log('Closing popup window...');
+                                window.close();
+                            }}, 300);
+                        }}
+                    </script>
+                </head>
+                <body>
+                    <div class="titleFrame">
+                        <h1 class="title2FA">Authentication Successful!</h1>
+                        <p class="redirecting">Redirecting...</p>
+                    </div>
+                </body>
+            </html>
             """)
+
 
             # Définir les cookies de jetons sur la réponse HTML
             set_jwt_cookies(response, access_token, refresh_token)

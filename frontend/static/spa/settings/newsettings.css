@@ -71,7 +71,7 @@ body {
 
 .saveButtonFrame {
     width: 100%;
-    height: 5.208vw;
+    /*height: 5.208vw;*/
     display: flex;
     justify-content: center;
     align-items: center;
@@ -81,7 +81,7 @@ body {
 }
 
 .titleSettings {
-    font-size: var(--32px);
+    font-size: var(--36px);
     font-weight: 600;
     color: var(--snow);
     height: 100%;

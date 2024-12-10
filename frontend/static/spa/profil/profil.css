@@ -248,7 +248,7 @@ body {
 
 .settingsTitles,
 .friendsTitle {
-  font-size: var(--32px);
+  font-size: var(--36px);
   font-weight: 600;
   color: var(--snow);
   height: 100%;
@@ -258,7 +258,7 @@ body {
 }
 
 .settingsTitles {
-  font-size: var(--32px);
+  font-size: var(--36px);
   font-weight: 600;
   color: var(--snow);
   width: 100%;
@@ -267,7 +267,7 @@ body {
 }
 
 .settingsHistory {
-  font-size: var(--32px);
+  font-size: var(--36px);
   font-weight: 600;
   color: var(--snow);
   text-align: center;

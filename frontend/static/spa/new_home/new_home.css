@@ -240,7 +240,7 @@ body {
 	top: 0;
 	background-color: var(--dark-grey);
 	padding: var(--16px) 0;
-	font-size: var(--24px);
+	font-size: var(--36px);
 	font-weight: 600;
 	text-align: center;
 	z-index: 10;
@@ -346,7 +346,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: var(--24px);
+  font-size: var(--36px);
   color: var(--snow);
   font-weight: 600;
 }
@@ -1039,7 +1039,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: var(--24px);
+  font-size: var(--36px);
   color: var(--snow);
   font-weight: 600;
   padding: var(--16px) 0;
