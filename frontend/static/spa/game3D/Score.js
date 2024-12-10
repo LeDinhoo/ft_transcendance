@@ -270,6 +270,15 @@ export class Score3D {
     }
   }
 
+  setScoreToWin(score) {
+    if (typeof score === "number" && score > 0) {
+      this.WINNING_SCORE = score;
+      console.log("Score pour gagner mis à jour :", this.WINNING_SCORE);
+    } else {
+      console.error("Score invalide pour gagner");
+    }
+  }
+
   createVictoryText(winner) {
     if (!this.font) return;
 

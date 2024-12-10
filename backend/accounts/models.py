@@ -65,11 +65,20 @@ class GameHistory(models.Model):
         return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"
 
 
+def default_powerups():
+    return ['inverse', 'flash', 'tornado']
+
 class GameHostOptions(models.Model):
-    isPowerActivated = models.BooleanField(default=False)
-    isIaActivated = models.BooleanField(default=False)
-#     ScoreToWin = models.IntegerField(default=5)
-#     BallSpeed = models.FloatField(default=1.0)
+    scoreToWin = models.IntegerField(default=5)
+    difficulty = models.CharField(max_length=50, default='medium')
+    ballSpeedStart = models.FloatField(default=10.0)
+    ballSpeedMax = models.FloatField(default=30.0)
+    ballSpeedIncrease = models.FloatField(default=1.0)
+    powerups = models.JSONField(default=default_powerups, blank=True)  # Default powerups
+    keyboardSettings = models.JSONField(default=dict)  # For storing player1 and player2 key mappings
 
     def __str__(self):
-        return f"GameHostOptions: {self.IsPowerActivated}, {self.IsIaActivated}"
+        return (f"scoreToWin={self.scoreToWin}, difficulty={self.difficulty}, "
+                f"ballSpeedStart={self.ballSpeedStart}, ballSpeedMax={self.ballSpeedMax}, "
+                f"ballSpeedIncrease={self.ballSpeedIncrease}, powerups={self.powerups}, "
+                f"keyboardSettings={self.keyboardSettings})")

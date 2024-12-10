@@ -204,7 +204,6 @@ function initializeSettingsPage() {
 		button.addEventListener("click", handleBallSpeedIncreaseButtonClick);
 	});
 
-// Fonction pour récupérer et sauvegarder tous les paramètres
 	function saveGameSettings() {
 		// Récupérer les valeurs des paramètres
 		const activeScoreButton = document.querySelector(".scoreOptionLabel.active");
@@ -257,21 +256,37 @@ function initializeSettingsPage() {
 			ballSpeedIncrease: ballSpeedIncrease,
 		};
 
-		// Simuler une requête PATCH
-		console.log("Envoi des paramètres au serveur...");
-		simulatePatchRequest("/api/game-settings", gameSettings)
+		console.log("Envoi des paramètres au serveur :", gameSettings);
+
+		fetch('/api/set-game-settings/', {
+			method: "POST",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(gameSettings),
+		})
 			.then((response) => {
-				console.log("Réponse du serveur :", response);
+				console.log("Statut de la réponse :", response.status);
+				return response.json();
+			})
+			.then((data) => {
+				console.log("Données de réponse :", data);
+				if (!data.success) {
+					throw new Error(data.error || "Erreur inconnue côté serveur");
+				}
+
+				console.log("Paramètres de jeu sauvegardés avec succès :", data);
 
 				// Feedback visuel pour l'utilisateur
 				const saveButton = document.getElementById("save-settings");
-				// saveButton.textContent = "Saved!";
-				// saveButton.disabled = true;
+				saveButton.textContent = "Saved!";
+				saveButton.disabled = true;
 
-				// setTimeout(() => {
-				//   saveButton.textContent = "SAVE";
-				//   saveButton.disabled = false;
-				// }, 1500);
+				setTimeout(() => {
+					saveButton.textContent = "Save Settings";
+					saveButton.disabled = false;
+				}, 1500);
 			})
 			.catch((error) => {
 				console.error("Erreur lors de la sauvegarde :", error);
@@ -279,22 +294,6 @@ function initializeSettingsPage() {
 			});
 	}
 
-// Fonction pour simuler une requête PATCH
-	function simulatePatchRequest(url, data) {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				console.log(`PATCH ${url}`, data);
-
-				// Simuler une réponse de succès ou d'erreur
-				const isSuccess = Math.random() > 0.1; // 90% de chances de succès
-				if (isSuccess) {
-					resolve({status: 200, message: "Settings updated successfully"});
-				} else {
-					reject({status: 500, message: "Server error"});
-				}
-			}, 1000); // Simule un délai de 1 seconde
-		});
-	}
 
 // Ajouter un gestionnaire d'événement au bouton Save
 	const saveButton = document.getElementById("save-settings");
@@ -367,63 +366,50 @@ function initializeSettingsPage() {
 		button.addEventListener("click", handleKeyChange);
 	});
 
-// Fonction pour sauvegarder les paramètres
 	function saveKeyboardSettings() {
-		// Collecter les valeurs actuelles des touches
 		const keySettings = {
-			player1: {
-				moveUp: document.getElementById("key-player1-moveUp").textContent,
-				moveDown: document.getElementById("key-player1-moveDown").textContent,
-				launchPower: document.getElementById("key-player1-launchPower").textContent,
-			},
-			player2: {
-				moveUp: document.getElementById("key-player2-moveUp").textContent,
-				moveDown: document.getElementById("key-player2-moveDown").textContent,
-				launchPower: document.getElementById("key-player2-launchPower").textContent,
+			keyboardSettings: {
+				player1: {
+					moveUp: document.getElementById("key-player1-moveUp").textContent,
+					moveDown: document.getElementById("key-player1-moveDown").textContent,
+					launchPower: document.getElementById("key-player1-launchPower").textContent,
+				},
+				player2: {
+					moveUp: document.getElementById("key-player2-moveUp").textContent,
+					moveDown: document.getElementById("key-player2-moveDown").textContent,
+					launchPower: document.getElementById("key-player2-launchPower").textContent,
+				},
 			},
 		};
 
-		// Simuler une requête PATCH
-		console.log("Envoi des paramètres de clavier au serveur...");
-		simulatePatchRequest("/api/keyboard-settings", keySettings)
+		console.log("Envoi des paramètres clavier :", keySettings);
+
+		fetch('/api/set-game-settings/', {
+			method: "POST", // Utilisation explicite de POST
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(keySettings),
+		})
 			.then((response) => {
-				console.log("Réponse du serveur :", response);
-
-				// Feedback visuel pour l'utilisateur
-				const saveButton = document.getElementById("save-keyboard-settings");
-				// saveButton.textContent = "Saved!";
-				// saveButton.disabled = true;
-
-				// setTimeout(() => {
-				//   saveButton.textContent = "Save Settings";
-				//   saveButton.disabled = false;
-				// }, 1500);
+				console.log("Statut de la réponse :", response.status);
+				return response.json();
+			})
+			.then((data) => {
+				console.log("Données de réponse :", data);
+				if (!data.success) {
+					throw new Error(data.error || "Erreur inconnue côté serveur");
+				}
+				console.log("Paramètres sauvegardés avec succès :", data);
 			})
 			.catch((error) => {
 				console.error("Erreur lors de la sauvegarde :", error);
 				alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
 			});
+
 	}
 
-// Fonction pour simuler une requête PATCH
-	function simulatePatchRequest(url, data) {
-		return new Promise((resolve, reject) => {
-			setTimeout(() => {
-				console.log(`PATCH ${url}`, data);
-
-				// Simuler une réponse de succès ou d'erreur
-				const isSuccess = Math.random() > 0.1; // 90% de chances de succès
-				if (isSuccess) {
-					resolve({
-						status: 200,
-						message: "Keyboard settings updated successfully",
-					});
-				} else {
-					reject({status: 500, message: "Server error"});
-				}
-			}, 1000); // Simule un délai de 1 seconde
-		});
-	}
 
 // Ajouter un gestionnaire d'événements à tous les boutons configurables
 	document.querySelectorAll(".change-key").forEach((button) => {
@@ -435,27 +421,6 @@ function initializeSettingsPage() {
 		.getElementById("save-keyboard-settings")
 		.addEventListener("click", saveKeyboardSettings);
 
-// Simulation de données de la base de données
-	const simulatedDatabaseResponse = {
-		scoreToWin: "11",
-		difficulty: "medium",
-		powerups: ["flash", "inverse"],
-		ballSpeedStart: "5",
-		ballSpeedMax: "15",
-		ballSpeedIncrease: "1",
-		keyboardSettings: {
-			player1: {
-				moveUp: "W",
-				moveDown: "S",
-				launchPower: "E",
-			},
-			player2: {
-				moveUp: "ArrowUp",
-				moveDown: "ArrowDown",
-				launchPower: "P",
-			},
-		},
-	};
 
 // Fonction pour initialiser un groupe de paramètres
 	function setActiveButton(selector, value, attribute) {
@@ -481,54 +446,63 @@ function initializeSettingsPage() {
 		});
 	}
 
-// Fonction pour initialiser les paramètres par défaut
+// Fonction pour initialiser les paramètres par défaut depuis la base de données
 	function initializeSettingsFromDatabase() {
 		console.log("Initialisation des paramètres depuis la base de données...");
 
-		const fetchSettings = new Promise((resolve) => {
-			setTimeout(() => {
-				resolve(simulatedDatabaseResponse);
-			}, 500);
-		});
+		// Appel à l'API pour récupérer les paramètres
+		fetch('/api/game-settings', {
+			method: "GET",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(`Erreur API: ${response.statusText}`);
+				}
+				return response.json();
+			})
+			.then((settings) => {
+				console.log("Paramètres récupérés :", settings);
 
-		fetchSettings.then((settings) => {
-			console.log("Paramètres récupérés :", settings);
+				// Initialiser chaque section
+				setActiveButton(".scoreOptionLabel", settings.scoreToWin, "win-score");
+				setActiveButton(
+					".difficultyOptionLabel",
+					settings.difficulty,
+					"ai-difficulty"
+				);
 
-			// Initialiser chaque section
-			setActiveButton(".scoreOptionLabel", settings.scoreToWin, "win-score");
-			setActiveButton(
-				".difficultyOptionLabel",
-				settings.difficulty,
-				"ai-difficulty"
-			);
+				settings.powerups.forEach((powerup) =>
+					setActiveButton(".powerupOptionLabel", powerup, "powerups")
+				);
 
-			settings.powerups.forEach((powerup) =>
-				setActiveButton(".powerupOptionLabel", powerup, "powerups")
-			);
+				setActiveButton(
+					".ballSpeedStartOptionLabel",
+					settings.ballSpeedStart,
+					"data-start"
+				);
+				setActiveButton(
+					".ballSpeedMaxOptionLabel",
+					settings.ballSpeedMax,
+					"data-max"
+				);
+				setActiveButton(
+					".ballSpeedIncreaseOptionLabel",
+					settings.ballSpeedIncrease,
+					"data-increase"
+				);
 
-			setActiveButton(
-				".ballSpeedStartOptionLabel",
-				settings.ballSpeedStart,
-				"data-start"
-			);
-			setActiveButton(
-				".ballSpeedMaxOptionLabel",
-				settings.ballSpeedMax,
-				"data-max"
-			);
-			setActiveButton(
-				".ballSpeedIncreaseOptionLabel",
-				settings.ballSpeedIncrease,
-				"data-increase"
-			);
+				initializeKeyboardSettings(settings.keyboardSettings);
 
-			initializeKeyboardSettings(settings.keyboardSettings);
-
-			console.log("Paramètres initialisés avec succès.");
-		});
+				console.log("Paramètres initialisés avec succès.");
+			})
+			.catch((error) => {
+				console.error("Erreur lors de l'initialisation des paramètres :", error);
+			});
 	}
 
-// Appeler la fonction lors de l'ouverture de la page
 	initializeSettingsFromDatabase();
-
 }

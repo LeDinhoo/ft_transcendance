@@ -10,6 +10,7 @@ export class TemporaryCube {
 		paddlePower1,
 		paddlePower2,
 		powerManager,
+		activePowers = [],
 		speed = 3,
 		direction = "right"
 	) {
@@ -33,6 +34,28 @@ export class TemporaryCube {
 		this.isNearTop = false;
 		this.isNearBottom = false;
 		this.initialPosition = null;
+		this.activePowers = activePowers;
+		this.setActivePowers()
+	}
+
+	setActivePowers() {
+		this.flashIsActive = this.activePowers.includes("flash");
+		this.tornadoIsActive = this.activePowers.includes("tornado");
+		this.inverseIsActive = this.activePowers.includes("inverse");
+	}
+
+	howMuchPowerIsActivated() {
+		let numberOfPowers = 0;
+		if (this.flashIsActive) {
+			numberOfPowers++;
+		}
+		if (this.tornadoIsActive) {
+			numberOfPowers++;
+		}
+		if (this.inverseIsActive) {
+			numberOfPowers++;
+		}
+		return numberOfPowers;
 	}
 
 	createCube(modelCache) {
@@ -44,19 +67,48 @@ export class TemporaryCube {
 
 		this.speed = Math.random() > 0.5 ? 4 : -4;
 
-		const powerIndex = Math.floor(Math.random() * 3);
-		switch (powerIndex) {
-			case 0:
+		let numberOfPowers = this.howMuchPowerIsActivated()
+
+		const powerIndex = Math.floor(Math.random() * numberOfPowers);
+		if (numberOfPowers === 1)
+		{
+			if (this.flashIsActive) {
 				this.power = "power1";
-				break;
-			case 1:
-				this.power = "power2";
-				break;
-			case 2:
+			}
+			else if (this.tornadoIsActive) {
 				this.power = "power3";
-				break;
-			default:
-				break;
+			}
+			else if (this.inverseIsActive) {
+				this.power = "power2";
+			}
+		}
+		else if (numberOfPowers === 2)
+		{
+			switch (powerIndex) {
+				case 0:
+					this.power = this.flashIsActive ? "power1" : "power2";
+					break;
+				case 1:
+					this.power = this.tornadoIsActive ? "power3" : "power2";
+					break;
+				default:
+					break;
+			}
+		}
+		else if (numberOfPowers === 3)
+		{
+			switch (powerIndex) {
+				case 0:
+					this.power = "power1";
+					break;
+				case 1:
+					this.power = "power2";
+					break;
+				case 2:
+					this.power = "power3";
+					break;
+				default:
+		}
 		}
 
 		let modelPath = null;
@@ -391,7 +443,6 @@ export class PowerManager {
 		flashEffect,
 		animationManager,
 		modelLoader,
-		isPowerActivated
 	) {
 		this.scene = scene;
 		this.boundaries = boundaries;
@@ -409,7 +460,12 @@ export class PowerManager {
 		this.flashEffect = flashEffect;
 		this.animationManager = animationManager;
 		this.modelLoader = modelLoader;
-		this.isPowerActivated = isPowerActivated;
+		this.isPowerActivated = null;
+		this.activePowers = null;
+	}
+
+	setActivePowers(activePowers) {
+		this.activePowers = activePowers;
 	}
 
 	createGrenadeFlash(player) {
@@ -589,7 +645,8 @@ export class PowerManager {
 				this.boundaries,
 				this.paddlePower1,
 				this.paddlePower2,
-				this
+				this,
+				this.activePowers,
 			);
 			cube.createCube(this.modelCache);
 			this.cubes.push(cube);

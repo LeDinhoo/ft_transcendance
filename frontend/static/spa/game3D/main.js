@@ -30,9 +30,9 @@ export const camera = new THREE.PerspectiveCamera(
 export let isPowerActivated = false;
 const heightController1 = new HeightController();
 const heightController2 = new HeightController();
-const INITIAL_BALL_SPEED = 10;
-const SPEED_INCREMENT = 0.75;
-const MAX_BALL_SPEED = 27;
+let INITIAL_BALL_SPEED = 10;
+let SPEED_INCREMENT = 0.75;
+let MAX_BALL_SPEED = 27;
 export const paddle1Speed = 10;
 export const paddle2Speed = 10;
 const originalBloomStrength = 0.4;
@@ -383,31 +383,31 @@ function updateTrajectory() {
 	trajectoryGeometry.setFromPoints(points);
 }
 
-const difficultyDisplay = document.createElement("div");
-difficultyDisplay.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 8px 16px;
-      border-radius: 9999px;
-      color: white;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      font-size: 16px;
-      z-index: 1000;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      `;
-
-document.body.appendChild(difficultyDisplay);
-
-window.addEventListener("keydown", (event) => {
-	if (event.key === "c" || event.key === "C") {
-		const newDifficulty = gameAI.cycleDifficulty();
-		difficultyDisplay.textContent = `AI: ${newDifficulty.name}`;
-		difficultyDisplay.style.backgroundColor = newDifficulty.color;
-	}
-});
+// const difficultyDisplay = document.createElement("div");
+// difficultyDisplay.style.cssText = `
+//       position: fixed;
+//       top: 20px;
+//       right: 20px;
+//       padding: 8px 16px;
+//       border-radius: 9999px;
+//       color: white;
+//       font-family: Arial, sans-serif;
+//       font-weight: bold;
+//       font-size: 16px;
+//       z-index: 1000;
+//       transition: all 0.3s ease;
+//       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+//       `;
+//
+// document.body.appendChild(difficultyDisplay);
+//
+// window.addEventListener("keydown", (event) => {
+// 	if (event.key === "c" || event.key === "C") {
+// 		const newDifficulty = gameAI.cycleDifficulty();
+// 		difficultyDisplay.textContent = `AI: ${newDifficulty.name}`;
+// 		difficultyDisplay.style.backgroundColor = newDifficulty.color;
+// 	}
+// });
 
 const animationManager = new AnimationManager(scene);
 const paddlePower1 = new PaddlePower();
@@ -424,13 +424,47 @@ const powerManager = new PowerManager(
 	modelLoader,
 );
 
+// export let keys = {
+// 	launchPower1: "e",
+// 	launchPower2: "arrowleft"
+// }
+
+const paddle1Controller = new PaddleController(paddle1Speed, {
+	up: "w",
+	down: "s"
+});
+
+const paddle2Controller = new PaddleController(paddle2Speed, {
+	up: "arrowup",
+	down: "arrowdown"
+});
+
+const gameAI = new AI(paddlePower2, powerManager, paddle1Controller);
+
+let launchPower1 = "e";
+let launchPower2 = "arrowleft";
+
 function handleMessage(event) {
+	console.log(launchPower1);
+	console.log(launchPower2);
 	if (event.data.type === "setOptions") {
 		console.log("Received options from parent :", event.data.data);
 		const {options, isAI, power} = event.data.data;
 		console.log("Game Options :", options);
 		console.log("AI :", isAI);
 		console.log("Power :", power);
+		INITIAL_BALL_SPEED = options.ballSpeedStart;
+		SPEED_INCREMENT = options.ballSpeedIncrease;
+		MAX_BALL_SPEED = options.ballSpeedMax;
+		scoreSystem.setScoreToWin(options.scoreToWin);
+		gameAI.setDifficulty(options.difficulty);
+		powerManager.setActivePowers(options.powerups);
+		launchPower1 = options.keyboardSettings.player1.launchPower;
+		launchPower2 = options.keyboardSettings.player2.launchPower;
+		paddle1Controller.changeControlsUp(options.keyboardSettings.player1.moveUp);
+		paddle1Controller.changeControlsDown(options.keyboardSettings.player1.moveDown);
+		paddle2Controller.changeControlsUp(options.keyboardSettings.player2.moveUp);
+		paddle2Controller.changeControlsDown(options.keyboardSettings.player2.moveDown);
 
 		aiIsActive = !!isAI;
 
@@ -447,38 +481,6 @@ function handleMessage(event) {
 }
 
 window.addEventListener("message", handleMessage);
-
-const paddle1Controller = new PaddleController(paddle1Speed, {
-	up: "w",
-	down: "s",
-});
-
-const paddle2Controller = new PaddleController(paddle2Speed, {
-	up: "arrowup",
-	down: "arrowdown",
-});
-
-const gameAI = new AI(paddlePower2, powerManager, paddle1Controller);
-
-keyboard.onKey("e", () => {
-	if (paddle1 && paddlePower1.hasPower("power1")) {
-		powerManager.launchGrenade(1);
-	} else if (paddle1 && paddlePower1.hasPower("power2")) {
-		powerManager.launchInverseShot(1, paddle2Controller);
-	} else if (paddle1 && paddlePower1.hasPower("power3")) {
-		powerManager.launchReductShot(1, heightController2);
-	}
-});
-
-keyboard.onKey("arrowleft", () => {
-	if (paddle2 && paddlePower2.hasPower("power1")) {
-		powerManager.launchGrenade(2);
-	} else if (paddle2 && paddlePower2.hasPower("power2")) {
-		powerManager.launchInverseShot(2, paddle1Controller);
-	} else if (paddle2 && paddlePower2.hasPower("power3")) {
-		powerManager.launchReductShot(2, heightController1);
-	}
-});
 
 function animate() {
 	requestAnimationFrame(animate);
@@ -498,6 +500,30 @@ function animate() {
 	paddle1Controller.updateColor();
 
 	flashEffect.update();
+
+	if (keyboard.isPressed(launchPower1))
+	{
+		console.log("Keys :", launchPower1);
+		if (paddle1 && paddlePower1.hasPower("power1")) {
+			powerManager.launchGrenade(1);
+		} else if (paddle1 && paddlePower1.hasPower("power2")) {
+			powerManager.launchInverseShot(1, paddle2Controller);
+		} else if (paddle1 && paddlePower1.hasPower("power3")) {
+			powerManager.launchReductShot(1, heightController2);
+		}
+	}
+
+	if (keyboard.isPressed(launchPower2))
+	{
+		console.log("Keys :", launchPower2);
+		if (paddle2 && paddlePower2.hasPower("power1")) {
+			powerManager.launchGrenade(2);
+		} else if (paddle2 && paddlePower2.hasPower("power2")) {
+			powerManager.launchInverseShot(2, paddle1Controller);
+		} else if (paddle2 && paddlePower2.hasPower("power3")) {
+			powerManager.launchReductShot(2, heightController1);
+		}
+	}
 
 	const ballRadius = 10;
 

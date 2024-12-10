@@ -1301,6 +1301,7 @@ def get_user_statistics(request):
 
 
 from .models import GameHostOptions
+from rest_framework.parsers import JSONParser
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1310,43 +1311,82 @@ def get_game_settings(request):
         settings = GameHostOptions.objects.first()
         if settings:
             data = {
-                'isPowerActivated': settings.IsPowerActivated,
-                'isIaActivated': settings.IsIaActivated,
-#                 'ScoreToWin': settings.ScoreToWin,
-#                 'BallSpeed': settings.BallSpeed,
+                'scoreToWin': settings.scoreToWin,
+                'difficulty': settings.difficulty,
+                'ballSpeedStart': settings.ballSpeedStart,
+                'ballSpeedMax': settings.ballSpeedMax,
+                'ballSpeedIncrease': settings.ballSpeedIncrease,
+                'powerups': settings.powerups,
+                'keyboardSettings': settings.keyboardSettings
             }
         else:
             # Paramètres par défaut
             data = {
-                'isPowerActivated': False,
-                'isIaActivated': False,
-#                 'ScoreToWin': 5,
-#                 'BallSpeed': 1.0,
+                'scoreToWin': 5,
+                'difficulty': 'medium',
+                'ballSpeedStart': 10.0,
+                'ballSpeedMax': 30.0,
+                'ballSpeedIncrease': 1.0,
+                'powerups': ['flash', 'inverse', 'tornado'],
+                'keyboardSettings': {
+                    'player1': {'moveUp': 'W', 'moveDown': 'S', 'launchPower': 'E'},
+                    'player2': {'moveUp': 'ArrowUp', 'moveDown': 'ArrowDown', 'launchPower': 'P'}
+                }
             }
         return JsonResponse(data, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
+from rest_framework.parsers import JSONParser
 
-
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_game_settings(request):
-    if request.method == 'POST':
-        try:
-            # Parse les données JSON envoyées par le client
-            data = json.loads(request.body)
+    try:
+        print("=== Requête reçue ===")
+        print("Méthode :", request.method)
+        print("Données brutes :", request.body)
 
-            # Récupérer ou créer les paramètres
-            settings, created = GameHostOptions.objects.get_or_create(id=1)  # Assurez-vous d'avoir un seul jeu de paramètres
-            settings.isPowerActivated = data.get('isPowerActivated', settings.isPowerActivated)
-            settings.isIaActivated = data.get('isIaActivated', settings.isIaActivated)
-#             settings.ScoreToWin = data.get('ScoreToWin', settings.ScoreToWin)
-#             settings.BallSpeed = data.get('BallSpeed', settings.BallSpeed)
-            settings.save()
+        # Parse les données de la requête JSON
+        data = JSONParser().parse(request)
+        print("Données parsées :", data)
 
-            return JsonResponse({'message': 'Settings updated successfully'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        # Récupérer ou créer un enregistrement de paramètres
+        settings, created = GameHostOptions.objects.get_or_create(id=1)
+        print("Objet settings récupéré :", settings)
+
+        # Mettre à jour les champs
+        if 'scoreToWin' in data:
+            settings.scoreToWin = data['scoreToWin']
+            print("scoreToWin mis à jour :", settings.scoreToWin)
+        if 'difficulty' in data:
+            settings.difficulty = data['difficulty']
+            print("difficulty mis à jour :", settings.difficulty)
+        if 'ballSpeedStart' in data:
+            settings.ballSpeedStart = data['ballSpeedStart']
+            print("ballSpeedStart mis à jour :", settings.ballSpeedStart)
+        if 'ballSpeedMax' in data:
+            settings.ballSpeedMax = data['ballSpeedMax']
+            print("ballSpeedMax mis à jour :", settings.ballSpeedMax)
+        if 'ballSpeedIncrease' in data:
+            settings.ballSpeedIncrease = data['ballSpeedIncrease']
+            print("ballSpeedIncrease mis à jour :", settings.ballSpeedIncrease)
+        if 'powerups' in data:
+            settings.powerups = data['powerups']
+            print("powerups mis à jour :", settings.powerups)
+        if 'keyboardSettings' in data:
+            settings.keyboardSettings = data['keyboardSettings']
+            print("keyboardSettings mis à jour :", settings.keyboardSettings)
+
+        # Enregistrer les modifications
+        settings.save()
+        print("Paramètres sauvegardés avec succès.")
+
+        return JsonResponse({'success': True, 'message': 'Settings updated successfully'})
+    except Exception as e:
+        # Log de l'erreur
+        print("Erreur lors de la mise à jour des paramètres :", str(e))
+        return JsonResponse({'success': False, 'error': f"Internal server error: {str(e)}"}, status=500)
