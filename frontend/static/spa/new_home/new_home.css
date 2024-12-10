@@ -106,6 +106,7 @@ body {
   background-color: var(--dark-grey);
   min-height: 0;
   overflow: hidden;
+  padding: var(--24px);
 }
 
 .upLeftFrame {
@@ -135,7 +136,7 @@ body {
   height: 7vw;
   border-radius: 50%;
 
-  border: 4px solid var(--dusty-grey);
+  border: var(--4px) solid var(--dusty-grey);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -149,7 +150,7 @@ body {
   gap: var(--4px);
   padding: var(--16px) var(--8px);
   border-radius: var(--12px);
-  border: 4px solid var(--dusty-grey);
+  border: var(--4px) solid var(--dusty-grey);
   border-radius: var(--16px);
   font-size: var(--16px);
   color: var(--snow);
@@ -169,7 +170,7 @@ body {
   align-items: center;
   gap: var(--12px);
   width: 10vw;
-  border: 3px solid var(--dusty-grey);
+  border: var(--4px) solid var(--dusty-grey);
   padding: var(--8px) var(--16px);
   border-radius: var(--16px);
   font-size: 1rem;
@@ -256,35 +257,48 @@ body {
 }
 
   .onlinePlayers:hover {
-	background-color: var(--gluon-grey);
+	/*! background-color: var(--gluon-grey); */
 }
 
-.onlineNickname {
+/* .onlineNickname {
 	display: flex;
 	align-items: center;
 	gap: var(--12px);
-	flex: 1;
 	font-weight: 500;
 	font-size: var(--16px);
 	color: var(--snow);
 	cursor: pointer;
 	padding: var(--8px) var(--12px);
-	border-radius: var(--12px);
-	border: 2px solid transparent;
-	transition: all 0.2s ease;
+	border-radius: var(--24px);
+	border: 2px solid var(--dusty-grey);
+}
+ */
+
+.onlineNickname {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--12px);
+  width: 12vw;
+  border: var(--4px) solid var(--dusty-grey);
+  padding: 8px;
+  border-radius: var(--20px);
+  font-size: var(--20px);
+  color: var(--snow);
+  font-weight: 600;
 }
 
   .onlineNickname:hover {
-	border-color: var(--liquid-lava);
-	background-color: rgba(255, 255, 255, 0.05);
+	/*! border-color: var(--liquid-lava); */
+	/*! background-color: rgba(255, 255, 255, 0.05); */
 }
 
 .onlineAvatar {
-	width: 32px;
-	height: 32px;
+	width: var(--28px);
+	height: var(--28px);
 	border-radius: 50%;
 	object-fit: cover;
-	border: 2px solid var(--dusty-grey);
+	border: var(--2px) solid var(--dusty-grey);
 }
 
 .onlineIcon {
@@ -300,7 +314,7 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: var(--44px);
+  gap: var(--50px);
   flex: 1;
 }
 
@@ -311,7 +325,7 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: var(--44px);
+  gap: var(--50px);
   flex: 2;
 }
 
@@ -588,13 +602,13 @@ body {
 
 .onlineNickname {
   cursor: pointer;
-  transform-origin: center;
-  transition: all 0.3s ease;
+  /*! transform-origin: center; */
+  /*! transition: all 0.3s ease; */
 }
 
 .onlineNickname:hover {
-  transform: scale(1.05);
-  border-color: var(--liquid-lava);
+  /*! transform: scale(1.05); */
+  /*! border-color: var(--liquid-lava); */
 }
 
 .gameOption,

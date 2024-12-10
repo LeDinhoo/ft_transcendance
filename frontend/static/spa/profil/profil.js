@@ -133,6 +133,11 @@ function updateMatchHistoryUI(history) {
     const matchResume = document.createElement("div");
     matchResume.className = "matchResume";
 
+    // Ajout de la date du match (avant l'avatar)
+    const gameDate = document.createElement("div");
+    gameDate.className = "gameDate";
+    gameDate.textContent = match.game_date;
+
     const userAvatar = document.createElement("img");
     userAvatar.className = "avatarHistory";
     userAvatar.src = match.user_avatar;
@@ -163,6 +168,7 @@ function updateMatchHistoryUI(history) {
       resultLabel.style.color = "#878787";
     }
 
+    matchResume.appendChild(gameDate);     // Ajout de la date en premier
     matchResume.appendChild(userAvatar);
     matchResume.appendChild(userScore);
     matchResume.appendChild(separator);
@@ -529,7 +535,7 @@ https: function updateUI2FAStatus(enabled) {
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
  <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
-  ${enabled ? "2FA ON" : "2FA OFF"}
+  ${enabled ? "2FA On" : "2FA Off"}
 `;
 
   verificationFrame.style.display = "none";

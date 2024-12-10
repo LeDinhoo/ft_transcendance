@@ -1170,6 +1170,8 @@ def match_history(request):
     history = []
 
     for game in games:
+        # game_date = game.date_played.strftime('%d/%m')
+        game_date = game.date_played.strftime('%d/%m/%Y')
         # Récupérer l'avatar de l'utilisateur
         if request.user.avatar:
             if str(request.user.avatar).startswith('assets/avatars/'):
@@ -1205,7 +1207,8 @@ def match_history(request):
             'opponent_avatar': opponent_avatar,
             'user_avatar': user_avatar,
             'longest_rally': game.longest_rally,  # Inclure longest_rally
-            'max_ball_speed': game.max_ball_speed
+            'max_ball_speed': game.max_ball_speed,
+            'game_date': game_date  # Ajout de la date
         })
 
     return JsonResponse({'history': history})
