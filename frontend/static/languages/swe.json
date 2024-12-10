@@ -1,20 +1,61 @@
 {
     "login": {
-        "title": "Gå med i striden",
+        "title": "Gå med i Striden",
         "emailLabel": "E-post",
         "passwordLabel": "Lösenord",
-        "submitButton": "Logga in",
+        "submitButton": "Logga In",
         "registerButton": "Registrera",
         "emailError": "Ogiltig e-postadress.",
-        "passwordError": "Lösenordet kan inte vara tomt."
+        "passwordError": "Lösenord får inte vara tomt."
     },
     "register": {
-        "title": "Skapa konto",
+        "title": "Skapa Konto",
         "usernameLabel": "Användarnamn",
         "emailLabel": "E-post",
         "passwordLabel": "Lösenord",
-        "confirmPasswordLabel": "Bekräfta lösenord",
+        "confirmPasswordLabel": "Bekräfta Lösenord",
         "submitButton": "Registrera",
-        "signUpButton": "Anmäl dig"
+        "signUpButton": "Registrera Dig"
+    },
+    "home": {
+        "titles": {
+            "game": "SPEL",
+            "mode": "LÄGE"
+        },
+        "game": {
+            "classic": "KLASSISK PONG",
+            "power": "KRAFT PONG"
+        },
+        "mode": {
+            "versus": "1 MOT 1",
+            "ai": "MOT AI",
+            "online": "ONLINE",
+            "tournament": "TURNERING"
+        },
+        "online": {
+            "players": "Online Spelare"
+        },
+        "chat": {
+            "title": "Livechatt"
+        },
+        "buttons": {
+            "play": "SPELA"
+        },
+        "tooltips": {
+            "profile": {
+                "title": "Profil",
+                "info": "Du kan klicka på profildelen i navigationsfältet för att uppdatera din information"
+            },
+            "ranking": {
+                "title": "Rankingsystem",
+                "bronze": "Brons: 0 - 5 vinster",
+                "silver": "Silver: 5 - 10 vinster",
+                "gold": "Guld: minst 10 vinster"
+            }
+        },
+        "context": {
+            "profile": "Visa profil",
+            "addFriend": "Lägg till vänförfrågan"
+        }
     }
 }

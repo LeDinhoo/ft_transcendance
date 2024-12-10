@@ -16,5 +16,46 @@
         "confirmPasswordLabel": "Confirm Password",
         "submitButton": "Register",
         "signUpButton": "Sign Up"
+    },
+	"home": {
+        "titles": {
+            "game": "GAME",
+            "mode": "MODE"
+        },
+        "game": {
+            "classic": "CLASSIC PONG",
+            "power": "POWER PONG"
+        },
+        "mode": {
+            "versus": "1 VS 1",
+            "ai": "AGAINST AI",
+            "online": "ONLINE",
+            "tournament": "TOURNAMENT"
+        },
+        "online": {
+            "players": "Online Players"
+        },
+        "chat": {
+            "title": "Live Chat"
+        },
+        "buttons": {
+            "play": "PLAY"
+        },
+        "tooltips": {
+            "profile": {
+                "title": "Profile",
+                "info": "You can click on the profile section on the navbar to update your infos"
+            },
+            "ranking": {
+                "title": "Ranking system",
+                "bronze": "Bronze: 0 - 5 victories",
+                "silver": "Silver: 5 - 10 victories",
+                "gold": "Gold: at least 10 victories"
+            }
+        },
+        "context": {
+            "profile": "See profile",
+            "addFriend": "Add friend request"
+        }
     }
 }

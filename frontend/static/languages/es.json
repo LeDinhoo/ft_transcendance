@@ -1,20 +1,61 @@
 {
     "login": {
-        "title": "Únete a la batalla",
-        "emailLabel": "Correo electrónico",
+        "title": "Únete a la Batalla",
+        "emailLabel": "Correo Electrónico",
         "passwordLabel": "Contraseña",
-        "submitButton": "Iniciar sesión",
+        "submitButton": "Iniciar Sesión",
         "registerButton": "Registrarse",
-        "emailError": "Dirección de correo electrónico inválida.",
+        "emailError": "Dirección de correo electrónico no válida.",
         "passwordError": "La contraseña no puede estar vacía."
     },
     "register": {
-        "title": "Crear cuenta",
-        "usernameLabel": "Nombre de usuario",
-        "emailLabel": "Correo electrónico",
+        "title": "Crear Cuenta",
+        "usernameLabel": "Nombre de Usuario",
+        "emailLabel": "Correo Electrónico",
         "passwordLabel": "Contraseña",
-        "confirmPasswordLabel": "Confirmar contraseña",
+        "confirmPasswordLabel": "Confirmar Contraseña",
         "submitButton": "Registrarse",
-        "signUpButton": "Inscribirse"
+        "signUpButton": "Regístrate"
+    },
+    "home": {
+        "titles": {
+            "game": "JUEGO",
+            "mode": "MODO"
+        },
+        "game": {
+            "classic": "PONG CLÁSICO",
+            "power": "PONG PODEROSO"
+        },
+        "mode": {
+            "versus": "1 VS 1",
+            "ai": "CONTRA IA",
+            "online": "EN LÍNEA",
+            "tournament": "TORNEO"
+        },
+        "online": {
+            "players": "Jugadores en Línea"
+        },
+        "chat": {
+            "title": "Chat en Vivo"
+        },
+        "buttons": {
+            "play": "JUGAR"
+        },
+        "tooltips": {
+            "profile": {
+                "title": "Perfil",
+                "info": "Puedes hacer clic en la sección de perfil en la barra de navegación para actualizar tu información"
+            },
+            "ranking": {
+                "title": "Sistema de clasificación",
+                "bronze": "Bronce: 0 - 5 victorias",
+                "silver": "Plata: 5 - 10 victorias",
+                "gold": "Oro: al menos 10 victorias"
+            }
+        },
+        "context": {
+            "profile": "Ver perfil",
+            "addFriend": "Enviar solicitud de amistad"
+        }
     }
 }

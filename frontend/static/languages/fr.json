@@ -1,20 +1,61 @@
 {
     "login": {
-        "title": "Rejoindre la bataille",
+        "title": "Rejoindre la Bataille",
         "emailLabel": "E-mail",
         "passwordLabel": "Mot de passe",
-        "submitButton": "Se connecter",
+        "submitButton": "Se Connecter",
         "registerButton": "S'inscrire",
         "emailError": "Adresse e-mail invalide.",
         "passwordError": "Le mot de passe ne peut pas être vide."
     },
     "register": {
-        "title": "Créer un compte",
+        "title": "Créer un Compte",
         "usernameLabel": "Nom d'utilisateur",
         "emailLabel": "E-mail",
         "passwordLabel": "Mot de passe",
         "confirmPasswordLabel": "Confirmer le mot de passe",
         "submitButton": "S'inscrire",
-        "signUpButton": "Se connecter"
+        "signUpButton": "S'enregistrer"
+    },
+    "home": {
+        "titles": {
+            "game": "JEU",
+            "mode": "MODE"
+        },
+        "game": {
+            "classic": "PONG CLASSIQUE",
+            "power": "PONG PUISSANT"
+        },
+        "mode": {
+            "versus": "1 CONTRE 1",
+            "ai": "CONTRE L'IA",
+            "online": "EN LIGNE",
+            "tournament": "TOURNOI"
+        },
+        "online": {
+            "players": "Joueurs en Ligne"
+        },
+        "chat": {
+            "title": "Chat en Direct"
+        },
+        "buttons": {
+            "play": "JOUER"
+        },
+        "tooltips": {
+            "profile": {
+                "title": "Profil",
+                "info": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations"
+            },
+            "ranking": {
+                "title": "Système de classement",
+                "bronze": "Bronze : 0 - 5 victoires",
+                "silver": "Argent : 5 - 10 victoires",
+                "gold": "Or : au moins 10 victoires"
+            }
+        },
+        "context": {
+            "profile": "Voir le profil",
+            "addFriend": "Envoyer une demande d'ami"
+        }
     }
 }

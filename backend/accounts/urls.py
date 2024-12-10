@@ -34,4 +34,7 @@ urlpatterns = [
     path('friends/handle-request/', views.handle_friend_request, name='handle_friend_request'),
     path('friends/list/', views.get_friends, name='get_friends'),
     path('friends/pending/', views.get_pending_requests, name='get_pending_requests'),
+
+	path('language/get/', views.get_preferred_language, name='get_preferred_language'),
+    path('language/set/', views.set_preferred_language, name='set_preferred_language'),
 ]

@@ -25,30 +25,28 @@
           </div>
         </div>
         <div class="downLeftFrame">
-			<div class="onlinePlayersTitle">
-			  Online Players
-			</div>
+			<div class="onlinePlayersTitle" data-translate="home.online.players">Online Players</div>
 		   </div>
       </div>
 
       <div class="homeSectionMiddle">
         <div class="game">
-          <div class="gameTitle">GAME</div>
-          <div class="gameOption">CLASSIC PONG</div>
-          <div class="gameOption">POWER PONG</div>
+		  <div class="gameTitle" data-translate="home.titles.game">GAME</div>
+		  <div class="gameOption" data-translate="home.game.classic">CLASSIC PONG</div>
+		  <div class="gameOption" data-translate="home.game.power">POWER PONG</div>
         </div>
 
         <div class="mode">
-          <div class="gameTitle">MODE</div>
-          <div class="modeOption">1 VS 1</div>
-          <div class="modeOption">AGAINST AI</div>
-          <div class="modeOption">ONLINE</div>
-          <div class="modeOption">TOURNAMENT</div>
+		  <div class="gameTitle" data-translate="home.titles.mode">MODE</div>
+		  <div class="modeOption" data-translate="home.mode.versus">1 VS 1</div>
+		  <div class="modeOption" data-translate="home.mode.ai">AGAINST AI</div>
+		  <div class="modeOption" data-translate="home.mode.online">ONLINE</div>
+		  <div class="modeOption" data-translate="home.mode.tournament">TOURNAMENT</div>
         </div>
       </div>
 
       <div class="homeSectionRight">
-        <div class="chatTitle">Live Chat</div>
+        <div class="chatTitle" data-translate="home.chat.title">Live Chat</div>
         <div class="chatContainer">
           <div id="chatMessages" class="chatMessages"></div>
           <div class="chatInputContainer">
@@ -73,7 +71,7 @@
       </div>
     </div>
     <div class="homeSlider">
-      <div class="playHomePage">PLAY</div>
+	  <div class="playHomePage" data-translate="home.buttons.play">PLAY</div>
     </div>
   </div>
 </div>
@@ -155,30 +153,28 @@
 
 <template id="avatarTooltipTemplate">
   <div class="avatar-tooltip">
-    <div class="tooltip-title">Profile</div>
+    <div class="tooltip-title" data-translate="home.tooltips.profile.title">Profile</div>
     <div class="tooltip-content">
-      <div class="rank-row">
-        You can click on the profile section on the navbar to update your infos
-      </div>
+	  <div class="rank-row" data-translate="home.tooltips.profile.info">You can click on the profile section on the navbar to update your infos</div>
     </div>
   </div>
 </template>
 
 <template id="rankTooltipTemplate">
   <div class="rank-tooltip">
-    <div class="tooltip-title">Ranking system</div>
+    <div class="tooltip-title" data-translate="home.tooltips.ranking.title">Ranking system</div>
     <div class="tooltip-content">
-      <div class="rank-row">Bronze: 0 - 5 victories</div>
-      <div class="rank-row">Silver: 5 - 10 victories</div>
-      <div class="rank-row">Gold: at least 10 victories</div>
+	  <div class="rank-row" data-translate="home.tooltips.ranking.bronze">Bronze: 0 - 5 victories</div>
+	  <div class="rank-row" data-translate="home.tooltips.ranking.silver">Silver: 5 - 10 victories</div>
+	  <div class="rank-row" data-translate="home.tooltips.ranking.gold">Gold: at least 10 victories</div>
     </div>
   </div>
 </template>
 
 <template id="contextMenuTemplate">
   <div class="player-context-menu">
-    <div class="menu-option" data-action="profile">See profile</div>
-    <div class="menu-option" data-action="add-friend">Add friend request</div>
+    <div class="menu-option" data-action="profile" data-translate="home.context.profile">See profile</div>
+    <div class="menu-option" data-action="add-friend" data-translate="home.context.addFriend">Add friend request</div>
   </div>
 </template>
 
