@@ -1143,6 +1143,7 @@ def match_history(request):
             opponent_avatar = '/static/assets/avatars/crabe.png'
 
         history.append({
+            # 'date' : game.date_played,
             'score_user': game.score_user,
             'score_opponent': game.score_opponent,
             'result': "VICTORY" if game.result else "DEFEAT",

@@ -20,8 +20,8 @@ export class Score3D {
     this.directionalLight = null; // DirectionalLight
     this.lightTarget = null; // Target pour la lumière
     this.gameOver = false;
-    this.WINNING_SCORE = 5;
-    this.POINT_DIFFERENCE_REQUIRED = 2;
+    this.WINNING_SCORE = 1;
+    this.POINT_DIFFERENCE_REQUIRED = 1;
     this.fontLoader = new FontLoader();
     this.pressSpaceText = null;
     this.longestRally = 0; // Initialisation ici
@@ -580,7 +580,7 @@ export class Score3D {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // "X-CSRFToken": csrftoken,
+        "X-CSRFToken": csrftoken,
       },
       credentials: "include",
       body: JSON.stringify(data),
