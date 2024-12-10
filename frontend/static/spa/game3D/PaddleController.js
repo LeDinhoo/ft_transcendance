@@ -10,6 +10,14 @@ export class PaddleController {
     this.remainingReverseTime = 0; // Temps restant avant le reset des contrôles
   }
 
+  changeControlsUp(newKey) {
+    this.controls.up = newKey;
+  }
+
+  changeControlsDown(newKey) {
+    this.controls.down = newKey;
+  }
+
   assignPaddle(paddle) {
     if (this.paddle) {
       return; // Ne pas réassigner si une raquette est déjà assignée

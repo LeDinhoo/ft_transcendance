@@ -15,6 +15,8 @@ urlpatterns = [
     path('record-game/', views.record_game, name='record_game'),
     path("match-history/", views.match_history, name="match_history"),
     path("user/statistics/", views.get_user_statistics, name="get_user_statistics"),
+    path('game-settings/', views.get_game_settings, name='get_game_settings'),
+    path('set-game-settings/', views.set_game_settings, name='set_game_settings'),
     # JWT Token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)
     path('token/refresh/', views.refresh_token_view, name='token_refresh'),  # Utilise la vue basée sur les cookies
@@ -35,3 +37,10 @@ urlpatterns = [
     path('friends/list/', views.get_friends, name='get_friends'),
     path('friends/pending/', views.get_pending_requests, name='get_pending_requests'),
 ]
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Log toutes les requêtes
+logger.debug("URL configurée pour set_game_settings : /set-game-settings/")

@@ -97,6 +97,17 @@ export class AI {
     }, duration);
   }
 
+  setDifficulty(difficulty) {
+    if (difficulty === "easy") {
+      this.currentDifficulty = this.DIFFICULTY.EASY;
+    } else if (difficulty === "medium") {
+      this.currentDifficulty = this.DIFFICULTY.MEDIUM;
+    } else {
+      this.currentDifficulty = this.DIFFICULTY.HARD;
+    }
+    this.updateDifficultySettings();
+  }
+
   loadPowerManager(powerManager) {
     if (powerManager && !this.isPowerLoaded) {
       this.powerManager = powerManager;

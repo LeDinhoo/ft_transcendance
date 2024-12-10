@@ -51,9 +51,9 @@ from django.db import models
 class GameHistory(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='games_as_player')
 	opponent_user = models.ForeignKey(
-		settings.AUTH_USER_MODEL, 
-		on_delete=models.SET_NULL, 
-		null=True, 
+		settings.AUTH_USER_MODEL,
+		on_delete=models.SET_NULL,
+		null=True,
 		blank=True,
 		related_name='games_as_opponent'
 	)  # Opposant enregistré
@@ -67,7 +67,7 @@ class GameHistory(models.Model):
 	power_catch = models.IntegerField(default=0)  # Exemple : puissance de la prise
 	max_ball_speed = models.FloatField(default=0.0)  # Exemple : vitesse de la balle
 	longest_rally = models.IntegerField(default=0)  # Exemple : durée du rallye le plus long
-	
+
 	def __str__(self):
 		return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"
 
@@ -77,11 +77,30 @@ class FriendShip(models.Model):
 		('accepted', 'Accepted'),
 		('rejected', 'Rejected')
 	]
-	
+
 	from_user = models.ForeignKey(CustomUser, related_name='friendships', on_delete=models.CASCADE)
 	to_user = models.ForeignKey(CustomUser, related_name='friend_requests', on_delete=models.CASCADE)
 	status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
 	created_at = models.DateTimeField(auto_now_add=True)
-	
+
 	class Meta:
 		unique_together = ('from_user', 'to_user')
+
+
+def default_powerups():
+    return ['inverse', 'flash', 'tornado']
+
+class GameHostOptions(models.Model):
+    scoreToWin = models.IntegerField(default=5)
+    difficulty = models.CharField(max_length=50, default='medium')
+    ballSpeedStart = models.FloatField(default=10.0)
+    ballSpeedMax = models.FloatField(default=30.0)
+    ballSpeedIncrease = models.FloatField(default=1.0)
+    powerups = models.JSONField(default=default_powerups, blank=True)  # Default powerups
+    keyboardSettings = models.JSONField(default=dict)  # For storing player1 and player2 key mappings
+
+    def __str__(self):
+        return (f"scoreToWin={self.scoreToWin}, difficulty={self.difficulty}, "
+                f"ballSpeedStart={self.ballSpeedStart}, ballSpeedMax={self.ballSpeedMax}, "
+                f"ballSpeedIncrease={self.ballSpeedIncrease}, powerups={self.powerups}, "
+                f"keyboardSettings={self.keyboardSettings})")

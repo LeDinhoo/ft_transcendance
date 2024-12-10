@@ -1,0 +1,223 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--dark-void);
+    font-family: "Inter", sans-serif;
+    color: var(--snow);
+}
+
+.app {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--dark-void);
+    padding: var(--24px);
+    gap: var(--16px);
+    overflow: hidden;
+}
+
+.settingsSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    flex-grow: 1;
+    background-color: var(--gluon-grey);
+    border-radius: var(--radius-lg);
+    gap: var(--16px);
+    padding: var(--16px);
+}
+
+.settingsPanel {
+    flex-grow: 1;
+    height: 100%;
+    border-radius: var(--radius-lg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--dark-grey);
+    gap: var(--16px);
+    padding: var(--24px);
+}
+
+.titleFrame {
+    width: 100%;
+    /*height: 5.208vw;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background-color: var(--dark-grey); */
+    border-radius: var(--radius-lg);
+}
+
+.saveButtonFrame {
+    width: 100%;
+    /*height: 5.208vw;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background-color: rgb(65, 17, 58); */
+    /* background-color: var(--dark-grey); */
+    border-radius: var(--radius-lg);
+}
+
+.titleSettings {
+    font-size: var(--36px);
+    font-weight: 600;
+    color: var(--snow);
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameSettingsPanel {
+    width: 100%;
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    /* gap: var(--16px); */
+    /* background-color: brown; */
+    background-color: var(--dark-grey);
+    /* border-radius: var(--radius-lg); */
+    padding: var(--16px);
+    border-radius: var(--radius-lg);
+}
+
+.selectorSettingsFrame,
+.selectorShortcutFrame {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    gap: 6.521vw;
+    /* background-color: var(--dark-grey); */
+    border-radius: var(--radius-lg);
+    padding: var(--16px);
+}
+
+.selectorShortcutFrame {
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.521vw;
+    padding-left: var(--16px);
+    padding-right: var(--16px);
+}
+
+.settingsLabel,
+.playerTitle {
+    font-size: var(--20px);
+    font-weight: 600;
+    color: var(--snow);
+    width: 10vw;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.playerTitle {
+    width: 100%;
+    font-size: var(--24px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selectorFrame, .selectorGameFrame {
+    /* width: 100%; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 2vw;
+    /* background-color: var(--dark-grey); */
+    border-radius: var(--radius-lg);
+    padding: 0.521vw;
+}
+
+.selectorGameFrame {
+    width: 100%;
+    justify-content: space-between;
+}
+
+.optionLabel,
+.scoreOptionLabel,
+.difficultyOptionLabel,
+.powerupOptionLabel,
+.ballSpeedStartOptionLabel,
+.ballSpeedMaxOptionLabel,
+.ballSpeedIncreaseOptionLabel,
+.change-key,
+.optionTextLabel {
+    font-size: var(--16px);
+    font-weight: 600;
+    color: var(--snow);
+    width: 4.5vw;
+    height: 1.875vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: var(--dusty-grey) solid var(--4px);
+    border-radius: var(--16px);
+    cursor: pointer;
+}
+
+.optionTextLabel,
+.powerupOptionLabel,
+.change-key,
+.difficultyOptionLabel {
+    width: 7.292vw;
+}
+
+.optionLabel:hover,
+.difficultyOptionLabel:hover,
+.powerupOptionLabel:hover,
+.ballSpeedStartOptionLabel:hover,
+.ballSpeedMaxOptionLabel:hover,
+.ballSpeedIncreaseOptionLabel:hover,
+.change-key:hover,
+.scoreOptionLabel:hover {
+    /* transform: scale(1.05); */
+    border-color: var(--liquid-lava);
+}
+
+.optionLabel.active,
+.difficultyOptionLabel.active,
+.powerupOptionLabel.active,
+.ballSpeedStartOptionLabel.active,
+.ballSpeedMaxOptionLabel.active,
+.ballSpeedIncreaseOptionLabel.active,
+.change-key.active,
+.scoreOptionLabel.active {
+    background: var(--liquid-lava);
+    color: var(--snow);
+    border-color: transparent;
+}
+
+.change-key:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}

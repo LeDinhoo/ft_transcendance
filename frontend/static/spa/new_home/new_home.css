@@ -240,7 +240,7 @@ body {
 	top: 0;
 	background-color: var(--dark-grey);
 	padding: var(--16px) 0;
-	font-size: var(--24px);
+	font-size: var(--36px);
 	font-weight: 600;
 	text-align: center;
 	z-index: 10;
@@ -338,6 +338,15 @@ body {
   justify-content: center;
   align-items: center;
   font-size: var(--20px);
+  color: var(--snow);
+  font-weight: 600;
+}
+
+.chatTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--36px);
   color: var(--snow);
   font-weight: 600;
 }
@@ -1017,7 +1026,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: var(--44px);
+  font-size: var(--36px);
   color: var(--snow);
   font-weight: 700;
 }
@@ -1277,7 +1286,7 @@ body {
   .chatMessages {
     scrollbar-width: none;
   }
-  
+
   .downLeftFrame::-webkit-scrollbar,
   .chatMessages::-webkit-scrollbar {
     display: none;
@@ -1417,7 +1426,7 @@ body {
 .message.private-message::before {
     content: "(Private)";
     font-size: 0.8em;
-    color: var(--liquid-lava);                
+    color: var(--liquid-lava);
     opacity: 0.8;
     margin-right: 4px;
 }

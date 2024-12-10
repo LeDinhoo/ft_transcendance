@@ -613,36 +613,92 @@ def callback_42(request):
 
             # Préparer la réponse HTML avec les données
             response = HttpResponse(f"""
-                <!DOCTYPE html>
-                <html>
-                    <head>
-                        <title>Authentication Successful</title>
-                        <script>
-                            if (window.opener) {{
-                                // Envoyer un message à la fenêtre principale
-                                console.log('Sending success message to main window...');
-                                window.opener.postMessage({{
-                                    type: 'auth_success'
-                                }}, 'https://localhost:4430');
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Authentication Successful</title>
+                    <style>
+                        /* Style général pour la page */
+                        body {{
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            background-color: #222225;
+                            font-family: "Inter", sans-serif;
+                        }}
 
-                                // Rediriger la fenêtre principale
-                                console.log('Redirecting main window...');
-                                window.opener.location.href = 'https://localhost:4430/home';
+                        /* Style du cadre principal */
+                        .titleFrame {{
+                            width: 100%;
+                            height: 100vh;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                        }}
 
-                                // Fermer cette fenêtre après un court délai
-                                setTimeout(() => {{
-                                    console.log('Closing popup window...');
-                                    window.close();
-                                }}, 300);
+
+                        /* Titre principal */
+                        .title2FA {{
+                            font-size: 28px;
+                            font-weight: 600;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            color: #fbfbfb;
+                        }}
+
+                        /* Animation de redirection */
+                        .redirecting {{
+                            font-size: 16px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            font-style: italic;
+                            animation: fadeInOut 1s ease-in-out infinite;
+                            color: #ff710d;
+                        }}
+
+                        @keyframes fadeInOut {{
+                            0%, 100% {{
+                                opacity: 1;
                             }}
-                        </script>
-                    </head>
-                    <body>
-                        <h1>Authentication Successful!</h1>
-                        <p>Redirecting...</p>
-                    </body>
-                </html>
+                            50% {{
+                                opacity: 0.5;
+                            }}
+                        }}
+                    </style>
+                    <script>
+                        if (window.opener) {{
+                            // Envoyer un message à la fenêtre principale
+                            console.log('Sending success message to main window...');
+                            window.opener.postMessage({{
+                                type: 'auth_success'
+                            }}, 'https://localhost:4430');
+
+                            // Rediriger la fenêtre principale
+                            console.log('Redirecting main window...');
+                            window.opener.location.href = 'https://localhost:4430/home';
+
+                            // Fermer cette fenêtre après un court délai
+                            setTimeout(() => {{
+                                console.log('Closing popup window...');
+                                window.close();
+                            }}, 300);
+                        }}
+                    </script>
+                </head>
+                <body>
+                    <div class="titleFrame">
+                        <h1 class="title2FA">Authentication Successful!</h1>
+                        <p class="redirecting">Redirecting...</p>
+                    </div>
+                </body>
+            </html>
             """)
+
 
             # Définir les cookies de jetons sur la réponse HTML
             set_jwt_cookies(response, access_token, refresh_token)
@@ -1386,7 +1442,7 @@ def handle_friend_request(request):
 def get_friends(request):
     friends = request.user.friends.filter(friendship__status='accepted')
     friends_list = []
-    
+
     for friend in friends:
         if friend.avatar:
             if str(friend.avatar).startswith('assets/avatars/'):
@@ -1395,13 +1451,13 @@ def get_friends(request):
                 friend_avatar = friend.avatar.url
         else:
             friend_avatar = '/static/assets/avatars/ladybug.png'
-            
+
         friends_list.append({
             'id': friend.id,
             'username': friend.username,
             'avatar': friend_avatar
         })
-    
+
     return JsonResponse({
         'friends': friends_list
     })
@@ -1411,7 +1467,7 @@ def get_friends(request):
 def get_pending_requests(request):
     pending = request.user.friend_requests.filter(status='pending')
     pending_requests = []
-    
+
     for req in pending:
         # Gérer l'avatar de l'expéditeur
         if req.from_user.avatar:
@@ -1421,7 +1477,7 @@ def get_pending_requests(request):
                 sender_avatar = req.from_user.avatar.url
         else:
             sender_avatar = '/static/assets/avatars/ladybug.png'
-            
+
         pending_requests.append({
             'request_id': req.id,
             'sender': {
@@ -1430,7 +1486,99 @@ def get_pending_requests(request):
                 'avatar': sender_avatar
             }
         })
-    
+
     return JsonResponse({
         'pending_requests': pending_requests
     })
+
+
+from .models import GameHostOptions
+from rest_framework.parsers import JSONParser
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_game_settings(request):
+    try:
+        # Récupérer les premiers paramètres dans la base de données
+        settings = GameHostOptions.objects.first()
+        if settings:
+            data = {
+                'scoreToWin': settings.scoreToWin,
+                'difficulty': settings.difficulty,
+                'ballSpeedStart': settings.ballSpeedStart,
+                'ballSpeedMax': settings.ballSpeedMax,
+                'ballSpeedIncrease': settings.ballSpeedIncrease,
+                'powerups': settings.powerups,
+                'keyboardSettings': settings.keyboardSettings
+            }
+        else:
+            # Paramètres par défaut
+            data = {
+                'scoreToWin': 5,
+                'difficulty': 'medium',
+                'ballSpeedStart': 10.0,
+                'ballSpeedMax': 30.0,
+                'ballSpeedIncrease': 1.0,
+                'powerups': ['flash', 'inverse', 'tornado'],
+                'keyboardSettings': {
+                    'player1': {'moveUp': 'W', 'moveDown': 'S', 'launchPower': 'E'},
+                    'player2': {'moveUp': 'ArrowUp', 'moveDown': 'ArrowDown', 'launchPower': 'P'}
+                }
+            }
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
+from rest_framework.parsers import JSONParser
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_game_settings(request):
+    try:
+        print("=== Requête reçue ===")
+        print("Méthode :", request.method)
+        print("Données brutes :", request.body)
+
+        # Parse les données de la requête JSON
+        data = JSONParser().parse(request)
+        print("Données parsées :", data)
+
+        # Récupérer ou créer un enregistrement de paramètres
+        settings, created = GameHostOptions.objects.get_or_create(id=1)
+        print("Objet settings récupéré :", settings)
+
+        # Mettre à jour les champs
+        if 'scoreToWin' in data:
+            settings.scoreToWin = data['scoreToWin']
+            print("scoreToWin mis à jour :", settings.scoreToWin)
+        if 'difficulty' in data:
+            settings.difficulty = data['difficulty']
+            print("difficulty mis à jour :", settings.difficulty)
+        if 'ballSpeedStart' in data:
+            settings.ballSpeedStart = data['ballSpeedStart']
+            print("ballSpeedStart mis à jour :", settings.ballSpeedStart)
+        if 'ballSpeedMax' in data:
+            settings.ballSpeedMax = data['ballSpeedMax']
+            print("ballSpeedMax mis à jour :", settings.ballSpeedMax)
+        if 'ballSpeedIncrease' in data:
+            settings.ballSpeedIncrease = data['ballSpeedIncrease']
+            print("ballSpeedIncrease mis à jour :", settings.ballSpeedIncrease)
+        if 'powerups' in data:
+            settings.powerups = data['powerups']
+            print("powerups mis à jour :", settings.powerups)
+        if 'keyboardSettings' in data:
+            settings.keyboardSettings = data['keyboardSettings']
+            print("keyboardSettings mis à jour :", settings.keyboardSettings)
+
+        # Enregistrer les modifications
+        settings.save()
+        print("Paramètres sauvegardés avec succès.")
+
+        return JsonResponse({'success': True, 'message': 'Settings updated successfully'})
+    except Exception as e:
+        # Log de l'erreur
+        print("Erreur lors de la mise à jour des paramètres :", str(e))
+        return JsonResponse({'success': False, 'error': f"Internal server error: {str(e)}"}, status=500)
