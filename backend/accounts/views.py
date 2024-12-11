@@ -1362,7 +1362,7 @@ def get_game_settings(request):
                 'powerups': ['flash', 'inverse', 'tornado'],
                 'keyboardSettings': {
                     'player1': {'moveUp': 'W', 'moveDown': 'S', 'launchPower': 'E'},
-                    'player2': {'moveUp': 'ArrowUp', 'moveDown': 'ArrowDown', 'launchPower': 'P'}
+                    'player2': {'moveUp': 'ArrowUp', 'moveDown': 'ArrowDown', 'launchPower': 'ArrowLeft'}
                 }
             }
         return JsonResponse(data, safe=False)

@@ -235,10 +235,10 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } else if (path === "/settings") {
       loadComponent(
-        "/static/spa/settings/newsettings.html",
-				"/static/spa/settings/newsettings.css",
-				["/static/spa/settings/newsettings.js"]
-			).then(() => {
+    		"/static/spa/settings/newsettings.html",
+			"/static/spa/settings/newsettings.css",
+			["/static/spa/settings/newsettings.js"]
+	  	).then(() => {
 				initializeSettingsPage();
 			});
 		} else {

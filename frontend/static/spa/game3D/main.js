@@ -259,19 +259,47 @@ function getBoundariesFromCorners() {
 let boundaries = getBoundariesFromCorners();
 
 
+// function closeWindowGame() {
+// 	const message = {
+// 		type: "gameComplete",
+// 		data: {winner: scoreSystem.getWinner()},
+// 	};
+// 	console.log("Message envoyé au parent :", message);
+
+// 	if (window.parent && window.parent !== window) {
+// 		window.parent.postMessage(message, "*");
+// 	} else {
+// 		console.error(
+// 			"Impossible d'envoyer un message au parent : window.parent inaccessible."
+// 		);
+// 	}
+// }
+
 function closeWindowGame() {
+	let winner = scoreSystem.getWinner();
+	let player1 = scoreSystem.score.player1;
+	let player2 = scoreSystem.score.player2;
+	const finalScores = {
+	  player1,
+	  player2,
+	};
+	console.log("Scores finaux envoyés dans closeWindowGame:", finalScores);
+	console.log("Gagnant envoyé dans closeWindowGame:", winner);
 	const message = {
-		type: "gameComplete",
-		data: {winner: scoreSystem.getWinner()},
+	  type: "gameComplete",
+	  data: {
+		winner,
+		finalScores,
+	  }
 	};
 	console.log("Message envoyé au parent :", message);
-
+  
 	if (window.parent && window.parent !== window) {
-		window.parent.postMessage(message, "*");
+	  window.parent.postMessage(message, "*");
 	} else {
-		console.error(
-			"Impossible d'envoyer un message au parent : window.parent inaccessible."
-		);
+	  console.error(
+		"Impossible d'envoyer un message au parent : window.parent inaccessible."
+	  );
 	}
 }
 
@@ -282,9 +310,10 @@ keyboard.onSpace(() => {
 		const scoreOpponent = scoreSystem.score.player2;
 		const result = scoreUser > scoreOpponent;
 
-		const longestRally = scoreSystem.getLongestRally();
-		console.log("Fin du jeu - longestRally :", longestRally);
+		// const longestRally = scoreSystem.getLongestRally();
+		const longestRally = scoreSystem.getMaxLongestRally();
 
+		console.log("Fin du jeu - longestRally :", longestRally);
 		console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
 
 		scoreSystem.recordGame(
@@ -632,6 +661,8 @@ function animate() {
 				paddlePower2.deactivateAllPowers();
 			} else {
 				resetBall();
+				scoreSystem.setMaxLongestRally(scoreSystem.getLongestRally());
+				scoreSystem.setLongestRally(0);
 				setTimeout(launchBall, 1250);
 			}
 		}
