@@ -4,7 +4,7 @@ import random
 import string
 
 class CustomUser(AbstractUser):
-	# Vos champs existants
+	
 	is_2fa_enabled = models.BooleanField(default=False)
 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
 	email = models.EmailField(unique=True)
 	intra_42_id = models.IntegerField(null=True, blank=True, unique=True)
 	is_42_user = models.BooleanField(default=False)
-	# Nouveaux champs pour 2FA
+	
 	is_2fa_enabled = models.BooleanField(default=False)
 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
@@ -56,17 +56,16 @@ class GameHistory(models.Model):
 		null=True,
 		blank=True,
 		related_name='games_as_opponent'
-	)  # Opposant enregistré
-	opponent_name = models.CharField(max_length=100, null=True, blank=True)  # Nom de l'opposant temporaire ou IA
+	)  
+	opponent_name = models.CharField(max_length=100, null=True, blank=True) 
 	score_user = models.IntegerField()
 	score_opponent = models.IntegerField()
 	result = models.BooleanField()
 	date_played = models.DateTimeField(auto_now_add=True)
 
-	# Statistiques supplémentaires
-	power_catch = models.IntegerField(default=0)  # Exemple : puissance de la prise
-	max_ball_speed = models.FloatField(default=0.0)  # Exemple : vitesse de la balle
-	longest_rally = models.IntegerField(default=0)  # Exemple : durée du rallye le plus long
+	power_catch = models.IntegerField(default=0)  
+	max_ball_speed = models.FloatField(default=0.0)  
+	longest_rally = models.IntegerField(default=0)  
 
 	def __str__(self):
 		return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"
@@ -96,8 +95,8 @@ class GameHostOptions(models.Model):
     ballSpeedStart = models.FloatField(default=10.0)
     ballSpeedMax = models.FloatField(default=30.0)
     ballSpeedIncrease = models.FloatField(default=1.0)
-    powerups = models.JSONField(default=default_powerups, blank=True)  # Default powerups
-    keyboardSettings = models.JSONField(default=dict)  # For storing player1 and player2 key mappings
+    powerups = models.JSONField(default=default_powerups, blank=True)  
+    keyboardSettings = models.JSONField(default=dict)  
 
     def __str__(self):
         return (f"scoreToWin={self.scoreToWin}, difficulty={self.difficulty}, "

@@ -1,9 +1,9 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-# Dans consumers.py
+
 class ChatConsumer(AsyncWebsocketConsumer):
-    connected_users = {}  # Utiliser un dict avec l'ID comme clé
+    connected_users = {}
 
     async def connect(self):
         self.user = self.scope["user"]
@@ -26,13 +26,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "status": "online"
             }
 
-            # Stocker dans le dict
+            
             ChatConsumer.connected_users[self.user.id] = user_data
 
             await self.channel_layer.group_add("chat", self.channel_name)
             await self.accept()
 
-            # Envoyer la liste mise à jour
+            
             await self.channel_layer.group_send(
                 "chat",
                 {
@@ -47,7 +47,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, 'user') and not self.user.is_anonymous:
-            # Retirer du dict
+            
             ChatConsumer.connected_users.pop(self.user.id, None)
 
             await self.channel_layer.group_send(
@@ -81,10 +81,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("Debug - User ID being sent:", self.user.id)  # Debug log
+        print("Debug - User ID being sent:", self.user.id)  
         message_data = {
             **data,
-            'userId': str(self.user.id),  # CHANGEMENT : Convertir l'ID en string
+            'userId': str(self.user.id),  
         }
         await self.channel_layer.group_send(
             "chat",
@@ -99,17 +99,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # Add to game group
+        
         await self.channel_layer.group_add("game", self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Remove from game group
+        
         await self.channel_layer.group_discard("game", self.channel_name)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        # Handle game messages
+        
         await self.channel_layer.group_send(
             "game",
             {
@@ -119,28 +119,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         )
 
     async def game_message(self, event):
-        # Send message to WebSocket
+        
         await self.send(text_data=json.dumps(event["message"]))
 
 
-# SI L'AVATAR BEUG DANS LA LISTE DE JOUEURS CONNECTES OU DANS LE CHAT
-
-# # Dans le ChatConsumer, modifier la partie de connect() qui gère l'avatar
-# avatar_url = str(self.user.avatar)
-# if avatar_url.startswith('assets/avatars/'):
-#     avatar_url = f"/static/{avatar_url}"
-# else:
-#     avatar_url = f"/media/{avatar_url}"
-
-# user_data = {
-#     "id": self.user.id,
-#     "username": self.user.username,
-#     "avatar": avatar_url,
-#     "status": "online"
-# }
-            # user_data = {
-            #     "id": self.user.id,
-            #     "username": self.user.username,
-            #     "avatar": str(self.user.avatar.url) if hasattr(self.user, 'avatar') and self.user.avatar else "/static/assets/avatars/ladybug.png",
-            #     "status": "online",
-            # }

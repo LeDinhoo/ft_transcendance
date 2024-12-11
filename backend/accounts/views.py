@@ -1,12 +1,12 @@
 import json
 import logging
 from django.http import JsonResponse
-from django.db import IntegrityError  # Import de l'exception IntegrityError
+from django.db import IntegrityError 
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.shortcuts import render
 from .forms import RegisterForm, LoginForm
-from .validators import ComplexPasswordValidator  # Importer le validateur de mot de passe
+from .validators import ComplexPasswordValidator  
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
@@ -46,14 +46,6 @@ def check_cookies(request):
     })
 
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])  # S'assure que le token est valide
-# def auth_check(request):
-#     # Si l'utilisateur est authentifié, retourner une réponse 200 OK
-#     return Response({"authenticated": True}, status=status.HTTP_200_OK)
-
-
-
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
@@ -63,22 +55,22 @@ from rest_framework import status
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Vérifie le token via le middleware JWT
+@permission_classes([IsAuthenticated])  
 def auth_check(request):
     """
     Vérifie si l'utilisateur est authentifié avec un token valide.
     """
     try:
-        # Vérification supplémentaire si nécessaire
+        
         JWTAuthentication().authenticate(request)
         return Response({"authenticated": True}, status=status.HTTP_200_OK)
 
     except TokenError as e:
-        # Gestion des erreurs liées au token
+        
         return Response({"error": "Token invalide ou expiré.", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
-        # Autres erreurs inattendues
+        
         return Response({"error": "Erreur inattendue.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -86,9 +78,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 logger = logging.getLogger(__name__)
 
-# Vue pour la page d'accueil (login/register)
+
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Page publique
+@permission_classes([AllowAny])  
 def index_view(request):
     login_form = LoginForm()
     register_form = RegisterForm()
@@ -96,25 +88,23 @@ def index_view(request):
 
 
 def set_jwt_cookies(response, access_token, refresh_token):
-    # Configurer les cookies sécurisés pour les tokens
+    
     response.set_cookie(
         key='access_token',
         value=access_token,
-        httponly=True,  # Empêche l'accès via JavaScript
-        secure=True,    # Utilise HTTPS uniquement
-        samesite='None'  # Autorise l'accès intersite pour les fenêtres popup
+        httponly=True,  
+        secure=True,    
+        samesite='None'  
     )
     response.set_cookie(
         key='refresh_token',
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite='None'  # Autorise l'accès intersite pour les fenêtres popup
+        samesite='None' 
     )
 
 
-
-# Vue pour la connexion (utilisation des tokens JWT)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -125,17 +115,17 @@ def login_view(request):
 
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            # Vérifier si l'utilisateur a activé le 2FA
-            if user.is_2fa_enabled:  # On utilise is_2fa_enabled au lieu de two_factor_enabled
-                # Générer un code 2FA (6 chiffres)
+            
+            if user.is_2fa_enabled:  
+                
                 code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
 
-                # Sauvegarder le code et son timestamp
+                
                 user.two_factor_code = code
                 user.two_factor_code_timestamp = timezone.now()
                 user.save()
 
-                # Envoyer l'email avec le code
+                
                 if send_2fa_email(user, code):
                     return JsonResponse({
                         'success': True,
@@ -149,7 +139,7 @@ def login_view(request):
                         'message': 'Erreur lors de l\'envoi du code 2FA'
                     }, status=500)
             else:
-                # Connexion sans 2FA
+                
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
@@ -187,20 +177,20 @@ def register_view(request):
             user = register_form.save()
             logger.info(f"Utilisateur créé : {user.username}")
 
-            # Générer les tokens JWT
+            
             refresh = RefreshToken.for_user(user)
             return JsonResponse({
                 'success': True,
                 'message': 'User registered successfully',
-                #'access': str(refresh.access_token),
-                #'refresh': str(refresh)
+                
+                
             }, status=201)
         else:
             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
             return JsonResponse({
                 'success': False,
                 'message': 'Form is not valid',
-                'errors': register_form.errors.get_json_data()  # Utiliser get_json_data pour formater les erreurs
+                'errors': register_form.errors.get_json_data()  
             }, status=400)
 
     except json.JSONDecodeError:
@@ -224,26 +214,23 @@ def register_view(request):
 @permission_classes([IsAuthenticated])
 def profile_view(request):
     user = request.user
-    print("Chargement du profil pour l'utilisateur:", user.username)  # Debug
-    print("Avatar actuel:", user.avatar)  # Debug
 
-    # Gérer le chemin de l'avatar
     avatar_url = None
     if user.avatar:
         if str(user.avatar).startswith('assets/avatars/'):
-            # Si l'avatar est un avatar prédéfini
+            
             avatar_url = f"/static/{user.avatar}"
         else:
-            # Si l'avatar est un fichier uploadé
+            
             avatar_url = f"/media/{user.avatar}"
 
-        # Nombre de parties jouées
+        
     total_games = GameHistory.objects.filter(user=user).count()
 
-    # Nombre de victoires
+    
     total_wins = GameHistory.objects.filter(user=user, result=True).count()
 
-    # Calcul du ratio victoires
+    
     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
 
 
@@ -264,43 +251,43 @@ def update_profile_view(request):
     user = request.user
     data = request.data
 
-    # Valider et mettre à jour le nom d'utilisateur si présent dans les données
+    
     if 'username' in data:
         new_username = data['username']
-        if new_username.strip():  # Vérifie que le nom d'utilisateur n'est pas vide
+        if new_username.strip():  
             user.username = new_username
         else:
             return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
 
-    # Valider et mettre à jour l'email si présent dans les données
+    
     if 'email' in data:
         new_email = data['email']
         try:
-            validate_email(new_email)  # Utilise le validateur intégré de Django
+            validate_email(new_email)  
             user.email = new_email
         except ValidationError:
             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
 
-    # Changement de mot de passe
+    
     if 'old_password' in data and 'new_password' in data:
         old_password = data['old_password']
         new_password = data['new_password']
 
-        # Vérifier si l'ancien mot de passe est correct
+        
         if not check_password(old_password, user.password):
             return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
 
-        # Utiliser le validateur de mot de passe personnalisé
+        
         password_validator = ComplexPasswordValidator()
         try:
             password_validator.validate(new_password)
         except ValidationError as e:
             return JsonResponse({'error': e.messages[0]}, status=400)
 
-        # Hacher le nouveau mot de passe et le sauvegarder
+        
         user.password = make_password(new_password)
 
-    # Gérer l'avatar uploadé si présent
+   
     if 'avatar' in request.FILES:
         avatar = request.FILES['avatar']
         valid_image_extensions = ['png', 'jpg', 'jpeg']
@@ -311,20 +298,20 @@ def update_profile_view(request):
 
     elif 'selected_avatar' in data:
         selected_avatar = data['selected_avatar']
-        print("Avatar sélectionné:", selected_avatar)  # Debug
-        # Vérifier si le chemin correspond au format attendu
+        print("Avatar sélectionné:", selected_avatar) 
+        
         expected_prefix = 'assets/avatars/'
         if selected_avatar.startswith(expected_prefix):
             user.avatar = selected_avatar
-            print("Avatar après assignation:", user.avatar)  # Debug
+            
         else:
-            print("Chemin d'avatar invalide:", selected_avatar)  # Debug
+            
             return JsonResponse({
                 'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
             }, status=400)
 
     try:
-        user.save()  # Sauvegarder les modifications dans la base de données
+        user.save()  
     except Exception as e:
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
 
@@ -335,7 +322,7 @@ def update_profile_view(request):
         else:
             avatar_url = f"/media/{user.avatar}"
 
-    print("URL de l'avatar renvoyée:", avatar_url)  # Debug
+    print("URL de l'avatar renvoyée:", avatar_url)  
 
     return JsonResponse({
         'username': user.username,
@@ -423,7 +410,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.contrib.auth import get_user_model, login
 from django.views.decorators.csrf import ensure_csrf_cookie
-# Imports de la bibliothèque standard Python
+
 from urllib.parse import urlencode
 from django.db import transaction
 from .models import CustomUser
@@ -438,7 +425,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 import json
 
-# Imports tiers
+
 import requests
 
 
@@ -479,7 +466,7 @@ def get_auth_url(request):
             'auth_url': auth_url
         })
 
-        # Ajout manuel des headers CORS
+        
         response["Access-Control-Allow-Origin"] = "https://localhost:4430"
         response["Access-Control-Allow-Credentials"] = "true"
 
@@ -512,7 +499,7 @@ def callback_42(request):
                 'message': 'No authorization code received'
             }, status=400)
 
-        # Échange du code contre un token
+        
         token_url = 'https://api.intra.42.fr/oauth/token'
         token_data = {
             'grant_type': 'authorization_code',
@@ -551,15 +538,15 @@ def callback_42(request):
             }, status=400)
 
         try:
-            # Récupérer l'URL de l'avatar depuis l'API 42
+            
             avatar_url = user_data.get('image', {}).get('versions', {}).get('large')
             logger.info(f"Found avatar URL: {avatar_url}")
 
-            # Chercher l'utilisateur par intra_42_id
+            
             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
 
             if user is None:
-                # Si non trouvé, chercher par email
+                
                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
 
                 if existing_user:
@@ -576,7 +563,7 @@ def callback_42(request):
                         avatar='assets/avatars/ladybug.png'
                     )
 
-            # Télécharger et sauvegarder l'avatar si disponible
+            
             if avatar_url:
                 try:
                     logger.info(f"Attempting to download avatar from: {avatar_url}")
@@ -585,10 +572,10 @@ def callback_42(request):
                     if avatar_response.status_code == 200:
                         logger.info("Avatar download successful")
 
-                        # Créer un nom de fichier unique
+                        
                         file_name = f"42_avatar_{user.username}_{user.id}.jpg"
 
-                        # Sauvegarder l'image
+                        
                         user.avatar.save(
                             file_name,
                             ContentFile(avatar_response.content),
@@ -602,16 +589,16 @@ def callback_42(request):
                     logger.error(f"Failed to save avatar: {str(e)}")
                     logger.exception("Detailed error:")
 
-            # Connecter l'utilisateur
+            
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
 
-            # Générer les tokens JWT comme dans votre login classique
+            
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
-            # Préparer la réponse HTML avec les données
+            
             response = HttpResponse(f"""
             <!DOCTYPE html>
             <html>
@@ -700,7 +687,7 @@ def callback_42(request):
             """)
 
 
-            # Définir les cookies de jetons sur la réponse HTML
+            
             set_jwt_cookies(response, access_token, refresh_token)
             return response
 
@@ -743,17 +730,17 @@ def check_auth(request):
 
 #######################################2FA views#####################################################################
 
-# Imports nécessaires
-from django.core.mail import send_mail  # Pour envoyer des emails
-from django.conf import settings        # Pour accéder aux paramètres
-from django.utils import timezone       # Pour la gestion des timestamps
-from datetime import timedelta         # Pour la durée de validité du code
+
+from django.core.mail import send_mail  
+from django.conf import settings        
+from django.utils import timezone       
+from datetime import timedelta         
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-import random                          # Pour générer le code
-import string                          # Pour générer le code
+import random                          
+import string                          
 
 class Toggle2FAView(APIView):
     permission_classes = [IsAuthenticated]
@@ -768,7 +755,7 @@ class Toggle2FAView(APIView):
             user.two_factor_code_timestamp = timezone.now()
             user.save()
 
-            # Utiliser la nouvelle fonction d'envoi d'email
+            
             if send_2fa_email(user, code):
                 return Response({
                     'message': 'Code de vérification envoyé par email'
@@ -842,7 +829,7 @@ class Verify2FAView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Vérifier si le code est toujours valide (10 minutes)
+        
         if user.two_factor_code_timestamp and \
            timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
             return Response(
@@ -881,15 +868,15 @@ class TestEmailView(APIView):
             print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
             print(f"FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
 
-            # Contexte pour le template
+            
             context = {
                 'username': 'Test User',
-                'code': '123456',  # Code de test
+                'code': '123456',  
                 'valid_minutes': 10,
                 'support_email': settings.DEFAULT_FROM_EMAIL
             }
 
-            # Créer les versions HTML et texte de l'email
+            
             html_message = render_to_string('email/2fa_code.html', context)
             plain_message = strip_tags(html_message)
 
@@ -902,14 +889,14 @@ class TestEmailView(APIView):
                 fail_silently=False,
             )
 
-            # Garder les informations de debug dans la réponse
+            
             return Response({
                 'message': 'Email de test envoyé avec succès!',
                 'email_host': settings.EMAIL_HOST,
                 'email_port': settings.EMAIL_PORT,
                 'email_use_tls': settings.EMAIL_USE_TLS,
                 'from_email': settings.DEFAULT_FROM_EMAIL,
-                'template_context': context  # Ajouter le contexte pour vérification
+                'template_context': context  
             })
 
         except Exception as e:
@@ -954,25 +941,25 @@ def send_2fa_email(user, code):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  # Autorise tout le monde à accéder à cette vue
+@permission_classes([AllowAny])  
 def verify_2fa(request):
     logger.info("Appel reçu pour verify_2fa avec body : %s", request.body)
     try:
-        # Chargement des données envoyées par le client
+        
         data = json.loads(request.body)
-        code = data.get('code')  # Code 2FA saisi par l'utilisateur
+        code = data.get('code')  
 
         if not code:
             logger.warning("Aucun code 2FA fourni.")
             return JsonResponse({'success': False, 'message': 'Le code 2FA est requis.'}, status=400)
 
-        # Identifier le contexte : Profil ou Login
+        
         if request.user.is_authenticated:
-            # Contexte : Page de Profil
+            
             logger.info("Contexte : Profil utilisateur.")
             user = request.user
         else:
-            # Contexte : Page de Login
+            
             logger.info("Contexte : Login utilisateur.")
             user_id = data.get('user_id')
             if not user_id:
@@ -982,7 +969,7 @@ def verify_2fa(request):
                     'message': "L'identifiant utilisateur est requis pour cette opération."
                 }, status=400)
 
-            # Récupération de l'utilisateur
+            
             try:
                 user = CustomUser.objects.get(id=user_id)
                 logger.info("Utilisateur trouvé : %s", user.email)
@@ -993,7 +980,7 @@ def verify_2fa(request):
                     'message': 'Utilisateur non trouvé.'
                 }, status=404)
 
-        # Vérification de l'existence d'un code 2FA actif
+        
         if not user.two_factor_code or not user.two_factor_code_timestamp:
             logger.warning("Aucun code 2FA actif trouvé pour l'utilisateur : %s", user.email)
             return JsonResponse({
@@ -1001,7 +988,7 @@ def verify_2fa(request):
                 'message': "Aucun code 2FA actif trouvé. Réessayez."
             }, status=400)
 
-        # Vérification de l'expiration du code
+        
         if timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
             logger.warning("Code 2FA expiré pour l'utilisateur : %s", user.email)
             return JsonResponse({
@@ -1009,28 +996,28 @@ def verify_2fa(request):
                 'message': 'Code expiré.'
             }, status=400)
 
-        # Vérification de la validité du code
+        
         if code == user.two_factor_code:
             logger.info("Code 2FA valide pour l'utilisateur : %s", user.email)
-            # Réinitialisation du code 2FA
+            
             user.two_factor_code = None
             user.two_factor_code_timestamp = None
 
             if not request.user.is_authenticated:
-                # Contexte : Login
+                
                 logger.info("Génération des tokens pour l'utilisateur : %s", user.email)
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
 
-                # Retour de la réponse avec les tokens
+                
                 response = JsonResponse({
                     'success': True,
                     'message': 'Login successful',
                 })
                 set_jwt_cookies(response, access_token, refresh_token)
             else:
-                # Contexte : Profil
+                
                 logger.info("Activation du 2FA pour l'utilisateur : %s", user.email)
                 user.is_2fa_enabled = True
                 response = JsonResponse({
@@ -1038,7 +1025,7 @@ def verify_2fa(request):
                     'message': '2FA activé avec succès.',
                 })
 
-            # Sauvegarde des modifications utilisateur
+            
             user.save()
             return response
         else:
@@ -1067,43 +1054,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def record_game(request):
-#     logger.info("Appel de record_game")
-
-#     data = request.data
-#     score_user = data.get('score_user')
-#     score_opponent = data.get('score_opponent')
-#     result = data.get('result')
-#     opponent_id = data.get('opponent_id')  # ID de l'opposant si enregistré
-#     opponent_name = data.get('opponent_name', 'IA')  # Nom de l'opposant, par défaut "IA"
-
-#     # Vérifier que les données sont présentes
-#     if score_user is None or score_opponent is None or result is None:
-#         return JsonResponse({'error': 'Missing data'}, status=400)
-
-#     # Trouver l'opposant si c'est un utilisateur enregistré
-#     opponent_user = None
-#     if opponent_id:
-#         try:
-#             opponent_user = CustomUser.objects.get(id=opponent_id)
-#         except CustomUser.DoesNotExist:
-#             return JsonResponse({'error': 'Opponent user not found'}, status=404)
-
-#     # Créer un nouvel enregistrement de partie
-#     game = GameHistory.objects.create(
-#         user=request.user,
-#         score_user=score_user,
-#         score_opponent=score_opponent,
-#         result=result,
-#         opponent_user=opponent_user,  # Opposant enregistré
-#         opponent_name=opponent_name if not opponent_user else None  # Nom si opposant temporaire ou IA
-#     )
-
-#     return JsonResponse({'message': 'Game recorded successfully', 'game_id': game.id})
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def record_game(request):
@@ -1111,7 +1061,7 @@ def record_game(request):
     score_user = data.get('score_user')
     score_opponent = data.get('score_opponent')
     result = data.get('result')
-    longest_rally = data.get('longest_rally', 0)  # Par défaut 0
+    longest_rally = data.get('longest_rally', 0)  
     opponent_id = data.get('opponent_id')
     opponent_name = data.get('opponent_name', 'IA')
     max_ball_speed = data.get('max_ball_speed', 0)
@@ -1130,7 +1080,7 @@ def record_game(request):
         except CustomUser.DoesNotExist:
             return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
 
-    # Vérification si le longest_rally est supérieur au précédent
+    
     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
         Max('longest_rally')
     )['longest_rally__max'] or 0
@@ -1170,34 +1120,34 @@ def match_history(request):
     history = []
 
     for game in games:
-        # game_date = game.date_played.strftime('%d/%m')
+        
         game_date = game.date_played.strftime('%d/%m/%Y')
-        # Récupérer l'avatar de l'utilisateur
+        
         if request.user.avatar:
             if str(request.user.avatar).startswith('assets/avatars/'):
-                # Si l'avatar est dans STATIC_URL
+                
                 user_avatar = f"/static/{request.user.avatar}"
             else:
-                # Si l'avatar est dans MEDIA_URL
+                
                 user_avatar = request.user.avatar.url
         else:
-            # Si aucun avatar n'est défini, mettre un avatar par défaut
+            
             user_avatar = '/static/assets/avatars/ladybug.png'
 
-        # Récupérer l'avatar de l'adversaire
+        
         if game.opponent_user:
             if game.opponent_user.avatar:
                 if str(game.opponent_user.avatar).startswith('assets/avatars/'):
-                    # Si l'avatar est dans STATIC_URL
+                    
                     opponent_avatar = f"/static/{game.opponent_user.avatar}"
                 else:
-                    # Si l'avatar est dans MEDIA_URL
+                    
                     opponent_avatar = game.opponent_user.avatar.url
             else:
-                # Dans le cas où l'adversaire n'a pas d'avatar, définir un avatar générique
+                
                 opponent_avatar = '/static/assets/avatars/clown-fish.png'
         else:
-            # Si l'adversaire n'est pas un utilisateur réel, définir un avatar générique
+            
             opponent_avatar = '/static/assets/avatars/crabe.png'
 
         history.append({
@@ -1206,9 +1156,9 @@ def match_history(request):
             'result': "VICTORY" if game.result else "DEFEAT",
             'opponent_avatar': opponent_avatar,
             'user_avatar': user_avatar,
-            'longest_rally': game.longest_rally,  # Inclure longest_rally
+            'longest_rally': game.longest_rally,  
             'max_ball_speed': game.max_ball_speed,
-            'game_date': game_date  # Ajout de la date
+            'game_date': game_date  
         })
 
     return JsonResponse({'history': history})
@@ -1218,130 +1168,19 @@ from django.http import JsonResponse
 from django.db.models import Count, F, Q, Avg, Max
 from .models import GameHistory
 
-
-# # Vue pour récupérer les statistiques de l'utilisateur
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_user_statistics(request):
-#     user = request.user
-
-#     # Nombre de parties jouées
-#     total_games = GameHistory.objects.filter(user=user).count()
-
-#     # Nombre de victoires
-#     total_wins = GameHistory.objects.filter(user=user, result=True).count()
-
-#     # Calcul du ratio victoires
-#     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
-
-#     # Rank basé sur le ratio de victoires
-#     if win_ratio <= 33:
-#         rank = "*"
-#     elif win_ratio <= 66:
-#         rank = "**"
-#     else:
-#         rank = "***"
-
-#     # Calcul des autres statistiques (par exemple, power catch, ball speed, longest rally)
-#     # Ces champs doivent être définis dans votre modèle pour être récupérés
-#     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
-#     ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
-#     longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max']
-
-#     # Récupérer la valeur actuelle de longest_rally dans la base de données
-#     longest_rally_db = longest_rally_db or 0  # Valeur par défaut
-
-#     # Vérifiez si une nouvelle valeur de longest_rally est passée dans la requête
-#     new_longest_rally = request.GET.get('new_longest_rally')
-#     if new_longest_rally:
-#         try:
-#             new_longest_rally = int(new_longest_rally)
-#             if new_longest_rally > longest_rally_db:
-#                 # Mettre à jour la base de données
-#                 GameHistory.objects.filter(user=user).update(longest_rally=new_longest_rally)
-#                 longest_rally_db = new_longest_rally
-#         except ValueError:
-#             return JsonResponse({'error': 'Invalid longest_rally value'}, status=400)
-
-
-#     # Retourner les statistiques sous forme de JsonResponse
-#     statistics = {
-#         'rank': rank,
-#         'total_games': total_games,
-#         'total_wins': total_wins,
-#         'win_ratio': win_ratio,
-#         'power_catch_avg': power_catch_avg or 0,  # Valeur par défaut si aucune donnée
-#         'ball_speed_avg': ball_speed_avg or 0,    # Valeur par défaut si aucune donnée
-#         'longest_rally': longest_rally_db
-#     }
-
-#     return JsonResponse(statistics, status=200)
-
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def get_user_statistics(request):
-#     user = request.user
-
-#     # Nombre de parties jouées
-#     total_games = GameHistory.objects.filter(user=user).count()
-
-#     # Nombre de victoires
-#     total_wins = GameHistory.objects.filter(user=user, result=True).count()
-
-#     # Calcul du ratio victoires
-#     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
-
-#     # Rank basé sur le ratio de victoires
-#     if win_ratio <= 33:
-#         rank = "*"
-#     elif win_ratio <= 66:
-#         rank = "**"
-#     else:
-#         rank = "***"
-
-#     # Calcul des autres statistiques
-#     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
-#     ball_speed_avg = GameHistory.objects.filter(user=user).aggregate(Avg('ball_speed'))['ball_speed__avg']
-#     longest_rally_db = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max'] or 0  # Valeur par défaut
-
-#     # Vérifiez si une nouvelle valeur de longest_rally est passée dans la requête
-#     new_longest_rally = request.GET.get('new_longest_rally')
-#     if new_longest_rally:
-#         try:
-#             new_longest_rally = int(new_longest_rally)
-#             if new_longest_rally > longest_rally_db:
-#                 # Mettre à jour la base de données
-#                 GameHistory.objects.filter(user=user).update(longest_rally=new_longest_rally)
-#                 longest_rally_db = new_longest_rally
-#         except ValueError:
-#             return JsonResponse({'error': 'Invalid longest_rally value'}, status=400)
-
-#     statistics = {
-#         'rank': rank,
-#         'total_games': total_games,
-#         'total_wins': total_wins,
-#         'win_ratio': win_ratio,
-#         'power_catch_avg': power_catch_avg or 0,
-#         'ball_speed_avg': ball_speed_avg or 0,
-#         'longest_rally': longest_rally_db
-#     }
-
-#     return JsonResponse(statistics, status=200)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_statistics(request):
     user = request.user
 
-    # Statistiques générales
+    
     total_games = GameHistory.objects.filter(user=user).count()
     total_wins = GameHistory.objects.filter(user=user, result=True).count()
     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
 
     rank = "***" if win_ratio > 66 else "**" if win_ratio > 33 else "*"
 
-    # Récupération des statistiques supplémentaires
+    
     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
     max_ball_speed = GameHistory.objects.filter(user=user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
     longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max'] or 0
@@ -1353,7 +1192,7 @@ def get_user_statistics(request):
         'win_ratio': win_ratio,
         'power_catch_avg': power_catch_avg or 0,
         'max_ball_speed': max_ball_speed,
-        'longest_rally': longest_rally  # Retourne la meilleure valeur
+        'longest_rally': longest_rally  
     }
 
     return JsonResponse(statistics, status=200)
@@ -1364,11 +1203,9 @@ from .models import FriendShip
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
     receiver_id = request.data.get('receiver_id')
-    print(f"Received friend request with receiver_id: {receiver_id}")  # Debug log
-    print(f"Request data: {request.data}")  # Debug log
+
 
     if not receiver_id:
-        print("No receiver_id found in request")  # Debug log
         return JsonResponse({
             'message': 'Receiver ID is required'
         }, status=400)
@@ -1428,7 +1265,7 @@ def handle_friend_request(request):
         friendship.save()
 
         if action == 'accept':
-            # Créer la relation inverse automatiquement
+            
             FriendShip.objects.create(
                 from_user=request.user,
                 to_user=friendship.from_user,
@@ -1472,7 +1309,7 @@ def get_pending_requests(request):
     pending_requests = []
 
     for req in pending:
-        # Gérer l'avatar de l'expéditeur
+        
         if req.from_user.avatar:
             if str(req.from_user.avatar).startswith('assets/avatars/'):
                 sender_avatar = f"/static/{req.from_user.avatar}"
@@ -1502,7 +1339,7 @@ from rest_framework.parsers import JSONParser
 @permission_classes([IsAuthenticated])
 def get_game_settings(request):
     try:
-        # Récupérer les premiers paramètres dans la base de données
+        
         settings = GameHostOptions.objects.first()
         if settings:
             data = {
@@ -1515,7 +1352,7 @@ def get_game_settings(request):
                 'keyboardSettings': settings.keyboardSettings
             }
         else:
-            # Paramètres par défaut
+            
             data = {
                 'scoreToWin': 5,
                 'difficulty': 'medium',
@@ -1545,15 +1382,15 @@ def set_game_settings(request):
         print("Méthode :", request.method)
         print("Données brutes :", request.body)
 
-        # Parse les données de la requête JSON
+        
         data = JSONParser().parse(request)
         print("Données parsées :", data)
 
-        # Récupérer ou créer un enregistrement de paramètres
+        
         settings, created = GameHostOptions.objects.get_or_create(id=1)
         print("Objet settings récupéré :", settings)
 
-        # Mettre à jour les champs
+        
         if 'scoreToWin' in data:
             settings.scoreToWin = data['scoreToWin']
             print("scoreToWin mis à jour :", settings.scoreToWin)
@@ -1576,12 +1413,12 @@ def set_game_settings(request):
             settings.keyboardSettings = data['keyboardSettings']
             print("keyboardSettings mis à jour :", settings.keyboardSettings)
 
-        # Enregistrer les modifications
+        
         settings.save()
         print("Paramètres sauvegardés avec succès.")
 
         return JsonResponse({'success': True, 'message': 'Settings updated successfully'})
     except Exception as e:
-        # Log de l'erreur
+        
         print("Erreur lors de la mise à jour des paramètres :", str(e))
         return JsonResponse({'success': False, 'error': f"Internal server error: {str(e)}"}, status=500)
