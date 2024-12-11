@@ -1,7 +1,7 @@
-/* Importer la police Inter depuis Google Fonts */
+
 @import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 
-/* Variables for colors in my project */
+
 :root {
 	--dark-void: #151419;
 	--gluon-grey: #1b1b1e;
@@ -13,7 +13,6 @@
 	--azur-blue: #0d9bff;
 }
 
-/* Variables pour les vw a partir des pixels*/
 :root {
 	--0px: 0vw;
 	--2px: 0.104vw;
@@ -38,7 +37,6 @@
 	--80px: 4.167vw;
 }
 
-/* Variables pour les borders radius */
 :root {
 	--radius-xs: var(--2px);
 	--radius-sm: var(--4px);
@@ -51,7 +49,6 @@
 	--radius-xxxl: var(--32px);
 }
 
-/* Variables pour la tailles des icons & img */
 :root {
 	--icon-12: 0.833vw;
 	--icon-16: 1.111vw;
@@ -65,7 +62,6 @@
 	--icon-100: 6.944vw;
 }
 
-/* Appliquer la police Inter à tout le document */
 html,
 body {
 	height: 100%;
@@ -195,7 +191,6 @@ body {
 	background-color: transparent;
 	outline: none;
 	box-shadow: none;
-	/* Supprime l'ombre de focus de Bootstrap */
 	color: #fbfbfb;
 }
 
@@ -243,12 +238,6 @@ body {
 	-webkit-box-shadow: 0 0 0px 1000px var(--dark-void) inset;
 	transition: background-color 5000s ease-in-out 0s;
 }
-
-
-
-
-
-/* css popups */
 
 
 #fileInput {

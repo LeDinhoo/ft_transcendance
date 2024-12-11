@@ -40,14 +40,11 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
-# ALLOWED_HOSTS = ['*']
-
 ALLOWED_HOSTS = [
     'localhost',
     'localhost:4430',
 ]
 
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -65,7 +62,7 @@ INSTALLED_APPS = [
 
 ASGI_APPLICATION = "backend.asgi.application"
 
-# Redis channel layer config
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -121,29 +118,29 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_PREFLIGHT_MAX_AGE = 86400  # 24 heures
+CORS_PREFLIGHT_MAX_AGE = 86400  
 
-# Configuration SSL
+
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# Autoriser les requêtes non-CSRF pour l'API
+
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:4430',
 ]
 
 
-# Mise à jour de l'URL de redirection 42
+
 FORTYTWO_REDIRECT_URI = 'https://localhost:8443/api/callback-42/'
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Authentification standard par username
-    'accounts.authentication.EmailBackend',       # Authentification par email
+    'django.contrib.auth.backends.ModelBackend',  
+    'accounts.authentication.EmailBackend',       
 ]
 
-# Configurer Django REST Framework pour utiliser JWT
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -153,7 +150,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Charger les clés RSA pour JWT
+
 JWT_PRIVATE_KEY = os.getenv("JWT_PRIVATE_KEY")
 JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
 
@@ -161,21 +158,19 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=6),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,  # Active la liste noire
-    #'TOKEN_BLACKLIST_ENABLED': True,  # Ajoute ceci
+    'BLACKLIST_AFTER_ROTATION': True,  
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ALGORITHM': 'RS256',
-    'SIGNING_KEY': JWT_PRIVATE_KEY,  # Clé privée pour signer les tokens
-    'VERIFYING_KEY': JWT_PUBLIC_KEY,  # Clé publique pour vérifier les tokens
-    #'SIGNING_KEY': settings.SECRET_KEY,
+    'SIGNING_KEY': JWT_PRIVATE_KEY, 
+    'VERIFYING_KEY': JWT_PUBLIC_KEY,  
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', 'rest_framework_simplejwt.tokens.RefreshToken'),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 SESSION_COOKIE_SAMESITE = 'Strict'
-SESSION_COOKIE_HTTPONLY = True  # Empêche l'accès via JavaScript pour les cookies de session
+SESSION_COOKIE_HTTPONLY = True  
 CSRF_COOKIE_SAMESITE = 'Strict'
-CSRF_COOKIE_HTTPONLY = True  # Empêche l'accès via JavaScript pour le cookie CSRF
+CSRF_COOKIE_HTTPONLY = True  
 
 
 # FORTYTWO_CLIENT_ID='u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8'
@@ -187,8 +182,8 @@ FORTYTWO_CLIENT_SECRET = os.getenv('FORTYTWO_CLIENT_SECRET')
 FORTYTWO_REDIRECT_URI = os.getenv('FORTYTWO_REDIRECT_URI', 'https://localhost:4430/api/callback-42/')
 
 
-LOGIN_URL = '/login-register/'  # URL où rediriger si non authentifié
-LOGIN_REDIRECT_URL = '/home/'   # URL après connexion réussie
+LOGIN_URL = '/login-register/'  
+LOGIN_REDIRECT_URL = '/home/'  
 
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -201,7 +196,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'frontend', 'templates'),
-            os.path.join(BASE_DIR, 'accounts', 'templates'),  # Si votre app s'appelle 'accounts'
+            os.path.join(BASE_DIR, 'accounts', 'templates'),  
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -221,9 +216,6 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
-
-# Database
-# Utilisation des variables d'environnement pour configurer la base de données
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -235,7 +227,7 @@ DATABASES = {
     }
 }
 
-# Password validation
+
 AUTH_PASSWORD_VALIDATORS = [
     # {
     #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -257,34 +249,31 @@ AUTH_PASSWORD_VALIDATORS = [
     }
 ]
 
-PBKDF2_ITERATIONS = 310000  #nombre d'itérations
+PBKDF2_ITERATIONS = 310000 
 
 
 TIME_ZONE = 'Europe/Paris'
-USE_TZ = False  # Si tu préfères ne pas utiliser les fuseaux horaires dans les données
+USE_TZ = False  
 
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 
 
 USE_I18N = True
 
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
-# Indiquer à Django où chercher les fichiers statiques
+
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend", "static"),  # Chemin vers frontend/static
+    os.path.join(BASE_DIR, "frontend", "static"),  
 ]
 
-# Collectstatic root
-STATIC_ROOT = os.path.join(BASE_DIR, 'backend', 'staticfiles')  # Le dossier où collectstatic va placer les fichiers
 
-MEDIA_URL = '/media/'  # URL pour accéder aux fichiers médias
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Chemin pour stocker les fichiers uploadés
-# Default primary key field type
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend', 'staticfiles') 
+
+MEDIA_URL = '/media/'  
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGGING = {
@@ -292,24 +281,18 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG',  # Niveau de log à afficher (DEBUG pour tout voir)
+            'level': 'DEBUG', 
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # Niveau de log pour Django
+            'level': 'DEBUG',  
         },
     },
 }
 
-# import os
-# from dotenv import load_dotenv
-
-# load_dotenv()
-
-# Email Configuration
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')

@@ -36,11 +36,11 @@ export function createCornerSpheres(
   ];
 
   const sphereGeometry = new THREE.SphereGeometry(10, 32, 32);
-  // Modifier le matériau pour avoir de la transparence
+  
   const sphereMaterial = new THREE.MeshStandardMaterial({
     color: 0x00ff00,
-    transparent: true, // Active la transparence
-    opacity: 0, // Définit l'opacité à 0 (complètement transparent)
+    transparent: true, 
+    opacity: 0, 
   });
 
   const spheres = corners.map((corner) => {

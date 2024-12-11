@@ -17,10 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from accounts import views  # Importer les vues si tu souhaites utiliser `game_view` sans le préfixe /api/
+from accounts import views  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('accounts.urls')),  # Inclure toutes les URLs de l'application accounts avec le préfixe /api/
-	path('', views.index_view, name='index'),  # Inclure la route /game/ ici sans le préfixe /api/
+    path('api/', include('accounts.urls')), 
+	path('', views.index_view, name='index'),  
 ]
