@@ -57,12 +57,6 @@ function updateProfilOnHome() {
 let currentUser = null;
 
 function initializeHome() {
-	console.log("fonction initializeHome appelée..");
-	// wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
-	// ContextMenu.initialize(); //DOESNT WORK
-	console.log("TEST1\n");
-
-	// Constants and DOM Elements
 	const PLAYER_STATUSES = {
 		ONLINE: "Online",
 		IN_GAME: "In Game",
@@ -124,7 +118,6 @@ function initializeHome() {
           ChatHandler.setupEventListeners();
           ChatHandler.initializeContextMenu();
           window.wsManager.addMessageListener(ChatHandler.handleMessage);
-		//   wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
 					const messageHistory = window.wsManager.getMessageHistory();
 					messageHistory.forEach((message) =>
@@ -140,19 +133,12 @@ function initializeHome() {
 		const headerElement = messageElement.querySelector(".messageHeader");
 		const userId = headerElement?.dataset?.userId;
 
-		// Debug logs
-		console.log("sendFriendRequest - Element:", messageElement);
-		console.log("sendFriendRequest - headerElement:", headerElement);
-		console.log("sendFriendRequest - userId:", userId);
-		console.log("sendFriendRequest - currentUser.id:", window.currentUser?.id);
-
 		if (!userId) {
 			console.error('No user ID found');
 			ChatHandler.showNotification('Unable to send friend request: User ID not found');
 			return;
 		}
 
-		// Vérification côté client
 		if (userId === String(window.currentUser?.id)) {
 			ChatHandler.showNotification('You cannot send a friend request to yourself');
 			return;
@@ -166,12 +152,12 @@ function initializeHome() {
 				},
 				credentials: 'include',
 				body: JSON.stringify({
-					receiver_id: userId.trim() // Assurez-vous qu'il n'y a pas d'espaces
+					receiver_id: userId.trim() 
 				})
 			});
 
 			const data = await response.text();
-			console.log("Response raw data:", data); // Debug log
+			console.log("Response raw data:", data); 
 
 			try {
 				const jsonData = JSON.parse(data);
@@ -230,8 +216,6 @@ function initializeHome() {
 			const username = headerElement.textContent.trim();
 			const avatarSrc = avatar.src;
 			const isBlocked = ChatHandler.blockedUsers.has(username);
-
-			// Vérification si c'est notre message
 			const isOwnMessage = userId === String(window.currentUser.id);
 			console.log('Comparaison des IDs :', {
 				messageUserId: userId,
@@ -496,10 +480,9 @@ function initializeHome() {
 		}
 	}
 
-  // Tooltip Management
   class TooltipManager {
     static initializeTooltips() {
-      // Avatar Tooltip
+      
       if (DOM.sections.avatarSection) {
         const avatarTooltipTemplate = document.getElementById(
           "avatarTooltipTemplate"
@@ -522,7 +505,7 @@ function initializeHome() {
         }
       }
 
-      // Rank Tooltip
+      
       if (DOM.sections.rankSection) {
         const rankTooltipTemplate = document.getElementById(
           "rankTooltipTemplate"
@@ -547,7 +530,7 @@ function initializeHome() {
     }
   }
 
-  // Profile Modal Management
+  
   class ProfileModal {
     static initialize() {
       if (!DOM.profile.modal) return;
@@ -590,7 +573,7 @@ function initializeHome() {
     }
   }
 
-  // Context Menu Management
+  
   class ContextMenu {
     static initialize() {
       const homePageMain = document.querySelector(".homePageMain");
@@ -676,7 +659,7 @@ function initializeHome() {
     }
   }
 
-  // Game Options Management
+  
   class GameOptionsManager {
     static initialize() {
       const handleSelection = (elements, selectedElement) => {
@@ -704,7 +687,7 @@ function initializeHome() {
     }
   }
 
-  // Online Game Modal Management
+  
   class OnlineGameModal {
     static selectedPlayer = null;
 
@@ -783,7 +766,7 @@ function initializeHome() {
     }
   }
 
-  // Manage Game Actions
+  
   class GameActions {
     constructor() {
 			this.options = null;
@@ -915,7 +898,7 @@ function initializeHome() {
       modal.appendChild(iframe);
       document.body.appendChild(modal);
 
-      // Gestionnaire des messages envoyés par l'iframe
+      
       window.addEventListener("message", (event) => {
         console.log("Message reçu par le parent :", event);
 
@@ -940,14 +923,13 @@ function initializeHome() {
     }
   }
 
-  // Initialize all components
   TooltipManager.initializeTooltips();
   ProfileModal.initialize();
   ContextMenu.initialize();
   GameOptionsManager.initialize();
   OnlineGameModal.initialize();
   ChatHandler.initialize();
-  GameInvitationManager.initialize(); // Ajouter cette ligne
+  GameInvitationManager.initialize();
   wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
   window.addEventListener("unload", () => {
@@ -964,76 +946,6 @@ function initializeHome() {
 }
 
 
-// remote
-
-// Gestionnaire d'invitations de jeu
-// const GameInvitationManager = {
-//   activeInvitations: new Map(),
-//   modal: null,
-//   template: null,
-
-//   initialize() {
-//     this.template = document.getElementById("gameInvitationTemplate");
-//     if (!this.template) {
-//         console.error("Game invitation template not found");
-//         return;
-//     }
-
-//     window.wsManager.addMessageListener((data) => {
-//         console.log("Received message in GameInvitationManager:", data); // Plus détaillé
-//         console.log("Message type:", data.type); // Vérifie spécifiquement le type
-//         if (data.type === "game_invitation") {
-//             console.log("Found game invitation, template is:", this.template); // Vérifie le template
-//             this.handleInvitation(data);
-//         }
-//     });
-// },
-
-//   handleInvitation(data) {
-//     console.log("Creating invitation modal for:", data); // Pour debug
-//     // Stocker l'invitation
-//     this.activeInvitations.set(data.invitationId, data);
-
-
-//     console.log("Starting handleInvitation with data:", data);
-//     const modalElement = this.template.content.cloneNode(true);
-//     console.log("Created modal element:", modalElement);
-//     this.modal = modalElement.querySelector(".game-invitation-modal");
-//     console.log("Found modal:", this.modal);
-
-//     // Remplir les détails de l'invitation
-//     const avatar = this.modal.querySelector(".inviter-avatar");
-//     const name = this.modal.querySelector(".inviter-name");
-//     const gameType = this.modal.querySelector(".game-type");
-
-//     avatar.src = data.sender.avatar;
-//     name.textContent = data.sender.username;
-//     gameType.textContent = data.gameType;
-
-//     // Configurer les boutons
-//     const acceptBtn = this.modal.querySelector(".accept-btn");
-//     const declineBtn = this.modal.querySelector(".decline-btn");
-//     const closeBtn = this.modal.querySelector(".close-invitation");
-
-//     acceptBtn.addEventListener("click", () =>
-//       this.respondToInvitation(data.invitationId, "accept")
-//     );
-//     declineBtn.addEventListener("click", () =>
-//       this.respondToInvitation(data.invitationId, "decline")
-//     );
-//     closeBtn.addEventListener("click", () =>
-//       this.respondToInvitation(data.invitationId, "decline")
-//     );
-
-//     // Ajouter à la page et afficher
-//     document.body.appendChild(this.modal);
-//     console.log("Modal appended to body");
-//     this.modal.style.display = "block";
-//     console.log("Modal display set to block");
-//     console.log("Modal should be displayed now"); // Pour debug
-//   },
-
-// Friend Request Functions
 async function loadPendingFriendRequests() {
     try {
         const response = await fetch('/api/friends/pending/', {
@@ -1105,7 +1017,7 @@ const GameInvitationManager = {
     window.wsManager.addMessageListener((data) => {
       console.log("Message received in GameInvitationManager:", data);
 
-      // Vérifier spécifiquement les messages de type game_invitation
+      
       if (data.type === "game_invitation" && data.receiver === window.currentUser?.username) {
         console.log("Game invitation received for current user");
         this.handleInvitation(data);
@@ -1119,7 +1031,7 @@ const GameInvitationManager = {
     const modalElement = this.template.content.cloneNode(true);
     this.modal = modalElement.querySelector(".game-invitation-modal");
 
-    // Remplir les détails de l'invitation
+    
     const avatar = this.modal.querySelector(".inviter-avatar");
     const name = this.modal.querySelector(".inviter-name");
     const gameType = this.modal.querySelector(".game-type");
@@ -1128,7 +1040,7 @@ const GameInvitationManager = {
     name.textContent = data.sender.username;
     gameType.textContent = data.gameType;
 
-    // Configurer les boutons
+    
     const acceptBtn = this.modal.querySelector(".accept-btn");
     const declineBtn = this.modal.querySelector(".decline-btn");
     const closeBtn = this.modal.querySelector(".close-invitation");
@@ -1153,12 +1065,12 @@ const GameInvitationManager = {
       receiver: invitation.receiver,
     });
 
-    // Nettoyer
+    
     this.activeInvitations.delete(invitationId);
     this.closeModal();
 
     if (response === "accept") {
-      // Démarrer le jeu (à implémenter)
+      
       this.initializeGameSession(invitation);
     }
   },
@@ -1179,20 +1091,20 @@ const GameInvitationManager = {
     if (data.response === "accept") {
       this.initializeGameSession(invitation);
     } else {
-      // Afficher un message de refus
+      
       this.showNotification(
         `${data.receiver} has declined your game invitation`
       );
     }
   },
   sendInvitation(username) {
-    // Récupérer les paramètres de jeu actuels
+    
     const gameType =
       document
         .querySelector(".gameOption.option-selected")
         ?.textContent.trim() || "CLASSIC PONG";
 
-    console.log("Sending invitation to:", username); // Pour debug
+    console.log("Sending invitation to:", username); 
 
     const invitationId = crypto.randomUUID();
     const invitation = {
@@ -1207,7 +1119,7 @@ const GameInvitationManager = {
       timestamp: Date.now(),
     };
 
-    console.log("Invitation object:", invitation); // Pour debug
+    console.log("Invitation object:", invitation); 
 
     this.activeInvitations.set(invitationId, invitation);
     window.wsManager.sendMessage(invitation);
@@ -1227,13 +1139,9 @@ const GameInvitationManager = {
   },
 
   initializeGameSession(invitation) {
-    // Cette fonction sera implémentée plus tard pour le jeu en remote
+    
     console.log("Starting game session:", invitation);
-    // Ici, nous ajouterons le code pour démarrer le jeu en mode multijoueur
+    
   },
 };
 
-// // Initialiser le gestionnaire d'invitations
-// document.addEventListener("DOMContentLoaded", () => {
-//   GameInvitationManager.initialize();
-// });

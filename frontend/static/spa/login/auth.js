@@ -16,7 +16,7 @@ document
       const loginResponse = await fetch("/api/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Envoie les cookies avec la requête
+        credentials: "include", 
         body: JSON.stringify({ email: email, password: password }),
       });
 
@@ -38,7 +38,7 @@ document
     }
   });
 
-// Nouvelles fonctions pour le 2FA
+
 function showTwoFactorPopup(userId) {
   const popup = document.createElement("div");
   popup.className = "popup-overlay";
@@ -132,11 +132,11 @@ async function verifyTwoFactorCode(userId, code) {
     verifyButton.disabled = true;
     verifyButton.textContent = "Vérification...";
 
-    // const response = await fetch("/api/verify-2fa-login/", {
+    
       const response = await fetch("/api/2fa/verify/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", // Pour envoyer et recevoir les cookies
+      credentials: "include", 
       body: JSON.stringify({ user_id: userId, code: code }),
     });
 
@@ -194,7 +194,7 @@ class AuthService {
 
 const authService = new AuthService();
 
-// Gestionnaire d'authentification 42
+
 document.getElementById("42").addEventListener("click", async function (e) {
   e.preventDefault();
   console.log("Starting 42 authentication process...");
@@ -221,32 +221,32 @@ document.getElementById("42").addEventListener("click", async function (e) {
     console.log("Received auth URL:", data.auth_url);
 
     if (data.success && data.auth_url) {
-      // Gestionnaire de message pour la fenêtre principale
+      
       const messageHandler = function (event) {
         console.log("Message received:", event);
 
         if (event.origin === baseUrl && event.data.type === "auth_success") {
           console.log("Authentication successful, storing tokens...");
 
-          // Stocker les tokens
+          
           localStorage.setItem("access_token", event.data.tokens.access);
           localStorage.setItem("refresh_token", event.data.tokens.refresh);
 
-          // Stocker les données utilisateur
+          
           if (event.data.user) {
             localStorage.setItem("user_data", JSON.stringify(event.data.user));
           }
 
-          // Nettoyer le gestionnaire
+          
           window.removeEventListener("message", messageHandler);
 
           console.log("Redirecting to home...");
-          // Rediriger vers la page d'accueil
+          
           window.location.replace(`${baseUrl}/home`);
         }
       };
 
-      // Ajouter le gestionnaire avant d'ouvrir la popup
+      
       window.addEventListener("message", messageHandler);
 
       console.log("Opening auth window...");
@@ -261,14 +261,14 @@ document.getElementById("42").addEventListener("click", async function (e) {
         throw new Error("Popup window was blocked");
       }
 
-      // Vérifier si la fenêtre est fermée
+     
       const checkPopup = setInterval(() => {
         if (authWindow.closed) {
           console.log("Auth window closed, cleaning up...");
           clearInterval(checkPopup);
           window.removeEventListener("message", messageHandler);
 
-          // Vérification finale de l'authentification
+          
           fetch(`${baseUrl}/api/check-auth/`, {
             credentials: "include",
           })
@@ -290,7 +290,7 @@ document.getElementById("42").addEventListener("click", async function (e) {
   }
 });
 
-// Fonction utilitaire pour les requêtes authentifiées
+
 async function fetchWithAuth(url, options = {}) {
   const token = localStorage.getItem("access_token");
   if (!token) {
@@ -310,7 +310,7 @@ async function fetchWithAuth(url, options = {}) {
     });
 
     if (response.status === 401) {
-      // Token invalide ou expiré
+      
       authService.clearAuth();
       window.location.href = "/login-register/";
       return null;
@@ -323,14 +323,11 @@ async function fetchWithAuth(url, options = {}) {
   }
 }
 
-// // Attacher le gestionnaire au bouton
-// document.getElementById('42').addEventListener('click', handle42Auth);
 
-// Inscription
 document
   .getElementById("registerWidget")
   .addEventListener("submit", function (event) {
-    event.preventDefault(); // Empêche la soumission classique du formulaire
+    event.preventDefault(); 
     console.log("Formulaire d'inscription intercepté.");
 
     const username = document.getElementById("username").value;
@@ -338,17 +335,16 @@ document
     const password1 = document.getElementById("registerPassword").value;
     const password2 = document.getElementById("confirmPassword").value;
 
-    // Réinitialiser les messages d'erreur
+    
     clearErrors();
 
-    // Validation des mots de passe
+    
     if (password1 !== password2) {
       showErrorPopup("Les mots de passe ne correspondent pas.");
-      // displayError("confirmPassword", "Les mots de passe ne correspondent pas.");
       return;
     }
 
-    // Désactiver le bouton pendant le traitement
+    
     document.getElementById("submitRegisterBtn").disabled = true;
 
     fetch("/api/register/", {
@@ -364,11 +360,11 @@ document
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Connexion automatique après inscription réussie
+          
           fetch("/api/login/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // Pour envoyer et recevoir les cookies
+            credentials: "include",
             body: JSON.stringify({ email: email, password: password1 }),
           })
             .then((loginResponse) => loginResponse.json())
@@ -377,13 +373,13 @@ document
                 window.location.href = "/home";
               } else {
                 showErrorPopup("Erreur lors de la connexion automatique");
-                // alert("Erreur lors de la connexion automatique");
+                
               }
             })
             .catch((error) => {
               console.error("Erreur lors de la connexion automatique :", error);
               showErrorPopup("Erreur lors de la connexion automatique.");
-              // alert("Erreur lors de la connexion automatique.");
+             
             });
         } else {
           showErrorPopup(
@@ -396,27 +392,27 @@ document
         showErrorPopup(
           "Une erreur est survenue, veuillez réessayer plus tard."
         );
-        // alert("Une erreur est survenue, veuillez réessayer plus tard.");
+        
       })
       .finally(() => {
-        // Réactiver le bouton
+        
         document.getElementById("submitRegisterBtn").disabled = false;
       });
   });
 
-// Fonction pour afficher les erreurs sous chaque champ du formulaire
+
 function displayError(field, message) {
   const errorElement = document.getElementById(`${field}Error`);
   if (errorElement) {
     errorElement.innerText = message;
     errorElement.style.display = "block";
   } else {
-    // Si l'élément n'existe pas (erreur inattendue), on affiche une alerte
+    
     alert(`Erreur dans ${field}: ${message}`);
   }
 }
 
-// Fonction pour réinitialiser les erreurs affichées
+
 function clearErrors() {
   const errorElements = document.querySelectorAll(".error-message");
   errorElements.forEach(function (el) {
@@ -425,8 +421,8 @@ function clearErrors() {
   });
 }
 
-// Fonction de navigation pour changer d'URL sans rechargement de page
+
 function navigateTo(path) {
-  history.pushState(null, "", path); // Met à jour l'URL sans recharger
-  loadPageFromURL(); // Charge la nouvelle page correspondant à l'URL
+  history.pushState(null, "", path); 
+  loadPageFromURL(); 
 }

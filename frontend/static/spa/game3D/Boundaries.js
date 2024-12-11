@@ -53,30 +53,23 @@ export function createCornerSpheres(
   return spheres;
 }
 
-// Fonction d'ajustement automatique de la caméra pour cadrer le rectangle
 export function adjustCameraToRectangle(camera) {
   const aspectRatio = window.innerWidth / window.innerHeight;
 
-  // Champ de vision vertical en radians
   const fovVertical = (camera.fov * Math.PI) / 180;
 
-  // Calcul de la distance en fonction du champ de vision pour couvrir la largeur du rectangle
   const halfWidth = RECTANGLE_WIDTH / 2;
   const halfHeight = RECTANGLE_HEIGHT / 2;
 
-  // Distance nécessaire pour cadrer le rectangle en fonction de la dimension dominante
   const distanceHeight = halfHeight / Math.tan(fovVertical / 2);
   const distanceWidth = halfWidth / (Math.tan(fovVertical / 2) * aspectRatio);
 
-  // Prend la distance la plus grande pour que le rectangle soit entièrement visible
   const distance = Math.max(distanceHeight, distanceWidth);
 
-  // Positionner la caméra à cette distance et centrer la vue
   camera.position.set(0, distance, 0);
   camera.lookAt(0, 0, 0);
 }
 
-// Fonction appelée lors du redimensionnement de la fenêtre pour ajuster les éléments
 export function updateOnResize(camera, spheres, percentages) {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();

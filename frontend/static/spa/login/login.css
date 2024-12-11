@@ -223,7 +223,6 @@ hr {
 
 .languageSwitcher {
 	position: absolute;
-	/* Position it relative to the headerMenuSection */
 	top: 30px;
 	right: 60px;
 	display: flex;
@@ -242,11 +241,9 @@ hr {
 
 .headerMenuSection {
 	position: relative;
-	/* Make this the reference point for absolute positioning */
 }
 
 
-/* Styles pour le popup 2FA */
 .popup-overlay {
   position: fixed;
   top: 0;

@@ -10,7 +10,6 @@ body {
 	height: 100vh;
 	background-color: var(--dark-void);
 	font-family: "Inter", sans-serif;
-	/* color: var(--snow); */
 }
 
 .app {
@@ -183,7 +182,6 @@ body {
 	height: 100%;
 	border-radius: var(--radius-lg);
 	display: flex;
-	/* justify-content: center; */
 	justify-content: flex-start;
 	align-items: center;
 	flex-direction: column;
@@ -231,16 +229,6 @@ body {
 	font-weight: 600;
 }
 
-/* .inputForChanges,
-.onlineFriendsFrame {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--16px);
-  flex-direction: column;
-  width: 15.625vw;
-} */
-
 .inputForChanges {
 	display: flex;
 	justify-content: center;
@@ -258,26 +246,6 @@ body {
 .inputFrame:not(:placeholder-shown)~.inputLabel {
 	background-color: var(--dark-grey);
 }
-
-/* .settingsTitles,
-.friendsTitle {
-	font-size: var(--36px);
-	font-weight: 600;
-	color: var(--snow);
-	height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-} */
-
-/* .settingsTitles {
-    font-size: var(--36px);
-    font-weight: 600;
-    color: var(--snow);
-    width: 100%;
-    text-align: left;
-    margin-bottom: var(--24px);
-} */
 
 .settingsTitles,
 .friendsTitle {
@@ -301,7 +269,6 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	/* height: 100%; */
 	gap: var(--24px);
 }
 
@@ -311,13 +278,6 @@ body {
 	border-radius: 100%;
 	background-color: limegreen;
 }
-
-/* .friendsAndNickname {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--16px);
-} */
 
 .matchHistory {
 	width: 100%;
@@ -865,11 +825,10 @@ body {
     color: #878787;
     font-size: 0.9em;
     margin-right: 10px;
-    min-width: 65px;  /* Augmenté pour accommoder l'année */
+    min-width: 65px;
 }
 
 .matchResume {
     display: flex;
     align-items: center;
-    /* ... tes autres styles existants ... */
 }

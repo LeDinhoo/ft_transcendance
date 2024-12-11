@@ -15,7 +15,6 @@ function updateProfilOnProfil() {
     })
     .then((data) => {
       if (data.username && data.email) {
-        // document.getElementById("nicknameProfilUser").innerText = data.username;
 
         const win_ratio = data.win_ratio ?? 0;
         const totalGames = data.total_games ?? 0;
@@ -42,11 +41,6 @@ function updateProfilOnProfil() {
           document.getElementById("rankText").innerText = "Platinium";
         }
 
-        // const avatarUrl =
-        //   data.avatar && data.avatar.trim()
-        //     ? data.avatar
-        //     : "/static/assets/avatars/buffalo.png";
-        // document.getElementById("avatarProfilUser").src = avatarUrl;
       }
     })
     .catch((error) => {
@@ -133,7 +127,6 @@ function updateMatchHistoryUI(history) {
     const matchResume = document.createElement("div");
     matchResume.className = "matchResume";
 
-    // Ajout de la date du match (avant l'avatar)
     const gameDate = document.createElement("div");
     gameDate.className = "gameDate";
     gameDate.textContent = match.game_date;
@@ -168,7 +161,7 @@ function updateMatchHistoryUI(history) {
       resultLabel.style.color = "#878787";
     }
 
-    matchResume.appendChild(gameDate);     // Ajout de la date en premier
+    matchResume.appendChild(gameDate);   
     matchResume.appendChild(userAvatar);
     matchResume.appendChild(userScore);
     matchResume.appendChild(separator);
@@ -193,11 +186,8 @@ function loadUserStatistics() {
       console.log("Statistiques de l'utilisateur :", data);
 
       document.getElementById("total_games").innerText = data.total_games;
-      // document.getElementById("total_wins").innerText = data.total_wins;
       document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
-      // document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
       document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
-      // data.ball_speed_avg.toFixed(2);
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
@@ -826,7 +816,7 @@ function handleFriendRequest(requestId, action) {
     })
     .then(response => response.json())
     .then(() => {
-        loadFriendRequests(); // Recharger la liste après l'action
+        loadFriendRequests();
     })
     .catch(error => console.error('Error handling friend request:', error));
 }

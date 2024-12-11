@@ -1,8 +1,8 @@
-let loadedTranslations = {}; // Store loaded translations
+let loadedTranslations = {}; 
 
 function loadTranslations(language) {
 	if (loadedTranslations[language]) {
-		// If translations are already loaded, apply them directly
+		
 		applyTranslations(loadedTranslations[language]);
 		return;
 	}
@@ -15,7 +15,7 @@ function loadTranslations(language) {
 			return response.json();
 		})
 		.then((translations) => {
-			loadedTranslations[language] = translations; // Store in cache
+			loadedTranslations[language] = translations; 
 			applyTranslations(translations);
 		})
 		.catch((error) => {
@@ -42,16 +42,6 @@ function getNestedTranslation(key, translations) {
     }, translations);
 }
 
-// function loadTranslations(language) {
-//     return fetch(`/static/languages/${language}.json`)
-//         .then((response) => response.json())
-//         .then((translations) => {
-//             applyTranslations(translations);
-//         })
-//         .catch((error) => {
-//             console.error('Error loading translations:', error);
-//         });
-// }
 
 function getPreferredLanguage() {
     const savedLanguage = localStorage.getItem('preferredLanguage');

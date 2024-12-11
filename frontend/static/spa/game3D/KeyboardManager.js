@@ -1,8 +1,8 @@
 export class KeyboardManager {
     constructor() {
-        this.keys = {}; // Gestion dynamique des touches
-        this.callbacks = new Map(); // Associe des touches spécifiques à des callbacks
-        this.onSpacePress = null; // Callback spécifique pour la touche espace
+        this.keys = {}; 
+        this.callbacks = new Map(); 
+        this.onSpacePress = null; 
         this.initializeEventListeners();
     }
 
@@ -14,20 +14,20 @@ export class KeyboardManager {
     handleKeyDown(event) {
         const key = event.key.toLowerCase();
 
-        // Ajouter dynamiquement la touche si elle n'existe pas
+        
         if (!this.keys.hasOwnProperty(key)) {
             this.keys[key] = false;
         }
 
-        // Marquer la touche comme pressée
+       
         this.keys[key] = true;
 
-        // Gestion spécifique pour la touche espace
+        
         if (key === ' ' && this.onSpacePress) {
             this.onSpacePress();
         }
 
-        // Exécuter le callback associé à la touche, si défini
+       
         const callback = this.callbacks.get(key);
         if (callback) {
             callback();
@@ -37,12 +37,12 @@ export class KeyboardManager {
     handleKeyUp(event) {
         const key = event.key.toLowerCase();
 
-        // Ajouter dynamiquement la touche si elle n'existe pas
+        
         if (!this.keys.hasOwnProperty(key)) {
             this.keys[key] = false;
         }
 
-        // Marquer la touche comme relâchée
+        
         this.keys[key] = false;
     }
 
@@ -53,7 +53,7 @@ export class KeyboardManager {
      */
     isPressed(key) {
         key = key.toLowerCase();
-        return !!this.keys[key]; // Retourne `false` par défaut si la touche n'existe pas
+        return !!this.keys[key]; 
     }
 
     /**
@@ -64,12 +64,11 @@ export class KeyboardManager {
     onKey(key, callback) {
         key = key.toLowerCase();
 
-        // Ajouter dynamiquement la touche si elle n'existe pas
         if (!this.keys.hasOwnProperty(key)) {
             this.keys[key] = false;
         }
 
-        // Associer le callback à la touche
+        
         this.callbacks.set(key, callback);
     }
 

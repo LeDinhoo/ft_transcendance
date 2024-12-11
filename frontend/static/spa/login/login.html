@@ -15,7 +15,6 @@
 </div>
 
 <div class="loginSection">
-    <!-- Formulaire de Connexion -->
     <form id="loginWidget" class="loginWidget" action="#" method="POST">
         <h2 id="loginTitle" data-translate="login.title">Join the Battle</h2>
         <div class="formInputFrame">
@@ -29,7 +28,6 @@
                 autocomplete="email"
             />
             <label for="email" class="inputLabel" data-translate="login.emailLabel">E-mail</label>
-            <!-- Message d'erreur pour l'email (connexion) -->
             <div id="emailError" class="error-message" style="display:none; color: red;" data-translate="login.emailError"></div>
         </div>
         <div class="formInputFrame">
@@ -48,10 +46,8 @@
                 alt="visibility"
                 class="eyeIcon"
             />
-            <!-- Message d'erreur pour le mot de passe (connexion) -->
             <div id="passwordError" class="error-message" style="display:none; color: red;" data-translate="login.passwordError"></div>
         </div>
-        <!-- Bouton de soumission de connexion -->
         <button id="submitLoginBtn" class="loginWidgetButton" data-translate="login.submitButton">Log In</button>
         <hr />
         <div class="otherChoiceFrame">
@@ -64,7 +60,6 @@
         </div>
     </form>
 
-    <!-- Formulaire d'inscription -->
     <form id="registerWidget" class="loginWidget" action="#" method="POST">
         <h2 id="registerTitle" data-translate="register.title">Create Account</h2>
         <div class="formInputFrame">
@@ -123,7 +118,6 @@
                 class="eyeIcon"
             />
         </div>
-        <!-- Bouton de soumission d'inscription -->
         <button id="submitRegisterBtn" class="loginWidgetButton" data-translate="register.submitButton">Register</button>
         <hr />
         <div class="otherChoiceFrame">
@@ -132,7 +126,6 @@
                     <use href="/static/assets/icons/sprite.svg#42logo"></use>
                 </svg>
             </button>
-            <!-- Bouton Sign Up ajouté -->
             <button id="signUpButton" class="registerWidgetButton" data-translate="register.signUpButton">Sign Up</button>
         </div>
     </form>

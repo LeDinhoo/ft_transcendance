@@ -13,38 +13,10 @@
       height: 80vh;
     }
   </style>
-  <!-- <script>
-    // Écouter les messages du tournoi et de fin de jeu
-    window.addEventListener('message', (event) => {
-      if (event.data.type === 'startGame') {
-        window.currentPlayers = event.data.data;
-      } else if (event.data.type === 'gameComplete') {
-        console.log('Game completed:', event.data);
-
-        // Afficher le gagnant et fermer l'iframe
-        alert(`Partie terminée ! Gagnant : Joueur ${event.data.data.winner}`);
-        closeFrame();
-      }
-    });
-
-    // Fonction pour fermer l'iframe
-    function closeFrame() {
-      // Supposons que cette page est affichée dans une iframe
-      if (window.parent !== window) {
-        window.parent.postMessage({ type: 'closeFrame' }, '*'); // Message au parent pour fermer l'iframe
-      } else {
-        console.warn("Aucune iframe à fermer, cette page est en mode autonome.");
-      }
-    }
-  </script> -->
 </head>
 <body>
 <div id="game"></div>
-
-<!-- Importation de lil-gui depuis un fichier local -->
-<!-- <script src="/static/spa/home/game/libs/lil-gui.min.js"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.18"></script>
-
 <script type="importmap">
   {
     "imports": {
@@ -66,8 +38,6 @@
     }
   }
 </script>
-
-<!-- Chargement des scripts du projet -->
 <script type="module" src="/static/spa/game3D/main.js"></script>
 <script type="module" src="/static/spa/game3D/Light.js"></script>
 </body>

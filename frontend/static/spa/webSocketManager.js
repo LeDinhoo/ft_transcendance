@@ -108,13 +108,13 @@ const wsManager = {
         const message = chatInput.value.trim();
         if (!message) return;
 
-        // Vérifier si c'est un message privé
+        
         const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
         if (pmMatch) {
-            // Extraire le destinataire et le message
+            
             const [, recipient, privateMessage] = pmMatch;
 
-            // Envoyer le message privé
+            
             this.chatSocket.send(JSON.stringify({
                 type: "private_message",
                 message: privateMessage,
@@ -123,7 +123,7 @@ const wsManager = {
                 recipient: recipient
             }));
         } else {
-            // Message normal
+            
             this.chatSocket.send(JSON.stringify({
                 type: "chat_message",
                 message: message,
@@ -166,23 +166,21 @@ const wsManager = {
         const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
         const messageElement = document.createElement("div");
         
-        // Construction de la classe de base du message
+        
         let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
 
-        // Ajouter la classe private-message si c'est un message privé
-        // Que ce soit pour l'expéditeur OU le destinataire
         if (data.type === "private_message") {
             messageClasses.push("private-message");
         }
 
-        // Appliquer toutes les classes
+        
         messageElement.className = messageClasses.join(" ");
 
         if (ChatHandler.blockedUsers.has(data.username)) {
             messageElement.style.opacity = "0.5";
         }
 
-        // Construction de l'en-tête du message
+        
         let messageHeader = data.username;
         if (data.type === "private_message") {
             messageHeader += ` → ${data.recipient}`;
@@ -208,5 +206,4 @@ const wsManager = {
     }
 };
 
-// Rendre l'objet disponible globalement
 window.wsManager = wsManager;

@@ -157,17 +157,12 @@ export class ReductShot {
         cube.position.x -= speed;
       }
 
-      // Mouvement normal de la tornade
+      
       cube.position.z =
         startTornadoPosition +
         Math.sin(cube.position.x * this.frequency + this.phaseOffset) *
           amplitude;
 
-      // //Controle de la tornade
-      // cube.position.z =
-      //   (paddle.position.z) +
-      //   Math.sin(cube.position.x * this.frequency + this.phaseOffset) *
-      //     amplitude;
 
       cube.rotation.y += 0.25;
       return true;

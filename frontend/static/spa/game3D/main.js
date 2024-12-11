@@ -81,9 +81,9 @@ camera.position.set(0, 1000, 0);
 const renderScene = new RenderPass(scene, camera);
 const bloomPass = new UnrealBloomPass(
 	new THREE.Vector2(window.innerWidth, window.innerHeight),
-	originalBloomStrength, // strength
-	0.2, // radius
-	0.3 // threshold
+	originalBloomStrength,
+	0.2,
+	0.3
 );
 
 const composer = new EffectComposer(renderer, renderTarget);
@@ -95,7 +95,7 @@ scoreSystem = new Score3D(scene, camera, null, null, null);
 function resetBall() {
 	ball.position.set(0, 0, 0);
 	ball.visible = false;
-	//Apres 500ms la balle est visible
+	
 	setTimeout(() => {
 		ball.visible = true;
 	}, 500);
@@ -172,10 +172,10 @@ modelLoader
 	);
 
 const percentages = [
-	{x: 95, z: 90}, // Coin 1
-	{x: 95, z: 90}, // Coin 2
-	{x: 95, z: 90}, // Coin 3
-	{x: 95, z: 90}, // Coin 4
+	{x: 95, z: 90}, 
+	{x: 95, z: 90}, 
+	{x: 95, z: 90}, 
+	{x: 95, z: 90}, 
 ];
 
 let modelsPreloaded = false;
@@ -287,7 +287,6 @@ keyboard.onSpace(() => {
 
 		console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
 
-		// scoreSystem.recordGame(scoreUser, scoreOpponent, result, longestRally);
 		scoreSystem.recordGame(
 			scoreUser,
 			scoreOpponent,
@@ -302,14 +301,13 @@ keyboard.onSpace(() => {
 		gameStarted = false;
 		powerManager.stopGame();
 		closeWindowGame();
-		// console.log("Quiting Game");
-		// Fonction pour fermer la fenetre
+
 	} else if (!isBallMoving && !gameStarted) {
 		resetBall();
 		setTimeout(launchBall, 500);
 		gameStarted = true;
 		powerManager.startGame();
-		// console.log("Launch First Game");
+		
 	}
 });
 
@@ -383,31 +381,6 @@ function updateTrajectory() {
 	trajectoryGeometry.setFromPoints(points);
 }
 
-// const difficultyDisplay = document.createElement("div");
-// difficultyDisplay.style.cssText = `
-//       position: fixed;
-//       top: 20px;
-//       right: 20px;
-//       padding: 8px 16px;
-//       border-radius: 9999px;
-//       color: white;
-//       font-family: Arial, sans-serif;
-//       font-weight: bold;
-//       font-size: 16px;
-//       z-index: 1000;
-//       transition: all 0.3s ease;
-//       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-//       `;
-//
-// document.body.appendChild(difficultyDisplay);
-//
-// window.addEventListener("keydown", (event) => {
-// 	if (event.key === "c" || event.key === "C") {
-// 		const newDifficulty = gameAI.cycleDifficulty();
-// 		difficultyDisplay.textContent = `AI: ${newDifficulty.name}`;
-// 		difficultyDisplay.style.backgroundColor = newDifficulty.color;
-// 	}
-// });
 
 const animationManager = new AnimationManager(scene);
 const paddlePower1 = new PaddlePower();
@@ -424,10 +397,6 @@ const powerManager = new PowerManager(
 	modelLoader,
 );
 
-// export let keys = {
-// 	launchPower1: "e",
-// 	launchPower2: "arrowleft"
-// }
 
 const paddle1Controller = new PaddleController(paddle1Speed, {
 	up: "w",
@@ -600,7 +569,6 @@ function animate() {
 				ballVelocity.x = currentBallSpeed * Math.cos(bounceAngle);
 				ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
 				scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
-				// longestRally++;
 			}
 		}
 
@@ -629,7 +597,6 @@ function animate() {
 				ballVelocity.x = -currentBallSpeed * Math.cos(bounceAngle);
 				ballVelocity.z = currentBallSpeed * Math.sin(bounceAngle);
 				scoreSystem.setLongestRally(scoreSystem.getLongestRally() + 1);
-				// longestRally++;
 			}
 		}
 
@@ -646,8 +613,6 @@ function animate() {
 				ball.position.set(0, -100, 0);
 				paddlePower1.deactivateAllPowers();
 				paddlePower2.deactivateAllPowers();
-				// console.log("Longest Rally :", longestRally);
-				// longestRally = 0;
 			} else {
 				resetBall();
 				setTimeout(launchBall, 1250);
@@ -665,8 +630,6 @@ function animate() {
 				ball.position.set(0, -100, 0);
 				paddlePower1.deactivateAllPowers();
 				paddlePower2.deactivateAllPowers();
-				// console.log("Longest Rally :", longestRally);
-				// longestRally = 0;
 			} else {
 				resetBall();
 				setTimeout(launchBall, 1250);

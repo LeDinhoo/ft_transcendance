@@ -35,11 +35,11 @@ export class NeonBorder {
     const height = 4;
 
     const orderedPositions = [
-      this.cornerSpheres[0].position, // Coin 1
-      this.cornerSpheres[1].position, // Coin 2
-      this.cornerSpheres[3].position, // Coin 4
-      this.cornerSpheres[2].position, // Coin 3
-      this.cornerSpheres[0].position, // Retour au Coin 1
+      this.cornerSpheres[0].position, 
+      this.cornerSpheres[1].position, 
+      this.cornerSpheres[3].position, 
+      this.cornerSpheres[2].position, 
+      this.cornerSpheres[0].position, 
     ];
 
     for (let i = 0; i < orderedPositions.length - 1; i++) {
@@ -88,11 +88,11 @@ export class NeonBorder {
 
   updateBorderSize() {
     const orderedPositions = [
-      this.cornerSpheres[0].position, // Coin 1
-      this.cornerSpheres[1].position, // Coin 2
-      this.cornerSpheres[3].position, // Coin 4
-      this.cornerSpheres[2].position, // Coin 3
-      this.cornerSpheres[0].position, // Retour au Coin 1 pour fermer le rectangle
+      this.cornerSpheres[0].position, 
+      this.cornerSpheres[1].position, 
+      this.cornerSpheres[3].position, 
+      this.cornerSpheres[2].position, 
+      this.cornerSpheres[0].position, 
     ];
 
     this.borderLines.forEach((line, index) => {

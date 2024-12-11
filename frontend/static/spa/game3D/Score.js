@@ -17,16 +17,16 @@ export class Score3D {
     this.scoreTextLeft = null;
     this.scoreTextRight = null;
     this.victoryText = null;
-    this.directionalLight = null; // DirectionalLight
-    this.lightTarget = null; // Target pour la lumière
+    this.directionalLight = null; 
+    this.lightTarget = null; 
     this.gameOver = false;
     this.WINNING_SCORE = 1;
     this.POINT_DIFFERENCE_REQUIRED = 2;
     this.fontLoader = new FontLoader();
     this.pressSpaceText = null;
-    this.longestRally = 0; // Initialisation ici
+    this.longestRally = 0; 
 
-    // Matériau pour le score du joueur 1 (Orange)
+    
     this.textMaterialLeft = new THREE.MeshStandardMaterial({
       color: 0xff5500,
       metalness: 0.7,
@@ -34,7 +34,7 @@ export class Score3D {
       side: THREE.DoubleSide,
     });
 
-    // Matériau pour le score du joueur 2 (Bleu)
+    
     this.textMaterialRight = new THREE.MeshStandardMaterial({
       color: 0x3db8ff,
       metalness: 0.7,
@@ -42,7 +42,7 @@ export class Score3D {
       side: THREE.DoubleSide,
     });
 
-    // Matériau pour le texte de victoire (Doré)
+    
     this.victoryMaterial = new THREE.MeshStandardMaterial({
       color: 0xf39c12,
       metalness: 0.7,
@@ -50,7 +50,7 @@ export class Score3D {
       side: THREE.DoubleSide,
     });
 
-    // Configuration pour le texte des scores
+   
     this.textOptions = {
       size: 50,
       height: 5,
@@ -62,7 +62,7 @@ export class Score3D {
       bevelSegments: 5,
     };
 
-    // Configuration pour le texte de victoire (plus grand)
+    
     this.victoryTextOptions = {
       size: 80,
       height: 5,
@@ -82,11 +82,10 @@ export class Score3D {
     this.fontLoader.load("./font/Mishmash_Regular.json", (font) => {
       this.font = font;
       this.createScoreText();
-      this.createPressSpaceText(); // Appel pour afficher "PRESS SPACE"
+      this.createPressSpaceText(); 
     });
   }
 
-  // Fonction pour afficher "PRESS SPACE"
   createPressSpaceText() {
     if (!this.font) return;
 
@@ -96,14 +95,13 @@ export class Score3D {
     geometry.computeBoundingBox();
     geometry.center();
 
-    this.pressSpaceText = new THREE.Mesh(geometry, this.textMaterialLeft); // On utilise ici le même matériau que pour le score
+    this.pressSpaceText = new THREE.Mesh(geometry, this.textMaterialLeft);
     this.pressSpaceText.rotation.x = -Math.PI / 2;
-    this.pressSpaceText.position.set(0, 5, 0); // Positionner le texte un peu plus haut dans la scène
+    this.pressSpaceText.position.set(0, 5, 0);
 
     this.scene.add(this.pressSpaceText);
   }
 
-  // Fonction pour supprimer "PRESS SPACE" lorsque le jeu commence
   removePressSpaceText() {
     if (this.pressSpaceText) {
       this.scene.remove(this.pressSpaceText);
@@ -116,11 +114,8 @@ export class Score3D {
     window.addEventListener("keydown", (event) => {
       if (event.code === "Space") {
         if (this.gameOver) {
-          // Si la partie est terminée, réinitialiser la partie
           this.resetGame();
         } else {
-          // Si la partie n'est pas terminée, commencer la partie
-          // Et que le score est a 0
           if (this.score.player1 === 0 && this.score.player2 === 0)
             this.startGame();
         }
@@ -128,21 +123,18 @@ export class Score3D {
     });
   }
 
-  // Fonction pour démarrer le jeu et cacher "PRESS SPACE"
   startGame() {
     this.gameOver = false;
-    this.removePressSpaceText(); // Supprime le texte "PRESS SPACE"
-    this.resetScore(); // Réinitialise les scores
-    this.removeVictoryText(); // Supprime le message de victoire
+    this.removePressSpaceText(); 
+    this.resetScore();
+    this.removeVictoryText();
   }
 
-  // Fonction pour réinitialiser le jeu après la fin d'une partie
   resetGame() {
-    // Réinitialiser tous les éléments du jeu
-    this.resetScore(); // Réinitialiser le score
-    this.removeVictoryText(); // Supprimer le texte de victoire
-    this.createPressSpaceText(); // Réafficher "PRESS SPACE"
-    this.gameOver = false; // Réinitialiser l'état de fin de partie
+    this.resetScore();
+    this.removeVictoryText();
+    this.createPressSpaceText();
+    this.gameOver = false;
 
     maxBallSpeed = INITIAL_BALL_SPEED;
   }
@@ -164,21 +156,16 @@ export class Score3D {
     return false;
   }
 
-  // Ajouter cette fonction dans la classe Score3D
   setScore(score1, score2) {
-    // Vérifier que les scores sont des nombres valides
     if (typeof score1 !== "number" || typeof score2 !== "number") {
       console.error("Les scores doivent être des nombres");
       return;
     }
 
-    // Mettre à jour les scores
     this.score.player1 = score1;
     this.score.player2 = score2;
 
-    // Mettre à jour les couleurs en fonction des scores
     if (this.score.player1 === 4 && this.score.player2 === 2) {
-      // Condition spéciale pour 4-2
       this.textMaterialLeft.color.setHex(0x1d995b);
       this.textMaterialRight.color.setHex(0x1d995b);
     } else if (this.score.player1 > this.score.player2) {
@@ -196,7 +183,6 @@ export class Score3D {
 
     const options = { ...this.textOptions, font: this.font };
 
-    // Mise à jour de l'affichage du score gauche
     if (this.scoreTextLeft) {
       this.scene.remove(this.scoreTextLeft);
       const geometryLeft = new TextGeometry(
@@ -209,7 +195,6 @@ export class Score3D {
       this.scene.add(this.scoreTextLeft);
     }
 
-    // Mise à jour de l'affichage du score droit
     if (this.scoreTextRight) {
       this.scene.remove(this.scoreTextRight);
       const geometryRight = new TextGeometry(
@@ -227,12 +212,10 @@ export class Score3D {
 
     this.updatePosition();
 
-    // Vérifier la condition de victoire
     this.checkWinCondition();
   }
 
   addVictoryLight() {
-    // Supprimez l'ancienne lumière si elle existe
     if (this.directionalLight) {
       this.scene.remove(this.directionalLight);
       this.scene.remove(this.lightTarget);
@@ -240,24 +223,15 @@ export class Score3D {
       this.lightTarget = null;
     }
 
-    // Créer la lumière directionnelle
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     this.directionalLight.castShadow = true;
-    this.directionalLight.shadow.mapSize.width = 2048; // Résolution des ombres
+    this.directionalLight.shadow.mapSize.width = 2048;
     this.directionalLight.shadow.mapSize.height = 2048;
-
-    // Position de la lumière
     this.directionalLight.position.set(15, 25, 15);
-
-    // Créer une cible pour la lumière
     this.lightTarget = new THREE.Object3D();
     this.lightTarget.position.copy(this.victoryText.position);
     this.scene.add(this.lightTarget);
-
-    // Associer la cible à la lumière
     this.directionalLight.target = this.lightTarget;
-
-    // Ajouter la lumière à la scène
     this.scene.add(this.directionalLight);
   }
 
@@ -304,8 +278,6 @@ export class Score3D {
     this.victoryText.position.set(0, 5, 0);
     this.scene.add(this.victoryText);
 
-    // Ajouter la lumière directionnelle ciblant le texte de victoire
-    // this.addVictoryLight();
   }
 
   removeVictoryText() {
@@ -314,7 +286,7 @@ export class Score3D {
       this.victoryText.geometry.dispose();
       this.victoryText = null;
     }
-    this.removeVictoryLight(); // Supprimer la lumière
+    this.removeVictoryLight();
   }
 
   createScoreText() {
@@ -369,19 +341,15 @@ export class Score3D {
       this.score.player2++;
     }
 
-    // Vérifier que les paddles sont disponibles
     if (this.paddle1 && this.paddle2) {
-      // Mettre à jour les couleurs en fonction des scores
       if (this.score.player1 === 4 && this.score.player2 === 2) {
-        // Condition spéciale pour 4-2
         this.textMaterialLeft.color.setHex(0x1d995b);
         this.textMaterialRight.color.setHex(0x1d995b);
 
-        // Changer la texture du plan
         if (this.gamePlane && this.specialTexture) {
           this.gamePlane.traverse((child) => {
             if (child.isMesh) {
-              // Sauvegarder le matériau original si ce n'est pas déjà fait
+              
               if (!this.originalPlaneMaterial) {
                 this.originalPlaneMaterial = child.material.clone();
               }
@@ -391,7 +359,7 @@ export class Score3D {
           });
         }
 
-        // Changement de la couleur des paddles
+        
         this.paddle1.traverse((child) => {
           if (child.isMesh) {
             child.material.color.setHex(0x1d995b);
@@ -403,7 +371,7 @@ export class Score3D {
           }
         });
       } else {
-        // Restaurer la texture originale du plan
+      
         if (this.gamePlane && this.originalPlaneMaterial) {
           this.gamePlane.traverse((child) => {
             if (child.isMesh) {
@@ -463,7 +431,6 @@ export class Score3D {
 
     const options = { ...this.textOptions, font: this.font };
 
-    // Mise à jour de l'affichage du score gauche
     if (this.scoreTextLeft) {
       this.scene.remove(this.scoreTextLeft);
       const geometryLeft = new TextGeometry(
@@ -476,7 +443,6 @@ export class Score3D {
       this.scene.add(this.scoreTextLeft);
     }
 
-    // Mise à jour de l'affichage du score droit
     if (this.scoreTextRight) {
       this.scene.remove(this.scoreTextRight);
       const geometryRight = new TextGeometry(
@@ -494,18 +460,12 @@ export class Score3D {
 
     this.updatePosition();
 
-    // Vérifier la condition de victoire après avoir mis à jour l'affichage
-    // this.checkWinCondition();
 
     if (this.checkWinCondition()) {
-      // Déterminer les scores finaux et le résultat
+      
       const scoreUser = this.score.player1;
       const scoreOpponent = this.score.player2;
-      const result = scoreUser > scoreOpponent; // true si le joueur 1 gagne, sinon false
-      // const longestRally = longestRally;
-
-      // Enregistrer la partie
-      // recordGame(scoreUser, scoreOpponent, result);
+      const result = scoreUser > scoreOpponent; 
     }
   }
   
@@ -516,15 +476,15 @@ export class Score3D {
 
   getWinner() {
     if (!this.isGameOver()) {
-      return null; // Aucun gagnant si le jeu n'est pas encore terminé
+      return null;
     }
 
     if (this.score.player1 > this.score.player2) {
-      return "Blue"; // Joueur 1 (Blue) gagne
+      return "Blue"; 
     } else if (this.score.player2 > this.score.player1) {
-      return "Orange"; // Joueur 2 (Orange) gagne
+      return "Orange";
     } else {
-      return "Draw"; // En cas d'égalité (bien que cela soit rare dans votre logique)
+      return "Draw";
     }
   }
 
@@ -553,7 +513,7 @@ export class Score3D {
       score_user: scoreUser,
       score_opponent: scoreOpponent,
       result: result,
-      longest_rally: longestRally, // Ajout de longestRally
+      longest_rally: longestRally,
       max_ball_speed: maxBallSpeed,
     };
 
@@ -564,7 +524,6 @@ export class Score3D {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // "X-CSRFToken": csrftoken,
       },
       credentials: "include",
       body: JSON.stringify(data),
@@ -572,9 +531,9 @@ export class Score3D {
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          console.log(data.message); // Confirmation
+          console.log(data.message);
         } else if (data.error) {
-          console.error(data.error); // Affiche une erreur
+          console.error(data.error);
         }
       })
       .catch((error) => console.error("Erreur :", error));
@@ -592,11 +551,9 @@ export class Score3D {
     this.textMaterialLeft.color.setHex(0xff5500);
     this.textMaterialRight.color.setHex(0x3db8ff);
 
-    // Recréer les textes avec les scores à 0
     if (this.font) {
       const options = { ...this.textOptions, font: this.font };
 
-      // Mettre à jour le score gauche
       if (this.scoreTextLeft) {
         this.scene.remove(this.scoreTextLeft);
         const geometryLeft = new TextGeometry("0", options);
@@ -609,7 +566,6 @@ export class Score3D {
         this.scene.add(this.scoreTextLeft);
       }
 
-      // Mettre à jour le score droit
       if (this.scoreTextRight) {
         this.scene.remove(this.scoreTextRight);
         const geometryRight = new TextGeometry("0", options);

@@ -23,13 +23,13 @@ export class TemporaryCube {
 		this.powerManager = powerManager;
 		this.power = null;
 
-		// Propriétés pour l'effet de vague
-		this.waveAmplitude = 10; // Amplitude de la vague (la hauteur maximale de l'oscillation)
-		this.waveFrequency = 0.07; // Fréquence de l'oscillation (plus grand = plus rapide)
-		this.wavePhase = Math.random() * Math.PI * 2; // Phase aléatoire pour éviter que tous les cubes aient la même oscillation
+		
+		this.waveAmplitude = 10; 
+		this.waveFrequency = 0.07; 
+		this.wavePhase = Math.random() * Math.PI * 2; 
 
-		this.time = 0; // Temps pour calculer l'oscillation
-		this.groundY = 20; // Hauteur minimale du cube
+		this.time = 0; 
+		this.groundY = 20; 
 		this.oldPosition = {x: 0, z: 0};
 		this.isNearTop = false;
 		this.isNearBottom = false;

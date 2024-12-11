@@ -1,7 +1,5 @@
 console.log("gameSript en cours...")
 
-
-// Constants
 const PADDLE_WIDTH = 100;
 const BALL_SIZE = 20;
 const PADDLE_SPEED = 10;
@@ -12,7 +10,7 @@ const MIN_SPEED = 5;
 const AI_TAKEOVER_DELAY = 2500;
 const MAX_TRAIL_LENGTH = 5;
 
-// Game state
+
 let gameState = {
     ballX: 0,
     ballY: 0,
@@ -37,7 +35,6 @@ let gameState = {
     gameHeight: 0
 };
 
-// DOM Elements
 let gameElements = {
     gameSection: null,
     topPaddle: null,
@@ -55,12 +52,12 @@ function initializeGameElements() {
     gameElements.speedDisplay = document.getElementById('speedDisplay');
     gameElements.scoreDisplay = document.getElementById('scoreDisplay');
 
-    // Log des dimensions pour vérifier si elles sont correctes
+    
     console.log("Dimensions gameSection :", gameElements.gameSection.offsetWidth, gameElements.gameSection.offsetHeight);
     console.log("Dimensions topPaddle :", gameElements.topPaddle.offsetWidth, gameElements.topPaddle.offsetHeight);
     console.log("Dimensions ball :", gameElements.ball.offsetWidth, gameElements.ball.offsetHeight);
     
-    // Set dynamic game dimensions
+    
     gameState.gameWidth = gameElements.gameSection.offsetWidth;
     gameState.gameHeight = gameElements.gameSection.offsetHeight;
 }
@@ -253,12 +250,12 @@ function moveBall() {
     gameState.ballX += gameState.ballSpeedX;
     gameState.ballY += gameState.ballSpeedY;
 
-    // Handle wall collisions
+    
     if (gameState.ballX <= 0 || gameState.ballX >= gameState.gameWidth - BALL_SIZE) {
         gameState.ballSpeedX = -gameState.ballSpeedX;
     }
 
-    // Handle scoring
+    
     if (gameState.ballY >= gameState.gameHeight - BALL_SIZE) {
         gameState.topScore++;
         resetBall();
@@ -271,12 +268,12 @@ function moveBall() {
     gameElements.ball.style.top = gameState.ballY + 'px';
 }
 
-const maxBounceAngle = 75 * (Math.PI / 180); // Convertir en radians si nécessaire
+const maxBounceAngle = 75 * (Math.PI / 180); 
 
 function calculateReflectionAngle(ballX, paddleX, paddleWidth) {
     const paddleCenterX = paddleX + paddleWidth / 2;
     const relativeIntersectX = (ballX - paddleCenterX) / (paddleWidth / 2);
-    // Limiter la valeur entre -1 et 1
+    
     const clampedIntersectX = Math.max(-1, Math.min(1, relativeIntersectX));
     const reflectionAngle = clampedIntersectX * maxBounceAngle;
     return reflectionAngle;
@@ -297,7 +294,7 @@ function checkPaddleCollisions() {
     let topPaddlePosition = gameElements.topPaddle.getBoundingClientRect();
     let bottomPaddlePosition = gameElements.bottomPaddle.getBoundingClientRect();
 
-    // Collision with top paddle
+   
     if (gameState.ballX + BALL_SIZE > topPaddlePosition.left && 
         gameState.ballX < topPaddlePosition.right && 
         gameState.ballY <= topPaddlePosition.bottom && 
@@ -309,7 +306,7 @@ function checkPaddleCollisions() {
         }
     }
 
-    // Collision with bottom paddle
+    
     if (gameState.ballX + BALL_SIZE > bottomPaddlePosition.left && 
         gameState.ballX < bottomPaddlePosition.right && 
         gameState.ballY + BALL_SIZE >= bottomPaddlePosition.top && 

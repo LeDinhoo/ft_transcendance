@@ -61,22 +61,17 @@ body {
 
 .titleFrame {
     width: 100%;
-    /*height: 5.208vw;*/
     display: flex;
     justify-content: center;
     align-items: center;
-    /* background-color: var(--dark-grey); */
     border-radius: var(--radius-lg);
 }
 
 .saveButtonFrame {
     width: 100%;
-    /*height: 5.208vw;*/
     display: flex;
     justify-content: center;
     align-items: center;
-    /* background-color: rgb(65, 17, 58); */
-    /* background-color: var(--dark-grey); */
     border-radius: var(--radius-lg);
 }
 
@@ -97,10 +92,7 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    /* gap: var(--16px); */
-    /* background-color: brown; */
     background-color: var(--dark-grey);
-    /* border-radius: var(--radius-lg); */
     padding: var(--16px);
     border-radius: var(--radius-lg);
 }
@@ -113,7 +105,6 @@ body {
     align-items: center;
     flex-direction: row;
     gap: 6.521vw;
-    /* background-color: var(--dark-grey); */
     border-radius: var(--radius-lg);
     padding: var(--16px);
 }
@@ -146,13 +137,11 @@ body {
 }
 
 .selectorFrame, .selectorGameFrame {
-    /* width: 100%; */
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
     gap: 2vw;
-    /* background-color: var(--dark-grey); */
     border-radius: var(--radius-lg);
     padding: 0.521vw;
 }
@@ -199,7 +188,6 @@ body {
 .ballSpeedIncreaseOptionLabel:hover,
 .change-key:hover,
 .scoreOptionLabel:hover {
-    /* transform: scale(1.05); */
     border-color: var(--liquid-lava);
 }
 

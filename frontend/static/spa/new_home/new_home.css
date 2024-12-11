@@ -256,24 +256,6 @@ body {
 	border-radius: var(--12px);
 }
 
-  .onlinePlayers:hover {
-	/*! background-color: var(--gluon-grey); */
-}
-
-/* .onlineNickname {
-	display: flex;
-	align-items: center;
-	gap: var(--12px);
-	font-weight: 500;
-	font-size: var(--16px);
-	color: var(--snow);
-	cursor: pointer;
-	padding: var(--8px) var(--12px);
-	border-radius: var(--24px);
-	border: 2px solid var(--dusty-grey);
-}
- */
-
 .onlineNickname {
   display: flex;
   justify-content: center;
@@ -286,11 +268,6 @@ body {
   font-size: var(--20px);
   color: var(--snow);
   font-weight: 600;
-}
-
-  .onlineNickname:hover {
-	/*! border-color: var(--liquid-lava); */
-	/*! background-color: rgba(255, 255, 255, 0.05); */
 }
 
 .onlineAvatar {
@@ -602,13 +579,6 @@ body {
 
 .onlineNickname {
   cursor: pointer;
-  /*! transform-origin: center; */
-  /*! transition: all 0.3s ease; */
-}
-
-.onlineNickname:hover {
-  /*! transform: scale(1.05); */
-  /*! border-color: var(--liquid-lava); */
 }
 
 .gameOption,
@@ -1240,19 +1210,12 @@ body {
   opacity: 0.8;
 }
 
-
-
-
-
-/* Styliser la scrollbar pour les conteneurs avec défilement */
 .downLeftFrame,
 .chatMessages {
-  /* Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--dusty-grey) var(--dark-grey);
 }
 
-/* Chrome, Edge, Safari */
 .downLeftFrame::-webkit-scrollbar,
 .chatMessages::-webkit-scrollbar {
   width: 8px;
@@ -1277,13 +1240,12 @@ body {
   background: var(--dusty-grey);
 }
 
-/* Améliorer le comportement du scroll */
 .downLeftFrame {
   scroll-behavior: smooth;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-right: 8px; /* Compensation pour la scrollbar */
+  padding-right: 8px;
 }
 
 .chatMessages {
@@ -1294,7 +1256,6 @@ body {
   padding-right: 8px;
 }
 
-/* Cacher les scrollbars sur les appareils mobiles */
 @media (max-width: 768px) {
   .downLeftFrame,
   .chatMessages {
@@ -1306,10 +1267,6 @@ body {
     display: none;
   }
 }
-
-
-
-/* remote */
 
 
 .game-invitation-modal {

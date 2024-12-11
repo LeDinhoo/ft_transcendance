@@ -3,21 +3,21 @@ const registerWidget = document.getElementById("registerWidget");
 const signUpButton = document.getElementById("signUpButton");
 const registerButton = document.getElementById("registerButton");
 const loginTitle = document.getElementById("loginTitle");
-const registerTitle = document.getElementById("registerTitle"); // Ajoutez cette ligne
+const registerTitle = document.getElementById("registerTitle");
 
-// Fonction pour ajouter l'effet de rebond
+
 function addBounceEffect(element) {
   element.classList.add("bounce");
   setTimeout(() => {
     element.classList.remove("bounce");
-  }, 1000); // Durée de l'animation
+  }, 1000);
 }
 
 function addReverseBounceEffect(element) {
   element.classList.add("invertBounce");
   setTimeout(() => {
     element.classList.remove("invertBounce");
-  }, 1000); // Durée de l'animation
+  }, 1000);
 }
 
 registerButton.addEventListener("click", () => {
