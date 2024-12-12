@@ -3,6 +3,33 @@ from django.db import models
 import random
 import string
 
+from django.conf import settings
+from django.db import models
+
+def default_keyboard_settings():
+    return {
+        'player1': {'moveUp': 'W', 'moveDown': 'S', 'launchPower': 'E'},
+        'player2': {'moveUp': 'ArrowUp', 'moveDown': 'ArrowDown', 'launchPower': 'ArrowLeft'}
+    }
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='settings'
+    )
+    score_to_win = models.IntegerField(default=5)
+    difficulty = models.CharField(max_length=50, default='medium')
+    ball_speed_start = models.FloatField(default=10.0)
+    ball_speed_max = models.FloatField(default=30.0)
+    ball_speed_increase = models.FloatField(default=1.0)
+    powerups = models.JSONField(default=list, blank=True)
+    keyboard_settings = models.JSONField(default=default_keyboard_settings, blank=True)
+
+    def __str__(self):
+        return f"Settings for {self.user.username}"
+
+
 class CustomUser(AbstractUser):
 	
 	is_2fa_enabled = models.BooleanField(default=False)
@@ -14,9 +41,9 @@ class CustomUser(AbstractUser):
 	intra_42_id = models.IntegerField(null=True, blank=True, unique=True)
 	is_42_user = models.BooleanField(default=False)
 	
-	is_2fa_enabled = models.BooleanField(default=False)
-	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
-	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
+# 	is_2fa_enabled = models.BooleanField(default=False)
+# 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
+# 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
 
 	groups = models.ManyToManyField(
 		'auth.Group',
@@ -95,8 +122,8 @@ class GameHostOptions(models.Model):
     ballSpeedStart = models.FloatField(default=10.0)
     ballSpeedMax = models.FloatField(default=30.0)
     ballSpeedIncrease = models.FloatField(default=1.0)
-    powerups = models.JSONField(default=default_powerups, blank=True)  
-    keyboardSettings = models.JSONField(default=dict)  
+    powerups = models.JSONField(default=default_powerups, blank=True)
+    keyboardSettings = models.JSONField(default=dict)
 
     def __str__(self):
         return (f"scoreToWin={self.scoreToWin}, difficulty={self.difficulty}, "

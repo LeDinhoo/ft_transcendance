@@ -271,13 +271,14 @@ function initializeSettingsPage() {
 			})
 			.then((data) => {
 				console.log("Données de réponse :", data);
-				if (!data.success) {
+
+				// Vérifiez la réponse correctement
+				if (data.message !== "Settings updated successfully") {
 					throw new Error(data.error || "Erreur inconnue côté serveur");
 				}
 
 				console.log("Paramètres de jeu sauvegardés avec succès :", data);
 
-				
 				const saveButton = document.getElementById("save-settings");
 				saveButton.textContent = "Saved!";
 				saveButton.disabled = true;
@@ -395,10 +396,13 @@ function initializeSettingsPage() {
 			})
 			.then((data) => {
 				console.log("Données de réponse :", data);
-				if (!data.success) {
+
+				// Vérifiez la réponse correctement
+				if (data.message !== "Settings updated successfully") {
 					throw new Error(data.error || "Erreur inconnue côté serveur");
 				}
-				console.log("Paramètres sauvegardés avec succès :", data);
+
+				console.log("Paramètres clavier sauvegardés avec succès :", data);
 			})
 			.catch((error) => {
 				console.error("Erreur lors de la sauvegarde :", error);
