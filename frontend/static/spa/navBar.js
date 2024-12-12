@@ -2,10 +2,8 @@ function addLanguageSelector() {
     const navbar = document.querySelector('.headerNavBar');
     if (!navbar) return;
 
-    // Vérifie si le sélecteur de langue existe déjà
     const existingSelector = document.querySelector('.language-selector, .languageSwitcher');
     if (existingSelector) {
-        // Si un sélecteur existe déjà, ne pas en ajouter un nouveau
         return;
     }
 
@@ -26,17 +24,15 @@ function addLanguageSelector() {
         flag.addEventListener('click', async (e) => {
             const language = e.target.dataset.language;
             await window.setPreferredLanguage(language);
-            
-            document.querySelectorAll('.language-flag').forEach(f => 
+
+            document.querySelectorAll('.language-flag').forEach(f =>
                 f.classList.remove('active'));
             e.target.classList.add('active');
         });
     });
 
-    // Insérer le sélecteur de langue
     navbar.insertBefore(languageSelector, navbar.firstChild);
 
-    // Mettre en surbrillance la langue actuelle
     window.getPreferredLanguage().then(currentLanguage => {
         const currentFlag = languageSelector.querySelector(
             `[data-language="${currentLanguage}"]`
@@ -51,7 +47,7 @@ function addLanguageSelector() {
 function initializeNavBar() {
 
   addLanguageSelector();
-  
+
   const labels = document.querySelectorAll(".navLabel");
   const icons = document.querySelectorAll(".iconMenu");
 
@@ -101,7 +97,7 @@ function initializeNavBar() {
     const logoutButton = document.getElementById("logout-icon");
     if (logoutButton) {
       logoutButton.addEventListener("click", logout); // Appelle la fonction logout définie dans app.js
-      console.log("Logout button event listener attached"); 
+      console.log("Logout button event listener attached");
     } else {
       console.error("Logout icon not found in the DOM.");
     }

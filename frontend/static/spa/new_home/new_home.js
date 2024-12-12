@@ -21,25 +21,28 @@ function updateProfilOnHome() {
         const totalGames = data.total_games ?? 0;
         console.log("total games : ", totalGames);
 
+        let rankKey;
+        let rankImage;
         if (win_ratio < 33) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/bronze.png";
-          document.getElementById("rankText").innerText = "Bronze";
+            rankImage = "bronze";
+            rankKey = "home.ranks.bronze";
         } else if (win_ratio < 66 && win_ratio >= 33) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/silver.png";
-          document.getElementById("rankText").innerText = "Silver";
-        } else if (
-          (win_ratio < 80 && win_ratio >= 66) ||
-          (win_ratio >= 66 && totalGames < 5)
-        ) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/gold.png";
-          document.getElementById("rankText").innerText = "Gold";
+            rankImage = "silver";
+            rankKey = "home.ranks.silver";
+        } else if ((win_ratio < 80 && win_ratio >= 66) || (win_ratio >= 66 && totalGames < 5)) {
+            rankImage = "gold";
+            rankKey = "home.ranks.gold";
         } else if (win_ratio >= 80 && totalGames >= 5) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/platinium.png";
-          document.getElementById("rankText").innerText = "Platinium";
+            rankImage = "platinium";
+            rankKey = "home.ranks.platinum";
+        }
+
+        document.getElementById("rankImage").src = `static/assets/icons/${rankImage}.png`;
+        const rankText = document.getElementById("rankText");
+        if (rankText) {
+            rankText.setAttribute('data-translate', rankKey);
+            // Recharger les traductions pour ce nouvel élément
+            loadTranslations(getPreferredLanguage());
         }
 
         const avatarUrl =
@@ -140,23 +143,15 @@ function initializeHome() {
 		const headerElement = messageElement.querySelector(".messageHeader");
 		const userId = headerElement?.dataset?.userId;
 
-		// Debug logs
-		console.log("sendFriendRequest - Element:", messageElement);
-		console.log("sendFriendRequest - headerElement:", headerElement);
-		console.log("sendFriendRequest - userId:", userId);
-		console.log("sendFriendRequest - currentUser.id:", window.currentUser?.id);
-
 		if (!userId) {
-			console.error('No user ID found');
-			ChatHandler.showNotification('Unable to send friend request: User ID not found');
-			return;
-		}
+            ChatHandler.showNotification(window.getTranslation('home.notifications.friendRequest.noUser'));
+            return;
+        }
 
-		// Vérification côté client
-		if (userId === String(window.currentUser?.id)) {
-			ChatHandler.showNotification('You cannot send a friend request to yourself');
-			return;
-		}
+        if (userId === String(window.currentUser?.id)) {
+            ChatHandler.showNotification(window.getTranslation('home.notifications.friendRequest.selfRequest'));
+            return;
+        }
 
 		try {
 			const response = await fetch('/api/friends/send-request/', {
@@ -201,12 +196,22 @@ function initializeHome() {
     }
 
 	static showNotification(message) {
-		const notification = document.createElement("div");
-		notification.classList.add("notification");
-		notification.textContent = message;
-		document.body.appendChild(notification);
-		setTimeout(() => notification.remove(), 3000);
-	}
+        // Créer l'élément de notification
+        const notification = document.createElement("div");
+        notification.classList.add("confirmation-animation");
+        notification.innerHTML = `
+            <div class="confirmation-icon"></div>
+            // Utiliser une traduction pour les messages de notification
+            <div class="confirmation-text" data-translate="home.notifications.${message}"></div>
+        `;
+
+        // Ajouter au DOM et appliquer la traduction
+        document.querySelector(".homePageMain").appendChild(notification);
+        loadTranslations(getPreferredLanguage());
+
+        // Supprimer après délai
+        setTimeout(() => notification.remove(), 2000);
+    }
 
     static initializeContextMenu() {
 		const chatMessages = DOM.chat.messages;
@@ -243,24 +248,26 @@ function initializeHome() {
 			menu.className = "chat-context-menu";
 
 			menu.innerHTML = `
-            <div class="chat-menu-option" data-action="profile">
+            <div class="chat-menu-option" data-translate="home.context.profile" data-action="profile">
                 See profile
             </div>
             ${!isOwnMessage ? `
-                <div class="chat-menu-option" data-action="add-friend">
+                <div class="chat-menu-option" data-translate="home.context.addFriend" data-action="add-friend">
                     Add friend
                 </div>
-                <div class="chat-menu-option" data-action="send-invitation">
-                    Send online invitation
+                <div class="chat-menu-option" data-translate="home.context.invite" data-action="send-invitation">
+                    Send game invitation
                 </div>
             ` : ''}
-            <div class="chat-menu-option" data-action="block">
+            <div class="chat-menu-option" data-action="block" data-translate="${
+                isBlocked ? 'home.context.unblock' : 'home.context.block'
+            }">
                 ${isBlocked ? "Unblock user" : "Block user"}
             </div>
-            <div class="chat-menu-option" data-action="private-message">
+            <div class="chat-menu-option" data-translate="home.context.message" data-action="private-message">
                 Private message
             </div>
-            `;
+        `;
 
 			document.body.appendChild(menu);
 			const rect = avatar.getBoundingClientRect();
@@ -317,51 +324,48 @@ function initializeHome() {
 	}
 
     static toggleBlockUser(username) {
-      if (ChatHandler.blockedUsers.has(username)) {
-        ChatHandler.blockedUsers.delete(username);
-      } else {
-        ChatHandler.blockedUsers.add(username);
-      }
-
-      const messages = DOM.chat.messages.querySelectorAll(".message");
-      messages.forEach((message) => {
-        const messageUsername =
-          message.querySelector(".messageHeader").textContent;
-        if (messageUsername === username) {
-          message.style.opacity = ChatHandler.blockedUsers.has(username)
-            ? "0.5"
-            : "1";
-          const messageText = message.querySelector(".messageText");
-          if (ChatHandler.blockedUsers.has(username)) {
-            messageText.dataset.originalText = messageText.textContent;
-            messageText.textContent = "Message blocked";
-          } else {
-            messageText.textContent =
-              messageText.dataset.originalText || messageText.textContent;
-          }
+        if (ChatHandler.blockedUsers.has(username)) {
+            ChatHandler.blockedUsers.delete(username);
+        } else {
+            ChatHandler.blockedUsers.add(username);
         }
-      });
+
+        const messages = DOM.chat.messages.querySelectorAll(".message");
+        messages.forEach((message) => {
+            const messageUsername = message.querySelector(".messageHeader").textContent;
+            if (messageUsername === username) {
+                message.style.opacity = ChatHandler.blockedUsers.has(username) ? "0.5" : "1";
+                const messageText = message.querySelector(".messageText");
+                if (ChatHandler.blockedUsers.has(username)) {
+                    messageText.dataset.originalText = messageText.textContent;
+                    // Traduire "Message blocked"
+                    messageText.setAttribute('data-translate', 'home.chat.blockedMessage');
+                } else {
+                    messageText.textContent = messageText.dataset.originalText || messageText.textContent;
+                }
+            }
+        });
     }
 
     static showBlockConfirmation(username, isBlocking) {
-      const homePageMain = document.querySelector(".homePageMain");
-      if (!homePageMain) return;
+        const homePageMain = document.querySelector(".homePageMain");
+        if (!homePageMain) return;
 
-      const confirmation = document.createElement("div");
-      confirmation.classList.add("confirmation-animation");
-      confirmation.innerHTML = `
-          <div class="confirmation-icon"></div>
-          <div class="confirmation-text">
-              ${
-                isBlocking
-                  ? `User ${username} has been blocked`
-                  : `User ${username} has been unblocked`
-              }
-          </div>
-      `;
+        const confirmation = document.createElement("div");
+        confirmation.classList.add("confirmation-animation");
 
-      homePageMain.appendChild(confirmation);
-      setTimeout(() => confirmation.remove(), 2000);
+        // Créer le message avec traduction
+        confirmation.innerHTML = `
+            <div class="confirmation-icon"></div>
+            <div class="confirmation-text"
+                 data-translate="${isBlocking ? 'home.chat.userBlocked' : 'home.chat.userUnblocked'}"
+                 data-translate-params='{"username": "${username}"}'>
+            </div>
+        `;
+
+        homePageMain.appendChild(confirmation);
+        loadTranslations(getPreferredLanguage());
+        setTimeout(() => confirmation.remove(), 2000);
     }
 
     static startPrivateMessage(username) {
@@ -376,8 +380,10 @@ function initializeHome() {
 
       if (ChatHandler.blockedUsers.has(data.username)) {
         data.originalMessage = data.message;
-        data.message = "Message blocked";
-      }
+        // Utiliser getNestedTranslation à la place de window.getTranslation
+        const translations = loadedTranslations[getPreferredLanguage()];
+        data.message = translations ? getNestedTranslation('home.chat.blockedMessage', translations) : "Message blocked";
+    }
 
       const isCurrentUser =
         window.currentUser && data.username === window.currentUser.username;
@@ -395,18 +401,18 @@ function initializeHome() {
       }
 
       messageElement.innerHTML = `
-        <img src="${data.avatar}"
-            alt="${data.username}"
-            class="messageAvatar"
-            title="Click for options">
-        <div class="messageContent">
-            <div class="messageHeader"
-                 data-user-id="${data.userId}"
-                 data-username="${data.username}">
-                ${data.username}
-            </div>
-            <div class="messageText">${data.message}</div>
-        </div>
+          <img src="${data.avatar}"
+              alt="${data.username}"
+              class="messageAvatar"
+             data-translate="home.chat.clickForOptions">
+          <div class="messageContent">
+              <div class="messageHeader"
+                   data-user-id="${data.userId}"
+                   data-username="${data.username}">
+                  ${data.username}
+              </div>
+              <div class="messageText">${data.message}</div>
+          </div>
       `;
 
       DOM.chat.messages.appendChild(messageElement);

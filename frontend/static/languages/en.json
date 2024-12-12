@@ -36,7 +36,17 @@
             "players": "Online Players"
         },
         "chat": {
-            "title": "Live Chat"
+            "blockedMessage": "Message blocked",
+            "clickForOptions": "Click for options",
+            "userTyping": "{username} is typing..."
+        },
+        "notifications": {
+            "friendRequest": {
+                "noUser": "Unable to send friend request: User ID not found",
+                "selfRequest": "You cannot send a friend request to yourself",
+                "success": "Friend request sent successfully",
+                "error": "Error sending friend request"
+            }
         },
         "buttons": {
             "play": "PLAY"
@@ -56,6 +66,16 @@
         "context": {
             "profile": "See profile",
             "addFriend": "Add friend request"
+        },
+		"errors": {
+            "templateNotFound": "Game invitation template not found",
+            "selectGameAndMode": "Please select both a game type and a mode!"
+        },
+        "status": {
+            "loading": "Loading game...",
+            "focus": "Setting focus to game",
+            "initialized": "Game is already initialized",
+            "winner": "The winner is: {winner}"
         }
     },
 	"profil": {
@@ -92,5 +112,35 @@
 			"confirmNewPassword": "Confirm New Password",
 			"verificationCode": "Verification Code"
 		}
-	}		
+	},
+	"settings": {
+		"game_settings": "Game Settings",
+		"score_to_win": "Score to Win",
+		"score_1": "1",
+		"score_3": "3",
+		"score_5": "5",
+		"score_10": "10",
+		"score_15": "15",
+		"ball_slower": "Ball Slower during Serve",
+		"yes": "Yes",
+		"no": "No",
+		"who_starts": "Who starts after a Point",
+		"player_1": "Player 1",
+		"alternate": "Alternate",
+		"player_2": "Player 2",
+		"power_mode": "Power Mode",
+		"ia_difficulty": "IA Difficulty",
+		"easy": "Easy",
+		"medium": "Medium",
+		"hard": "Hard",
+		"controls_settings": "Controls Settings",
+		"movement": "Movement",
+		"move_up": "Move Up",
+		"move_down": "Move Down",
+		"powers": "Powers",
+		"flash_power": "Flash Power",
+		"laser_power": "Laser Power",
+		"multiball_power": "Multiball Power",
+		"save": "SAVE"
+	}
 }
