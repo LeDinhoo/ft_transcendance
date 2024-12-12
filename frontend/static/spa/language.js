@@ -76,10 +76,21 @@ async function loadTranslations(language) {
 function applyTranslations(translations) {
     document.querySelectorAll('[data-translate]').forEach((element) => {
         const translationKey = element.getAttribute('data-translate');
-        const translatedText = getNestedTranslation(translationKey, translations);
-        console.log(`Translating key: ${translationKey}, translated text: ${translatedText}`);
+        const params = element.getAttribute('data-translate-params')?.split(',');
+        let translatedText = getNestedTranslation(translationKey, translations);
+
+        if (params && translatedText) {
+            params.forEach((param, index) => {
+                translatedText = translatedText.replace(`{${index}}`, param);
+            });
+        }
+
         if (translatedText) {
-            element.textContent = translatedText;
+            if (element.tagName === "INPUT") {
+                element.value = translatedText;
+            } else {
+                element.textContent = translatedText;
+            }
         } else {
             console.warn(`No translation found for key: ${translationKey}`);
         }

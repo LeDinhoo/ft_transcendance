@@ -1,37 +1,37 @@
 function initializeTournamentPage() {
-  console.log("fonction initializetournament game appele ...")
+	console.log("fonction initializetournament game appele ...")
 
-  const DEFAULT_AVATAR = "/static/assets/icons/pending.svg";
+	const DEFAULT_AVATAR = "/static/assets/icons/pending.svg";
 
-  // État global du tournoi
-  const tournamentState = {
-    players: [],
-    matches: [],
-    currentMatch: 0,
-    isStarted: false,
-    currentRound: 1,
-    matchResults: {},
-  };
+	// État global du tournoi
+	const tournamentState = {
+		players: [],
+		matches: [],
+		currentMatch: 0,
+		isStarted: false,
+		currentRound: 1,
+		matchResults: {},
+	};
 
-  class TournamentGameManager {
-    constructor(tournamentState) {
-      this.tournamentState = tournamentState;
-      this.currentGameScores = {
-        player1: 0,
-        player2: 0,
-      };
-      this.setupGameContainer();
-    }
+	class TournamentGameManager {
+		constructor(tournamentState) {
+			this.tournamentState = tournamentState;
+			this.currentGameScores = {
+				player1: 0,
+				player2: 0,
+			};
+			this.setupGameContainer();
+		}
 
-    setupGameContainer() {
-      const oldContainer = document.getElementById("gameContainer");
-      if (oldContainer) {
-        oldContainer.remove();
-      }
+		setupGameContainer() {
+			const oldContainer = document.getElementById("gameContainer");
+			if (oldContainer) {
+				oldContainer.remove();
+			}
 
-      this.gameContainer = document.createElement("iframe");
-      this.gameContainer.id = "gameContainer";
-      this.gameContainer.style.cssText = `
+			this.gameContainer = document.createElement("iframe");
+			this.gameContainer.id = "gameContainer";
+			this.gameContainer.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
@@ -43,810 +43,822 @@ function initializeTournamentPage() {
         background: black;
       `;
 
-      document.body.appendChild(this.gameContainer);
+			document.body.appendChild(this.gameContainer);
 
-      // Écoute des messages du jeu
-      window.addEventListener("message", (event) => {
-        console.log("event.data: ", event.data);
-        if (event.data.type === "scoreUpdate") {
-          // Mise à jour des scores en cours de partie
-          this.currentGameScores = {
-            player1: event.data.data.player1Score,
-            player2: event.data.data.player2Score,
-          };
-        } else if (event.data.type === "gameComplete") {
-          console.log("Game completed with data:", event.data.data);
-          console.log("event.data.player1score:", event.data.player1Score);
-          console.log("event.data.player2score:", event.data.player2Score);
-          console.log("event.data.winner:", event.data.winner);
-          console.log("event.data.finalscores:", event.data.finalScores);
-          
-          this.endGame();
-          progressTournament(event.data.data.winner, event.data.data.finalScores);
-        }
-      });
-    }
+			// Écoute des messages du jeu
+			window.addEventListener("message", (event) => {
+				console.log("event.data: ", event.data);
+				if (event.data.type === "scoreUpdate") {
+					// Mise à jour des scores en cours de partie
+					this.currentGameScores = {
+						player1: event.data.data.player1Score,
+						player2: event.data.data.player2Score,
+					};
+				} else if (event.data.type === "gameComplete") {
+					console.log("Game completed with data:", event.data.data);
+					console.log("event.data.player1score:", event.data.player1Score);
+					console.log("event.data.player2score:", event.data.player2Score);
+					console.log("event.data.winner:", event.data.winner);
+					console.log("event.data.finalscores:", event.data.finalScores);
 
-    startGame() {
-      // Reset scores for new game
-      this.currentGameScores = {
-        player1: 0,
-        player2: 0,
-      };
+					this.endGame();
+					progressTournament(event.data.data.winner, event.data.data.finalScores);
+				}
+			});
+		}
 
-      const currentMatch =
-        this.tournamentState.matches[this.tournamentState.currentMatch];
-      console.log("Starting game for match:", this.tournamentState.currentMatch);
-      console.log("Current match data:", currentMatch);
+		startGame() {
+			// Reset scores for new game
+			this.currentGameScores = {
+				player1: 0,
+				player2: 0,
+			};
 
-      if (
-        !currentMatch ||
-        this.tournamentState.currentMatch >= this.tournamentState.matches.length
-      ) {
-        console.log("No more matches to play");
-        return;
-      }
+			const currentMatch =
+				this.tournamentState.matches[this.tournamentState.currentMatch];
+			console.log("Starting game for match:", this.tournamentState.currentMatch);
+			console.log("Current match data:", currentMatch);
 
-      this.gameContainer.style.display = "block";
-      this.gameContainer.src = "/static/spa/game/three.html";
+			if (
+				!currentMatch ||
+				this.tournamentState.currentMatch >= this.tournamentState.matches.length
+			) {
+				console.log("No more matches to play");
+				return;
+			}
 
-      this.gameContainer.onload = () => {
-        console.log(
-          "Game loaded, sending players:",
-          currentMatch.player1,
-          currentMatch.player2
-        );
-        this.gameContainer.contentWindow.postMessage(
-          {
-            type: "startGame",
-            data: {
-              player1: currentMatch.player1,
-              player2: currentMatch.player2,
-            },
-          },
-          "*"
-        );
-        this.gameContainer.focus();
-      };
-    }
+			this.gameContainer.style.display = "block";
+			this.gameContainer.src = "/static/spa/game/three.html";
 
-    endGame() {
-      this.gameContainer.style.display = "none";
-      this.gameContainer.src = "about:blank";
-      this.gameContainer.blur();
+			this.gameContainer.onload = () => {
+				console.log(
+					"Game loaded, sending players:",
+					currentMatch.player1,
+					currentMatch.player2
+				);
+				this.gameContainer.contentWindow.postMessage(
+					{
+						type: "startGame",
+						data: {
+							player1: currentMatch.player1,
+							player2: currentMatch.player2,
+						},
+					},
+					"*"
+				);
+				this.gameContainer.focus();
+			};
+		}
 
-      if (window.gameCleanup) {
-        window.gameCleanup();
-      }
-    }
-  }
+		endGame() {
+			this.gameContainer.style.display = "none";
+			this.gameContainer.src = "about:blank";
+			this.gameContainer.blur();
 
-  // Ajout d'une fonction pour réinitialiser tous les champs au démarrage
-  function initializeTournamentDisplay() {
-    const activeShape = document.querySelector(".shape.active");
-    const matches = activeShape.querySelectorAll(".doubleMatch");
+			if (window.gameCleanup) {
+				window.gameCleanup();
+			}
+		}
+	}
 
-    matches.forEach((matchElement) => {
-      const players = matchElement.querySelectorAll(".player");
-      players.forEach((player) => {
-        const nickname = player.querySelector(".nickname");
-        const avatar = player.querySelector(".logo");
-        nickname.textContent = "";
-        avatar.src = DEFAULT_AVATAR;
-      });
+	// Ajout d'une fonction pour réinitialiser tous les champs au démarrage
+	function initializeTournamentDisplay() {
+		const activeShape = document.querySelector(".shape.active");
+		const matches = activeShape.querySelectorAll(".doubleMatch");
 
-      const scores = matchElement.querySelectorAll(".score");
-      scores.forEach((score) => {
-        score.textContent = "0";
-      });
-    });
-  }
+		matches.forEach((matchElement) => {
+			const players = matchElement.querySelectorAll(".player");
+			players.forEach((player) => {
+				const nickname = player.querySelector(".nickname");
+				const avatar = player.querySelector(".logo");
+				nickname.textContent = "";
+				avatar.src = DEFAULT_AVATAR;
+			});
 
-  // Sélecteurs
-  const optionButtons = document.querySelectorAll(".option-btn");
-  const shapes = document.querySelectorAll(".shape");
-  const playButton = document.querySelector(".buttonPlay");
-  const tournamentConfig = document.getElementById("tournamentConfig");
-  let gameManager;
+			const scores = matchElement.querySelectorAll(".score");
+			scores.forEach((score) => {
+				score.textContent = "0";
+			});
+		});
+	}
 
-  function updateCurrentMatchIndicators() {
-    // D'abord, retirer tous les indicateurs actifs
-    document.querySelectorAll(".doubleMatchNumber").forEach((number) => {
-      number.classList.remove("active");
-    });
+	// Sélecteurs
+	const optionButtons = document.querySelectorAll(".option-btn");
+	const shapes = document.querySelectorAll(".shape");
+	const playButton = document.querySelector(".buttonPlay");
+	const tournamentConfig = document.getElementById("tournamentConfig");
+	let gameManager;
 
-    if (!tournamentState.isStarted) return;
+	function updateCurrentMatchIndicators() {
+		// D'abord, retirer tous les indicateurs actifs
+		document.querySelectorAll(".doubleMatchNumber").forEach((number) => {
+			number.classList.remove("active");
+		});
 
-    const playerCount = getSelectedPlayerCount();
-    const activeShape = document.querySelector(".shape.active");
+		if (!tournamentState.isStarted) return;
 
-    // Sélectionner le numéro de match actuel
-    const matchNumber = tournamentState.currentMatch + 1;
+		const playerCount = getSelectedPlayerCount();
+		const activeShape = document.querySelector(".shape.active");
 
-    // Trouver le bon sélecteur en fonction de la section de tournoi
-    let selector;
-    if (playerCount === 4) {
-      if (matchNumber <= 2) {
-        selector = `.tournamentSection2 .doubleMatch:nth-child(${matchNumber})`;
-      } else if (matchNumber === 3) {
-        selector = `.tournamentSection3 .doubleMatch`;
-      } else if (matchNumber === 4) {
-        selector = `.tournamentSection4 .doubleMatch`;
-      }
-    } else {
-      // Pour 8 joueurs...
-      if (matchNumber <= 4) {
-        selector = `.tournamentSection1 .doubleMatch:nth-child(${matchNumber})`;
-      } else if (matchNumber <= 6) {
-        selector = `.tournamentSection2 .doubleMatch:nth-child(${matchNumber - 4})`;
-      } else if (matchNumber === 7) {
-        selector = `.tournamentSection3 .doubleMatch`;
-      } else if (matchNumber === 8) {
-        selector = `.tournamentSection4 .doubleMatch`;
-      }
-    }
+		// Sélectionner le numéro de match actuel
+		const matchNumber = tournamentState.currentMatch + 1;
 
-    // Ajouter la classe active au numéro de match correspondant
-    if (selector) {
-      const matchElement = activeShape.querySelector(
-        `${selector} .doubleMatchNumber`
-      );
-      if (matchElement) {
-        matchElement.classList.add("active");
-      }
-    }
-  }
+		// Trouver le bon sélecteur en fonction de la section de tournoi
+		let selector;
+		if (playerCount === 4) {
+			if (matchNumber <= 2) {
+				selector = `.tournamentSection2 .doubleMatch:nth-child(${matchNumber})`;
+			} else if (matchNumber === 3) {
+				selector = `.tournamentSection3 .doubleMatch`;
+			} else if (matchNumber === 4) {
+				selector = `.tournamentSection4 .doubleMatch`;
+			}
+		} else {
+			// Pour 8 joueurs...
+			if (matchNumber <= 4) {
+				selector = `.tournamentSection1 .doubleMatch:nth-child(${matchNumber})`;
+			} else if (matchNumber <= 6) {
+				selector = `.tournamentSection2 .doubleMatch:nth-child(${matchNumber - 4})`;
+			} else if (matchNumber === 7) {
+				selector = `.tournamentSection3 .doubleMatch`;
+			} else if (matchNumber === 8) {
+				selector = `.tournamentSection4 .doubleMatch`;
+			}
+		}
 
-  function showShape(shapeId) {
-    shapes.forEach((shape) => shape.classList.remove("active"));
-    const activeShape = document.getElementById(shapeId);
-    if (activeShape) {
-      activeShape.classList.add("active");
-    }
+		// Ajouter la classe active au numéro de match correspondant
+		if (selector) {
+			const matchElement = activeShape.querySelector(
+				`${selector} .doubleMatchNumber`
+			);
+			if (matchElement) {
+				matchElement.classList.add("active");
+			}
+		}
+	}
 
-    if (!tournamentState.isStarted) {
-      updateCurrentMatchIndicators();
-    }
-  }
+	function showShape(shapeId) {
+		shapes.forEach((shape) => shape.classList.remove("active"));
+		const activeShape = document.getElementById(shapeId);
+		if (activeShape) {
+			activeShape.classList.add("active");
+		}
 
-  function handleOptionChange(value) {
-    optionButtons.forEach((btn) => btn.classList.remove("active"));
-    document.getElementById(value).classList.add("active");
-    showShape(value + "display");
-  }
+		if (!tournamentState.isStarted) {
+			updateCurrentMatchIndicators();
+		}
+	}
 
-  function getSelectedPlayerCount() {
-    const activeButton = document.querySelector(".option-btn.active");
-    return parseInt(activeButton.id);
-  }
+	function handleOptionChange(value) {
+		optionButtons.forEach((btn) => btn.classList.remove("active"));
+		document.getElementById(value).classList.add("active");
+		showShape(value + "display");
+	}
 
-  function openTournamentConfig(playerCount) {
-    tournamentConfig.style.display = "block";
-    generatePlayerFields(playerCount);
-  }
+	function getSelectedPlayerCount() {
+		const activeButton = document.querySelector(".option-btn.active");
+		return parseInt(activeButton.id);
+	}
 
-  function closeTournamentConfig() {
-    tournamentConfig.style.display = "none";
-  }
+	function openTournamentConfig(playerCount) {
+		tournamentConfig.style.display = "block";
+		generatePlayerFields(playerCount);
+	}
 
-  function generatePlayerFields(count) {
-    const container = document.getElementById("players-container");
-    container.innerHTML = "";
+	function closeTournamentConfig() {
+		tournamentConfig.style.display = "none";
+	}
 
-    const avatars = [
-      "bullfinch.png",
-      "clown-fish.png",
-      "hedgehog.png",
-      "ladybug.png",
-      "mouse.png",
-      "parrot.png",
-      "penguin.png",
-      "pig.png",
-    ];
+	async function generatePlayerFields(count) {
+		const container = document.getElementById("players-container");
+		container.innerHTML = "";
+	
+		const avatars = [
+			"bullfinch.png",
+			"clown-fish.png",
+			"hedgehog.png",
+			"ladybug.png",
+			"mouse.png",
+			"parrot.png",
+			"penguin.png",
+			"pig.png",
+		];
+	
+		try {
+			// Récupérer la langue préférée via l'API
+			const preferredLanguage = await getLanguageFromAPI();
+			const language = preferredLanguage || 'en'; // Par défaut en anglais
+	
+			container.innerHTML += `
+			  <div class="player-entry">
+				<img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
+				<input type="text" class="player-input" data-translate="tournament.your_nickname" />
+			  </div>
+			`;
+	
+			for (let i = 1; i < count; i++) {
+				const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+				container.innerHTML += `
+				<div class="player-entry">
+				  <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
+				  <input type="text" class="player-input" data-translate="tournament.bot_player" data-translate-params="${i}" />
+				  <button class="add-friend-btn">
+					<img src="/static/assets/icons/add_friend.svg" style="filter: none;" />
+				  </button>
+				</div>
+			  `;
+			}
+	
+			// Charger et appliquer les traductions
+			await loadTranslations(language);
+		} catch (error) {
+			console.error("Error generating player fields:", error);
+		}
+	}
+	
 
-    container.innerHTML += `
-      <div class="player-entry">
-        <img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
-        <input type="text" class="player-input" value="YourNickname" />
-      </div>
-    `;
+	function shuffleArray(array) {
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		}
+		return array;
+	}
 
-    for (let i = 1; i < count; i++) {
-      const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
-      container.innerHTML += `
-        <div class="player-entry">
-          <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
-          <input type="text" class="player-input" value="Bot Player ${i}" />
-          <button class="add-friend-btn">
-            <img src="/static/assets/icons/add_friend.svg" style="filter: none;" />
-          </button>
-        </div>
+	function generateMatches() {
+		const playerCount = getSelectedPlayerCount();
+		const shuffledPlayers = shuffleArray([...tournamentState.players]);
+		tournamentState.matches = [];
+
+		if (playerCount === 4) {
+			// Premier tour (2 matches)
+			tournamentState.matches = [
+				{
+					matchId: 0,
+					round: 1,
+					player1: shuffledPlayers[0],
+					player2: shuffledPlayers[1],
+					score1: 0,
+					score2: 0,
+					winner: null,
+				},
+				{
+					matchId: 1,
+					round: 1,
+					player1: shuffledPlayers[2],
+					player2: shuffledPlayers[3],
+					score1: 0,
+					score2: 0,
+					winner: null,
+				},
+				{
+					matchId: 2,
+					round: 2,
+					player1: null,
+					player2: null,
+					score1: 0,
+					score2: 0,
+					winner: null,
+				},
+			];
+		} else if (playerCount === 8) {
+			// Premier tour (4 matches)
+			for (let i = 0; i < 4; i++) {
+				tournamentState.matches.push({
+					matchId: i,
+					round: 1,
+					player1: shuffledPlayers[i * 2],
+					player2: shuffledPlayers[i * 2 + 1],
+					score1: 0,
+					score2: 0,
+					winner: null,
+				});
+			}
+
+			// Demi-finales (2 matches)
+			for (let i = 0; i < 2; i++) {
+				tournamentState.matches.push({
+					matchId: i + 4,
+					round: 2,
+					player1: null,
+					player2: null,
+					score1: 0,
+					score2: 0,
+					winner: null,
+				});
+			}
+
+			// Finale
+			tournamentState.matches.push({
+				matchId: 6,
+				round: 3,
+				player1: null,
+				player2: null,
+				score1: 0,
+				score2: 0,
+				winner: null,
+			});
+		}
+	}
+
+	function updateBracketDisplay() {
+		const activeShape = document.querySelector(".shape.active");
+		const matches = activeShape.querySelectorAll(".doubleMatch");
+		const playerCount = getSelectedPlayerCount();
+
+		matches.forEach((matchElement, index) => {
+			const match = tournamentState.matches[index];
+			if (!match) return;
+
+			// Mise à jour des joueurs
+			const players = matchElement.querySelectorAll(".player");
+			const scores = matchElement.querySelectorAll(".score");
+
+			players.forEach((playerElement, playerIndex) => {
+				const nickname = playerElement.querySelector(".nickname");
+				const avatar = playerElement.querySelector(".logo");
+
+				// Si c'est la case finale
+				if (index === (playerCount === 4 ? 3 : 7)) {
+					const finalWinner =
+						tournamentState.matches[playerCount === 4 ? 2 : 6]?.winner;
+					if (finalWinner) {
+						nickname.textContent = finalWinner.name;
+						avatar.src = finalWinner.avatar;
+						playerElement.classList.add("winner");
+						scores[0]?.classList.add("winner");
+					} else {
+						nickname.textContent = "";
+						avatar.src = DEFAULT_AVATAR;
+						playerElement.classList.remove("winner");
+						scores[0]?.classList.remove("winner");
+					}
+					return;
+				}
+
+				// Pour tous les autres matches
+				const currentPlayer = playerIndex === 0 ? match.player1 : match.player2;
+				if (currentPlayer) {
+					nickname.textContent = currentPlayer.name;
+					avatar.src = currentPlayer.avatar;
+
+					// Vérifier si ce joueur est le gagnant du match
+					if (match.winner && match.winner.name === currentPlayer.name) {
+						playerElement.classList.add("winner");
+						scores[playerIndex]?.classList.add("winner");
+					} else {
+						playerElement.classList.remove("winner");
+						scores[playerIndex]?.classList.remove("winner");
+					}
+				} else {
+					nickname.textContent = "";
+					avatar.src = DEFAULT_AVATAR;
+					playerElement.classList.remove("winner");
+					scores[playerIndex]?.classList.remove("winner");
+				}
+			});
+
+			// Mise à jour des scores
+			if (match.winner) {
+				const winnerIndex =
+					match.player1 && match.winner.name === match.player1.name ? 0 : 1;
+				scores.forEach((scoreElement, scoreIndex) => {
+					scoreElement.textContent =
+						scoreIndex === 0 ? match.score1 : match.score2;
+				});
+			}
+		});
+
+		updateCurrentMatchIndicators();
+	}
+
+	// Ajout d'un écouteur pour la réinitialisation lors du changement de nombre de joueurs
+	function handleOptionChange(value) {
+		optionButtons.forEach((btn) => btn.classList.remove("active"));
+		document.getElementById(value).classList.add("active");
+		showShape(value + "display");
+
+		// Réinitialiser l'affichage si le tournoi n'est pas commencé
+		if (!tournamentState.isStarted) {
+			initializeTournamentDisplay();
+		}
+	}
+
+	function progressTournament(winnerIndex, finalScores) {
+		const currentMatch = tournamentState.matches[tournamentState.currentMatch];
+		const winner =
+			winnerIndex === 0 ? currentMatch.player1 : currentMatch.player2;
+		const playerCount = getSelectedPlayerCount();
+
+		// Déterminer si c'est le dernier match
+		const isLastMatch =
+			(playerCount === 4 && tournamentState.currentMatch === 2) ||
+			(playerCount === 8 && tournamentState.currentMatch === 6);
+
+		// Set the actual scores from the game
+		currentMatch.score1 = finalScores.player1;
+		currentMatch.score2 = finalScores.player2;
+		currentMatch.winner = winner;
+		tournamentState.matchResults[tournamentState.currentMatch] = {
+			winner: winner,
+			scores: finalScores,
+		};
+
+		if (playerCount === 4) {
+			if (tournamentState.currentMatch < 2) {
+				// Premier tour (matchs 0 et 1)
+				if (tournamentState.currentMatch === 0) {
+					tournamentState.matches[2].player1 = winner;
+				} else {
+					tournamentState.matches[2].player2 = winner;
+				}
+			} else if (tournamentState.currentMatch === 2) {
+				// Finale
+				const finalMatch = tournamentState.matches[2];
+				finalMatch.winner = winner;
+
+				// Créer le match virtuel pour l'affichage final
+				tournamentState.matches[3] = {
+					matchId: 3,
+					round: 3,
+					player1: winner,
+					player2: null,
+					score1: finalScores.player1,
+					score2: finalScores.player2,
+					winner: winner,
+				};
+			}
+		} else if (playerCount === 8) {
+			if (tournamentState.currentMatch < 4) {
+				// Premier tour (matchs 0 à 3)
+				const nextRoundMatchIndex =
+					4 + Math.floor(tournamentState.currentMatch / 2);
+				if (tournamentState.currentMatch % 2 === 0) {
+					tournamentState.matches[nextRoundMatchIndex].player1 = winner;
+				} else {
+					tournamentState.matches[nextRoundMatchIndex].player2 = winner;
+				}
+			} else if (tournamentState.currentMatch < 6) {
+				// Demi-finales (matchs 4 et 5)
+				if (tournamentState.currentMatch === 4) {
+					tournamentState.matches[6].player1 = winner;
+				} else {
+					tournamentState.matches[6].player2 = winner;
+				}
+			} else if (tournamentState.currentMatch === 6) {
+				// Finale
+				const finalMatch = tournamentState.matches[6];
+				finalMatch.winner = winner;
+
+				// Créer le match virtuel pour l'affichage final
+				tournamentState.matches[7] = {
+					matchId: 7,
+					round: 4,
+					player1: winner,
+					player2: null,
+					score1: finalScores.player1,
+					score2: finalScores.player2,
+					winner: winner,
+				};
+			}
+		}
+
+		// Montrer l'animation appropriée et mettre à jour l'affichage
+		if (isLastMatch) {
+			showTournamentWinner(winner, finalScores);
+			setTimeout(() => {
+				tournamentState.currentMatch++;
+				updateBracketDisplay();
+				updateCurrentMatchIndicators();
+				updatePlayButton();
+				setTimeout(highlightFinalWinner, 1000);
+			}, 500);
+		} else {
+			showMatchVictory(winner, finalScores.player1, finalScores.player2);
+			setTimeout(() => {
+				tournamentState.currentMatch++;
+				updateBracketDisplay();
+				updateCurrentMatchIndicators();
+				updatePlayButton();
+			}, 500);
+		}
+	}
+
+	function updatePlayButton() {
+		const playerCount = getSelectedPlayerCount();
+		const lastMatchIndex = playerCount === 4 ? 3 : 7;
+		const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
+		const nextMatch = tournamentState.matches[tournamentState.currentMatch];
+		const playButton = document.querySelector(".buttonPlay");
+
+		if (isLastMatch) {
+			playButton.innerHTML = `
+		<span class="button-text" data-translate="tournament.tournament_complete"></span>
       `;
-    }
-  }
+			playButton.classList.add("tournament-complete");
+			playButton.disabled = true;
 
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
+			// Ajouter les effets spéciaux au vainqueur final
+			highlightFinalWinner();
+			return;
+		}
 
-  function generateMatches() {
-    const playerCount = getSelectedPlayerCount();
-    const shuffledPlayers = shuffleArray([...tournamentState.players]);
-    tournamentState.matches = [];
-
-    if (playerCount === 4) {
-      // Premier tour (2 matches)
-      tournamentState.matches = [
-        {
-          matchId: 0,
-          round: 1,
-          player1: shuffledPlayers[0],
-          player2: shuffledPlayers[1],
-          score1: 0,
-          score2: 0,
-          winner: null,
-        },
-        {
-          matchId: 1,
-          round: 1,
-          player1: shuffledPlayers[2],
-          player2: shuffledPlayers[3],
-          score1: 0,
-          score2: 0,
-          winner: null,
-        },
-        {
-          matchId: 2,
-          round: 2,
-          player1: null,
-          player2: null,
-          score1: 0,
-          score2: 0,
-          winner: null,
-        },
-      ];
-    } else if (playerCount === 8) {
-      // Premier tour (4 matches)
-      for (let i = 0; i < 4; i++) {
-        tournamentState.matches.push({
-          matchId: i,
-          round: 1,
-          player1: shuffledPlayers[i * 2],
-          player2: shuffledPlayers[i * 2 + 1],
-          score1: 0,
-          score2: 0,
-          winner: null,
-        });
-      }
-
-      // Demi-finales (2 matches)
-      for (let i = 0; i < 2; i++) {
-        tournamentState.matches.push({
-          matchId: i + 4,
-          round: 2,
-          player1: null,
-          player2: null,
-          score1: 0,
-          score2: 0,
-          winner: null,
-        });
-      }
-
-      // Finale
-      tournamentState.matches.push({
-        matchId: 6,
-        round: 3,
-        player1: null,
-        player2: null,
-        score1: 0,
-        score2: 0,
-        winner: null,
-      });
-    }
-  }
-
-  function updateBracketDisplay() {
-    const activeShape = document.querySelector(".shape.active");
-    const matches = activeShape.querySelectorAll(".doubleMatch");
-    const playerCount = getSelectedPlayerCount();
-
-    matches.forEach((matchElement, index) => {
-      const match = tournamentState.matches[index];
-      if (!match) return;
-
-      // Mise à jour des joueurs
-      const players = matchElement.querySelectorAll(".player");
-      const scores = matchElement.querySelectorAll(".score");
-
-      players.forEach((playerElement, playerIndex) => {
-        const nickname = playerElement.querySelector(".nickname");
-        const avatar = playerElement.querySelector(".logo");
-
-        // Si c'est la case finale
-        if (index === (playerCount === 4 ? 3 : 7)) {
-          const finalWinner =
-            tournamentState.matches[playerCount === 4 ? 2 : 6]?.winner;
-          if (finalWinner) {
-            nickname.textContent = finalWinner.name;
-            avatar.src = finalWinner.avatar;
-            playerElement.classList.add("winner");
-            scores[0]?.classList.add("winner");
-          } else {
-            nickname.textContent = "";
-            avatar.src = DEFAULT_AVATAR;
-            playerElement.classList.remove("winner");
-            scores[0]?.classList.remove("winner");
-          }
-          return;
-        }
-
-        // Pour tous les autres matches
-        const currentPlayer = playerIndex === 0 ? match.player1 : match.player2;
-        if (currentPlayer) {
-          nickname.textContent = currentPlayer.name;
-          avatar.src = currentPlayer.avatar;
-
-          // Vérifier si ce joueur est le gagnant du match
-          if (match.winner && match.winner.name === currentPlayer.name) {
-            playerElement.classList.add("winner");
-            scores[playerIndex]?.classList.add("winner");
-          } else {
-            playerElement.classList.remove("winner");
-            scores[playerIndex]?.classList.remove("winner");
-          }
-        } else {
-          nickname.textContent = "";
-          avatar.src = DEFAULT_AVATAR;
-          playerElement.classList.remove("winner");
-          scores[playerIndex]?.classList.remove("winner");
-        }
-      });
-
-      // Mise à jour des scores
-      if (match.winner) {
-        const winnerIndex =
-          match.player1 && match.winner.name === match.player1.name ? 0 : 1;
-        scores.forEach((scoreElement, scoreIndex) => {
-          scoreElement.textContent =
-            scoreIndex === 0 ? match.score1 : match.score2;
-        });
-      }
-    });
-
-    updateCurrentMatchIndicators();
-  }
-
-  // Ajout d'un écouteur pour la réinitialisation lors du changement de nombre de joueurs
-  function handleOptionChange(value) {
-    optionButtons.forEach((btn) => btn.classList.remove("active"));
-    document.getElementById(value).classList.add("active");
-    showShape(value + "display");
-
-    // Réinitialiser l'affichage si le tournoi n'est pas commencé
-    if (!tournamentState.isStarted) {
-      initializeTournamentDisplay();
-    }
-  }
-
-  function progressTournament(winnerIndex, finalScores) {
-    const currentMatch = tournamentState.matches[tournamentState.currentMatch];
-    const winner =
-      winnerIndex === 0 ? currentMatch.player1 : currentMatch.player2;
-    const playerCount = getSelectedPlayerCount();
-
-    // Déterminer si c'est le dernier match
-    const isLastMatch =
-      (playerCount === 4 && tournamentState.currentMatch === 2) ||
-      (playerCount === 8 && tournamentState.currentMatch === 6);
-
-    // Set the actual scores from the game
-    currentMatch.score1 = finalScores.player1;
-    currentMatch.score2 = finalScores.player2;
-    currentMatch.winner = winner;
-    tournamentState.matchResults[tournamentState.currentMatch] = {
-      winner: winner,
-      scores: finalScores,
-    };
-
-    if (playerCount === 4) {
-      if (tournamentState.currentMatch < 2) {
-        // Premier tour (matchs 0 et 1)
-        if (tournamentState.currentMatch === 0) {
-          tournamentState.matches[2].player1 = winner;
-        } else {
-          tournamentState.matches[2].player2 = winner;
-        }
-      } else if (tournamentState.currentMatch === 2) {
-        // Finale
-        const finalMatch = tournamentState.matches[2];
-        finalMatch.winner = winner;
-
-        // Créer le match virtuel pour l'affichage final
-        tournamentState.matches[3] = {
-          matchId: 3,
-          round: 3,
-          player1: winner,
-          player2: null,
-          score1: finalScores.player1,
-          score2: finalScores.player2,
-          winner: winner,
-        };
-      }
-    } else if (playerCount === 8) {
-      if (tournamentState.currentMatch < 4) {
-        // Premier tour (matchs 0 à 3)
-        const nextRoundMatchIndex =
-          4 + Math.floor(tournamentState.currentMatch / 2);
-        if (tournamentState.currentMatch % 2 === 0) {
-          tournamentState.matches[nextRoundMatchIndex].player1 = winner;
-        } else {
-          tournamentState.matches[nextRoundMatchIndex].player2 = winner;
-        }
-      } else if (tournamentState.currentMatch < 6) {
-        // Demi-finales (matchs 4 et 5)
-        if (tournamentState.currentMatch === 4) {
-          tournamentState.matches[6].player1 = winner;
-        } else {
-          tournamentState.matches[6].player2 = winner;
-        }
-      } else if (tournamentState.currentMatch === 6) {
-        // Finale
-        const finalMatch = tournamentState.matches[6];
-        finalMatch.winner = winner;
-
-        // Créer le match virtuel pour l'affichage final
-        tournamentState.matches[7] = {
-          matchId: 7,
-          round: 4,
-          player1: winner,
-          player2: null,
-          score1: finalScores.player1,
-          score2: finalScores.player2,
-          winner: winner,
-        };
-      }
-    }
-
-    // Montrer l'animation appropriée et mettre à jour l'affichage
-    if (isLastMatch) {
-      showTournamentWinner(winner, finalScores);
-      setTimeout(() => {
-        tournamentState.currentMatch++;
-        updateBracketDisplay();
-        updateCurrentMatchIndicators();
-        updatePlayButton();
-        setTimeout(highlightFinalWinner, 1000);
-      }, 500);
-    } else {
-      showMatchVictory(winner, finalScores.player1, finalScores.player2);
-      setTimeout(() => {
-        tournamentState.currentMatch++;
-        updateBracketDisplay();
-        updateCurrentMatchIndicators();
-        updatePlayButton();
-      }, 500);
-    }
-  }
-
-  function updatePlayButton() {
-    const playerCount = getSelectedPlayerCount();
-    const lastMatchIndex = playerCount === 4 ? 3 : 7;
-    const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
-    const nextMatch = tournamentState.matches[tournamentState.currentMatch];
-    const playButton = document.querySelector(".buttonPlay");
-
-    if (isLastMatch) {
-      playButton.innerHTML = `
-        <span class="button-text">Tournament Complete!</span>
-      `;
-      playButton.classList.add("tournament-complete");
-      playButton.disabled = true;
-
-      // Ajouter les effets spéciaux au vainqueur final
-      highlightFinalWinner();
-      return;
-    }
-
-    if (!nextMatch || !nextMatch.player1 || !nextMatch.player2) {
-      playButton.innerHTML = `
+		if (!nextMatch || !nextMatch.player1 || !nextMatch.player2) {
+			playButton.innerHTML = `
         <img class="playIcon" src="/static/assets/icons/play.svg" />
-        <span class="button-text">Waiting for next matches</span>
+        <span class="button-text" data-translate="tournament.waiting_next_matches"></span>
       `;
-      playButton.disabled = true;
-      return;
-    }
+			playButton.disabled = true;
+			return;
+		}
 
-    let matchText = "LAUNCH MATCH";
-    if (tournamentState.currentMatch === lastMatchIndex - 1) {
-      matchText = "LAUNCH FINAL";
-    } else if (playerCount === 8 && tournamentState.currentMatch >= 4) {
-      matchText = "LAUNCH SEMI-FINAL";
-    }
+		let matchTextKey = "tournament.launch_match";
+		if (tournamentState.currentMatch === lastMatchIndex - 1) {
+			matchTextKey = "tournament.launch_final";
+		} else if (playerCount === 8 && tournamentState.currentMatch >= 4) {
+			matchTextKey = "tournament.launch_semi_final";
+		}
 
-    playButton.innerHTML = `
+		playButton.innerHTML = `
       <img class="playIcon" src="/static/assets/icons/play.svg" />
-      <span class="button-text">${matchText}</span>
+      <span class="button-text" data-translate="${matchTextKey}"></span>
     `;
-    playButton.disabled = false;
-  }
+		playButton.disabled = false;
+	}
 
-  // Nouvelle fonction pour mettre en évidence le vainqueur final
-  function highlightFinalWinner() {
-    const playerCount = getSelectedPlayerCount();
-    const finalMatchIndex = playerCount === 4 ? 3 : 7;
-    const activeShape = document.querySelector(".shape.active");
+	// Nouvelle fonction pour mettre en évidence le vainqueur final
+	function highlightFinalWinner() {
+		const playerCount = getSelectedPlayerCount();
+		const finalMatchIndex = playerCount === 4 ? 3 : 7;
+		const activeShape = document.querySelector(".shape.active");
 
-    // Trouver le dernier match
-    const finalMatch = activeShape.querySelector(
-      `.tournamentSection${playerCount === 4 ? "4" : "4"} .doubleMatch`
-    );
+		// Trouver le dernier match
+		const finalMatch = activeShape.querySelector(
+			`.tournamentSection${playerCount === 4 ? "4" : "4"} .doubleMatch`
+		);
 
-    if (finalMatch) {
-      // Mettre en évidence le numéro
-      const matchNumber = finalMatch.querySelector(".doubleMatchNumber");
-      if (matchNumber) {
-        matchNumber.classList.remove("active");
-        matchNumber.classList.add("winner-number");
-      }
+		if (finalMatch) {
+			// Mettre en évidence le numéro
+			const matchNumber = finalMatch.querySelector(".doubleMatchNumber");
+			if (matchNumber) {
+				matchNumber.classList.remove("active");
+				matchNumber.classList.add("winner-number");
+			}
 
-      // Mettre en évidence le joueur
-      const playerElement = finalMatch.querySelector(".player");
-      if (playerElement) {
-        playerElement.classList.remove("winner");
-        playerElement.classList.add("winner-final");
-      }
-    }
-  }
+			// Mettre en évidence le joueur
+			const playerElement = finalMatch.querySelector(".player");
+			if (playerElement) {
+				playerElement.classList.remove("winner");
+				playerElement.classList.add("winner-final");
+			}
+		}
+	}
 
-  function startTournament() {
-    const playerInputs = document.querySelectorAll(".player-entry .player-input");
-    const playerAvatars = document.querySelectorAll(
-      ".player-entry .player-avatar"
-    );
+	function startTournament() {
+		const playerInputs = document.querySelectorAll(".player-entry .player-input");
+		const playerAvatars = document.querySelectorAll(
+			".player-entry .player-avatar"
+		);
 
-    // Réinitialiser d'abord tout l'affichage
-    initializeTournamentDisplay();
+		// Réinitialiser d'abord tout l'affichage
+		initializeTournamentDisplay();
 
-    tournamentState.players = Array.from(playerInputs).map((input, i) => ({
-      name: input.value,
-      avatar: playerAvatars[i].src,
-    }));
+		tournamentState.players = Array.from(playerInputs).map((input, i) => ({
+			name: input.value,
+			avatar: playerAvatars[i].src,
+		}));
 
-    generateMatches();
-    updateBracketDisplay();
+		generateMatches();
+		updateBracketDisplay();
 
-    tournamentConfig.style.display = "none";
-    document.querySelector(".chipSelectorPlayer").style.display = "none";
+		tournamentConfig.style.display = "none";
+		document.querySelector(".chipSelectorPlayer").style.display = "none";
 
-    document.querySelector(".buttonPlay").innerHTML = `
+		document.querySelector(".buttonPlay").innerHTML = `
       <img class="playIcon" src="/static/assets/icons/play.svg" />
-      <span class="button-text">LAUNCH NEXT MATCH</span>
+      <span class="button-text" data-translate="tournament.launch_next_match"></span>
     `;
-    document.querySelector(".reset-btn").style.display = "block";
+		document.querySelector(".reset-btn").style.display = "block";
 
-    tournamentState.isStarted = true;
-    tournamentState.currentMatch = 0;
-    tournamentState.currentRound = 1;
+		tournamentState.isStarted = true;
+		tournamentState.currentMatch = 0;
+		tournamentState.currentRound = 1;
 
-    updateCurrentMatchIndicators();
-    updatePlayButton();
-  }
+		updateCurrentMatchIndicators();
+		updatePlayButton();
+	}
 
-  // // Event Listeners
-  // document.addEventListener("DOMContentLoaded", () => {
-  //   gameManager = new TournamentGameManager(tournamentState);
+	// // Event Listeners
+	// document.addEventListener("DOMContentLoaded", () => {
+	//   gameManager = new TournamentGameManager(tournamentState);
 
-  //   const playButton = document.querySelector(".buttonPlay");
-  //   if (playButton) {
-  //     playButton.addEventListener("click", () => {
-  //       if (!tournamentState.isStarted) {
-  //         const playerCount = getSelectedPlayerCount();
-  //         openTournamentConfig(playerCount);
-  //       } else {
-  //         gameManager.startGame();
-  //       }
-  //     });
-  //   }
+	//   const playButton = document.querySelector(".buttonPlay");
+	//   if (playButton) {
+	//     playButton.addEventListener("click", () => {
+	//       if (!tournamentState.isStarted) {
+	//         const playerCount = getSelectedPlayerCount();
+	//         openTournamentConfig(playerCount);
+	//       } else {
+	//         gameManager.startGame();
+	//       }
+	//     });
+	//   }
 
-  //   const startButton = document.querySelector(".start-tournament-btn");
-  //   if (startButton) {
-  //     startButton.addEventListener("click", startTournament);
-  //   }
+	//   const startButton = document.querySelector(".start-tournament-btn");
+	//   if (startButton) {
+	//     startButton.addEventListener("click", startTournament);
+	//   }
 
-  //   const resetButton = document.querySelector(".reset-btn");
-  //   if (resetButton) {
-  //     resetButton.addEventListener("click", () => {
-  //       location.reload();
-  //     });
-  //   }
+	//   const resetButton = document.querySelector(".reset-btn");
+	//   if (resetButton) {
+	//     resetButton.addEventListener("click", () => {
+	//       location.reload();
+	//     });
+	//   }
 
-  //   const closeButton = document.querySelector(".close-icon");
-  //   if (closeButton) {
-  //     closeButton.addEventListener("click", closeTournamentConfig);
-  //   }
+	//   const closeButton = document.querySelector(".close-icon");
+	//   if (closeButton) {
+	//     closeButton.addEventListener("click", closeTournamentConfig);
+	//   }
 
-  //   optionButtons.forEach((button) => {
-  //     button.addEventListener("click", (event) => {
-  //       handleOptionChange(event.target.id);
-  //     });
-  //   });
-  // });
+	//   optionButtons.forEach((button) => {
+	//     button.addEventListener("click", (event) => {
+	//       handleOptionChange(event.target.id);
+	//     });
+	//   });
+	// });
 
-  // Par cette version (à l'intérieur de la fonction initializeTournamentPage) :
-gameManager = new TournamentGameManager(tournamentState);
+	// Par cette version (à l'intérieur de la fonction initializeTournamentPage) :
+	gameManager = new TournamentGameManager(tournamentState);
 
-// const playButton = document.querySelector(".buttonPlay");
-if (playButton) {
-    playButton.addEventListener("click", () => {
-        if (!tournamentState.isStarted) {
-            const playerCount = getSelectedPlayerCount();
-            openTournamentConfig(playerCount);
-        } else {
-            gameManager.startGame();
-        }
-    });
-}
+	// const playButton = document.querySelector(".buttonPlay");
+	if (playButton) {
+		playButton.addEventListener("click", () => {
+			if (!tournamentState.isStarted) {
+				const playerCount = getSelectedPlayerCount();
+				openTournamentConfig(playerCount);
+			} else {
+				gameManager.startGame();
+			}
+		});
+	}
 
-const startButton = document.querySelector(".start-tournament-btn");
-if (startButton) {
-    startButton.addEventListener("click", startTournament);
-}
+	const startButton = document.querySelector(".start-tournament-btn");
+	if (startButton) {
+		startButton.addEventListener("click", startTournament);
+	}
 
-const resetButton = document.querySelector(".reset-btn");
-if (resetButton) {
-    resetButton.addEventListener("click", () => {
-        location.reload();
-    });
-}
+	const resetButton = document.querySelector(".reset-btn");
+	if (resetButton) {
+		resetButton.addEventListener("click", () => {
+			location.reload();
+		});
+	}
 
-const closeButton = document.querySelector(".close-icon");
-if (closeButton) {
-    closeButton.addEventListener("click", closeTournamentConfig);
-}
+	const closeButton = document.querySelector(".close-icon");
+	if (closeButton) {
+		closeButton.addEventListener("click", closeTournamentConfig);
+	}
 
-optionButtons.forEach((button) => {
-    button.addEventListener("click", (event) => {
-        handleOptionChange(event.target.id);
-    });
-});
-  
+	optionButtons.forEach((button) => {
+		button.addEventListener("click", (event) => {
+			handleOptionChange(event.target.id);
+		});
+	});
 
-  handleOptionChange("4");
 
-  window.dispatchGameEnd = function (winner) {
-    const event = new CustomEvent("gameEnd", {
-      detail: { winner: winner },
-    });
-    window.dispatchEvent(event);
-  };
+	handleOptionChange("4");
 
-  function showVictoryScreen(winner, score1, score2) {
-    const overlay = document.querySelector(".victory-overlay");
-    const winnerNameElement = overlay.querySelector(".winner-name");
-    const scoreElement = overlay.querySelector(".victory-score");
-    const continueBtn = overlay.querySelector(".continue-btn");
+	window.dispatchGameEnd = function (winner) {
+		const event = new CustomEvent("gameEnd", {
+			detail: { winner: winner },
+		});
+		window.dispatchEvent(event);
+	};
 
-    winnerNameElement.textContent = winner.name;
-    scoreElement.innerHTML = `<span>${score1}</span> - <span>${score2}</span>`;
+	function showVictoryScreen(winner, score1, score2) {
+		const overlay = document.querySelector(".victory-overlay");
+		const winnerNameElement = overlay.querySelector(".winner-name");
+		const scoreElement = overlay.querySelector(".victory-score");
+		const continueBtn = overlay.querySelector(".continue-btn");
 
-    overlay.classList.add("show");
+		winnerNameElement.textContent = winner.name;
+		scoreElement.innerHTML = `<span>${score1}</span> - <span>${score2}</span>`;
 
-    // Gérer le bouton continue
-    const handleContinue = () => {
-      overlay.classList.remove("show");
-      continueBtn.removeEventListener("click", handleContinue);
-    };
+		overlay.classList.add("show");
 
-    continueBtn.addEventListener("click", handleContinue);
-  }
+		// Gérer le bouton continue
+		const handleContinue = () => {
+			overlay.classList.remove("show");
+			continueBtn.removeEventListener("click", handleContinue);
+		};
 
-  function createConfetti() {
-    const colors = [
-      "var(--liquid-lava)", // Orange principal
-      "var(--dusty-grey)", // Gris clair
-      "var(--slate-grey)", // Gris foncé
-      "var(--gluon-grey)", // Gris très foncé
-    ];
+		continueBtn.addEventListener("click", handleContinue);
+	}
 
-    const confettiCount = 50; // Réduit le nombre pour de meilleures performances
-    const container = document.querySelector(".tournament-winner-overlay");
+	function createConfetti() {
+		const colors = [
+			"var(--liquid-lava)", // Orange principal
+			"var(--dusty-grey)", // Gris clair
+			"var(--slate-grey)", // Gris foncé
+			"var(--gluon-grey)", // Gris très foncé
+		];
 
-    // Créer un groupe de confettis avec des délais différents
-    for (let i = 0; i < confettiCount; i++) {
-      const confetti = document.createElement("div");
-      confetti.className = "confetti";
+		const confettiCount = 50; // Réduit le nombre pour de meilleures performances
+		const container = document.querySelector(".tournament-winner-overlay");
 
-      // Position horizontale aléatoire
-      confetti.style.left = `${Math.random() * 100}vw`;
+		// Créer un groupe de confettis avec des délais différents
+		for (let i = 0; i < confettiCount; i++) {
+			const confetti = document.createElement("div");
+			confetti.className = "confetti";
 
-      // Position verticale initiale légèrement au-dessus de l'écran
-      confetti.style.top = `-${Math.random() * 20}px`;
+			// Position horizontale aléatoire
+			confetti.style.left = `${Math.random() * 100}vw`;
 
-      // Propriétés aléatoires pour plus de variété
-      const size = 5 + Math.random() * 7; // Taille réduite pour plus de légèreté
-      confetti.style.width = `${size}px`;
-      confetti.style.height = `${size}px`;
+			// Position verticale initiale légèrement au-dessus de l'écran
+			confetti.style.top = `-${Math.random() * 20}px`;
 
-      // Rotation et animation personnalisées
-      const rotation = Math.random() * 360;
-      const animationDuration = 3 + Math.random() * 2; // Entre 3 et 5 secondes
-      const animationDelay = Math.random() * 2; // Délai entre 0 et 2 secondes
+			// Propriétés aléatoires pour plus de variété
+			const size = 5 + Math.random() * 7; // Taille réduite pour plus de légèreté
+			confetti.style.width = `${size}px`;
+			confetti.style.height = `${size}px`;
 
-      confetti.style.backgroundColor =
-        colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "3px";
-      confetti.style.transform = `rotate(${rotation}deg)`;
-      confetti.style.animation = `confettiFall ${animationDuration}s linear ${animationDelay}s infinite`;
+			// Rotation et animation personnalisées
+			const rotation = Math.random() * 360;
+			const animationDuration = 3 + Math.random() * 2; // Entre 3 et 5 secondes
+			const animationDelay = Math.random() * 2; // Délai entre 0 et 2 secondes
 
-      container.appendChild(confetti);
+			confetti.style.backgroundColor =
+				colors[Math.floor(Math.random() * colors.length)];
+			confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "3px";
+			confetti.style.transform = `rotate(${rotation}deg)`;
+			confetti.style.animation = `confettiFall ${animationDuration}s linear ${animationDelay}s infinite`;
 
-      // Supprimer le confetti après quelques animations pour éviter l'accumulation
-      setTimeout(() => {
-        confetti.remove();
-      }, 15000); // Suppression après 15 secondes
-    }
-  }
+			container.appendChild(confetti);
 
-  function showMatchVictory(winner, score1, score2) {
-    const overlay = document.querySelector(".victory-overlay");
-    const winnerNameElement = overlay.querySelector(".winner-name");
-    const scoreElement = overlay.querySelector(".victory-score");
-    const continueBtn = overlay.querySelector(".continue-btn");
+			// Supprimer le confetti après quelques animations pour éviter l'accumulation
+			setTimeout(() => {
+				confetti.remove();
+			}, 15000); // Suppression après 15 secondes
+		}
+	}
 
-    winnerNameElement.textContent = winner.name;
-    scoreElement.innerHTML = `WON THE GAME`; // Texte modifié ici
+	function showMatchVictory(winner, score1, score2) {
+		const overlay = document.querySelector(".victory-overlay");
+		const winnerNameElement = overlay.querySelector(".winner-name");
+		const scoreElement = overlay.querySelector(".victory-score");
+		const continueBtn = overlay.querySelector(".continue-btn");
 
-    overlay.classList.add("show");
+		winnerNameElement.textContent = winner.name;
+		scoreElement.innerHTML = `<span data-translate="tournament.won_the_game"></span>`;
 
-    const handleContinue = () => {
-      overlay.classList.remove("show");
-      continueBtn.removeEventListener("click", handleContinue);
-    };
+		overlay.classList.add("show");
 
-    continueBtn.addEventListener("click", handleContinue);
-  }
+		const handleContinue = () => {
+			overlay.classList.remove("show");
+			continueBtn.removeEventListener("click", handleContinue);
+		};
 
-  function showTournamentWinner(winner, finalScores) {
-    const overlay = document.querySelector(".tournament-winner-overlay");
-    const winnerNameElement = overlay.querySelector(".winner-name");
-    const titleElement = overlay.querySelector(".winner-title"); // Pour le "TOURNAMENT CHAMPION"
-    const scoreElement = overlay.querySelector(".final-score");
-    const continueBtn = overlay.querySelector(".continue-btn");
+		continueBtn.addEventListener("click", handleContinue);
+	}
 
-    // Nettoyer les confettis existants
-    overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
+	function showTournamentWinner(winner, finalScores) {
+		const overlay = document.querySelector(".tournament-winner-overlay");
+		const winnerNameElement = overlay.querySelector(".winner-name");
+		const titleElement = overlay.querySelector(".winner-title"); // Pour le "TOURNAMENT CHAMPION"
+		const scoreElement = overlay.querySelector(".final-score");
+		const continueBtn = overlay.querySelector(".continue-btn");
 
-    titleElement.textContent = "TOURNAMENT CHAMPION";
-    winnerNameElement.textContent = winner.name;
+		// Nettoyer les confettis existants
+		overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
 
-    // On cache ou on enlève le score element qui n'est plus nécessaire
-    if (scoreElement) {
-      scoreElement.style.display = "none";
-    }
+		titleElement.setAttribute("data-translate", "tournament.tournament_champion");
+		winnerNameElement.textContent = winner.name;
 
-    overlay.classList.add("show");
+		// On cache ou on enlève le score element qui n'est plus nécessaire
+		if (scoreElement) {
+			scoreElement.style.display = "none";
+		}
 
-    // Créer les confettis initiaux
-    createConfetti();
+		overlay.classList.add("show");
 
-    // Créer de nouveaux confettis toutes les 2 secondes
-    const confettiInterval = setInterval(() => {
-      if (overlay.classList.contains("show")) {
-        createConfetti();
-      }
-    }, 2000);
+		// Créer les confettis initiaux
+		createConfetti();
 
-    const handleContinue = () => {
-      overlay.classList.remove("show");
-      clearInterval(confettiInterval);
-      overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
-      continueBtn.removeEventListener("click", handleContinue);
-    };
+		// Créer de nouveaux confettis toutes les 2 secondes
+		const confettiInterval = setInterval(() => {
+			if (overlay.classList.contains("show")) {
+				createConfetti();
+			}
+		}, 2000);
 
-    continueBtn.addEventListener("click", handleContinue);
-  }
+		const handleContinue = () => {
+			overlay.classList.remove("show");
+			clearInterval(confettiInterval);
+			overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
+			continueBtn.removeEventListener("click", handleContinue);
+		};
+
+		continueBtn.addEventListener("click", handleContinue);
+	}
 }

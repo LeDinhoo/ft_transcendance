@@ -1,61 +1,170 @@
 {
-    "login": {
-        "title": "Únete a la Batalla",
-        "emailLabel": "Correo Electrónico",
-        "passwordLabel": "Contraseña",
-        "submitButton": "Iniciar Sesión",
-        "registerButton": "Registrarse",
-        "emailError": "Dirección de correo electrónico no válida.",
-        "passwordError": "La contraseña no puede estar vacía."
-    },
-    "register": {
-        "title": "Crear Cuenta",
-        "usernameLabel": "Nombre de Usuario",
-        "emailLabel": "Correo Electrónico",
-        "passwordLabel": "Contraseña",
-        "confirmPasswordLabel": "Confirmar Contraseña",
-        "submitButton": "Registrarse",
-        "signUpButton": "Regístrate"
-    },
-    "home": {
-        "titles": {
-            "game": "JUEGO",
-            "mode": "MODO"
-        },
-        "game": {
-            "classic": "PONG CLÁSICO",
-            "power": "PONG PODEROSO"
-        },
-        "mode": {
-            "versus": "1 VS 1",
-            "ai": "CONTRA IA",
-            "online": "EN LÍNEA",
-            "tournament": "TORNEO"
-        },
-        "online": {
-            "players": "Jugadores en Línea"
-        },
-        "chat": {
-            "title": "Chat en Vivo"
-        },
-        "buttons": {
-            "play": "JUGAR"
-        },
-        "tooltips": {
-            "profile": {
-                "title": "Perfil",
-                "info": "Puedes hacer clic en la sección de perfil en la barra de navegación para actualizar tu información"
-            },
-            "ranking": {
-                "title": "Sistema de clasificación",
-                "bronze": "Bronce: 0 - 5 victorias",
-                "silver": "Plata: 5 - 10 victorias",
-                "gold": "Oro: al menos 10 victorias"
-            }
-        },
-        "context": {
-            "profile": "Ver perfil",
-            "addFriend": "Enviar solicitud de amistad"
-        }
-    }
+	"login": {
+		"title": "Únete a la Batalla",
+		"emailLabel": "Correo electrónico",
+		"passwordLabel": "Contraseña",
+		"submitButton": "Iniciar sesión",
+		"registerButton": "Registrarse",
+		"emailError": "Dirección de correo electrónico no válida.",
+		"passwordError": "La contraseña no puede estar vacía."
+	},
+	"register": {
+		"title": "Crear Cuenta",
+		"usernameLabel": "Nombre de usuario",
+		"emailLabel": "Correo electrónico",
+		"passwordLabel": "Contraseña",
+		"confirmPasswordLabel": "Confirmar contraseña",
+		"submitButton": "Registrarse",
+		"signUpButton": "Inscribirse"
+	},
+	"home": {
+		"titles": {
+			"game": "JUEGO",
+			"mode": "MODO"
+		},
+		"game": {
+			"classic": "PONG CLÁSICO",
+			"power": "PONG PODEROSO"
+		},
+		"mode": {
+			"versus": "1 CONTRA 1",
+			"ai": "CONTRA IA",
+			"online": "EN LÍNEA",
+			"tournament": "TORNEO"
+		},
+		"online": {
+			"players": "Jugadores en línea"
+		},
+		"chat": {
+			"blockedMessage": "Mensaje bloqueado",
+			"clickForOptions": "Haga clic para opciones",
+			"userTyping": "{username} está escribiendo...",
+			"title": "Chat en vivo"
+		},
+		"notifications": {
+			"friendRequest": {
+				"noUser": "No se pudo enviar la solicitud de amistad: ID de usuario no encontrado",
+				"selfRequest": "No puedes enviarte una solicitud de amistad a ti mismo",
+				"success": "Solicitud de amistad enviada con éxito",
+				"error": "Error al enviar la solicitud de amistad"
+			}
+		},
+		"buttons": {
+			"play": "JUGAR"
+		},
+		"tooltips": {
+			"profile": {
+				"title": "Perfil",
+				"info": "Puedes hacer clic en la sección de perfil en la barra de navegación para actualizar tu información"
+			},
+			"ranking": {
+				"title": "Sistema de clasificación",
+				"bronze": "Bronce: 0 - 5 victorias",
+				"silver": "Plata: 5 - 10 victorias",
+				"gold": "Oro: al menos 10 victorias"
+			}
+		},
+		"context": {
+			"profile": "Ver perfil",
+			"addFriend": "Agregar solicitud de amistad"
+		},
+		"errors": {
+			"templateNotFound": "Plantilla de invitación al juego no encontrada",
+			"selectGameAndMode": "¡Por favor selecciona un tipo de juego y un modo!"
+		},
+		"status": {
+			"loading": "Cargando juego...",
+			"focus": "Enfocando el juego",
+			"initialized": "El juego ya está inicializado",
+			"winner": "El ganador es: {winner}"
+		}
+	},
+	"profil": {
+		"account": {
+			"settings": "Configuración de la cuenta"
+		},
+		"friend": {
+			"requests": "Solicitudes de amistad"
+		},
+		"match": {
+			"history": "Historial de partidas"
+		},
+		"stats": {
+			"gamesPlayed": "Partidas jugadas",
+			"winRatio": "Porcentaje de victorias",
+			"longestRally": "Rally más largo",
+			"topSpeed": "Velocidad máxima"
+		},
+		"buttons": {
+			"modify": "Modificar",
+			"saveChanges": "Guardar cambios",
+			"upload": "Subir",
+			"chooseAvatar": "Elegir avatar",
+			"enable2FA": "Habilitar 2FA",
+			"confirm2FA": "Confirmar",
+			"cancel": "Cancelar",
+			"apply": "Aplicar"
+		},
+		"inputLabels": {
+			"username": "Nombre de usuario",
+			"email": "Correo electrónico",
+			"password": "Contraseña",
+			"newPassword": "Nueva contraseña",
+			"confirmNewPassword": "Confirmar nueva contraseña",
+			"verificationCode": "Código de verificación"
+		},
+		"rank": {
+			"bronze": "Bronce"
+		}
+	},
+	"settings": {
+		"game_settings": "Configuración del juego",
+		"score_to_win": "Puntaje para ganar",
+		"score_1": "1",
+		"score_3": "3",
+		"score_5": "5",
+		"score_10": "10",
+		"score_15": "15",
+		"ball_slower": "Pelota más lenta durante el saque",
+		"yes": "Sí",
+		"no": "No",
+		"who_starts": "Quién empieza después de un punto",
+		"player_1": "Jugador 1",
+		"alternate": "Alternar",
+		"player_2": "Jugador 2",
+		"power_mode": "Modo Poder",
+		"ia_difficulty": "Dificultad de IA",
+		"easy": "Fácil",
+		"medium": "Medio",
+		"hard": "Difícil",
+		"controls_settings": "Configuración de controles",
+		"movement": "Movimiento",
+		"move_up": "Mover arriba",
+		"move_down": "Mover abajo",
+		"powers": "Poderes",
+		"flash_power": "Poder Flash",
+		"laser_power": "Poder Láser",
+		"multiball_power": "Poder Multibola",
+		"save": "GUARDAR"
+	},
+	"tournament": {
+		"players_4": "4 Jugadores",
+		"players_8": "8 Jugadores",
+		"play": "JUGAR",
+		"reset_tournament": "REINICIAR TORNEO",
+		"tournament_config": "Configuración del torneo",
+		"start_tournament": "INICIAR TORNEO",
+		"next_match": "SIGUIENTE PARTIDA",
+		"tournament_champion": "Campeón del torneo",
+		"finish_tournament": "FINALIZAR TORNEO",
+		"waiting_next_matches": "Esperando los próximos partidos",
+		"launch_match": "Iniciar partida",
+		"launch_final": "Iniciar la final",
+		"launch_semi_final": "Iniciar la semifinal",
+		"tournament_complete": "¡Torneo completado!",
+		"won_the_game": "Ganó la partida",
+		"launch_next_match": "Iniciar la siguiente partida",
+		"your_nickname": "Tu apodo",
+	    "bot_player": "Jugador Bot {0}"
+	}
 }
