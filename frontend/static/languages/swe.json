@@ -1,153 +1,148 @@
 {
-    "login": {
-        "title": "Gå med i striden",
-        "emailLabel": "E-post",
-        "passwordLabel": "Lösenord",
-        "submitButton": "Logga in",
-        "registerButton": "Registrera",
-        "emailError": "Ogiltig e-postadress.",
-        "passwordError": "Lösenordet kan inte vara tomt."
-    },
-    "register": {
-        "title": "Skapa konto",
-        "usernameLabel": "Användarnamn",
-        "emailLabel": "E-post",
-        "passwordLabel": "Lösenord",
-        "confirmPasswordLabel": "Bekräfta lösenord",
-        "submitButton": "Registrera",
-        "signUpButton": "Anmäl dig"
-    },
-    "home": {
-        "titles": {
-            "game": "SPEL",
-            "mode": "LÄGE"
-        },
-        "game": {
-            "classic": "KLASSISK PONG",
-            "power": "KRAFT PONG"
-        },
-        "mode": {
-            "versus": "1 MOT 1",
-            "ai": "MOT AI",
-            "online": "ONLINE",
-            "tournament": "TURNERING"
-        },
-        "online": {
-            "players": "Online-spelare"
-        },
-        "chat": {
-            "blockedMessage": "Meddelandet blockerat",
-            "clickForOptions": "Klicka för alternativ",
-            "userTyping": "{username} skriver...",
+	"login": {
+		"title": "Gå med i striden",
+		"emailLabel": "E-post",
+		"passwordLabel": "Lösenord",
+		"submitButton": "Logga in",
+		"registerButton": "Registrera",
+		"emailError": "Ogiltig e-postadress.",
+		"passwordError": "Lösenordet kan inte vara tomt."
+	},
+	"register": {
+		"title": "Skapa konto",
+		"usernameLabel": "Användarnamn",
+		"emailLabel": "E-post",
+		"passwordLabel": "Lösenord",
+		"confirmPasswordLabel": "Bekräfta lösenord",
+		"submitButton": "Registrera",
+		"signUpButton": "Anmäl dig"
+	},
+	"home": {
+		"titles": {
+			"game": "SPEL",
+			"mode": "LÄGE"
+		},
+		"game": {
+			"classic": "KLASSISK PONG",
+			"power": "KRAFT PONG"
+		},
+		"mode": {
+			"versus": "1 MOT 1",
+			"ai": "MOT AI",
+			"online": "ONLINE",
+			"tournament": "TURNERING"
+		},
+		"online": {
+			"players": "Online-spelare"
+		},
+		"chat": {
+			"blockedMessage": "Meddelandet blockerat",
+			"clickForOptions": "Klicka för alternativ",
+			"userTyping": "{username} skriver...",
 			"title": "Direktchatt"
-        },
-        "notifications": {
-            "friendRequest": {
-                "noUser": "Kunde inte skicka vänförfrågan: Användar-ID hittades inte",
-                "selfRequest": "Du kan inte skicka en vänförfrågan till dig själv",
-                "success": "Vänförfrågan skickades framgångsrikt",
-                "error": "Fel vid sändning av vänförfrågan"
-            }
-        },
-        "buttons": {
-            "play": "SPELA"
-        },
-        "tooltips": {
-            "profile": {
-                "title": "Profil",
-                "info": "Du kan klicka på profilen i navigationsfältet för att uppdatera din information"
-            },
-            "ranking": {
-                "title": "Rankingsystem",
-                "bronze": "Brons: 0 - 5 segrar",
-                "silver": "Silver: 5 - 10 segrar",
-                "gold": "Guld: minst 10 segrar"
-            }
-        },
-        "context": {
-            "profile": "Visa profil",
-            "addFriend": "Lägg till vänförfrågan"
-        },
-        "errors": {
-            "templateNotFound": "Mall för spelinbjudan hittades inte",
-            "selectGameAndMode": "Vänligen välj både en speltyp och ett läge!"
-        },
-        "status": {
-            "loading": "Laddar spelet...",
-            "focus": "Fokuserar på spelet",
-            "initialized": "Spelet är redan initierat",
-            "winner": "Vinnaren är: {winner}"
-        }
-    },
-    "profil": {
-        "account": {
-            "settings": "Kontoinställningar"
-        },
-        "friend": {
-            "requests": "Vänförfrågningar"
-        },
-        "match": {
-            "history": "Matchhistorik"
-        },
-        "stats": {
-            "gamesPlayed": "Spelade matcher",
-            "winRatio": "Vinstprocent",
-            "longestRally": "Längsta bollväxlingen",
-            "topSpeed": "Högsta hastighet"
-        },
-        "buttons": {
-            "modify": "Ändra",
-            "saveChanges": "Spara ändringar",
-            "upload": "Ladda upp",
-            "chooseAvatar": "Välj avatar",
-            "enable2FA": "Aktivera 2FA",
-            "confirm2FA": "Bekräfta",
-            "cancel": "Avbryt",
-            "apply": "Tillämpa"
-        },
-        "inputLabels": {
-            "username": "Användarnamn",
-            "email": "E-post",
-            "password": "Lösenord",
-            "newPassword": "Nytt lösenord",
-            "confirmNewPassword": "Bekräfta nytt lösenord",
-            "verificationCode": "Verifieringskod"
-        },
-		"rank": {
-			"bronze": "Brons"
+		},
+		"notifications": {
+			"friendRequest": {
+				"noUser": "Kunde inte skicka vänförfrågan: Användar-ID hittades inte",
+				"selfRequest": "Du kan inte skicka en vänförfrågan till dig själv",
+				"success": "Vänförfrågan skickades framgångsrikt",
+				"error": "Fel vid sändning av vänförfrågan"
+			}
+		},
+		"buttons": {
+			"play": "SPELA"
+		},
+		"tooltips": {
+			"profil": {
+				"title": "Profil",
+				"info": "Du kan klicka på profiln i navigationsfältet för att uppdatera din information"
+			},
+			"ranking": {
+				"title": "Rankingsystem",
+				"bronze": "Brons: 0 - 5 segrar",
+				"silver": "Silver: 5 - 10 segrar",
+				"gold": "Guld: minst 10 segrar"
+			}
+		},
+		"context": {
+			"profil": "Visa profil",
+			"addFriend": "Lägg till vänförfrågan"
+		},
+		"errors": {
+			"templateNotFound": "Mall för spelinbjudan hittades inte",
+			"selectGameAndMode": "Vänligen välj både en speltyp och ett läge!"
+		},
+		"status": {
+			"loading": "Laddar spelet...",
+			"focus": "Fokuserar på spelet",
+			"initialized": "Spelet är redan initierat",
+			"winner": "Vinnaren är: {winner}"
 		}
-    },
-    "settings": {
-        "game_settings": "Spelinställningar",
-        "score_to_win": "Poäng för att vinna",
-        "score_1": "1",
-        "score_3": "3",
-        "score_5": "5",
-        "score_10": "10",
-        "score_15": "15",
-        "ball_slower": "Bollen långsammare vid serve",
-        "yes": "Ja",
-        "no": "Nej",
-        "who_starts": "Vem börjar efter en poäng",
-        "player_1": "Spelare 1",
-        "alternate": "Växla",
-        "player_2": "Spelare 2",
-        "power_mode": "Kraftläge",
-        "ia_difficulty": "AI-svårighetsgrad",
-        "easy": "Lätt",
-        "medium": "Medel",
-        "hard": "Svår",
-        "controls_settings": "Kontrollinställningar",
-        "movement": "Rörelse",
-        "move_up": "Flytta upp",
-        "move_down": "Flytta ner",
-        "powers": "Krafter",
-        "flash_power": "Blixtkraft",
-        "laser_power": "Laserkraft",
-        "multiball_power": "Multibollkraft",
-        "save": "SPARA"
-    },
-    "tournament": {
+	},
+	"profil": {
+		"nickname": "Smeknamn",
+		"rank_bronze": "Brons",
+		"rank_silver": "Silver",
+		"rank_gold": "Guld",
+		"rank_Platinum": "Platina",
+		"modify": "Ändra",
+		"cancel": "Avbryt",
+		"match_history": "Matchhistorik",
+		"defeat": "Förlust",
+		"no_friend_requests": "Inga vänförfrågningar väntar",
+		"accept": "Acceptera",
+		"reject": "Avvisa",
+		"account_settings": "Kontoinställningar",
+		"username": "Användarnamn",
+		"email": "E-post",
+		"password": "Lösenord",
+		"new_password": "Nytt lösenord",
+		"confirm_new_password": "Bekräfta nytt lösenord",
+		"save_changes": "Spara ändringar",
+		"friend_requests": "Vänförfrågningar",
+		"gamesPlayed": "Spelade matcher",
+		"winRatio": "Vinstförhållande",
+		"longestRally": "Längsta bollväxling",
+		"topSpeed": "Högsta hastighet",
+		"enable_2fa": "Aktivera 2FA",
+		"confirm": "Bekräfta",
+		"verification_code": "Verifieringskod",
+		"avatar_upload": "Ladda upp",
+		"avatar_select": "Välj avatar",
+		"avatar_apply": "Tillämpa",
+		"avatar_cancel": "Avbryt"
+	},
+	"settings": {
+		"game_settings": "Spelinställningar",
+		"score_to_win": "Poäng för att vinna",
+		"score_1": "1",
+		"score_3": "3",
+		"score_5": "5",
+		"score_10": "10",
+		"score_15": "15",
+		"ball_slower": "Bollen långsammare vid serve",
+		"yes": "Ja",
+		"no": "Nej",
+		"who_starts": "Vem börjar efter en poäng",
+		"player_1": "Spelare 1",
+		"alternate": "Växla",
+		"player_2": "Spelare 2",
+		"power_mode": "Kraftläge",
+		"ia_difficulty": "AI-svårighetsgrad",
+		"easy": "Lätt",
+		"medium": "Medel",
+		"hard": "Svår",
+		"controls_settings": "Kontrollinställningar",
+		"movement": "Rörelse",
+		"move_up": "Flytta upp",
+		"move_down": "Flytta ner",
+		"powers": "Krafter",
+		"flash_power": "Blixtkraft",
+		"laser_power": "Laserkraft",
+		"multiball_power": "Multibollkraft",
+		"save": "SPARA"
+	},
+	"tournament": {
 		"players_4": "4 Spelare",
 		"players_8": "8 Spelare",
 		"play": "SPELA",
@@ -165,6 +160,6 @@
 		"won_the_game": "Vann matchen",
 		"launch_next_match": "Starta nästa match",
 		"your_nickname": "Ditt smeknamn",
-    	"bot_player": "Botspelare {0}"
-	}	
+		"bot_player": "Botspelare {0}"
+	}
 }

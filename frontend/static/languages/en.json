@@ -53,9 +53,9 @@
 			"play": "PLAY"
 		},
 		"tooltips": {
-			"profile": {
-				"title": "Profile",
-				"info": "You can click on the profile section on the navbar to update your infos"
+			"profil": {
+				"title": "profil",
+				"info": "You can click on the profil section on the navbar to update your infos"
 			},
 			"ranking": {
 				"title": "Ranking system",
@@ -65,7 +65,7 @@
 			}
 		},
 		"context": {
-			"profile": "See profile",
+			"profil": "See profil",
 			"addFriend": "Add friend request"
 		},
 		"errors": {
@@ -80,42 +80,37 @@
 		}
 	},
 	"profil": {
-		"account": {
-			"settings": "Account Settings"
-		},
-		"friend": {
-			"requests": "Friend Requests"
-		},
-		"match": {
-			"history": "Match History"
-		},
-		"stats": {
-			"gamesPlayed": "Gameplay played",
-			"winRatio": "Win ratio",
-			"longestRally": "Longest Rally",
-			"topSpeed": "Top Speed"
-		},
-		"buttons": {
-			"modify": "Modify",
-			"saveChanges": "Save Changes",
-			"upload": "Upload",
-			"chooseAvatar": "Choose Avatar",
-			"enable2FA": "Enable 2FA",
-			"confirm2FA": "Confirm",
-			"cancel": "Cancel",
-			"apply": "Apply"
-		},
-		"inputLabels": {
-			"username": "Username",
-			"email": "E-mail",
-			"password": "Password",
-			"newPassword": "New Password",
-			"confirmNewPassword": "Confirm New Password",
-			"verificationCode": "Verification Code"
-		},
-		"rank": {
-			"bronze": "Bronze"
-		}
+		"nickname": "Nickname",
+		"rank_bronze": "Bronze",
+		"rank_silver": "Silver",
+		"rank_gold": "Gold",
+		"rank_Platinum": "Platinum",
+		"modify": "Modify",
+		"cancel": "Cancel",
+		"match_history": "Match History",
+		"defeat": "Defeat",
+		"no_friend_requests": "No pending friend requests",
+		"accept": "Accept",
+		"reject": "Reject",
+		"account_settings": "Account Settings",
+		"username": "Username",
+		"email": "E-mail",
+		"password": "Password",
+		"new_password": "New Password",
+		"confirm_new_password": "Confirm New Password",
+		"save_changes": "Save Changes",
+		"friend_requests": "Friend Requests",
+		"gamesPlayed": "Games Played",
+		"winRatio": "Win Ratio",
+		"longestRally": "Longest Rally",
+		"topSpeed": "Top Speed",
+		"enable_2fa": "Enable 2FA",
+		"confirm": "Confirm",
+		"verification_code": "Verification Code",
+		"avatar_upload": "Upload",
+		"avatar_select": "Select Avatar",
+		"avatar_apply": "Apply",
+		"avatar_cancel": "Cancel"
 	},
 	"settings": {
 		"game_settings": "Game Settings",
@@ -158,13 +153,13 @@
 		"tournament_champion": "Tournament Champion",
 		"finish_tournament": "FINISH TOURNAMENT",
 		"waiting_next_matches": "Waiting for next matches",
-        "launch_match": "Launch Match",
-        "launch_final": "Launch Final",
-        "launch_semi_final": "Launch Semi-Final",
-        "tournament_complete": "Tournament Complete!",
-        "won_the_game": "Won the Game",
-        "launch_next_match": "Launch Next Match",
+		"launch_match": "Launch Match",
+		"launch_final": "Launch Final",
+		"launch_semi_final": "Launch Semi-Final",
+		"tournament_complete": "Tournament Complete!",
+		"won_the_game": "Won the Game",
+		"launch_next_match": "Launch Next Match",
 		"your_nickname": "Your Nickname",
-        "bot_player": "Bot Player {0}"
+		"bot_player": "Bot Player {0}"
 	}
 }

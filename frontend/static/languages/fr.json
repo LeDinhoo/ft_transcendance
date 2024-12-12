@@ -53,7 +53,7 @@
 			"play": "JOUER"
 		},
 		"tooltips": {
-			"profile": {
+			"profil": {
 				"title": "Profil",
 				"info": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations"
 			},
@@ -65,7 +65,7 @@
 			}
 		},
 		"context": {
-			"profile": "Voir le profil",
+			"profil": "Voir le profil",
 			"addFriend": "Ajouter une demande d'ami"
 		},
 		"errors": {
@@ -80,42 +80,37 @@
 		}
 	},
 	"profil": {
-		"account": {
-			"settings": "Paramètres du compte"
-		},
-		"friend": {
-			"requests": "Demandes d'amis"
-		},
-		"match": {
-			"history": "Historique des matchs"
-		},
-		"stats": {
-			"gamesPlayed": "Parties jouées",
-			"winRatio": "Ratio de victoires",
-			"longestRally": "Le plus long échange",
-			"topSpeed": "Vitesse maximale"
-		},
-		"buttons": {
-			"modify": "Modifier",
-			"saveChanges": "Enregistrer les modifications",
-			"upload": "Télécharger",
-			"chooseAvatar": "Choisir un avatar",
-			"enable2FA": "Activer 2FA",
-			"confirm2FA": "Confirmer",
-			"cancel": "Annuler",
-			"apply": "Appliquer"
-		},
-		"inputLabels": {
-			"username": "Nom d'utilisateur",
-			"email": "E-mail",
-			"password": "Mot de passe",
-			"newPassword": "Nouveau mot de passe",
-			"confirmNewPassword": "Confirmer le nouveau mot de passe",
-			"verificationCode": "Code de vérification"
-		},
-		"rank": {
-			"bronze": "Bronze"
-		}
+		"nickname": "Surnom",
+		"rank_bronze": "Bronze",
+		"rank_silver": "Argent",
+		"rank_gold": "Or",
+		"rank_Platinum": "Platine",
+		"modify": "Modifier",
+		"cancel": "Annuler",
+		"match_history": "Historique des matchs",
+		"defeat": "Défaite",
+		"no_friend_requests": "Aucune demande d'ami en attente",
+		"accept": "Accepter",
+		"reject": "Rejeter",
+		"account_settings": "Paramètres du compte",
+		"username": "Nom d'utilisateur",
+		"email": "E-mail",
+		"password": "Mot de passe",
+		"new_password": "Nouveau mot de passe",
+		"confirm_new_password": "Confirmer le nouveau mot de passe",
+		"save_changes": "Enregistrer les modifications",
+		"friend_requests": "Demandes d'amis",
+		"gamesPlayed": "Parties jouées",
+		"winRatio": "Taux de victoire",
+		"longestRally": "Plus long échange",
+		"topSpeed": "Vitesse maximale",
+		"enable_2fa": "Activer la 2FA",
+		"confirm": "Confirmer",
+		"verification_code": "Code de vérification",
+		"avatar_upload": "Télécharger",
+		"avatar_select": "Sélectionner un avatar",
+		"avatar_apply": "Appliquer",
+		"avatar_cancel": "Annuler"
 	},
 	"settings": {
 		"game_settings": "Paramètres du jeu",
@@ -165,6 +160,6 @@
 		"won_the_game": "A gagné le match",
 		"launch_next_match": "Lancer le prochain match",
 		"your_nickname": "Votre pseudo",
-  		"bot_player": "Joueur Bot {0}"
+		"bot_player": "Joueur Bot {0}"
 	}
 }

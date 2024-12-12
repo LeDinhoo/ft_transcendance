@@ -53,7 +53,7 @@
 			"play": "JUGAR"
 		},
 		"tooltips": {
-			"profile": {
+			"profil": {
 				"title": "Perfil",
 				"info": "Puedes hacer clic en la sección de perfil en la barra de navegación para actualizar tu información"
 			},
@@ -65,7 +65,7 @@
 			}
 		},
 		"context": {
-			"profile": "Ver perfil",
+			"profil": "Ver perfil",
 			"addFriend": "Agregar solicitud de amistad"
 		},
 		"errors": {
@@ -80,42 +80,37 @@
 		}
 	},
 	"profil": {
-		"account": {
-			"settings": "Configuración de la cuenta"
-		},
-		"friend": {
-			"requests": "Solicitudes de amistad"
-		},
-		"match": {
-			"history": "Historial de partidas"
-		},
-		"stats": {
-			"gamesPlayed": "Partidas jugadas",
-			"winRatio": "Porcentaje de victorias",
-			"longestRally": "Rally más largo",
-			"topSpeed": "Velocidad máxima"
-		},
-		"buttons": {
-			"modify": "Modificar",
-			"saveChanges": "Guardar cambios",
-			"upload": "Subir",
-			"chooseAvatar": "Elegir avatar",
-			"enable2FA": "Habilitar 2FA",
-			"confirm2FA": "Confirmar",
-			"cancel": "Cancelar",
-			"apply": "Aplicar"
-		},
-		"inputLabels": {
-			"username": "Nombre de usuario",
-			"email": "Correo electrónico",
-			"password": "Contraseña",
-			"newPassword": "Nueva contraseña",
-			"confirmNewPassword": "Confirmar nueva contraseña",
-			"verificationCode": "Código de verificación"
-		},
-		"rank": {
-			"bronze": "Bronce"
-		}
+		"nickname": "Apodo",
+		"rank_bronze": "Bronce",
+		"rank_silver": "Plata",
+		"rank_gold": "Oro",
+		"rank_Platinum": "Platino",
+		"modify": "Modificar",
+		"cancel": "Cancelar",
+		"match_history": "Historial de partidas",
+		"defeat": "Derrota",
+		"no_friend_requests": "No hay solicitudes de amistad pendientes",
+		"accept": "Aceptar",
+		"reject": "Rechazar",
+		"account_settings": "Configuración de la cuenta",
+		"username": "Nombre de usuario",
+		"email": "Correo electrónico",
+		"password": "Contraseña",
+		"new_password": "Nueva contraseña",
+		"confirm_new_password": "Confirmar nueva contraseña",
+		"save_changes": "Guardar cambios",
+		"friend_requests": "Solicitudes de amistad",
+		"gamesPlayed": "Partidas jugadas",
+		"winRatio": "Proporción de victorias",
+		"longestRally": "Rally más largo",
+		"topSpeed": "Velocidad máxima",
+		"enable_2fa": "Habilitar 2FA",
+		"confirm": "Confirmar",
+		"verification_code": "Código de verificación",
+		"avatar_upload": "Subir",
+		"avatar_select": "Seleccionar avatar",
+		"avatar_apply": "Aplicar",
+		"avatar_cancel": "Cancelar"
 	},
 	"settings": {
 		"game_settings": "Configuración del juego",
@@ -165,6 +160,6 @@
 		"won_the_game": "Ganó la partida",
 		"launch_next_match": "Iniciar la siguiente partida",
 		"your_nickname": "Tu apodo",
-	    "bot_player": "Jugador Bot {0}"
+		"bot_player": "Jugador Bot {0}"
 	}
 }

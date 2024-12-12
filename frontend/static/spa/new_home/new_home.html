@@ -1,249 +1,207 @@
 <div class="homeContainer">
-  <div class="homePageMain">
-    <div class="mainContent">
-      <div class="homeSectionLeft">
-        <div class="upLeftFrame">
-          <div class="avatarSection">
-            <div class="avatarCircle">
-              <img
-                src="/static/assets/avatars/buffalo.png"
-                alt="avatar"
-                class="avatarImage"
-                id="avatarProfilUser"
-              />
-            </div>
-            <div class="nicknameSection" id="nicknameProfilUser">Nickname</div>
-          </div>
-          <div class="rankSection">
-            <img
-              src="/static/assets/icons/bronze.png"
-              alt="avatar"
-              class="rankImage"
-              id="rankImage"
-            />
-            <span id="rankText">Bronze</span>
-          </div>
-        </div>
-        <div class="downLeftFrame">
-			<div class="onlinePlayersTitle" data-translate="home.online.players">Online Players</div>
-		   </div>
-      </div>
+	<div class="homePageMain">
+		<div class="mainContent">
+			<div class="homeSectionLeft">
+				<div class="upLeftFrame">
+					<div class="avatarSection">
+						<div class="avatarCircle">
+							<img src="/static/assets/avatars/buffalo.png" alt="avatar" class="avatarImage"
+								id="avatarProfilUser" />
+						</div>
+						<div class="nicknameSection" id="nicknameProfilUser">Nickname</div>
+					</div>
+					<div class="rankSection">
+						<img src="/static/assets/icons/bronze.png" alt="avatar" class="rankImage" id="rankImage" />
+						<span id="rankText">Bronze</span>
+					</div>
+				</div>
+				<div class="downLeftFrame">
+					<div class="onlinePlayersTitle" data-translate="home.online.players">Online Players</div>
+				</div>
+			</div>
 
-      <div class="homeSectionMiddle">
-        <div class="game">
-		  <div class="gameTitle" data-translate="home.titles.game">GAME</div>
-		  <div class="gameOption" data-translate="home.game.classic">CLASSIC PONG</div>
-		  <div class="gameOption" data-translate="home.game.power">POWER PONG</div>
-        </div>
+			<div class="homeSectionMiddle">
+				<div class="game">
+					<div class="gameTitle" data-translate="home.titles.game">GAME</div>
+					<div class="gameOption" data-translate="home.game.classic">CLASSIC PONG</div>
+					<div class="gameOption" data-translate="home.game.power">POWER PONG</div>
+				</div>
 
-        <div class="mode">
-		  <div class="gameTitle" data-translate="home.titles.mode">MODE</div>
-		  <div class="modeOption" data-translate="home.mode.versus">1 VS 1</div>
-		  <div class="modeOption" data-translate="home.mode.ai">AGAINST AI</div>
-		  <div class="modeOption" data-translate="home.mode.online">ONLINE</div>
-		  <div class="modeOption" data-translate="home.mode.tournament">TOURNAMENT</div>
-        </div>
-      </div>
+				<div class="mode">
+					<div class="gameTitle" data-translate="home.titles.mode">MODE</div>
+					<div class="modeOption" data-translate="home.mode.versus">1 VS 1</div>
+					<div class="modeOption" data-translate="home.mode.ai">AGAINST AI</div>
+					<div class="modeOption" data-translate="home.mode.online">ONLINE</div>
+					<div class="modeOption" data-translate="home.mode.tournament">TOURNAMENT</div>
+				</div>
+			</div>
 
-      <div class="homeSectionRight">
-        <div class="chatTitle" data-translate="home.chat.title">Live Chat</div>
-        <div class="chatContainer">
-          <div id="chatMessages" class="chatMessages"></div>
-          <div class="chatInputContainer">
-            <div class="messageInputWrapper">
-              <input
-                type="text"
-                id="messageInput"
-                class="chatInput"
-                placeholder="Message"
-                autocomplete="off"
-              />
-              <button id="sendMessage" class="sendButton">
-                <img
-                  src="/static/assets/icons/send.svg"
-                  alt="Send"
-                  class="sendIcon"
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="homeSlider">
-	  <div class="playHomePage" data-translate="home.buttons.play">PLAY</div>
-    </div>
-  </div>
+			<div class="homeSectionRight">
+				<div class="chatTitle" data-translate="home.chat.title">Live Chat</div>
+				<div class="chatContainer">
+					<div id="chatMessages" class="chatMessages"></div>
+					<div class="chatInputContainer">
+						<div class="messageInputWrapper">
+							<input type="text" id="messageInput" class="chatInput" placeholder="Message"
+								autocomplete="off" />
+							<button id="sendMessage" class="sendButton">
+								<img src="/static/assets/icons/send.svg" alt="Send" class="sendIcon" />
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="homeSlider">
+			<div class="playHomePage" data-translate="home.buttons.play">PLAY</div>
+		</div>
+	</div>
 </div>
 
-<div id="profileModal" class="profile-modal">
-  <div class="profile-modal-content">
-    <span class="close-profile-modal">&times;</span>
-    <div class="profile-header">
-      <div class="profile-avatar">
-        <img
-          id="profileAvatar"
-          src="/static/assets/avatars/clown-fish.png"
-          alt="Player avatar"
-        />
-      </div>
-      <div class="profile-info">
-        <h2 id="profileNickname">Nickname</h2>
-        <div class="profile-rank">
-          <img
-            id="profileRankIcon"
-            src="/static/assets/icons/bronze.png"
-            alt="rank"
-          />
-          <span id="profileRankText">Bronze</span>
-        </div>
-      </div>
-    </div>
+<div id="profilModal" class="profil-modal">
+	<div class="profil-modal-content">
+		<span class="close-profil-modal">&times;</span>
+		<div class="profil-header">
+			<div class="profil-avatar">
+				<img id="profilAvatar" src="/static/assets/avatars/clown-fish.png" alt="Player avatar" />
+			</div>
+			<div class="profil-info">
+				<h2 id="profilNickname">Nickname</h2>
+				<div class="profil-rank">
+					<img id="profilRankIcon" src="/static/assets/icons/bronze.png" alt="rank" />
+					<span id="profilRankText">Bronze</span>
+				</div>
+			</div>
+		</div>
 
-    <div class="profile-stats">
-      <h3>Statistics</h3>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">Total Games</div>
-          <div id="totalGames" class="stat-value">0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Win Rate</div>
-          <div id="winRate" class="stat-value">0%</div>
-        </div>
-      </div>
+		<div class="profil-stats">
+			<h3>Statistics</h3>
+			<div class="stats-grid">
+				<div class="stat-box">
+					<div class="stat-label">Total Games</div>
+					<div id="totalGames" class="stat-value">0</div>
+				</div>
+				<div class="stat-box">
+					<div class="stat-label">Win Rate</div>
+					<div id="winRate" class="stat-value">0%</div>
+				</div>
+			</div>
 
-      <div class="recent-games">
-        <h4>Recent Games</h4>
-        <div id="recentGamesList" class="recent-games-list">
-          <div class="no-games">No recent games</div>
-        </div>
-      </div>
-    </div>
-  </div>
+			<div class="recent-games">
+				<h4>Recent Games</h4>
+				<div id="recentGamesList" class="recent-games-list">
+					<div class="no-games">No recent games</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="online-game-modal">
-  <div class="online-game-content">
-    <div class="online-game-header">
-      <div class="online-game-title">Online Game</div>
-      <span class="close-online-game">&times;</span>
-    </div>
+	<div class="online-game-content">
+		<div class="online-game-header">
+			<div class="online-game-title">Online Game</div>
+			<span class="close-online-game">&times;</span>
+		</div>
 
-    <div class="online-game-sections">
-      <div class="online-section">
-        <div class="section-title">Friends</div>
-        <div class="player-list" id="friendsList"></div>
-      </div>
+		<div class="online-game-sections">
+			<div class="online-section">
+				<div class="section-title">Friends</div>
+				<div class="player-list" id="friendsList"></div>
+			</div>
 
-      <div class="online-section">
-        <div class="section-title">Online Players</div>
-        <div class="player-list" id="onlinePlayersList"></div>
-      </div>
-    </div>
+			<div class="online-section">
+				<div class="section-title">Online Players</div>
+				<div class="player-list" id="onlinePlayersList"></div>
+			</div>
+		</div>
 
-    <button class="launch-game" disabled>Launch Game</button>
+		<button class="launch-game" disabled>Launch Game</button>
 
-    <div class="game-loading">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Waiting for opponent...</div>
-    </div>
-  </div>
+		<div class="game-loading">
+			<div class="loading-spinner"></div>
+			<div class="loading-text">Waiting for opponent...</div>
+		</div>
+	</div>
 </div>
 
 <template id="avatarTooltipTemplate">
-  <div class="avatar-tooltip">
-    <div class="tooltip-title" data-translate="home.tooltips.profile.title">Profile</div>
-    <div class="tooltip-content">
-	  <div class="rank-row" data-translate="home.tooltips.profile.info">You can click on the profile section on the navbar to update your infos</div>
-    </div>
-  </div>
+	<div class="avatar-tooltip">
+		<div class="tooltip-title" data-translate="home.tooltips.profil.title">profil</div>
+		<div class="tooltip-content">
+			<div class="rank-row" data-translate="home.tooltips.profil.info">You can click on the profil section on the
+				navbar to update your infos</div>
+		</div>
+	</div>
 </template>
 
 <template id="rankTooltipTemplate">
-  <div class="rank-tooltip">
-    <div class="tooltip-title" data-translate="home.tooltips.ranking.title">Ranking system</div>
-    <div class="tooltip-content">
-	  <div class="rank-row" data-translate="home.tooltips.ranking.bronze">Bronze: 0 - 5 victories</div>
-	  <div class="rank-row" data-translate="home.tooltips.ranking.silver">Silver: 5 - 10 victories</div>
-	  <div class="rank-row" data-translate="home.tooltips.ranking.gold">Gold: at least 10 victories</div>
-    </div>
-  </div>
+	<div class="rank-tooltip">
+		<div class="tooltip-title" data-translate="home.tooltips.ranking.title">Ranking system</div>
+		<div class="tooltip-content">
+			<div class="rank-row" data-translate="home.tooltips.ranking.bronze">Bronze: 0 - 5 victories</div>
+			<div class="rank-row" data-translate="home.tooltips.ranking.silver">Silver: 5 - 10 victories</div>
+			<div class="rank-row" data-translate="home.tooltips.ranking.gold">Gold: at least 10 victories</div>
+		</div>
+	</div>
 </template>
 
 <template id="contextMenuTemplate">
-  <div class="player-context-menu">
-    <div class="menu-option" data-action="profile" data-translate="home.context.profile">See profile</div>
-    <div class="menu-option" data-action="add-friend" data-translate="home.context.addFriend">Add friend request</div>
-  </div>
+	<div class="player-context-menu">
+		<div class="menu-option" data-action="profil" data-translate="home.context.profil">See profil</div>
+		<div class="menu-option" data-action="add-friend" data-translate="home.context.addFriend">Add friend request
+		</div>
+	</div>
 </template>
 
 <template id="chatContextMenuTemplate">
-  <div class="chat-context-menu">
-    <div class="chat-menu-option" data-action="profile">
-      <img
-        src="/static/assets/icons/user.svg"
-        alt="profile"
-        class="option-icon"
-      />
-      See profile
-    </div>
-    <div class="chat-menu-option" data-action="add-friend">
-      <img
-        src="/static/assets/icons/user-plus.svg"
-        alt="add friend"
-        class="option-icon"
-      />
-      Add friend
-    </div>
-    <div class="chat-menu-option disabled" data-action="option3">
-      <img
-        src="/static/assets/icons/lock.svg"
-        alt="locked"
-        class="option-icon"
-      />
-      Coming soon...
-    </div>
-    <div class="chat-menu-option disabled" data-action="option4">
-      <img
-        src="/static/assets/icons/lock.svg"
-        alt="locked"
-        class="option-icon"
-      />
-      Coming soon...
-    </div>
-  </div>
+	<div class="chat-context-menu">
+		<div class="chat-menu-option" data-action="profil">
+			<img src="/static/assets/icons/user.svg" alt="profil" class="option-icon" />
+			See profil
+		</div>
+		<div class="chat-menu-option" data-action="add-friend">
+			<img src="/static/assets/icons/user-plus.svg" alt="add friend" class="option-icon" />
+			Add friend
+		</div>
+		<div class="chat-menu-option disabled" data-action="option3">
+			<img src="/static/assets/icons/lock.svg" alt="locked" class="option-icon" />
+			Coming soon...
+		</div>
+		<div class="chat-menu-option disabled" data-action="option4">
+			<img src="/static/assets/icons/lock.svg" alt="locked" class="option-icon" />
+			Coming soon...
+		</div>
+	</div>
 </template>
 
 
 
 
 <template id="gameInvitationTemplate">
-  <div class="game-invitation-modal">
-    <div class="game-invitation-content">
-      <div class="game-invitation-header">
-        <h2>Game Invitation</h2>
-        <span class="close-invitation">&times;</span>
-      </div>
-      <div class="game-invitation-body">
-        <div class="inviter-info">
-          <img class="inviter-avatar" src="" alt="Inviter avatar">
-          <span class="inviter-name"></span>
-        </div>
-        <div class="game-settings">
-          <h3>Game Settings:</h3>
-          <div class="settings-details">
-            <p>Game Type: <span class="game-type"></span></p>
-            <p>Mode: 1 VS 1</p>
-          </div>
-        </div>
-      </div>
-      <div class="game-invitation-footer">
-        <button class="decline-btn">Decline</button>
-        <button class="accept-btn">Accept</button>
-      </div>
-    </div>
-  </div>
+	<div class="game-invitation-modal">
+		<div class="game-invitation-content">
+			<div class="game-invitation-header">
+				<h2>Game Invitation</h2>
+				<span class="close-invitation">&times;</span>
+			</div>
+			<div class="game-invitation-body">
+				<div class="inviter-info">
+					<img class="inviter-avatar" src="" alt="Inviter avatar">
+					<span class="inviter-name"></span>
+				</div>
+				<div class="game-settings">
+					<h3>Game Settings:</h3>
+					<div class="settings-details">
+						<p>Game Type: <span class="game-type"></span></p>
+						<p>Mode: 1 VS 1</p>
+					</div>
+				</div>
+			</div>
+			<div class="game-invitation-footer">
+				<button class="decline-btn">Decline</button>
+				<button class="accept-btn">Accept</button>
+			</div>
+		</div>
+	</div>
 </template>
-
-

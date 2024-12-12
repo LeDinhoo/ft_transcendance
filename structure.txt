@@ -394,7 +394,7 @@ home.svg
 logout.svg
 online.svg
 pending.svg
-platinium.png
+Platinum.png
 play.svg
 popup.svg
 save.svg

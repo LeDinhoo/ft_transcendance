@@ -47,7 +47,7 @@ Statistique profil
 A ete fait sur cette branche en + : 
 
 - mis a jour de la page home avec les donnees du profil(username, avatar, rank text + icons).
-- platinium en + au niveau du badge.
+- Platinum en + au niveau du badge.
 
 
 

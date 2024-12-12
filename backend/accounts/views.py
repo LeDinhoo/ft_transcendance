@@ -222,7 +222,7 @@ def register_view(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def profile_view(request):
+def profil_view(request):
     user = request.user
     print("Chargement du profil pour l'utilisateur:", user.username)  # Debug
     print("Avatar actuel:", user.avatar)  # Debug
@@ -260,7 +260,7 @@ def profile_view(request):
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
-def update_profile_view(request):
+def update_profil_view(request):
     user = request.user
     data = request.data
 

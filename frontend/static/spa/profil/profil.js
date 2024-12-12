@@ -1,398 +1,401 @@
-function updateProfilOnProfil() {
-  console.log("fonction updateprofilonProfil appelee...")
-  fetch("/api/profil/", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.username && data.email) {
-        // document.getElementById("nicknameProfilUser").innerText = data.username;
-
-        const win_ratio = data.win_ratio ?? 0;
-        const totalGames = data.total_games ?? 0;
-        console.log("total games : ", totalGames);
-
-        if (win_ratio < 33) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/bronze.png";
-          document.getElementById("rankText").innerText = "Bronze";
-        } else if (win_ratio < 66 && win_ratio >= 33) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/silver.png";
-          document.getElementById("rankText").innerText = "Silver";
-        } else if (
-          (win_ratio < 80 && win_ratio >= 66) ||
-          (win_ratio >= 66 && totalGames < 5)
-        ) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/gold.png";
-          document.getElementById("rankText").innerText = "Gold";
-        } else if (win_ratio >= 80 && totalGames >= 5) {
-          document.getElementById("rankImage").src =
-            "static/assets/icons/platinium.png";
-          document.getElementById("rankText").innerText = "Platinium";
-        }
-
-        // const avatarUrl =
-        //   data.avatar && data.avatar.trim()
-        //     ? data.avatar
-        //     : "/static/assets/avatars/buffalo.png";
-        // document.getElementById("avatarProfilUser").src = avatarUrl;
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la récupération du profil :", error);
-    });
+function updateProfilOnHome() {
+	console.log("fonction updateprofilonhome appelee...");
+	fetch("/api/profil/", {
+	  method: "GET",
+	  credentials: "include",
+	  headers: {
+		"Content-Type": "application/json",
+	  },
+	})
+	  .then((response) => {
+		if (!response.ok) {
+		  throw new Error(`Erreur HTTP: ${response.status}`);
+		}
+		return response.json();
+	  })
+	  .then((data) => {
+		if (data.username && data.email) {
+		  document.getElementById("nicknameProfilUser").innerText = data.username;
+  
+		  const win_ratio = data.win_ratio ?? 0;
+		  const totalGames = data.total_games ?? 0;
+		  console.log("total games : ", totalGames);
+  
+		  let rankKey;
+		  let rankImage;
+		  if (win_ratio < 33) {
+			  rankImage = "bronze";
+			  rankKey = "home.ranks.bronze";
+		  } else if (win_ratio < 66 && win_ratio >= 33) {
+			  rankImage = "silver";
+			  rankKey = "home.ranks.silver";
+		  } else if ((win_ratio < 80 && win_ratio >= 66) || (win_ratio >= 66 && totalGames < 5)) {
+			  rankImage = "gold";
+			  rankKey = "home.ranks.gold";
+		  } else if (win_ratio >= 80 && totalGames >= 5) {
+			  rankImage = "platinium";
+			  rankKey = "home.ranks.platinum";
+		  }
+  
+		  document.getElementById("rankImage").src = `static/assets/icons/${rankImage}.png`;
+		  const rankText = document.getElementById("rankText");
+		  if (rankText) {
+			  rankText.setAttribute('data-translate', rankKey);
+			  // Recharger les traductions pour ce nouvel élément
+			  loadTranslations(getPreferredLanguage());
+		  }
+  
+		  const avatarUrl =
+			data.avatar && data.avatar.trim()
+			  ? data.avatar
+			  : "/static/assets/avatars/buffalo.png";
+		  document.getElementById("avatarProfilUser").src = avatarUrl;
+		}
+	  })
+	  .catch((error) => {
+		console.error("Erreur lors de la récupération du profil :", error);
+	  });
 }
 
 function resetPasswordFields() {
-  const newFrame = document.getElementById("newFrame");
-  const newPlusFrame = document.getElementById("newPlusFrame");
-  const toggleChangePassword = document.getElementById("toggleChangePassword");
+	const newFrame = document.getElementById("newFrame");
+	const newPlusFrame = document.getElementById("newPlusFrame");
+	const toggleChangePassword = document.getElementById("toggleChangePassword");
 
-  if (newFrame && newPlusFrame && toggleChangePassword) {
-    newFrame.style.display = "none";
-    newPlusFrame.style.display = "none";
-    toggleChangePassword.innerText = "Modify";
-  }
+	if (newFrame && newPlusFrame && toggleChangePassword) {
+		newFrame.style.display = "none";
+		newPlusFrame.style.display = "none";
+		toggleChangePassword.innerText = "Modify";
+	}
 }
 
 function showConfirmationMessage(message) {
-  const confirmationMessage = document.createElement("div");
-  confirmationMessage.className = "confirmation-message";
-  confirmationMessage.innerText = message;
+	const confirmationMessage = document.createElement("div");
+	confirmationMessage.className = "confirmation-message";
+	confirmationMessage.innerText = message;
 
-  document.body.appendChild(confirmationMessage);
+	document.body.appendChild(confirmationMessage);
 
-  setTimeout(() => {
-    confirmationMessage.remove();
-  }, 3000);
+	setTimeout(() => {
+		confirmationMessage.remove();
+	}, 3000);
 }
 
 function initializePasswordManagement() {
-  const newFrame = document.getElementById("newFrame");
-  const newPlusFrame = document.getElementById("newPlusFrame");
-  const toggleChangePassword = document.getElementById("toggleChangePassword");
+	const newFrame = document.getElementById("newFrame");
+	const newPlusFrame = document.getElementById("newPlusFrame");
+	const toggleChangePassword = document.getElementById("toggleChangePassword");
 
-  const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
-  toggleChangePassword.parentNode.replaceChild(
-    cloneToggleChangePassword,
-    toggleChangePassword
-  );
+	const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
+	toggleChangePassword.parentNode.replaceChild(
+		cloneToggleChangePassword,
+		toggleChangePassword
+	);
 
-  cloneToggleChangePassword.addEventListener("click", function () {
-    const isHidden = newFrame.style.display === "none";
-    cloneToggleChangePassword.innerText = isHidden ? "Cancel" : "Modify";
-    newFrame.style.display = isHidden ? "block" : "none";
-    newPlusFrame.style.display = isHidden ? "block" : "none";
-  });
+	cloneToggleChangePassword.addEventListener("click", function () {
+		const isHidden = newFrame.style.display === "none";
+		cloneToggleChangePassword.setAttribute("data-translate", isHidden ? "profil.cancel" : "profil.modify");
+		newFrame.style.display = isHidden ? "block" : "none";
+		newPlusFrame.style.display = isHidden ? "block" : "none";
+	});
 }
 
 function loadMatchHistory() {
-  fetch("/api/match-history/", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.history) {
-        updateMatchHistoryUI(data.history);
-      }
-    })
-    .catch((error) =>
-      console.error(
-        "Erreur lors de la récupération de l'historique des matchs:",
-        error
-      )
-    );
+	fetch("/api/match-history/", {
+		method: "GET",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			if (data.history) {
+				updateMatchHistoryUI(data.history);
+			}
+		})
+		.catch((error) =>
+			console.error(
+				"Erreur lors de la récupération de l'historique des matchs:",
+				error
+			)
+		);
 }
 
 function updateMatchHistoryUI(history) {
-  const matchHistoryDiv = document.querySelector(".matchHistory");
-  matchHistoryDiv.innerHTML = `
-    <div class="settingsHistory">Match History</div>
+	const matchHistoryDiv = document.querySelector(".matchHistory");
+	matchHistoryDiv.innerHTML = `
+    <div class="settingsHistory" data-translate="profil.match_history"></div>
     <div class="matches-container"></div>
   `;
 
-  const matchesContainer = matchHistoryDiv.querySelector(".matches-container");
-  const recentMatches = history.slice(0, 5);
+	const matchesContainer = matchHistoryDiv.querySelector(".matches-container");
+	const recentMatches = history.slice(0, 5);
 
-  recentMatches.forEach((match) => {
-    const matchResume = document.createElement("div");
-    matchResume.className = "matchResume";
+	recentMatches.forEach((match) => {
+		const matchResume = document.createElement("div");
+		matchResume.className = "matchResume";
 
-    const userAvatar = document.createElement("img");
-    userAvatar.className = "avatarHistory";
-    userAvatar.src = match.user_avatar;
-    userAvatar.alt = "User Avatar";
+		const userAvatar = document.createElement("img");
+		userAvatar.className = "avatarHistory";
+		userAvatar.src = match.user_avatar;
+		userAvatar.alt = "User Avatar";
 
-    const userScore = document.createElement("div");
-    userScore.className = "scorePlayer";
-    userScore.textContent = match.score_user;
+		const userScore = document.createElement("div");
+		userScore.className = "scorePlayer";
+		userScore.textContent = match.score_user;
 
-    const separator = document.createElement("div");
-    separator.className = "separatorMatch";
-    separator.textContent = "-";
+		const separator = document.createElement("div");
+		separator.className = "separatorMatch";
+		separator.textContent = "-";
 
-    const opponentScore = document.createElement("div");
-    opponentScore.className = "scorePlayer";
-    opponentScore.textContent = match.score_opponent;
+		const opponentScore = document.createElement("div");
+		opponentScore.className = "scorePlayer";
+		opponentScore.textContent = match.score_opponent;
 
-    const opponentAvatar = document.createElement("img");
-    opponentAvatar.className = "avatarHistory";
-    opponentAvatar.src = match.opponent_avatar;
-    opponentAvatar.alt = "Opponent Avatar";
+		const opponentAvatar = document.createElement("img");
+		opponentAvatar.className = "avatarHistory";
+		opponentAvatar.src = match.opponent_avatar;
+		opponentAvatar.alt = "Opponent Avatar";
 
-    const resultLabel = document.createElement("div");
-    resultLabel.className = "resultLabel";
-    resultLabel.textContent = match.result;
+		const resultLabel = document.createElement("div");
+		resultLabel.className = "resultLabel";
+		resultLabel.setAttribute("data-translate", match.result === "DEFEAT" ? "profil.defeat" : "profil.victory");
 
-    if (match.result === "DEFEAT") {
-      resultLabel.style.color = "#878787";
-    }
+		if (match.result === "DEFEAT") {
+			resultLabel.style.color = "#878787";
+		}
 
-    matchResume.appendChild(userAvatar);
-    matchResume.appendChild(userScore);
-    matchResume.appendChild(separator);
-    matchResume.appendChild(opponentScore);
-    matchResume.appendChild(opponentAvatar);
-    matchResume.appendChild(resultLabel);
+		matchResume.appendChild(userAvatar);
+		matchResume.appendChild(userScore);
+		matchResume.appendChild(separator);
+		matchResume.appendChild(opponentScore);
+		matchResume.appendChild(opponentAvatar);
+		matchResume.appendChild(resultLabel);
 
-    matchHistoryDiv.appendChild(matchResume);
-  });
+		matchHistoryDiv.appendChild(matchResume);
+	});
 }
 
 function loadUserStatistics() {
-  fetch("/api/user/statistics/", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Statistiques de l'utilisateur :", data);
+	fetch("/api/user/statistics/", {
+		method: "GET",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then((response) => response.json())
+		.then((data) => {
+			console.log("Statistiques de l'utilisateur :", data);
 
-      document.getElementById("total_games").innerText = data.total_games;
-      // document.getElementById("total_wins").innerText = data.total_wins;
-      document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
-      // document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
-      document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
-      // data.ball_speed_avg.toFixed(2);
-      document.getElementById("longest_rally").innerText = data.longest_rally;
-    })
-    .catch((error) => {
-      console.error("Erreur lors du chargement des statistiques :", error);
-    });
+			document.getElementById("total_games").innerText = data.total_games;
+			// document.getElementById("total_wins").innerText = data.total_wins;
+			document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
+			// document.getElementById("power_catch_avg").innerText = data.power_catch_avg.toFixed(2);
+			document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
+			// data.ball_speed_avg.toFixed(2);
+			document.getElementById("longest_rally").innerText = data.longest_rally;
+		})
+		.catch((error) => {
+			console.error("Erreur lors du chargement des statistiques :", error);
+		});
 }
 
-function initializeProfilePage() {
-  initializeAvatarFeature();
-  resetPasswordFields();
+function initializeprofilPage() {
+	initializeAvatarFeature();
+	resetPasswordFields();
 
-  const userInput = document.getElementById("username");
-  const emailInput = document.getElementById("registerEmail");
-  const avatarDisplay = document.getElementById("avatarDisplay");
-  const avatarInput = document.getElementById("avatarInput");
-  const modifyButton = document.getElementById("modifyButton");
-  const saveButton = document.getElementById("saveButton");
-  const uploadButton = document.getElementById("uploadButton");
+	const userInput = document.getElementById("username");
+	const emailInput = document.getElementById("registerEmail");
+	const avatarDisplay = document.getElementById("avatarDisplay");
+	const avatarInput = document.getElementById("avatarInput");
+	const modifyButton = document.getElementById("modifyButton");
+	const saveButton = document.getElementById("saveButton");
+	const uploadButton = document.getElementById("uploadButton");
 
-  initializePasswordManagement();
-  initialize2FA();
+	initializePasswordManagement();
+	initialize2FA();
 
-  const unlockedColor = "#ff710d";
+	const unlockedColor = "#ff710d";
 
-  const cloneModifyButton = modifyButton.cloneNode(true);
-  modifyButton.parentNode.replaceChild(cloneModifyButton, modifyButton);
+	const cloneModifyButton = modifyButton.cloneNode(true);
+	modifyButton.parentNode.replaceChild(cloneModifyButton, modifyButton);
 
-  cloneModifyButton.addEventListener("click", function () {
-    if (userInput.disabled && emailInput.disabled) {
-      userInput.disabled = false;
-      emailInput.disabled = false;
-      cloneModifyButton.style.backgroundColor = unlockedColor;
-    } else {
-      userInput.disabled = true;
-      emailInput.disabled = true;
-      cloneModifyButton.style.backgroundColor = "";
-    }
-  });
+	cloneModifyButton.addEventListener("click", function () {
+		if (userInput.disabled && emailInput.disabled) {
+			userInput.disabled = false;
+			emailInput.disabled = false;
+			cloneModifyButton.style.backgroundColor = unlockedColor;
+		} else {
+			userInput.disabled = true;
+			emailInput.disabled = true;
+			cloneModifyButton.style.backgroundColor = "";
+		}
+	});
 
-  uploadButton.addEventListener("click", function () {
-    avatarInput.click();
-  });
+	uploadButton.addEventListener("click", function () {
+		avatarInput.click();
+	});
 
-  avatarInput.addEventListener("change", function () {
-    const avatarFile = avatarInput.files[0];
+	avatarInput.addEventListener("change", function () {
+		const avatarFile = avatarInput.files[0];
 
-    if (avatarFile) {
-      const formData = new FormData();
-      formData.append("avatar", avatarFile);
+		if (avatarFile) {
+			const formData = new FormData();
+			formData.append("avatar", avatarFile);
 
-      fetch("/api/profil/update/", {
-        method: "PATCH",
-        credentials: "include",
-        body: formData,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.avatar) {
-            avatarDisplay.src = data.avatar;
-          }
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la mise à jour de l'avatar :", error);
-          showErrorPopup(
-            "Erreur lors de la mise à jour de l'avatar, veuillez réessayer.<br> Only JPG / JPEG / PNG format accepted"
-          );
-        });
-    }
-  });
+			fetch("/api/profil/update/", {
+				method: "PATCH",
+				credentials: "include",
+				body: formData,
+			})
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error(`Erreur HTTP: ${response.status}`);
+					}
+					return response.json();
+				})
+				.then((data) => {
+					if (data.avatar) {
+						avatarDisplay.src = data.avatar;
+					}
+				})
+				.catch((error) => {
+					console.error("Erreur lors de la mise à jour de l'avatar :", error);
+					showErrorPopup(
+						"Erreur lors de la mise à jour de l'avatar, veuillez réessayer.<br> Only JPG / JPEG / PNG format accepted"
+					);
+				});
+		}
+	});
 
-  saveButton.addEventListener("click", function () {
-    if (!userInput.disabled && !emailInput.disabled) {
-      const updatedUsername = userInput.value;
-      const updatedEmail = emailInput.value;
-      const avatarFile = avatarInput.files[0];
-      const oldPassword = document.getElementById("oldPassword").value;
-      const newPassword = document.getElementById("newPassword").value;
-      const confirmNewPassword =
-        document.getElementById("confirmNewPassword").value;
+	saveButton.addEventListener("click", function () {
+		if (!userInput.disabled && !emailInput.disabled) {
+			const updatedUsername = userInput.value;
+			const updatedEmail = emailInput.value;
+			const avatarFile = avatarInput.files[0];
+			const oldPassword = document.getElementById("oldPassword").value;
+			const newPassword = document.getElementById("newPassword").value;
+			const confirmNewPassword =
+				document.getElementById("confirmNewPassword").value;
 
-      if (!updatedUsername || !updatedEmail) {
-        showErrorPopup(
-          "Le nom d'utilisateur et l'email ne peuvent pas être vides."
-        );
-        return;
-      }
+			if (!updatedUsername || !updatedEmail) {
+				showErrorPopup(
+					"Le nom d'utilisateur et l'email ne peuvent pas être vides."
+				);
+				return;
+			}
 
-      if (newPassword || confirmNewPassword || oldPassword) {
-        if (!oldPassword) {
-          showErrorPopup("Veuillez saisir votre ancien mot de passe.");
-          return;
-        }
-        if (newPassword !== confirmNewPassword) {
-          showErrorPopup("Les nouveaux mots de passe ne correspondent pas.");
-          return;
-        }
-      }
+			if (newPassword || confirmNewPassword || oldPassword) {
+				if (!oldPassword) {
+					showErrorPopup("Veuillez saisir votre ancien mot de passe.");
+					return;
+				}
+				if (newPassword !== confirmNewPassword) {
+					showErrorPopup("Les nouveaux mots de passe ne correspondent pas.");
+					return;
+				}
+			}
 
-      const formData = new FormData();
-      formData.append("username", updatedUsername);
-      formData.append("email", updatedEmail);
-      if (avatarFile) {
-        formData.append("avatar", avatarFile);
-      }
-      if (oldPassword && newPassword) {
-        formData.append("old_password", oldPassword);
-        formData.append("new_password", newPassword);
-      }
+			const formData = new FormData();
+			formData.append("username", updatedUsername);
+			formData.append("email", updatedEmail);
+			if (avatarFile) {
+				formData.append("avatar", avatarFile);
+			}
+			if (oldPassword && newPassword) {
+				formData.append("old_password", oldPassword);
+				formData.append("new_password", newPassword);
+			}
 
-      fetch("/api/profil/update/", {
-        method: "PATCH",
-        credentials: "include",
-        body: formData,
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          document.getElementById("playerFrame").innerText = data.username;
-          document.getElementById("username").value = data.username;
-          document.getElementById("registerEmail").value = data.email;
+			fetch("/api/profil/update/", {
+				method: "PATCH",
+				credentials: "include",
+				body: formData,
+			})
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error(`Erreur HTTP: ${response.status}`);
+					}
+					return response.json();
+				})
+				.then((data) => {
+					document.getElementById("playerFrame").innerText = data.username;
+					document.getElementById("username").value = data.username;
+					document.getElementById("registerEmail").value = data.email;
 
-          if (data.avatar) {
-            avatarDisplay.src = data.avatar;
-          }
+					if (data.avatar) {
+						avatarDisplay.src = data.avatar;
+					}
 
-          userInput.disabled = true;
-          emailInput.disabled = true;
-          cloneModifyButton.style.backgroundColor = "";
-          resetPasswordFields();
-        })
-        .catch((error) => {
-          console.error(
-            "Erreur lors de la mise à jour des informations :",
-            error
-          );
-          showErrorPopup("Erreur lors de la mise à jour, veuillez réessayer.");
-        });
-    }
-  });
+					userInput.disabled = true;
+					emailInput.disabled = true;
+					cloneModifyButton.style.backgroundColor = "";
+					resetPasswordFields();
+				})
+				.catch((error) => {
+					console.error(
+						"Erreur lors de la mise à jour des informations :",
+						error
+					);
+					showErrorPopup("Erreur lors de la mise à jour, veuillez réessayer.");
+				});
+		}
+	});
 
-  fetch("/api/profil/", {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.username && data.email) {
-        document.getElementById("playerFrame").innerText = data.username;
-        document.getElementById("username").value = data.username;
-        document.getElementById("registerEmail").value = data.email;
-  
-        if ("is_2fa_enabled" in data) {
-          updateUI2FAStatus(data.is_2fa_enabled);
-        }
-  
-        // Mise à jour du rank
-        if (data.rank) {
-          document.getElementById("profileRankIcon").src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
-          document.getElementById("profileRankText").textContent = data.rank;
-        }
-  
-        avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la récupération du profil:", error);
-    });
+	fetch("/api/profil/", {
+		method: "GET",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error(`Erreur HTTP: ${response.status}`);
+			}
+			return response.json();
+		})
+		.then((data) => {
+			if (data.username && data.email) {
+				document.getElementById("playerFrame").innerText = data.username;
+				document.getElementById("username").value = data.username;
+				document.getElementById("registerEmail").value = data.email;
 
-  loadMatchHistory();
-  loadUserStatistics();
-  updateProfilOnProfil();
+				if ("is_2fa_enabled" in data) {
+					updateUI2FAStatus(data.is_2fa_enabled);
+				}
+
+				// Mise à jour du rank
+				if (data.rank) {
+					document.getElementById("profilRankIcon").src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
+					document.getElementById("profilRankText").textContent = data.rank;
+				}
+
+				avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
+			}
+		})
+		.catch((error) => {
+			console.error("Erreur lors de la récupération du profil:", error);
+		});
+
+	loadMatchHistory();
+	loadUserStatistics();
+	updateProfilOnProfil();
 }
 
 function showTwoFactorPopup() {
-  const existingPopup = document.querySelector(".popup-overlay");
-  if (existingPopup) {
-    console.log("Une pop-up 2FA existe déjà, pas besoin de recréer.");
-    return;
-  }
+	const existingPopup = document.querySelector(".popup-overlay");
+	if (existingPopup) {
+		console.log("Une pop-up 2FA existe déjà, pas besoin de recréer.");
+		return;
+	}
 
-  console.log("Création d'une nouvelle pop-up 2FA...");
-  const popup = document.createElement("div");
-  popup.className = "popup-overlay";
-  popup.innerHTML = `
+	console.log("Création d'une nouvelle pop-up 2FA...");
+	const popup = document.createElement("div");
+	popup.className = "popup-overlay";
+	popup.innerHTML = `
       <div class="popup-content">
           <h3>Vérification en deux étapes</h3>
           <p>Un code a été envoyé à votre adresse email</p>
@@ -410,419 +413,417 @@ function showTwoFactorPopup() {
       </div>
   `;
 
-  document.body.appendChild(popup);
+	document.body.appendChild(popup);
 
-  setupCodeInputsForProfile();
-  startCountdown(10 * 60);
+	setupCodeInputsForprofil();
+	startCountdown(10 * 60);
 
-  return popup;
+	return popup;
 }
 
-function setupCodeInputsForProfile() {
-  const inputs = document.querySelectorAll(".code-input");
-  const verifyButton = document.getElementById("verifyButton");
+function setupCodeInputsForprofil() {
+	const inputs = document.querySelectorAll(".code-input");
+	const verifyButton = document.getElementById("verifyButton");
 
-  inputs.forEach((input, index) => {
-    if (index === 0) input.focus();
+	inputs.forEach((input, index) => {
+		if (index === 0) input.focus();
 
-    input.addEventListener("input", (e) => {
-      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+		input.addEventListener("input", (e) => {
+			e.target.value = e.target.value.replace(/[^0-9]/g, "");
 
-      if (e.target.value && index < inputs.length - 1) {
-        inputs[index + 1].focus();
-      }
+			if (e.target.value && index < inputs.length - 1) {
+				inputs[index + 1].focus();
+			}
 
-      const isComplete = Array.from(inputs).every(
-        (input) => input.value.length === 1
-      );
-      verifyButton.disabled = !isComplete;
-    });
+			const isComplete = Array.from(inputs).every(
+				(input) => input.value.length === 1
+			);
+			verifyButton.disabled = !isComplete;
+		});
 
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace" && !e.target.value && index > 0) {
-        inputs[index - 1].focus();
-      }
-    });
-  });
+		input.addEventListener("keydown", (e) => {
+			if (e.key === "Backspace" && !e.target.value && index > 0) {
+				inputs[index - 1].focus();
+			}
+		});
+	});
 
-  verifyButton.addEventListener("click", async () => {
-    const code = Array.from(inputs)
-      .map((input) => input.value)
-      .join("");
-    verifyTwoFactorCodeForProfile(code);
-  });
+	verifyButton.addEventListener("click", async () => {
+		const code = Array.from(inputs)
+			.map((input) => input.value)
+			.join("");
+		verifyTwoFactorCodeForprofil(code);
+	});
 }
 
-async function verifyTwoFactorCodeForProfile(code) {
-  const verifyButton = document.getElementById("verifyButton");
-  const errorMessage = document.querySelector(".error-message");
+async function verifyTwoFactorCodeForprofil(code) {
+	const verifyButton = document.getElementById("verifyButton");
+	const errorMessage = document.querySelector(".error-message");
 
-  try {
-    verifyButton.disabled = true;
-    verifyButton.textContent = "Vérification...";
+	try {
+		verifyButton.disabled = true;
+		verifyButton.textContent = "Vérification...";
 
-    const response = await fetch("/api/2fa/verify/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ code }),
-    });
+		const response = await fetch("/api/2fa/verify/", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			credentials: "include",
+			body: JSON.stringify({ code }),
+		});
 
-    const data = await response.json();
+		const data = await response.json();
 
-    if (data.success) {
-      console.log("2FA activé avec succès.");
-      const popup = document.querySelector(".popup-overlay");
-      if (popup) popup.remove();
-      updateUI2FAStatus(true);
-      showConfirmationMessage(data.message);
-    } else {
-      errorMessage.textContent = data.message || "Code invalide.";
-      errorMessage.style.display = "block";
-    }
-  } catch (error) {
-    console.error("Erreur lors de la validation 2FA :", error);
-    errorMessage.textContent = "Une erreur est survenue.";
-    errorMessage.style.display = "block";
-  } finally {
-    verifyButton.textContent = "Vérifier";
-    verifyButton.disabled = false;
-  }
+		if (data.success) {
+			console.log("2FA activé avec succès.");
+			const popup = document.querySelector(".popup-overlay");
+			if (popup) popup.remove();
+			updateUI2FAStatus(true);
+			showConfirmationMessage(data.message);
+		} else {
+			errorMessage.textContent = data.message || "Code invalide.";
+			errorMessage.style.display = "block";
+		}
+	} catch (error) {
+		console.error("Erreur lors de la validation 2FA :", error);
+		errorMessage.textContent = "Une erreur est survenue.";
+		errorMessage.style.display = "block";
+	} finally {
+		verifyButton.textContent = "Vérifier";
+		verifyButton.disabled = false;
+	}
 }
 
 function startCountdown(duration) {
-  const countdownElement = document.getElementById("countdown");
-  if (!countdownElement) {
-    console.error("Élément pour le compte à rebours introuvable.");
-    return;
-  }
+	const countdownElement = document.getElementById("countdown");
+	if (!countdownElement) {
+		console.error("Élément pour le compte à rebours introuvable.");
+		return;
+	}
 
-  let timer = duration;
+	let timer = duration;
 
-  const countdown = setInterval(() => {
-    const minutes = Math.floor(timer / 60);
-    const seconds = timer % 60;
+	const countdown = setInterval(() => {
+		const minutes = Math.floor(timer / 60);
+		const seconds = timer % 60;
 
-    countdownElement.textContent = `${minutes}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
+		countdownElement.textContent = `${minutes}:${seconds
+			.toString()
+			.padStart(2, "0")}`;
 
-    if (--timer < 0) {
-      clearInterval(countdown);
-      countdownElement.textContent = "Code expiré";
-      document.getElementById("verifyButton").disabled = true;
-    }
-  }, 1000);
+		if (--timer < 0) {
+			clearInterval(countdown);
+			countdownElement.textContent = "Code expiré";
+			document.getElementById("verifyButton").disabled = true;
+		}
+	}, 1000);
 }
 
 https: function updateUI2FAStatus(enabled) {
-  const toggle2FAButton = document.getElementById("toggle2FAButton");
-  const verificationFrame = document.getElementById("2faVerificationFrame");
+	const toggle2FAButton = document.getElementById("toggle2FAButton");
+	const verificationFrame = document.getElementById("2faVerificationFrame");
 
-  if (!toggle2FAButton || !verificationFrame) {
-    console.error(
-      "Éléments pour la mise à jour de l'interface 2FA introuvables."
-    );
-    return;
-  }
+	if (!toggle2FAButton || !verificationFrame) {
+		console.error(
+			"Éléments pour la mise à jour de l'interface 2FA introuvables."
+		);
+		return;
+	}
 
-  toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
-  toggle2FAButton.innerHTML = `
+	toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
+	toggle2FAButton.innerHTML = `
  <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
   ${enabled ? "2FA ON" : "2FA OFF"}
 `;
 
-  verificationFrame.style.display = "none";
+	verificationFrame.style.display = "none";
 
-  console.log(
-    `2FA ${enabled ? "activé" : "désactivé"} : interface mise à jour.`
-  );
+	console.log(
+		`2FA ${enabled ? "activé" : "désactivé"} : interface mise à jour.`
+	);
 }
 
 function initialize2FA() {
-  console.log("Initialisation de la 2FA");
+	console.log("Initialisation de la 2FA");
 
-  const toggle2FAButton = document.getElementById("toggle2FAButton");
-  const verificationFrame = document.getElementById("2faVerificationFrame");
-  let is2FAEnabled = false;
+	const toggle2FAButton = document.getElementById("toggle2FAButton");
+	const verificationFrame = document.getElementById("2faVerificationFrame");
+	let is2FAEnabled = false;
 
-  if (!toggle2FAButton || !verificationFrame) {
-    console.error("Éléments pour la gestion de la 2FA introuvables.");
-    return;
-  }
+	if (!toggle2FAButton || !verificationFrame) {
+		console.error("Éléments pour la gestion de la 2FA introuvables.");
+		return;
+	}
 
-  fetch("/api/profil/", {
-    credentials: "include",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération du profil");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.is_2fa_enabled !== undefined) {
-        is2FAEnabled = data.is_2fa_enabled;
-        updateUI2FAStatus(is2FAEnabled);
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la récupération du statut 2FA :", error);
-    });
+	fetch("/api/profil/", {
+		credentials: "include",
+	})
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error("Erreur lors de la récupération du profil");
+			}
+			return response.json();
+		})
+		.then((data) => {
+			if (data.is_2fa_enabled !== undefined) {
+				is2FAEnabled = data.is_2fa_enabled;
+				updateUI2FAStatus(is2FAEnabled);
+			}
+		})
+		.catch((error) => {
+			console.error("Erreur lors de la récupération du statut 2FA :", error);
+		});
 
-  const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
-  toggle2FAButton.parentNode.replaceChild(
-    cloneToggle2FAButton,
-    toggle2FAButton
-  );
+	const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
+	toggle2FAButton.parentNode.replaceChild(
+		cloneToggle2FAButton,
+		toggle2FAButton
+	);
 
-  cloneToggle2FAButton.addEventListener("click", () => {
-    const action = is2FAEnabled ? "disable" : "enable";
+	cloneToggle2FAButton.addEventListener("click", () => {
+		const action = is2FAEnabled ? "disable" : "enable";
 
-    fetch("/api/2fa/toggle/", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ action }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Erreur lors de l'activation/désactivation 2FA");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (action === "enable") {
-          if (!document.querySelector(".popup-overlay")) {
-            showTwoFactorPopup();
-          }
-          showConfirmationMessage("Code de vérification envoyé par email.");
-        } else {
-          is2FAEnabled = false;
-          updateUI2FAStatus(is2FAEnabled);
-          showConfirmationMessage("2FA désactivé avec succès.");
-        }
-      })
-      .catch((error) => {
-        console.error("Erreur lors du basculement de la 2FA :", error);
-        showConfirmationMessage("Une erreur est survenue.");
-      });
-  });
+		fetch("/api/2fa/toggle/", {
+			method: "POST",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ action }),
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error("Erreur lors de l'activation/désactivation 2FA");
+				}
+				return response.json();
+			})
+			.then((data) => {
+				if (action === "enable") {
+					if (!document.querySelector(".popup-overlay")) {
+						showTwoFactorPopup();
+					}
+					showConfirmationMessage("Code de vérification envoyé par email.");
+				} else {
+					is2FAEnabled = false;
+					updateUI2FAStatus(is2FAEnabled);
+					showConfirmationMessage("2FA désactivé avec succès.");
+				}
+			})
+			.catch((error) => {
+				console.error("Erreur lors du basculement de la 2FA :", error);
+				showConfirmationMessage("Une erreur est survenue.");
+			});
+	});
 }
 
 const avatarUrls = [
-  "/static/assets/avatars/abeille.png",
-  "/static/assets/avatars/buffalo.png",
-  "/static/assets/avatars/bullfinch.png",
-  "/static/assets/avatars/clown-fish.png",
-  "/static/assets/avatars/crabe.png",
-  "/static/assets/avatars/frog.png",
-  "/static/assets/avatars/giraffe.png",
-  "/static/assets/avatars/gorilla.png",
-  "/static/assets/avatars/chicken.png",
-  "/static/assets/avatars/hedgehog.png",
-  "/static/assets/avatars/hippopotame.png",
-  "/static/assets/avatars/ladybug.png",
-  "/static/assets/avatars/lapin.png",
-  "/static/assets/avatars/lelephant.png",
-  "/static/assets/avatars/lion.png",
-  "/static/assets/avatars/cow.png",
-  "/static/assets/avatars/mouton.png",
-  "/static/assets/avatars/owl.png",
-  "/static/assets/avatars/parrot.png",
-  "/static/assets/avatars/penguin.png",
-  "/static/assets/avatars/walrus.png",
-  "/static/assets/avatars/porc.png",
-  "/static/assets/avatars/souris.png",
-  "/static/assets/avatars/zebra.png",
+	"/static/assets/avatars/abeille.png",
+	"/static/assets/avatars/buffalo.png",
+	"/static/assets/avatars/bullfinch.png",
+	"/static/assets/avatars/clown-fish.png",
+	"/static/assets/avatars/crabe.png",
+	"/static/assets/avatars/frog.png",
+	"/static/assets/avatars/giraffe.png",
+	"/static/assets/avatars/gorilla.png",
+	"/static/assets/avatars/chicken.png",
+	"/static/assets/avatars/hedgehog.png",
+	"/static/assets/avatars/hippopotame.png",
+	"/static/assets/avatars/ladybug.png",
+	"/static/assets/avatars/lapin.png",
+	"/static/assets/avatars/lelephant.png",
+	"/static/assets/avatars/lion.png",
+	"/static/assets/avatars/cow.png",
+	"/static/assets/avatars/mouton.png",
+	"/static/assets/avatars/owl.png",
+	"/static/assets/avatars/parrot.png",
+	"/static/assets/avatars/penguin.png",
+	"/static/assets/avatars/walrus.png",
+	"/static/assets/avatars/porc.png",
+	"/static/assets/avatars/souris.png",
+	"/static/assets/avatars/zebra.png",
 ];
 
 let selectedAvatar = null;
 let tempSelectedSrc = null;
 
 function createAvatarGrid() {
-  const avatarGrid = document.getElementById("avatarGrid");
-  const applyButton = document.getElementById("applyButton");
+	const avatarGrid = document.getElementById("avatarGrid");
+	const applyButton = document.getElementById("applyButton");
 
-  if (!avatarGrid) return;
+	if (!avatarGrid) return;
 
-  avatarGrid.innerHTML = "";
+	avatarGrid.innerHTML = "";
 
-  for (let row = 0; row < 4; row++) {
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "avatar-row";
+	for (let row = 0; row < 4; row++) {
+		const rowDiv = document.createElement("div");
+		rowDiv.className = "avatar-row";
 
-    for (let col = 0; col < 6; col++) {
-      const index = row * 6 + col;
-      if (index < avatarUrls.length) {
-        const avatarOption = document.createElement("div");
-        avatarOption.className = "avatar-option";
+		for (let col = 0; col < 6; col++) {
+			const index = row * 6 + col;
+			if (index < avatarUrls.length) {
+				const avatarOption = document.createElement("div");
+				avatarOption.className = "avatar-option";
 
-        const img = document.createElement("img");
-        img.src = avatarUrls[index];
-        img.alt = `Avatar ${index + 1}`;
-        avatarOption.appendChild(img);
+				const img = document.createElement("img");
+				img.src = avatarUrls[index];
+				img.alt = `Avatar ${index + 1}`;
+				avatarOption.appendChild(img);
 
-        avatarOption.addEventListener("click", () => {
-          if (selectedAvatar) {
-            selectedAvatar.classList.remove("selected");
-          }
-          avatarOption.classList.add("selected");
-          selectedAvatar = avatarOption;
-          tempSelectedSrc = img.src;
+				avatarOption.addEventListener("click", () => {
+					if (selectedAvatar) {
+						selectedAvatar.classList.remove("selected");
+					}
+					avatarOption.classList.add("selected");
+					selectedAvatar = avatarOption;
+					tempSelectedSrc = img.src;
 
-          if (applyButton) {
-            applyButton.disabled = false;
-          }
-          console.log("Avatar sélectionné:", tempSelectedSrc);
-        });
+					if (applyButton) {
+						applyButton.disabled = false;
+					}
+					console.log("Avatar sélectionné:", tempSelectedSrc);
+				});
 
-        rowDiv.appendChild(avatarOption);
-      }
-    }
-    avatarGrid.appendChild(rowDiv);
-  }
+				rowDiv.appendChild(avatarOption);
+			}
+		}
+		avatarGrid.appendChild(rowDiv);
+	}
 }
 
 function initializeAvatarFeature() {
-  const modal = document.getElementById("avatarModal");
-  const applyButton = document.getElementById("applyButton");
+	const modal = document.getElementById("avatarModal");
+	const applyButton = document.getElementById("applyButton");
 
-  createAvatarGrid();
+	createAvatarGrid();
 
-  if (applyButton) {
-    applyButton.addEventListener("click", () => {
-      if (tempSelectedSrc) {
-        const formData = new FormData();
-        formData.append(
-          "selected_avatar",
-          tempSelectedSrc.split("/static/")[1]
-        );
+	if (applyButton) {
+		applyButton.addEventListener("click", () => {
+			if (tempSelectedSrc) {
+				const formData = new FormData();
+				formData.append(
+					"selected_avatar",
+					tempSelectedSrc.split("/static/")[1]
+				);
 
-        fetch("/api/profil/update/", {
-          method: "PATCH",
+				fetch("/api/profil/update/", {
+					method: "PATCH",
 
-          credentials: "include",
-          body: formData,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log("Réponse reçue:", data);
+					credentials: "include",
+					body: formData,
+				})
+					.then((response) => {
+						if (!response.ok) {
+							throw new Error(`Erreur HTTP: ${response.status}`);
+						}
+						return response.json();
+					})
+					.then((data) => {
+						console.log("Réponse reçue:", data);
 
-            const avatarElements = document.querySelectorAll(".avatarImg");
-            avatarElements.forEach((element) => {
-              element.src = data.avatar;
-            });
+						const avatarElements = document.querySelectorAll(".avatarImg");
+						avatarElements.forEach((element) => {
+							element.src = data.avatar;
+						});
 
-            const avatarDisplay = document.getElementById("avatarDisplay");
-            if (avatarDisplay) {
-              avatarDisplay.src = data.avatar;
-            }
+						const avatarDisplay = document.getElementById("avatarDisplay");
+						if (avatarDisplay) {
+							avatarDisplay.src = data.avatar;
+						}
 
-            closeModal();
-            console.log("Avatar mis à jour avec succès");
-          })
-          .catch((error) => {
-            console.error("Erreur:", error);
-            alert("Erreur lors de la mise à jour de l'avatar");
-          });
-      }
-    });
-  }
+						closeModal();
+						console.log("Avatar mis à jour avec succès");
+					})
+					.catch((error) => {
+						console.error("Erreur:", error);
+						alert("Erreur lors de la mise à jour de l'avatar");
+					});
+			}
+		});
+	}
 
-  window.openModal = function () {
-    if (modal) {
-      modal.style.display = "flex";
+	window.openModal = function () {
+		if (modal) {
+			modal.style.display = "flex";
 
-      const previousSelected = document.querySelector(
-        ".avatar-option.selected"
-      );
-      if (previousSelected) {
-        previousSelected.classList.remove("selected");
-      }
+			const previousSelected = document.querySelector(
+				".avatar-option.selected"
+			);
+			if (previousSelected) {
+				previousSelected.classList.remove("selected");
+			}
 
-      selectedAvatar = null;
-      tempSelectedSrc = null;
+			selectedAvatar = null;
+			tempSelectedSrc = null;
 
-      if (applyButton) {
-        applyButton.disabled = true;
-      }
-    }
-  };
+			if (applyButton) {
+				applyButton.disabled = true;
+			}
+		}
+	};
 
-  window.closeModal = function () {
-    if (modal) {
-      modal.style.display = "none";
-      selectedAvatar = null;
-      tempSelectedSrc = null;
-      if (applyButton) {
-        applyButton.disabled = true;
-      }
-    }
-  };
+	window.closeModal = function () {
+		if (modal) {
+			modal.style.display = "none";
+			selectedAvatar = null;
+			tempSelectedSrc = null;
+			if (applyButton) {
+				applyButton.disabled = true;
+			}
+		}
+	};
 
-  if (modal) {
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-  }
+	if (modal) {
+		modal.addEventListener("click", (e) => {
+			if (e.target === modal) {
+				closeModal();
+			}
+		});
+	}
 }
 
 function loadFriendRequests() {
-    fetch('/api/friends/pending/', {
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        const requestsList = document.getElementById('friendRequestsList');
-        if (!data.pending_requests.length) {
-            requestsList.innerHTML = '<div class="no-requests">No pending friend requests</div>';
-            return;
-        }
+	fetch('/api/friends/pending/', {
+		credentials: 'include'
+	})
+		.then(response => response.json())
+		.then(data => {
+			const requestsList = document.getElementById('friendRequestsList');
+			if (!data.pending_requests.length) {
+				requestsList.innerHTML = '<div class="no-requests" data-translate="profil.no_friend_requests"></div>';
+				return;
+			}
 
-        requestsList.innerHTML = data.pending_requests.map(request => `
-            <div class="friendRequest">
-                <img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
-                <div class="requestInfo">
-                    <div class="requestUsername">${request.sender.username}</div>
-                </div>
-                <div class="requestActions">
-                    <button class="acceptButton" onclick="handleFriendRequest(${request.request_id}, 'accept')">
-                        Accept
-                    </button>
-                    <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')">
-                        Reject
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    })
-    .catch(error => console.error('Error loading friend requests:', error));
+			requestsList.innerHTML = data.pending_requests.map(request => `
+			<div class="friendRequest">
+				<img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
+				<div class="requestInfo">
+					<div class="requestUsername">${request.sender.username}</div>
+				</div>
+				<div class="requestActions">
+					<button class="acceptButton" data-translate="profil.accept" onclick="handleFriendRequest(${request.request_id}, 'accept')">
+					</button>
+					<button class="rejectButton" data-translate="profil.reject" onclick="handleFriendRequest(${request.request_id}, 'reject')">
+					</button>
+				</div>
+			</div>
+		`).join('');
+		})
+		.catch(error => console.error('Error loading friend requests:', error));
 }
 
 function handleFriendRequest(requestId, action) {
-    fetch('/api/friends/handle-request/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ request_id: requestId, action })
-    })
-    .then(response => response.json())
-    .then(() => {
-        loadFriendRequests(); // Recharger la liste après l'action
-    })
-    .catch(error => console.error('Error handling friend request:', error));
+	fetch('/api/friends/handle-request/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		credentials: 'include',
+		body: JSON.stringify({ request_id: requestId, action })
+	})
+		.then(response => response.json())
+		.then(() => {
+			loadFriendRequests(); // Recharger la liste après l'action
+		})
+		.catch(error => console.error('Error handling friend request:', error));
 }
 
 
