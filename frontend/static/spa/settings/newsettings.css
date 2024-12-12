@@ -85,6 +85,9 @@ body {
     align-items: center;
 }
 
+
+
+
 .gameSettingsPanel {
     width: 100%;
     display: flex;
@@ -208,4 +211,10 @@ body {
     background-color: #ccc;
     color: #666;
     cursor: not-allowed;
+}
+
+#save-settings {
+    opacity: 0;
+    pointer-events: none; /* Empêche les clics */
+    transition: opacity 0.3s ease; /* Transition pour un effet fluide */
 }

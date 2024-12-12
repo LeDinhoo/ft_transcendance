@@ -14,6 +14,9 @@ function initializeSettingsPage() {
 		
 		const selectedScore = clickedButton.getAttribute("win-score");
 		console.log("Score sélectionné :", selectedScore);
+
+		hasChanges = true;
+		toggleSaveButtonVisibility();
 	}
 
 
@@ -37,6 +40,8 @@ function initializeSettingsPage() {
 		
 		const selectedDifficulty = clickedButton.getAttribute("ai-difficulty");
 		console.log("Difficulté sélectionnée :", selectedDifficulty);
+		hasChanges = true;
+		toggleSaveButtonVisibility();
 	}
 
 
@@ -61,6 +66,8 @@ function initializeSettingsPage() {
 			.map((button) => button.getAttribute("powerups"));
 
 		console.log("Power-ups activés :", activePowerups);
+		hasChanges = true;
+		toggleSaveButtonVisibility();
 	}
 
 
@@ -97,6 +104,8 @@ function initializeSettingsPage() {
 
 		
 		validateBallSpeedStart(selectedBallSpeedStart);
+		hasChanges = true;
+		toggleSaveButtonVisibility();
 	}
 
 
@@ -114,6 +123,8 @@ function initializeSettingsPage() {
 
 		
 		adjustBallSpeedStart(selectedBallSpeedMax);
+		hasChanges = true;
+		toggleSaveButtonVisibility();
 	}
 
 
@@ -196,6 +207,8 @@ function initializeSettingsPage() {
 			"Augmentation de vitesse sélectionnée :",
 			selectedBallSpeedIncrease
 		);
+		hasChanges = true;
+		toggleSaveButtonVisibility();
 	}
 
 
@@ -267,6 +280,8 @@ function initializeSettingsPage() {
 		})
 			.then((response) => {
 				console.log("Statut de la réponse :", response.status);
+				hasChanges = false;
+				toggleSaveButtonVisibility();
 				return response.json();
 			})
 			.then((data) => {
@@ -279,14 +294,14 @@ function initializeSettingsPage() {
 
 				console.log("Paramètres de jeu sauvegardés avec succès :", data);
 
-				const saveButton = document.getElementById("save-settings");
-				saveButton.textContent = "Saved!";
-				saveButton.disabled = true;
-
-				setTimeout(() => {
-					saveButton.textContent = "Save Settings";
-					saveButton.disabled = false;
-				}, 1500);
+				// const saveButton = document.getElementById("save-settings");
+				// saveButton.textContent = "Saved!";
+				// saveButton.disabled = true;
+				//
+				// setTimeout(() => {
+				// 	saveButton.textContent = "SAV";
+				// 	saveButton.disabled = false;
+				// }, 1500);
 			})
 			.catch((error) => {
 				console.error("Erreur lors de la sauvegarde :", error);
@@ -501,6 +516,19 @@ function initializeSettingsPage() {
 			.catch((error) => {
 				console.error("Erreur lors de l'initialisation des paramètres :", error);
 			});
+	}
+
+	let hasChanges = false;
+
+	function toggleSaveButtonVisibility() {
+		const saveButton = document.getElementById("save-settings");
+		if (hasChanges) {
+			saveButton.style.opacity = "1";
+			saveButton.style.pointerEvents = "auto"; // Permet le clic
+		} else {
+			saveButton.style.opacity = "0";
+			saveButton.style.pointerEvents = "none"; // Désactive le clic
+		}
 	}
 
 	initializeSettingsFromDatabase();
