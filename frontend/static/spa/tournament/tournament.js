@@ -48,6 +48,8 @@ function initializeTournamentPage() {
   class TournamentGameManager {
     constructor(tournamentState) {
       this.tournamentState = tournamentState;
+      this.options = null;
+      this.getGameOptions();
       this.currentGameScores = {
         player1: 0,
         player2: 0,
@@ -137,13 +139,38 @@ function initializeTournamentPage() {
       });
     }
 
+  //   getGameOptions() {
+  //     const options = localStorage.getItem('gameOptions');
+  //     if (options) {
+  //         return JSON.parse(options); // Désérialiser les options stockées
+  //     }
+  //     return null; // Si aucune option n'est trouvée
+  // }
+
     getGameOptions() {
-      const options = localStorage.getItem('gameOptions');
-      if (options) {
-          return JSON.parse(options); // Désérialiser les options stockées
-      }
-      return null; // Si aucune option n'est trouvée
-  }
+      fetch("api/game-settings/", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Erreur HTTP: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Data received:", data);
+            this.options = data;
+            console.log("Options:", this.options);
+            // localStorage.setItem('gameOptions', JSON.stringify(data));
+          })
+          .catch((error) => {
+            console.error("Erreur lors de la récupération des paramètres :", error);
+          });
+    }
   
 
     startGame() {
@@ -187,12 +214,12 @@ function initializeTournamentPage() {
       );
 
       // Charger les options de jeu depuis localStorage
-      const gameOptions = this.getGameOptions();
-      if (!gameOptions) {
+      // const gameOptions = this.getGameOptions();
+      if (!this.options) {
           console.error("Game options not found in localStorage!");
           return;
       }
-      console.log("Game options retrieved:", gameOptions);
+      console.log("Game options retrieved:", this.options);
 
       // Simulation si les deux joueurs sont des bots
       if (player1IsBot && player2IsBot) {
@@ -279,18 +306,19 @@ function initializeTournamentPage() {
         );
 
         if (!player1IsBot && player2IsBot) {
-          const options = gameOptions;
+          const options = this.options
+          console.log("options : ", options);
           const isAI = true;
           const power = true;
           this.gameContainer.contentWindow.postMessage(
             {
               type: "setOptions",
-              data: { options, isAI, power },
+              data: { options , isAI, power },
             },
             "*"
           );
         } else if (!player1IsBot && !player2IsBot) {
-          const options = gameOptions;
+          const options = this.options;
           const isAI = false;
           const power = true;
           this.gameContainer.contentWindow.postMessage(
@@ -336,6 +364,10 @@ function initializeTournamentPage() {
       if (window.gameCleanup) {
         window.gameCleanup();
       }
+    }
+
+    static getOptions() {
+      return undefined;
     }
   }
 

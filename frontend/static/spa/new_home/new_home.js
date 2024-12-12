@@ -791,7 +791,7 @@ function initializeHome() {
 					console.log("Data received:", data);
 					this.options = data;
 					console.log("Options:", this.options);
-          localStorage.setItem('gameOptions', JSON.stringify(data));
+          // localStorage.setItem('gameOptions', JSON.stringify(data));
 				})
 				.catch((error) => {
 					console.error("Erreur lors de la récupération des paramètres :", error);
