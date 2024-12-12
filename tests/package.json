@@ -1,0 +1,8 @@
+{
+    "name": "route-tests",
+    "version": "1.0.0",
+    "dependencies": {
+      "puppeteer": "^22.8.2",
+      "node-fetch": "^2.6.1"
+    }
+  }

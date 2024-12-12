@@ -32,8 +32,8 @@ services:
       - ./backend/certs:/app/certs
       - ./backend/templates:/app/templates
       - media:/app/media
-    expose:
-      - "8443"
+    ports:            # Remplacer 'expose' par 'ports'
+      - "8443:8443"   # Format "port_hôte:port_conteneur"
     depends_on:
       - database
       - redis
@@ -61,6 +61,26 @@ services:
       - "4430:443"
     volumes:
       - media:/app/media
+
+  route-tester:
+    build:
+      context: ./tests
+      dockerfile: Dockerfile.test
+    container_name: route-tester
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - transcendence-network
+    volumes:
+      - ./tests:/app/tests
+      - ./test-results:/app/test-results
+      - ./backend/certs:/app/certs  # Ajoutez l'accès aux certificats
+    environment:
+      - FRONTEND_URL=https://frontend:443
+      - BACKEND_URL=https://backend:8443
+      - SSL_CERT_FILE=/app/certs/gunicorn.crt
+
 
 volumes:
   postgres_data:

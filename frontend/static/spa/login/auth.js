@@ -1,4 +1,6 @@
 // auth.js
+import { authState } from './login/authState.js';
+
 
 document
   .getElementById("loginWidget")
@@ -228,10 +230,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
         if (event.origin === baseUrl && event.data.type === "auth_success") {
           console.log("Authentication successful, storing tokens...");
 
-          // Stocker les tokens
-          localStorage.setItem("access_token", event.data.tokens.access);
-          localStorage.setItem("refresh_token", event.data.tokens.refresh);
-
           // Stocker les données utilisateur
           if (event.data.user) {
             localStorage.setItem("user_data", JSON.stringify(event.data.user));
@@ -264,25 +262,39 @@ document.getElementById("42").addEventListener("click", async function (e) {
       // Vérifier si la fenêtre est fermée
       const checkPopup = setInterval(() => {
         if (authWindow.closed) {
-          console.log("Auth window closed, cleaning up...");
-          clearInterval(checkPopup);
-          window.removeEventListener("message", messageHandler);
-
-          // Vérification finale de l'authentification
-          fetch(`${baseUrl}/api/check-auth/`, {
-            credentials: "include",
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              console.log("Final auth check:", data);
-              if (data.success) {
-                console.log("Confirmed authenticated, redirecting to home...");
-                window.location.replace(`${baseUrl}/home`);
-              }
+            console.log("Auth window closed, cleaning up...");
+            clearInterval(checkPopup);
+            window.removeEventListener("message", messageHandler);
+    
+            // Ne pas vérifier l'auth si en cours de déconnexion
+            if (authState.isLoggingOut) {
+                console.log("Déconnexion en cours, skip auth check");
+                return;
+            }
+    
+            fetch(`${baseUrl}/api/check-auth/`, {
+                credentials: "include",
             })
-            .catch((error) => console.error("Final auth check failed:", error));
+            .then((response) => {
+                if (response.status === 401) {
+                    console.log("Non authentifié - redirection vers login");
+                    window.location.replace(`${baseUrl}/login-register`);
+                    return;
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data && data.success) {
+                    console.log("Confirmed authenticated, redirecting to home...");
+                    window.location.replace(`${baseUrl}/home`);
+                }
+            })
+            .catch((error) => {
+                console.error("Final auth check failed:", error);
+                window.location.replace(`${baseUrl}/login-register`);
+            });
         }
-      }, 500);
+    }, 500);
     }
   } catch (error) {
     console.error("Authentication error:", error);

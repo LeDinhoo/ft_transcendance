@@ -3,6 +3,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 from .views import Toggle2FAView, Verify2FAView, TestEmailView
 from .views import get_game_settings, set_game_settings
+from .views import cleanup_test_users
 
 urlpatterns = [
     path('', views.index_view, name='index'),  # Page d'accueil avec les formulaires de login/register
@@ -18,18 +19,17 @@ urlpatterns = [
     path("user/statistics/", views.get_user_statistics, name="get_user_statistics"),
     path('game-settings/', get_game_settings, name='get_game_settings'),
     path('game-settings/set/', set_game_settings, name='set_game_settings'),
-    # JWT Token URLs
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Obtenir un token (login)
     path('token/refresh/', views.refresh_token_view, name='token_refresh'),  # Utilise la vue basée sur les cookies
 
-    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Rafraîchir le token
-    # path('token/auto-refresh/', views.auto_refresh_token_view, name='auto_refresh_token'),
     path('get_auth_url/', views.get_auth_url, name='get_auth_url'),
     path('callback-42/', views.callback_42, name='callback_42'),  # Callback après autorisation
     path('check-auth/', views.check_auth, name='check_auth'),
     path('2fa/toggle/', Toggle2FAView.as_view(), name='toggle_2fa'),
     path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
-    # path('2fa/verify/', Verify2FAView.as_view(), name='verify_2fa'),
     path('test-email/', TestEmailView.as_view(), name='test_email'),
+
+    ################################FOR TEST################################################
+    path('cleanup-test-users/', views.cleanup_test_users, name='cleanup_test_users'),
 
 ]

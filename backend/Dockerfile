@@ -18,6 +18,10 @@ RUN apt-get update && \
         openssl \
         ca-certificates \
         curl \
+        wget \
+        gnupg \
+        libgconf-2-4 \
+        libxss1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copier le fichier requirements et installer les dépendances Python

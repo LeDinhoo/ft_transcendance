@@ -1,3 +1,5 @@
+import { authState } from './login/authState.js';
+
 document.addEventListener("DOMContentLoaded", function () {
 	const appDiv = document.getElementById("app");
 	const navbar = document.getElementById("navbarContainer");
@@ -255,12 +257,40 @@ document.addEventListener("DOMContentLoaded", function () {
 	};
 
 	// Code du logout mis à jour pour ne pas utiliser localStorage
-	window.logout = function () {
-		console.log("log out function called");
+	// window.logout = function () {
+	// 	console.log("log out function called");
 
+	// 	fetch("/api/logout/", {
+	// 		method: "POST",
+	// 		credentials: "include", // Assure l'envoi des cookies avec la requête
+	// 		headers: {
+	// 			"Content-Type": "application/json",
+	// 		},
+	// 	})
+	// 		.then((response) => response.json())
+	// 		.then((data) => {
+	// 			console.log("Logout response data:", data);
+	// 			if (data.success) {
+	// 				window.location.href = "/login-register";
+	// 			} else {
+	// 				console.error(data.message);
+	// 			}
+	// 		})
+	// 		.catch((error) => console.error("Error:", error));
+	// };
+
+
+
+
+	// Votre fichier avec la fonction logout
+
+	window.logout = function () {
+		authState.isLoggingOut = true;
+		console.log("log out function called");
+	
 		fetch("/api/logout/", {
 			method: "POST",
-			credentials: "include", // Assure l'envoi des cookies avec la requête
+			credentials: "include",
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -269,13 +299,21 @@ document.addEventListener("DOMContentLoaded", function () {
 			.then((data) => {
 				console.log("Logout response data:", data);
 				if (data.success) {
-					window.location.href = "/login-register";
+					if (window.webSocket) {
+						window.webSocket.close();
+					}
+					window.location.replace("/login-register");
 				} else {
+					authState.isLoggingOut = false;
 					console.error(data.message);
 				}
 			})
-			.catch((error) => console.error("Error:", error));
+			.catch((error) => {
+				console.error("Error:", error);
+				window.location.replace("/login-register");
+			});
 	};
+
 
 	// Fonction pour gérer la visibilité de la navbar
 	function updateNavBarVisibility(path) {
