@@ -439,8 +439,8 @@ const paddle2Controller = new PaddleController(paddle2Speed, {
 
 const gameAI = new AI(paddlePower2, powerManager, paddle1Controller);
 
-let launchPower1 = "e";
-let launchPower2 = "arrowleft";
+export let launchPower1 = "e";
+export let launchPower2 = "arrowleft";
 
 function handleMessage(event) {
 	console.log(launchPower1);
