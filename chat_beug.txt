@@ -1,0 +1,4 @@
+add friend : rajouter bonhomme vert online players
+invitation game : la personne qui est cible par l'invite ne recoit rien !
+blocker : db
+see profil : history de match 

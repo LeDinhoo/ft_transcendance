@@ -1265,42 +1265,57 @@ def handle_friend_request(request):
         friendship.save()
 
         if action == 'accept':
-            
-            FriendShip.objects.create(
-                from_user=request.user,
-                to_user=friendship.from_user,
-                status='accepted'
-            )
+            # La relation dans `ManyToManyField` est déjà bidirectionnelle,
+            # inutile de recréer un objet `FriendShip`.
+            request.user.friends.add(friendship.from_user)
 
-        return JsonResponse({'message': f'Demande {action}ée'})
+        return JsonResponse({'message': f'Demande {action}ée'}, status=200)
 
     except FriendShip.DoesNotExist:
         return JsonResponse({'message': 'Demande non trouvée'}, status=404)
 
+import logging
+logger = logging.getLogger(__name__)
+
+from django.db.models import Q
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_friends(request):
-    friends = request.user.friends.filter(friendship__status='accepted')
-    friends_list = []
+    try:
+        if not request.user:
+            logger.error("Utilisateur non authentifié")
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
 
-    for friend in friends:
-        if friend.avatar:
-            if str(friend.avatar).startswith('assets/avatars/'):
-                friend_avatar = f"/static/{friend.avatar}"
-            else:
-                friend_avatar = friend.avatar.url
-        else:
-            friend_avatar = '/static/assets/avatars/ladybug.png'
+        # Filtrer les amitiés acceptées où l'utilisateur est impliqué
+        friendships = FriendShip.objects.filter(
+            Q(from_user=request.user, status='accepted') | 
+            Q(to_user=request.user, status='accepted')
+        )
 
-        friends_list.append({
-            'id': friend.id,
-            'username': friend.username,
-            'avatar': friend_avatar
-        })
+        logger.debug(f"Friendships récupérées : {friendships}")
 
-    return JsonResponse({
-        'friends': friends_list
-    })
+        # Récupérer les amis (l'autre utilisateur dans chaque relation)
+        friends_list = []
+        for friendship in friendships:
+            friend = friendship.to_user if friendship.from_user == request.user else friendship.from_user
+            friend_avatar = (
+                f"/static/{friend.avatar}" if str(friend.avatar).startswith('assets/avatars/')
+                else friend.avatar.url if friend.avatar
+                else '/static/assets/avatars/ladybug.png'
+            )
+            friends_list.append({
+                'id': friend.id,
+                'username': friend.username,
+                'avatar': friend_avatar
+            })
+
+        logger.debug(f"Liste des amis formatée : {friends_list}")
+        return JsonResponse({'friends': friends_list}, status=200)
+
+    except Exception as e:
+        logger.exception("Erreur dans la vue get_friends")
+        return JsonResponse({'error': 'Internal Server Error'}, status=500)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

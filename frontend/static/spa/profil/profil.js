@@ -817,8 +817,21 @@ function handleFriendRequest(requestId, action) {
     .then(response => response.json())
     .then(() => {
         loadFriendRequests();
+        if (action === 'accept') {
+            // Créer un événement personnalisé avec des détails
+            const event = new CustomEvent('friendRequestAccepted', {
+                detail: { requestId, action },
+                bubbles: true,
+                composed: true
+            });
+            document.dispatchEvent(event);
+            
+            // Forcer une mise à jour immédiate si wsManager est disponible
+            if (window.wsManager && window.wsManager.onlinePlayers) {
+                console.log("Mise à jour de la liste des joueurs en ligne après acceptation d'ami");
+                window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
+            }
+        }
     })
     .catch(error => console.error('Error handling friend request:', error));
 }
-
-
