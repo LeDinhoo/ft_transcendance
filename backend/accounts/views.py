@@ -1260,19 +1260,34 @@ def handle_friend_request(request):
     action = request.data.get('action')
 
     try:
+        # Retrieve the FriendShip object
         friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
-        friendship.status = 'accepted' if action == 'accept' else 'rejected'
-        friendship.save()
 
         if action == 'accept':
-            # La relation dans `ManyToManyField` est déjà bidirectionnelle,
-            # inutile de recréer un objet `FriendShip`.
-            request.user.friends.add(friendship.from_user)
+            # Update the current friendship status
+            friendship.status = 'accepted'
+            friendship.save()
 
-        return JsonResponse({'message': f'Demande {action}ée'}, status=200)
+            # Ensure the friendship is bidirectional
+            reverse_friendship, created = FriendShip.objects.get_or_create(
+                from_user=friendship.to_user,
+                to_user=friendship.from_user,
+                defaults={'status': 'accepted'}
+            )
+            if not created and reverse_friendship.status != 'accepted':
+                reverse_friendship.status = 'accepted'
+                reverse_friendship.save()
+
+        elif action == 'decline':
+            # Decline the friendship
+            friendship.status = 'rejected'
+            friendship.save()
+
+        return JsonResponse({'message': f'Request {action}ed successfully'})
 
     except FriendShip.DoesNotExist:
-        return JsonResponse({'message': 'Demande non trouvée'}, status=404)
+        return JsonResponse({'message': 'Friend request not found'}, status=404)
+
 
 import logging
 logger = logging.getLogger(__name__)
