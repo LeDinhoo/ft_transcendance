@@ -1,5 +1,4 @@
 <div class="homeContainer">
-  <div class="homePageMain">
     <div class="mainContent">
       <div class="homeSectionLeft">
         <div class="upLeftFrame">
@@ -34,16 +33,16 @@
       <div class="homeSectionMiddle">
         <div class="game">
           <div class="gameTitle">GAME</div>
-          <div class="gameOption" id="classicGame">CLASSIC PONG</div>
-          <div class="gameOption" id="powerGame">POWER PONG</div>
+          <div class="gameOption" data-game-type="classicPong">CLASSIC PONG</div>
+          <div class="gameOption" data-game-type="powerPong">POWER PONG</div>
         </div>
 
         <div class="mode">
           <div class="gameTitle">MODE</div>
-          <div class="modeOption">1 VS 1</div>
-          <div class="modeOption">AGAINST AI</div>
+          <div class="modeOption" data-mode-type="1vs1">1 VS 1</div>
+          <div class="modeOption" data-mode-type="againstAI">AGAINST AI</div>
           <!-- <div class="modeOption">ONLINE</div> -->
-          <div class="modeOption">TOURNAMENT</div>
+          <div class="modeOption" data-mode-type="tournament">TOURNAMENT</div>
         </div>
       </div>
 
@@ -75,7 +74,6 @@
     <div class="homeSlider">
       <div class="playHomePage">PLAY</div>
     </div>
-  </div>
 </div>
 
 <div id="profileModal" class="profile-modal">

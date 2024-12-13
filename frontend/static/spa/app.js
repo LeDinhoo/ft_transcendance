@@ -1,189 +1,234 @@
 document.addEventListener("DOMContentLoaded", function () {
-	const appDiv = document.getElementById("app");
-	const navbar = document.getElementById("navbarContainer");
+  const appDiv = document.getElementById("app");
+  const navbar = document.getElementById("navbarContainer");
 
-	let isLoading = false;
+  let isLoading = false;
 
-	async function isAuthenticated() {
-		try {
-			const response = await fetch("/api/auth-check/", {
-				method: "GET",
-				credentials: "include", 
-			});
+  async function isAuthenticated() {
+    try {
+      const response = await fetch("/api/auth-check/", {
+        method: "GET",
+        credentials: "include",
+      });
 
-			if (response.ok) {
-				return true; 
-			}
+      if (response.ok) {
+        return true;
+      }
 
-			if (response.status === 401) {
-				console.log("Token d'accès expiré, tentative de rafraîchissement...");
+      if (response.status === 401) {
+        console.log("Token d'accès expiré, tentative de rafraîchissement...");
 
-				
-				const refreshResponse = await fetch("/api/token/refresh/", {
-					method: "POST",
-					credentials: "include", 
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({}),
-				});
+        const refreshResponse = await fetch("/api/token/refresh/", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        });
 
-				if (refreshResponse.ok) {
-					console.log("Token d'accès rafraîchi avec succès.");
-					return true; 
-				} else {
-					console.warn("Impossible de rafraîchir le token.");
-					return false; 
-				}
-			}
+        if (refreshResponse.ok) {
+          console.log("Token d'accès rafraîchi avec succès.");
+          return true;
+        } else {
+          console.warn("Impossible de rafraîchir le token.");
+          return false;
+        }
+      }
 
-			return false;
-		} catch (error) {
-			console.error("Erreur d'authentification:", error);
-			return false;
-		}
-	}
+      return false;
+    } catch (error) {
+      console.error("Erreur d'authentification:", error);
+      return false;
+    }
+  }
 
-	async function redirectToLoginIfNeeded(path) {
-		const requiresAuth = path !== "/login-register" && path !== "/";
-		const authenticated = await isAuthenticated();
+  async function redirectToLoginIfNeeded(path) {
+    const requiresAuth = path !== "/login-register" && path !== "/";
+    const authenticated = await isAuthenticated();
 
-		if (requiresAuth && !authenticated) {
-			console.warn(
-				"Utilisateur non authentifié. Redirection vers la page de connexion."
-			);
-			navigateTo("/login-register");
-			return true;
-		}
+    if (requiresAuth && !authenticated) {
+      console.warn(
+        "Utilisateur non authentifié. Redirection vers la page de connexion."
+      );
+      navigateTo("/login-register");
+      return true;
+    }
 
-		return false;
-	}
+    return false;
+  }
 
-	
-	async function loadComponent(
-		htmlUrl,
-		cssUrl,
-		jsUrls,
-		shouldInitGame = false
-	) {
-		if (isLoading) return; 
-		isLoading = true;
+  //   async function loadComponent(
+  //     htmlUrl,
+  //     cssUrl,
+  //     jsUrls,
+  //     shouldInitGame = false
+  //   ) {
+  //     if (isLoading) return;
+  //     isLoading = true;
 
-		try {
-			const response = await fetch(htmlUrl);
-			if (!response.ok) {
-				throw new Error("Erreur lors du chargement de la page");
-			}
-			const html = await response.text();
+  //     try {
+  //       const response = await fetch(htmlUrl);
+  //       if (!response.ok) {
+  //         throw new Error("Erreur lors du chargement de la page");
+  //       }
+  //       const html = await response.text();
 
-			
-			if (appDiv.innerHTML !== html) {
-				appDiv.innerHTML = html;
-			}
+  //       if (appDiv.innerHTML !== html) {
+  //         appDiv.innerHTML = html;
+  //       }
 
-			
-			if (cssUrl) {
-				loadCSS(cssUrl);
-			}
+  //       if (cssUrl) {
+  //         loadCSS(cssUrl);
+  //       }
 
-			
-			removePreviousComponentScripts();
+  //       removePreviousComponentScripts();
 
-			
-			if (jsUrls && jsUrls.length > 0) {
-				await loadScriptsInOrder(jsUrls);
-			}
+  //       if (jsUrls && jsUrls.length > 0) {
+  //         await loadScriptsInOrder(jsUrls);
+  //       }
 
-			
-			if (typeof initializePage === "function") {
-				initializePage();
-			}
+  //       if (typeof initializePage === "function") {
+  //         initializePage();
+  //       }
 
-			
-			if (shouldInitGame && typeof initGame === "function") {
-				initGame();
-			}
+  //       if (shouldInitGame && typeof initGame === "function") {
+  //         initGame();
+  //       }
 
-			
-			initializeNavBar();
-		} catch (err) {
-			console.error("Erreur lors du chargement de la page:", err);
-			appDiv.innerHTML =
-				"<p>Une erreur est survenue lors du chargement de la page.</p>";
-		} finally {
-			isLoading = false;
-		}
-	}
+  //       initializeNavBar();
+  //     } catch (err) {
+  //       console.error("Erreur lors du chargement de la page:", err);
+  //       appDiv.innerHTML =
+  //         "<p>Une erreur est survenue lors du chargement de la page.</p>";
+  //     } finally {
+  //       isLoading = false;
+  //     }
+  //   }
 
-	
-	function loadCSS(cssUrl) {
-		removePreviousComponentCSS(); 
-		const link = document.createElement("link");
-		link.rel = "stylesheet";
-		link.href = cssUrl;
-		link.setAttribute("data-component-css", "true");
-		document.head.appendChild(link);
-	}
+  async function loadComponent(
+    htmlUrl,
+    cssUrl,
+    jsUrls,
+    shouldInitGame = false
+) {
+    if (isLoading) return; 
+    isLoading = true;
 
-	
-	function removePreviousComponentCSS() {
-		const componentCSSLinks = document.querySelectorAll(
-			"link[data-component-css]"
-		);
-		componentCSSLinks.forEach((link) => link.remove());
-	}
+    try {
+        // Ajout de la classe fade-out avant de changer le contenu
+        appDiv.classList.add("fade-out");
 
-	
-	function removePreviousComponentScripts() {
-		const componentScripts = document.querySelectorAll(
-			"script[data-component-js]"
-		);
-		componentScripts.forEach((script) => script.remove());
-	}
+        // Attendez que l'animation se termine avant de changer le contenu
+        await new Promise((resolve) => {
+            setTimeout(resolve, 100); // Temps de l'animation fade-out
+        });
 
-	
-	function loadScriptsInOrder(jsUrls) {
-		if (!jsUrls || jsUrls.length === 0) {
-			return Promise.resolve(); 
-		}
+        const response = await fetch(htmlUrl);
+        if (!response.ok) {
+            throw new Error("Erreur lors du chargement de la page");
+        }
+        const html = await response.text();
 
-		return jsUrls.reduce((promise, jsUrl) => {
-			return promise.then(() => loadScript(jsUrl));
-		}, Promise.resolve());
-	}
+        appDiv.innerHTML = html;
 
-	
-	function loadScript(jsUrl) {
-		return new Promise((resolve, reject) => {
-			
-			if (document.querySelector(`script[src="${jsUrl}"]`)) {
-				return resolve(); 
-			}
+        if (cssUrl) {
+            loadCSS(cssUrl);
+        }
 
-			const script = document.createElement("script");
-			script.src = jsUrl;
-			script.defer = true;
-			script.setAttribute("data-component-js", "true"); 
-			script.onload = resolve;
-			script.onerror = reject;
-			document.body.appendChild(script);
-		});
-	}
+        removePreviousComponentScripts();
 
-	
-	window.loadPageFromURL = async function () {
-		const path = window.location.pathname;
+        if (jsUrls && jsUrls.length > 0) {
+            await loadScriptsInOrder(jsUrls);
+        }
 
-		
-		const redirected = await redirectToLoginIfNeeded(path);
-		if (redirected) {
-			return; 
-		}
+        if (typeof initializePage === "function") {
+            initializePage();
+        }
 
-		updateNavBarVisibility(path);
+        if (shouldInitGame && typeof initGame === "function") {
+            initGame();
+        }
 
-		
-	window.wsManager.initializeChatSocket();
+        initializeNavBar();
+
+        // Ajout de la classe fade-in après le changement de contenu
+        appDiv.classList.remove("fade-out");
+        appDiv.classList.add("fade-in");
+
+        // Retirer la classe fade-in après l'animation
+        setTimeout(() => {
+            appDiv.classList.remove("fade-in");
+        }, 500); // Temps de l'animation fade-in
+    } catch (err) {
+        console.error("Erreur lors du chargement de la page:", err);
+        appDiv.innerHTML =
+            "<p>Une erreur est survenue lors du chargement de la page.</p>";
+    } finally {
+        isLoading = false;
+    }
+}
+
+  function loadCSS(cssUrl) {
+    removePreviousComponentCSS();
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = cssUrl;
+    link.setAttribute("data-component-css", "true");
+    document.head.appendChild(link);
+  }
+
+  function removePreviousComponentCSS() {
+    const componentCSSLinks = document.querySelectorAll(
+      "link[data-component-css]"
+    );
+    componentCSSLinks.forEach((link) => link.remove());
+  }
+
+  function removePreviousComponentScripts() {
+    const componentScripts = document.querySelectorAll(
+      "script[data-component-js]"
+    );
+    componentScripts.forEach((script) => script.remove());
+  }
+
+  function loadScriptsInOrder(jsUrls) {
+    if (!jsUrls || jsUrls.length === 0) {
+      return Promise.resolve();
+    }
+
+    return jsUrls.reduce((promise, jsUrl) => {
+      return promise.then(() => loadScript(jsUrl));
+    }, Promise.resolve());
+  }
+
+  function loadScript(jsUrl) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${jsUrl}"]`)) {
+        return resolve();
+      }
+
+      const script = document.createElement("script");
+      script.src = jsUrl;
+      script.defer = true;
+      script.setAttribute("data-component-js", "true");
+      script.onload = resolve;
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+
+  window.loadPageFromURL = async function () {
+    const path = window.location.pathname;
+
+    const redirected = await redirectToLoginIfNeeded(path);
+    if (redirected) {
+      return;
+    }
+
+    updateNavBarVisibility(path);
+
+    window.wsManager.initializeChatSocket();
 
     if (path === "/" || path === "/login-register") {
       loadComponent(
@@ -201,10 +246,8 @@ document.addEventListener("DOMContentLoaded", function () {
       loadComponent(
         "/static/spa/new_home/new_home.html",
         "/static/spa/new_home/new_home.css",
-        [
-			"/static/spa/new_home/new_home.js"
-		]
-        ).then(() => {
+        ["/static/spa/new_home/new_home.js"]
+      ).then(() => {
         initializeHome();
       });
     } else if (path === "/profil") {
@@ -221,10 +264,9 @@ document.addEventListener("DOMContentLoaded", function () {
         resetPasswordFields();
         initializePasswordVisibility();
         initializeAvatarFeature();
-		loadFriendRequests();
+        loadFriendRequests();
         initialize2FA();
       });
-   
     } else if (path === "/tournament") {
       loadComponent(
         "/static/spa/tournament/tournament.html",
@@ -235,59 +277,55 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     } else if (path === "/settings") {
       loadComponent(
-    		"/static/spa/settings/newsettings.html",
-			"/static/spa/settings/newsettings.css",
-			["/static/spa/settings/newsettings.js"]
-	  	).then(() => {
-				initializeSettingsPage();
-			});
-		} else {
-			appDiv.innerHTML = "<p>Page non trouvée.</p>";
-		}
-	};
+        "/static/spa/settings/newsettings.html",
+        "/static/spa/settings/newsettings.css",
+        ["/static/spa/settings/newsettings.js"]
+      ).then(() => {
+        initializeSettingsPage();
+      });
+    } else {
+      appDiv.innerHTML = "<p>Page non trouvée.</p>";
+    }
+  };
 
-	
-	window.logout = function () {
-		console.log("log out function called");
+  window.logout = function () {
+    console.log("log out function called");
 
-		fetch("/api/logout/", {
-			method: "POST",
-			credentials: "include", 
-			headers: {
-				"Content-Type": "application/json",
-			},
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				console.log("Logout response data:", data);
-				if (data.success) {
-					window.location.href = "/login-register";
-				} else {
-					console.error(data.message);
-				}
-			})
-			.catch((error) => console.error("Error:", error));
-	};
+    fetch("/api/logout/", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Logout response data:", data);
+        if (data.success) {
+          window.location.href = "/login-register";
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  };
 
-	
-	function updateNavBarVisibility(path) {
-		if (path === "/" || path === "/login-register") {
-			navbar.style.display = "none"; 
-		} else {
-			navbar.style.display = "flex"; 
-		}
-	}
+  function updateNavBarVisibility(path) {
+    if (path === "/" || path === "/login-register") {
+      navbar.style.display = "none";
+    } else {
+      navbar.style.display = "flex";
+    }
+  }
 
-	
-	window.addEventListener("popstate", loadPageFromURL);
+  window.addEventListener("popstate", loadPageFromURL);
 
-	
-	window.navigateTo = function (path) {
-		if (window.location.pathname !== path) {
-			history.pushState(null, "", path);
-			window.loadPageFromURL();
-		}
-	};
+  window.navigateTo = function (path) {
+    if (window.location.pathname !== path) {
+      history.pushState(null, "", path);
+      window.loadPageFromURL();
+    }
+  };
 
-	loadPageFromURL();
+  loadPageFromURL();
 });

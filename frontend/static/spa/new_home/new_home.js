@@ -1,69 +1,69 @@
 function updateProfilOnHome() {
-	console.log("fonction updateprofilonhome appelee...");
-	fetch("/api/profil/", {
-		method: "GET",
-		credentials: "include",
-		headers: {
-			"Content-Type": "application/json",
-		},
-	})
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error(`Erreur HTTP: ${response.status}`);
-			}
-			return response.json();
-		})
-		.then((data) => {
-			if (data.username && data.email) {
-				document.getElementById("nicknameProfilUser").innerText = data.username;
+  console.log("fonction updateprofilonhome appelee...");
+  fetch("/api/profil/", {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.username && data.email) {
+        document.getElementById("nicknameProfilUser").innerText = data.username;
 
-				const win_ratio = data.win_ratio ?? 0;
-				const totalGames = data.total_games ?? 0;
-				console.log("total games : ", totalGames);
+        const win_ratio = data.win_ratio ?? 0;
+        const totalGames = data.total_games ?? 0;
+        console.log("total games : ", totalGames);
 
-				if (win_ratio < 33) {
-					document.getElementById("rankImage").src =
-						"static/assets/icons/bronze.png";
-					document.getElementById("rankText").innerText = "Bronze";
-				} else if (win_ratio < 66 && win_ratio >= 33) {
-					document.getElementById("rankImage").src =
-						"static/assets/icons/silver.png";
-					document.getElementById("rankText").innerText = "Silver";
-				} else if (
-					(win_ratio < 80 && win_ratio >= 66) ||
-					(win_ratio >= 66 && totalGames < 5)
-				) {
-					document.getElementById("rankImage").src =
-						"static/assets/icons/gold.png";
-					document.getElementById("rankText").innerText = "Gold";
-				} else if (win_ratio >= 80 && totalGames >= 5) {
-					document.getElementById("rankImage").src =
-						"static/assets/icons/platinium.png";
-					document.getElementById("rankText").innerText = "Platinium";
-				}
+        if (win_ratio < 33) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/bronze.png";
+          document.getElementById("rankText").innerText = "Bronze";
+        } else if (win_ratio < 66 && win_ratio >= 33) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/silver.png";
+          document.getElementById("rankText").innerText = "Silver";
+        } else if (
+          (win_ratio < 80 && win_ratio >= 66) ||
+          (win_ratio >= 66 && totalGames < 5)
+        ) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/gold.png";
+          document.getElementById("rankText").innerText = "Gold";
+        } else if (win_ratio >= 80 && totalGames >= 5) {
+          document.getElementById("rankImage").src =
+            "static/assets/icons/platinium.png";
+          document.getElementById("rankText").innerText = "Platinium";
+        }
 
-				const avatarUrl =
-					data.avatar && data.avatar.trim()
-						? data.avatar
-						: "/static/assets/avatars/buffalo.png";
-				document.getElementById("avatarProfilUser").src = avatarUrl;
-			}
-		})
-		.catch((error) => {
-			console.error("Erreur lors de la récupération du profil :", error);
-		});
+        const avatarUrl =
+          data.avatar && data.avatar.trim()
+            ? data.avatar
+            : "/static/assets/avatars/buffalo.png";
+        document.getElementById("avatarProfilUser").src = avatarUrl;
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la récupération du profil :", error);
+    });
 }
 
 let currentUser = null;
 
 function initializeHome() {
-	const PLAYER_STATUSES = {
-		ONLINE: "Online",
-		IN_GAME: "In Game",
-	};
+  const PLAYER_STATUSES = {
+    ONLINE: "Online",
+    IN_GAME: "In Game",
+  };
 
-	const DOM = {
-		profile: {
+  const DOM = {
+    profile: {
       modal: document.getElementById("profileModal"),
       closeBtn: document.querySelector(".close-profile-modal"),
       avatar: document.getElementById("profileAvatar"),
@@ -74,170 +74,178 @@ function initializeHome() {
       winRate: document.getElementById("winRate"),
     },
     game: {
-		options: document.querySelectorAll(".gameOption"),
-		modeOptions: document.querySelectorAll(".modeOption"),
-		playButton: document.querySelector(".playHomePage"),
+      options: document.querySelectorAll(".gameOption"),
+      modeOptions: document.querySelectorAll(".modeOption"),
+      playButton: document.querySelector(".playHomePage"),
     },
     sections: {
-		avatarSection: document.querySelector(".avatarSection"),
-		rankSection: document.querySelector(".rankSection"),
+      avatarSection: document.querySelector(".avatarSection"),
+      rankSection: document.querySelector(".rankSection"),
     },
     onlineGame: {
-		modal: document.querySelector(".online-game-modal"),
-		closeBtn: document.querySelector(".close-online-game"),
-		launchBtn: document.querySelector(".launch-game"),
-		content: document.querySelector(".online-game-sections"),
-		loading: document.querySelector(".game-loading"),
-		friendsList: document.getElementById("friendsList"),
-		playersList: document.getElementById("onlinePlayersList"),
+      modal: document.querySelector(".online-game-modal"),
+      closeBtn: document.querySelector(".close-online-game"),
+      launchBtn: document.querySelector(".launch-game"),
+      content: document.querySelector(".online-game-sections"),
+      loading: document.querySelector(".game-loading"),
+      friendsList: document.getElementById("friendsList"),
+      playersList: document.getElementById("onlinePlayersList"),
     },
     chat: {
-		messages: document.getElementById("chatMessages"),
-		input: document.getElementById("messageInput"),
-		sendButton: document.getElementById("sendMessage"),
+      messages: document.getElementById("chatMessages"),
+      input: document.getElementById("messageInput"),
+      sendButton: document.getElementById("sendMessage"),
     },
-};
+  };
 
-	updateProfilOnHome();
-
-
+  updateProfilOnHome();
 
   let isGameInitialized = false;
   window.currentUser = null;
 
-	class ChatHandler {
-		static async initialize() {
-			try {
-				const response = await fetch("/api/profil/", {
-					credentials: "include",
-				});
+  class ChatHandler {
+    static async initialize() {
+      try {
+        const response = await fetch("/api/profil/", {
+          credentials: "include",
+        });
 
-				if (response.ok) {
-					window.currentUser = await response.json();
+        if (response.ok) {
+          window.currentUser = await response.json();
           ChatHandler.blockedUsers = new Set();
           ChatHandler.setupEventListeners();
           ChatHandler.initializeContextMenu();
           window.wsManager.addMessageListener(ChatHandler.handleMessage);
 
-					const messageHistory = window.wsManager.getMessageHistory();
-					messageHistory.forEach((message) =>
-						ChatHandler.handleMessage(message)
-					);
-				}
-			} catch (error) {
-				console.error("Erreur lors de l'initialisation du chat:", error);
-			}
-		}
+          const messageHistory = window.wsManager.getMessageHistory();
+          messageHistory.forEach((message) =>
+            ChatHandler.handleMessage(message)
+          );
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'initialisation du chat:", error);
+      }
+    }
 
-	static async sendFriendRequest(messageElement) {
-		const headerElement = messageElement.querySelector(".messageHeader");
-		const userId = headerElement?.dataset?.userId;
+    static async sendFriendRequest(messageElement) {
+      const headerElement = messageElement.querySelector(".messageHeader");
+      const userId = headerElement?.dataset?.userId;
 
-		if (!userId) {
-			console.error('No user ID found');
-			ChatHandler.showNotification('Unable to send friend request: User ID not found');
-			return;
-		}
+      if (!userId) {
+        console.error("No user ID found");
+        ChatHandler.showNotification(
+          "Unable to send friend request: User ID not found"
+        );
+        return;
+      }
 
-		if (userId === String(window.currentUser?.id)) {
-			ChatHandler.showNotification('You cannot send a friend request to yourself');
-			return;
-		}
+      if (userId === String(window.currentUser?.id)) {
+        ChatHandler.showNotification(
+          "You cannot send a friend request to yourself"
+        );
+        return;
+      }
 
-		try {
-			const response = await fetch('/api/friends/send-request/', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					receiver_id: userId.trim() 
-				})
-			});
+      try {
+        const response = await fetch("/api/friends/send-request/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            receiver_id: userId.trim(),
+          }),
+        });
 
-			const data = await response.text();
-			console.log("Response raw data:", data); 
+        const data = await response.text();
+        console.log("Response raw data:", data);
 
-			try {
-				const jsonData = JSON.parse(data);
-				ChatHandler.showNotification(jsonData.message || 'Friend request sent successfully');
-			} catch (e) {
-				console.error('Error parsing response:', e);
-				ChatHandler.showNotification('Error processing server response');
-			}
-		} catch (error) {
-			console.error('Error:', error);
-			ChatHandler.showNotification('Error sending friend request');
-		}
-	}
+        try {
+          const jsonData = JSON.parse(data);
+          ChatHandler.showNotification(
+            jsonData.message || "Friend request sent successfully"
+          );
+        } catch (e) {
+          console.error("Error parsing response:", e);
+          ChatHandler.showNotification("Error processing server response");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        ChatHandler.showNotification("Error sending friend request");
+      }
+    }
 
     static setupEventListeners() {
       if (DOM.chat.sendButton) {
         DOM.chat.sendButton.addEventListener("click", ChatHandler.sendMessage);
       }
 
-			if (DOM.chat.input) {
-				DOM.chat.input.addEventListener("keypress", (e) => {
-					if (e.key === "Enter") {
-						ChatHandler.sendMessage();
-					}
-				});
-			}
-		}
+      if (DOM.chat.input) {
+        DOM.chat.input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            ChatHandler.sendMessage();
+          }
+        });
+      }
+    }
 
-	static showNotification(message) {
-		const notification = document.createElement("div");
-		notification.classList.add("notification");
-		notification.textContent = message;
-		document.body.appendChild(notification);
-		setTimeout(() => notification.remove(), 3000);
-	}
+    static showNotification(message) {
+      const notification = document.createElement("div");
+      notification.classList.add("notification");
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
 
     static initializeContextMenu() {
-		const chatMessages = DOM.chat.messages;
-		let activeMenu = null;
+      const chatMessages = DOM.chat.messages;
+      let activeMenu = null;
 
-		chatMessages.addEventListener("click", async (e) => {
-			const avatar = e.target.closest(".messageAvatar");
-			if (!avatar) return;
+      chatMessages.addEventListener("click", async (e) => {
+        const avatar = e.target.closest(".messageAvatar");
+        if (!avatar) return;
 
-			e.preventDefault();
-			e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
 
-			if (activeMenu) {
-				activeMenu.remove();
-				activeMenu = null;
-			}
+        if (activeMenu) {
+          activeMenu.remove();
+          activeMenu = null;
+        }
 
-			const messageElement = avatar.closest(".message");
-			const headerElement = messageElement.querySelector(".messageHeader");
-			const userId = headerElement.dataset.userId;
-			const username = headerElement.textContent.trim();
-			const avatarSrc = avatar.src;
-			const isBlocked = ChatHandler.blockedUsers.has(username);
-			const isOwnMessage = userId === String(window.currentUser.id);
-			console.log('Comparaison des IDs :', {
-				messageUserId: userId,
-				currentUserId: window.currentUser.id,
-				isOwnMessage: isOwnMessage
-			});
+        const messageElement = avatar.closest(".message");
+        const headerElement = messageElement.querySelector(".messageHeader");
+        const userId = headerElement.dataset.userId;
+        const username = headerElement.textContent.trim();
+        const avatarSrc = avatar.src;
+        const isBlocked = ChatHandler.blockedUsers.has(username);
+        const isOwnMessage = userId === String(window.currentUser.id);
+        console.log("Comparaison des IDs :", {
+          messageUserId: userId,
+          currentUserId: window.currentUser.id,
+          isOwnMessage: isOwnMessage,
+        });
 
-			const menu = document.createElement("div");
-			menu.className = "chat-context-menu";
+        const menu = document.createElement("div");
+        menu.className = "chat-context-menu";
 
-			menu.innerHTML = `
+        menu.innerHTML = `
             <div class="chat-menu-option" data-action="profile">
                 See profile
             </div>
-            ${!isOwnMessage ? `
+            ${
+              !isOwnMessage
+                ? `
                 <div class="chat-menu-option" data-action="add-friend">
                     Add friend
                 </div>
                 <div class="chat-menu-option" data-action="send-invitation">
                     Send online invitation
                 </div>
-            ` : ''}
+            `
+                : ""
+            }
             <div class="chat-menu-option" data-action="block">
                 ${isBlocked ? "Unblock user" : "Block user"}
             </div>
@@ -246,137 +254,138 @@ function initializeHome() {
             </div>
             `;
 
-			document.body.appendChild(menu);
-			const rect = avatar.getBoundingClientRect();
-			ChatHandler.positionMenuWithinViewport(menu, rect);
+        document.body.appendChild(menu);
+        const rect = avatar.getBoundingClientRect();
+        ChatHandler.positionMenuWithinViewport(menu, rect);
 
-			activeMenu = menu;
+        activeMenu = menu;
 
-			menu.addEventListener("click", async (e) => {
-				const option = e.target.closest(".chat-menu-option");
-				if (!option) return;
+        menu.addEventListener("click", async (e) => {
+          const option = e.target.closest(".chat-menu-option");
+          if (!option) return;
 
-				const action = option.dataset.action;
-				if (action === "send-invitation") {
-					console.log("Sending invitation from chat to:", username);
-					GameInvitationManager.sendInvitation(username);
-				} else if (action === "profile") {
-					const playerData = {
-						nickname: username,
-						avatar: avatarSrc,
-						rank: "Bronze",
-						stats: { totalGames: 0, winRate: "0%" },
-					};
-					ProfileModal.show(playerData);
-				} else if (action === "add-friend") {
-					await ChatHandler.sendFriendRequest(messageElement);
-				} else if (action === "block") {
-					ChatHandler.toggleBlockUser(username);
-					ChatHandler.showBlockConfirmation(username, !isBlocked);
-				} else if (action === "private-message") {
-					ChatHandler.startPrivateMessage(username);
-				}
+          const action = option.dataset.action;
+          if (action === "send-invitation") {
+            console.log("Sending invitation from chat to:", username);
+            GameInvitationManager.sendInvitation(username);
+          } else if (action === "profile") {
+            const playerData = {
+              nickname: username,
+              avatar: avatarSrc,
+              rank: "Bronze",
+              stats: { totalGames: 0, winRate: "0%" },
+            };
+            ProfileModal.show(playerData);
+          } else if (action === "add-friend") {
+            await ChatHandler.sendFriendRequest(messageElement);
+          } else if (action === "block") {
+            ChatHandler.toggleBlockUser(username);
+            ChatHandler.showBlockConfirmation(username, !isBlocked);
+          } else if (action === "private-message") {
+            ChatHandler.startPrivateMessage(username);
+          }
 
-				menu.remove();
-				activeMenu = null;
-			});
-		});
+          menu.remove();
+          activeMenu = null;
+        });
+      });
 
-		document.addEventListener("click", (e) => {
-			if (activeMenu &&
-				!e.target.closest(".chat-context-menu") &&
-				!e.target.closest(".messageAvatar")
-			) {
-				activeMenu.remove();
-				activeMenu = null;
-			}
-		});
+      document.addEventListener("click", (e) => {
+        if (
+          activeMenu &&
+          !e.target.closest(".chat-context-menu") &&
+          !e.target.closest(".messageAvatar")
+        ) {
+          activeMenu.remove();
+          activeMenu = null;
+        }
+      });
 
-		chatMessages.addEventListener("scroll", () => {
-			if (activeMenu) {
-				activeMenu.remove();
-				activeMenu = null;
-			}
-		});
-	}
+      chatMessages.addEventListener("scroll", () => {
+        if (activeMenu) {
+          activeMenu.remove();
+          activeMenu = null;
+        }
+      });
+    }
 
-		static toggleBlockUser(username) {
-			if (ChatHandler.blockedUsers.has(username)) {
-				ChatHandler.blockedUsers.delete(username);
-			} else {
-				ChatHandler.blockedUsers.add(username);
-			}
+    static toggleBlockUser(username) {
+      if (ChatHandler.blockedUsers.has(username)) {
+        ChatHandler.blockedUsers.delete(username);
+      } else {
+        ChatHandler.blockedUsers.add(username);
+      }
 
-			const messages = DOM.chat.messages.querySelectorAll(".message");
-			messages.forEach((message) => {
-				const messageUsername =
-					message.querySelector(".messageHeader").textContent;
-				if (messageUsername === username) {
-					message.style.opacity = ChatHandler.blockedUsers.has(username)
-						? "0.5"
-						: "1";
-					const messageText = message.querySelector(".messageText");
-					if (ChatHandler.blockedUsers.has(username)) {
-						messageText.dataset.originalText = messageText.textContent;
-						messageText.textContent = "Message blocked";
-					} else {
-						messageText.textContent =
-							messageText.dataset.originalText || messageText.textContent;
-					}
-				}
-			});
-		}
+      const messages = DOM.chat.messages.querySelectorAll(".message");
+      messages.forEach((message) => {
+        const messageUsername =
+          message.querySelector(".messageHeader").textContent;
+        if (messageUsername === username) {
+          message.style.opacity = ChatHandler.blockedUsers.has(username)
+            ? "0.5"
+            : "1";
+          const messageText = message.querySelector(".messageText");
+          if (ChatHandler.blockedUsers.has(username)) {
+            messageText.dataset.originalText = messageText.textContent;
+            messageText.textContent = "Message blocked";
+          } else {
+            messageText.textContent =
+              messageText.dataset.originalText || messageText.textContent;
+          }
+        }
+      });
+    }
 
-		static showBlockConfirmation(username, isBlocking) {
-			const homePageMain = document.querySelector(".homePageMain");
-			if (!homePageMain) return;
+    static showBlockConfirmation(username, isBlocking) {
+      const homePageMain = document.querySelector(".homePageMain");
+      if (!homePageMain) return;
 
-			const confirmation = document.createElement("div");
-			confirmation.classList.add("confirmation-animation");
-			confirmation.innerHTML = `
+      const confirmation = document.createElement("div");
+      confirmation.classList.add("confirmation-animation");
+      confirmation.innerHTML = `
           <div class="confirmation-icon"></div>
           <div class="confirmation-text">
               ${
-				isBlocking
-					? `User ${username} has been blocked`
-					: `User ${username} has been unblocked`
-			}
+                isBlocking
+                  ? `User ${username} has been blocked`
+                  : `User ${username} has been unblocked`
+              }
           </div>
       `;
 
-			homePageMain.appendChild(confirmation);
-			setTimeout(() => confirmation.remove(), 2000);
-		}
+      homePageMain.appendChild(confirmation);
+      setTimeout(() => confirmation.remove(), 2000);
+    }
 
-		static startPrivateMessage(username) {
-			if (!DOM.chat.input) return;
+    static startPrivateMessage(username) {
+      if (!DOM.chat.input) return;
 
-			DOM.chat.input.value = `/pm ${username} `;
-			DOM.chat.input.focus();
-		}
+      DOM.chat.input.value = `/pm ${username} `;
+      DOM.chat.input.focus();
+    }
 
-		static handleMessage(data) {
-			if (!DOM.chat.messages) return;
+    static handleMessage(data) {
+      if (!DOM.chat.messages) return;
 
-			if (ChatHandler.blockedUsers.has(data.username)) {
-				data.originalMessage = data.message;
-				data.message = "Message blocked";
-			}
+      if (ChatHandler.blockedUsers.has(data.username)) {
+        data.originalMessage = data.message;
+        data.message = "Message blocked";
+      }
 
-			const isCurrentUser =
-				window.currentUser && data.username === window.currentUser.username;
-			const messageElement = document.createElement("div");
-			messageElement.className = `message ${
-				isCurrentUser ? "sent" : "received"
-			}`;
+      const isCurrentUser =
+        window.currentUser && data.username === window.currentUser.username;
+      const messageElement = document.createElement("div");
+      messageElement.className = `message ${
+        isCurrentUser ? "sent" : "received"
+      }`;
 
-			if (ChatHandler.blockedUsers.has(data.username)) {
-				messageElement.style.opacity = "0.5";
-			}
+      if (ChatHandler.blockedUsers.has(data.username)) {
+        messageElement.style.opacity = "0.5";
+      }
 
-			if (data.type === "private_message") {
-				messageElement.classList.add("private-message");
-			}
+      if (data.type === "private_message") {
+        messageElement.classList.add("private-message");
+      }
 
       messageElement.innerHTML = `
         <img src="${data.avatar}"
@@ -393,96 +402,95 @@ function initializeHome() {
         </div>
       `;
 
-			DOM.chat.messages.appendChild(messageElement);
-			DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
-		}
+      DOM.chat.messages.appendChild(messageElement);
+      DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
+    }
 
-		static sendMessage() {
-			if (!DOM.chat.input || !window.currentUser) return;
+    static sendMessage() {
+      if (!DOM.chat.input || !window.currentUser) return;
 
-			const message = DOM.chat.input.value.trim();
-			if (!message) return;
+      const message = DOM.chat.input.value.trim();
+      if (!message) return;
 
-			const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
-			if (pmMatch) {
-				const [, recipient, privateMessage] = pmMatch;
-				window.wsManager.sendMessage({
-					type: "private_message",
-					message: privateMessage,
-					username: window.currentUser.username,
-					avatar: window.currentUser.avatar,
-					recipient: recipient,
-				});
-			} else {
-				window.wsManager.sendMessage({
-					type: "chat_message",
-					message: message,
-					username: window.currentUser.username,
-					avatar: window.currentUser.avatar,
-				});
-			}
+      const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+      if (pmMatch) {
+        const [, recipient, privateMessage] = pmMatch;
+        window.wsManager.sendMessage({
+          type: "private_message",
+          message: privateMessage,
+          username: window.currentUser.username,
+          avatar: window.currentUser.avatar,
+          recipient: recipient,
+        });
+      } else {
+        window.wsManager.sendMessage({
+          type: "chat_message",
+          message: message,
+          username: window.currentUser.username,
+          avatar: window.currentUser.avatar,
+        });
+      }
 
-			DOM.chat.input.value = "";
-		}
+      DOM.chat.input.value = "";
+    }
 
-		static positionMenuWithinViewport(menu, rect) {
-			const viewportHeight = window.innerHeight;
-			const viewportWidth = window.innerWidth;
-			const menuHeight = menu.offsetHeight;
-			const menuWidth = menu.offsetWidth;
+    static positionMenuWithinViewport(menu, rect) {
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const menuHeight = menu.offsetHeight;
+      const menuWidth = menu.offsetWidth;
 
-			let top;
-			if (rect.bottom + menuHeight + 5 > viewportHeight) {
-				top = Math.max(5, rect.top - menuHeight - 5);
-			} else {
-				top = rect.bottom + 5;
-			}
+      let top;
+      if (rect.bottom + menuHeight + 5 > viewportHeight) {
+        top = Math.max(5, rect.top - menuHeight - 5);
+      } else {
+        top = rect.bottom + 5;
+      }
 
-			let left;
-			if (rect.left + menuWidth + 5 > viewportWidth) {
-				left = Math.max(5, viewportWidth - menuWidth - 5);
-			} else {
-				left = rect.left;
-			}
+      let left;
+      if (rect.left + menuWidth + 5 > viewportWidth) {
+        left = Math.max(5, viewportWidth - menuWidth - 5);
+      } else {
+        left = rect.left;
+      }
 
-			menu.style.top = `${top}px`;
-			menu.style.left = `${left}px`;
-		}
+      menu.style.top = `${top}px`;
+      menu.style.left = `${left}px`;
+    }
 
-		static cleanup() {
-			window.wsManager.removeMessageListener(ChatHandler.handleMessage);
+    static cleanup() {
+      window.wsManager.removeMessageListener(ChatHandler.handleMessage);
 
-			const activeMenu = document.querySelector(".chat-context-menu");
-			if (activeMenu) {
-				activeMenu.remove();
-			}
+      const activeMenu = document.querySelector(".chat-context-menu");
+      if (activeMenu) {
+        activeMenu.remove();
+      }
 
-			if (DOM.chat.sendButton) {
-				DOM.chat.sendButton.removeEventListener(
-					"click",
-					ChatHandler.sendMessage
-				);
-			}
+      if (DOM.chat.sendButton) {
+        DOM.chat.sendButton.removeEventListener(
+          "click",
+          ChatHandler.sendMessage
+        );
+      }
 
-			if (DOM.chat.input) {
-				DOM.chat.input.removeEventListener("keypress", (e) => {
-					if (e.key === "Enter") {
-						ChatHandler.sendMessage();
-					}
-				});
-			}
+      if (DOM.chat.input) {
+        DOM.chat.input.removeEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            ChatHandler.sendMessage();
+          }
+        });
+      }
 
-			if (DOM.chat.messages) {
-				DOM.chat.messages.innerHTML = "";
-			}
+      if (DOM.chat.messages) {
+        DOM.chat.messages.innerHTML = "";
+      }
 
-			ChatHandler.blockedUsers.clear();
-		}
-	}
+      ChatHandler.blockedUsers.clear();
+    }
+  }
 
   class TooltipManager {
     static initializeTooltips() {
-      
       if (DOM.sections.avatarSection) {
         const avatarTooltipTemplate = document.getElementById(
           "avatarTooltipTemplate"
@@ -505,7 +513,6 @@ function initializeHome() {
         }
       }
 
-      
       if (DOM.sections.rankSection) {
         const rankTooltipTemplate = document.getElementById(
           "rankTooltipTemplate"
@@ -530,7 +537,6 @@ function initializeHome() {
     }
   }
 
-  
   class ProfileModal {
     static initialize() {
       if (!DOM.profile.modal) return;
@@ -573,14 +579,13 @@ function initializeHome() {
     }
   }
 
-  
   class ContextMenu {
     static initialize() {
       const homePageMain = document.querySelector(".homePageMain");
-			const downLeftFrame = document.querySelector(".downLeftFrame");
-			if (!homePageMain || !downLeftFrame) return;
+      const downLeftFrame = document.querySelector(".downLeftFrame");
+      if (!homePageMain || !downLeftFrame) return;
 
-			const contextMenuTemplate = document.getElementById(
+      const contextMenuTemplate = document.getElementById(
         "contextMenuTemplate"
       );
       if (!contextMenuTemplate) return;
@@ -589,13 +594,13 @@ function initializeHome() {
       downLeftFrame.appendChild(contextMenu);
 
       const contextMenuElement = downLeftFrame.querySelector(
-				".player-context-menu"
-			);
-			if (!contextMenuElement) return;
+        ".player-context-menu"
+      );
+      if (!contextMenuElement) return;
 
       downLeftFrame.style.position = "relative";
-			contextMenuElement.style.position = "absolute";
-			contextMenuElement.style.zIndex = "100";
+      contextMenuElement.style.position = "absolute";
+      contextMenuElement.style.zIndex = "100";
 
       downLeftFrame.addEventListener("click", (e) => {
         const nickname = e.target.closest(".onlineNickname");
@@ -604,10 +609,10 @@ function initializeHome() {
           const rect = nickname.getBoundingClientRect();
           const frameRect = downLeftFrame.getBoundingClientRect();
 
-					const top = rect.bottom - frameRect.top;
-					const left = rect.left - frameRect.left;
+          const top = rect.bottom - frameRect.top;
+          const left = rect.left - frameRect.left;
 
-					contextMenuElement.style.top = `${top}px`;
+          contextMenuElement.style.top = `${top}px`;
           contextMenuElement.style.left = `${left}px`;
           contextMenuElement.style.display = "block";
           contextMenuElement.dataset.player = nickname.textContent.trim();
@@ -620,7 +625,7 @@ function initializeHome() {
         const action = e.target.dataset.action;
         if (!action) return;
 
-				const player = contextMenuElement.dataset.player;
+        const player = contextMenuElement.dataset.player;
 
         if (action === "profile") {
           const playerData = {
@@ -635,7 +640,7 @@ function initializeHome() {
         }
         contextMenuElement.style.display = "none";
       });
-	  console.log("TEST3\n");
+      console.log("TEST3\n");
       document.addEventListener("click", (e) => {
         if (!downLeftFrame.contains(e.target)) {
           contextMenuElement.style.display = "none";
@@ -645,9 +650,9 @@ function initializeHome() {
 
     static showConfirmation(player) {
       const homePageMain = document.querySelector(".homePageMain");
-			if (!homePageMain) return;
+      if (!homePageMain) return;
 
-			const confirmation = document.createElement("div");
+      const confirmation = document.createElement("div");
       confirmation.classList.add("confirmation-animation");
       confirmation.innerHTML = `
         <div class="confirmation-icon"></div>
@@ -659,7 +664,33 @@ function initializeHome() {
     }
   }
 
-  
+  // class GameOptionsManager {
+  //   static initialize() {
+  //     const handleSelection = (elements, selectedElement) => {
+  //       elements.forEach((el) => el.classList.remove("option-selected"));
+  //       selectedElement.classList.add("option-selected");
+  //     };
+
+  //     DOM.game.options.forEach((option) => {
+  //       if (option.textContent.trim() === "CLASSIC PONG") {
+  //         option.classList.add("option-selected");
+  //       }
+  //       option.addEventListener("click", () =>
+  //         handleSelection(DOM.game.options, option)
+  //       );
+  //     });
+
+  //     DOM.game.modeOptions.forEach((option) => {
+  //       if (option.textContent.trim() === "AGAINST AI") {
+  //         option.classList.add("option-selected");
+  //       }
+  //       option.addEventListener("click", () =>
+  //         handleSelection(DOM.game.modeOptions, option)
+  //       );
+  //     });
+  //   }
+  // }
+
   class GameOptionsManager {
     static initialize() {
       const handleSelection = (elements, selectedElement) => {
@@ -667,8 +698,9 @@ function initializeHome() {
         selectedElement.classList.add("option-selected");
       };
 
+      // Sélectionner et activer le bouton de jeu par défaut
       DOM.game.options.forEach((option) => {
-        if (option.textContent.trim() === "CLASSIC PONG") {
+        if (option.getAttribute("data-game-type") === "classicPong") {
           option.classList.add("option-selected");
         }
         option.addEventListener("click", () =>
@@ -676,8 +708,9 @@ function initializeHome() {
         );
       });
 
+      // Sélectionner et activer le mode de jeu par défaut
       DOM.game.modeOptions.forEach((option) => {
-        if (option.textContent.trim() === "AGAINST AI") {
+        if (option.getAttribute("data-mode-type") === "1vs1") {
           option.classList.add("option-selected");
         }
         option.addEventListener("click", () =>
@@ -687,7 +720,6 @@ function initializeHome() {
     }
   }
 
-  
   class OnlineGameModal {
     static selectedPlayer = null;
 
@@ -766,38 +798,92 @@ function initializeHome() {
     }
   }
 
-  
   class GameActions {
     constructor() {
-			this.options = null;
-			this.getHostOptions();
-		}
+      this.options = null;
+      this.getHostOptions();
+    }
 
-		getHostOptions() {
-			fetch("api/game-settings/", {
-				method: "GET",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
-				.then((response) => {
-					if (!response.ok) {
-						throw new Error(`Erreur HTTP: ${response.status}`);
-					}
-					return response.json();
-				})
-				.then((data) => {
-					console.log("Data received:", data);
-					this.options = data;
-					console.log("Options:", this.options);
+    getHostOptions() {
+      fetch("api/game-settings/", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Data received:", data);
+          this.options = data;
+          console.log("Options:", this.options);
           // localStorage.setItem('gameOptions', JSON.stringify(data));
-				})
-				.catch((error) => {
-					console.error("Erreur lors de la récupération des paramètres :", error);
-				});
-		}
-		handlePlayButtonClick() {
+        })
+        .catch((error) => {
+          console.error(
+            "Erreur lors de la récupération des paramètres :",
+            error
+          );
+        });
+    }
+
+    // handlePlayButtonClick() {
+    //   const selectedGame = Array.from(DOM.game.options).find((option) =>
+    //     option.classList.contains("option-selected")
+    //   );
+    //   const selectedMode = Array.from(DOM.game.modeOptions).find((option) =>
+    //     option.classList.contains("option-selected")
+    //   );
+
+    //   //Afficher l'id du button selectionne
+    //   console.log(selectedGame.id);
+
+    //   if (!selectedGame || !selectedMode) {
+    //     alert("Please select both a game type and a mode!");
+    //     return;
+    //   }
+
+    //   const gameType = selectedGame.textContent.trim();
+    //   const modeType = selectedMode.textContent.trim();
+
+    //   console.log(`Selected Game: ${gameType}, Selected Mode: ${modeType}`);
+
+    //   if (gameType === "CLASSIC PONG" && modeType === "AGAINST AI") {
+    //     console.log("Launching Classic Pong against AI...");
+    //     startMatch(this.options, true, false);
+    //   } else if (gameType === "POWER PONG" && modeType === "AGAINST AI") {
+    //     console.log("Launching Power Pong against AI...");
+    //     startMatch(this.options, true, true);
+    //   } else if (gameType === "CLASSIC PONG" && modeType === "1 VS 1") {
+    //     console.log("Launching Classic Pong against a friend...");
+    //     startMatch(this.options, false, false);
+    //   } else if (gameType === "POWER PONG" && modeType === "1 VS 1") {
+    //     console.log("Launching Power Pong against a friend...");
+    //     startMatch(this.options, false, true);
+    //   } else if (gameType === "CLASSIC PONG" && modeType === "TOURNAMENT") {
+    //     console.log("Redirecting to /tournament...");
+    //     window.location.href = "/tournament";
+    //   } else if (gameType === "POWER PONG" && modeType === "TOURNAMENT") {
+    //     console.log("Redirecting to /tournament...");
+    //     window.location.href = "/tournament";
+    //   } else if (
+    //     (gameType === "CLASSIC PONG" || gameType === "POWER PONG") &&
+    //     modeType === "ONLINE" //
+    //   ) {
+    //     console.log(`Launching ${gameType} Online...`);
+    //     OnlineGameModal.show();
+    //   } else {
+    //     console.log(`${gameType} ${modeType} mode is not implemented yet.`);
+    //   }
+    // }
+
+    handlePlayButtonClick() {
+      // Récupérer les options sélectionnées
       const selectedGame = Array.from(DOM.game.options).find((option) =>
         option.classList.contains("option-selected")
       );
@@ -805,43 +891,37 @@ function initializeHome() {
         option.classList.contains("option-selected")
       );
 
-	  //Afficher l'id du button selectionne
-		  console.log(selectedGame.id);
-
       if (!selectedGame || !selectedMode) {
         alert("Please select both a game type and a mode!");
         return;
       }
 
-      const gameType = selectedGame.textContent.trim();
-      const modeType = selectedMode.textContent.trim();
+      const gameType = selectedGame.getAttribute("data-game-type");
+      const modeType = selectedMode.getAttribute("data-mode-type");
 
       console.log(`Selected Game: ${gameType}, Selected Mode: ${modeType}`);
 
-      if (gameType === "CLASSIC PONG" && modeType === "AGAINST AI") {
+      if (gameType === "classicPong" && modeType === "againstAI") {
         console.log("Launching Classic Pong against AI...");
         startMatch(this.options, true, false);
-			} else if (gameType === "POWER PONG" && modeType === "AGAINST AI") {
-				console.log("Launching Power Pong against AI...");
-				startMatch(this.options, true, true);
-			} else if (gameType === "CLASSIC PONG" && modeType === "1 VS 1") {
-				console.log("Launching Classic Pong against a friend...");
-				startMatch(this.options, false, false);
-			} else if (gameType === "POWER PONG" && modeType === "1 VS 1") {
-				console.log("Launching Power Pong against a friend...");
-				startMatch(this.options, false, true);
-      } else if (gameType === "CLASSIC PONG" && modeType === "TOURNAMENT") {
-        console.log("Redirecting to /tournament...");
-        window.location.href = "/tournament";
-      } else if (gameType === "POWER PONG" && modeType === "TOURNAMENT") {
-        console.log("Redirecting to /tournament...");
-        window.location.href = "/tournament";
+      } else if (gameType === "powerPong" && modeType === "againstAI") {
+        console.log("Launching Power Pong against AI...");
+        startMatch(this.options, true, true);
+      } else if (gameType === "classicPong" && modeType === "1vs1") {
+        console.log("Launching Classic Pong against a friend...");
+        startMatch(this.options, false, false);
+      } else if (gameType === "powerPong" && modeType === "1vs1") {
+        console.log("Launching Power Pong against a friend...");
+        startMatch(this.options, false, true);
       } else if (
-        (gameType === "CLASSIC PONG" || gameType === "POWER PONG") &&
-        modeType === "ONLINE"//
+        (gameType === "classicPong" || gameType === "powerPong") &&
+        modeType === "online"
       ) {
         console.log(`Launching ${gameType} Online...`);
         OnlineGameModal.show();
+      } else if (modeType === "tournament") {
+        console.log("Redirecting to /tournament...");
+        window.location.href = "/tournament";
       } else {
         console.log(`${gameType} ${modeType} mode is not implemented yet.`);
       }
@@ -891,10 +971,14 @@ function initializeHome() {
         document.body.removeChild(loadingIndicator);
         console.log("Jeu chargé.");
 
-        iframe.contentWindow.postMessage({
-					type: "setOptions",
-					data: {options, isAI, power},
-				}, "*");setTimeout(() => {
+        iframe.contentWindow.postMessage(
+          {
+            type: "setOptions",
+            data: { options, isAI, power },
+          },
+          "*"
+        );
+        setTimeout(() => {
           iframe.contentWindow.focus();
           console.log("Focus défini sur l'iframe.");
         }, 100);
@@ -903,7 +987,6 @@ function initializeHome() {
       modal.appendChild(iframe);
       document.body.appendChild(modal);
 
-      
       window.addEventListener("message", (event) => {
         console.log("Message reçu par le parent :", event);
 
@@ -941,33 +1024,33 @@ function initializeHome() {
     ChatHandler.cleanup();
   });
 
-  const gameActions = new GameActions();if (DOM.game.playButton) {
+  const gameActions = new GameActions();
+  if (DOM.game.playButton) {
     DOM.game.playButton.addEventListener("click", () => {
       gameActions.handlePlayButtonClick();
     });
   }
-
-
 }
 
-
 async function loadPendingFriendRequests() {
-    try {
-        const response = await fetch('/api/friends/pending/', {
-            credentials: 'include'
-        });
-        const data = await response.json();
-        displayPendingRequests(data.pending_requests);
-    } catch (error) {
-        console.error('Error loading friend requests:', error);
-    }
+  try {
+    const response = await fetch("/api/friends/pending/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    displayPendingRequests(data.pending_requests);
+  } catch (error) {
+    console.error("Error loading friend requests:", error);
+  }
 }
 
 function displayPendingRequests(requests) {
-    const friendRequestsList = document.getElementById('friendRequestsList');
-    if (!friendRequestsList) return;
+  const friendRequestsList = document.getElementById("friendRequestsList");
+  if (!friendRequestsList) return;
 
-    const requestsHTML = requests.map(request => `
+  const requestsHTML = requests
+    .map(
+      (request) => `
         <div class="friendRequest">
             <img src="${request.sender.avatar}" alt="Avatar" class="requestAvatar">
             <div class="requestInfo">
@@ -978,31 +1061,34 @@ function displayPendingRequests(requests) {
                 <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')">Reject</button>
             </div>
         </div>
-    `).join('');
+    `
+    )
+    .join("");
 
-    friendRequestsList.innerHTML = requestsHTML || '<div class="no-requests">No pending friend requests</div>';
+  friendRequestsList.innerHTML =
+    requestsHTML || '<div class="no-requests">No pending friend requests</div>';
 }
 
 async function handleFriendRequest(requestId, action) {
-    try {
-        const response = await fetch('/api/friends/handle-request/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                request_id: requestId,
-                action: action
-            })
-        });
+  try {
+    const response = await fetch("/api/friends/handle-request/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        request_id: requestId,
+        action: action,
+      }),
+    });
 
-        if (response.ok) {
-            loadPendingFriendRequests();
-        }
-    } catch (error) {
-        console.error('Error handling friend request:', error);
+    if (response.ok) {
+      loadPendingFriendRequests();
     }
+  } catch (error) {
+    console.error("Error handling friend request:", error);
+  }
 }
 
 const GameInvitationManager = {
@@ -1022,8 +1108,10 @@ const GameInvitationManager = {
     window.wsManager.addMessageListener((data) => {
       console.log("Message received in GameInvitationManager:", data);
 
-      
-      if (data.type === "game_invitation" && data.receiver === window.currentUser?.username) {
+      if (
+        data.type === "game_invitation" &&
+        data.receiver === window.currentUser?.username
+      ) {
         console.log("Game invitation received for current user");
         this.handleInvitation(data);
       }
@@ -1036,7 +1124,6 @@ const GameInvitationManager = {
     const modalElement = this.template.content.cloneNode(true);
     this.modal = modalElement.querySelector(".game-invitation-modal");
 
-    
     const avatar = this.modal.querySelector(".inviter-avatar");
     const name = this.modal.querySelector(".inviter-name");
     const gameType = this.modal.querySelector(".game-type");
@@ -1045,14 +1132,19 @@ const GameInvitationManager = {
     name.textContent = data.sender.username;
     gameType.textContent = data.gameType;
 
-    
     const acceptBtn = this.modal.querySelector(".accept-btn");
     const declineBtn = this.modal.querySelector(".decline-btn");
     const closeBtn = this.modal.querySelector(".close-invitation");
 
-    acceptBtn.addEventListener("click", () => this.respondToInvitation(data.invitationId, "accept"));
-    declineBtn.addEventListener("click", () => this.respondToInvitation(data.invitationId, "decline"));
-    closeBtn.addEventListener("click", () => this.respondToInvitation(data.invitationId, "decline"));
+    acceptBtn.addEventListener("click", () =>
+      this.respondToInvitation(data.invitationId, "accept")
+    );
+    declineBtn.addEventListener("click", () =>
+      this.respondToInvitation(data.invitationId, "decline")
+    );
+    closeBtn.addEventListener("click", () =>
+      this.respondToInvitation(data.invitationId, "decline")
+    );
 
     document.body.appendChild(this.modal);
     this.modal.style.display = "block";
@@ -1070,12 +1162,10 @@ const GameInvitationManager = {
       receiver: invitation.receiver,
     });
 
-    
     this.activeInvitations.delete(invitationId);
     this.closeModal();
 
     if (response === "accept") {
-      
       this.initializeGameSession(invitation);
     }
   },
@@ -1096,20 +1186,18 @@ const GameInvitationManager = {
     if (data.response === "accept") {
       this.initializeGameSession(invitation);
     } else {
-      
       this.showNotification(
         `${data.receiver} has declined your game invitation`
       );
     }
   },
   sendInvitation(username) {
-    
     const gameType =
       document
         .querySelector(".gameOption.option-selected")
         ?.textContent.trim() || "CLASSIC PONG";
 
-    console.log("Sending invitation to:", username); 
+    console.log("Sending invitation to:", username);
 
     const invitationId = crypto.randomUUID();
     const invitation = {
@@ -1124,7 +1212,7 @@ const GameInvitationManager = {
       timestamp: Date.now(),
     };
 
-    console.log("Invitation object:", invitation); 
+    console.log("Invitation object:", invitation);
 
     this.activeInvitations.set(invitationId, invitation);
     window.wsManager.sendMessage(invitation);
@@ -1144,9 +1232,6 @@ const GameInvitationManager = {
   },
 
   initializeGameSession(invitation) {
-    
     console.log("Starting game session:", invitation);
-    
   },
 };
-
