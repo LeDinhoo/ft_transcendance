@@ -218,3 +218,9 @@ body {
     pointer-events: none; /* Empêche les clics */
     transition: opacity 0.3s ease; /* Transition pour un effet fluide */
 }
+
+#save-keyboard-settings {
+    opacity: 0;
+    pointer-events: none; /* Empêche les clics */
+    transition: opacity 0.3s ease; /* Transition pour un effet fluide */
+}

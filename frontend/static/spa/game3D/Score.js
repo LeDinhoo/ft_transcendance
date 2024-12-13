@@ -137,7 +137,7 @@ export class Score3D {
     this.createPressSpaceText();
     this.gameOver = false;
 
-    maxBallSpeed = INITIAL_BALL_SPEED;
+    // maxBallSpeed = INITIAL_BALL_SPEED;
   }
 
   checkWinCondition() {

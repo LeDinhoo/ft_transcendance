@@ -41,7 +41,7 @@ body {
 	flex-direction: row;
 	flex-grow: 1;
 	background-color: var(--gluon-grey);
-	border-radius: var(--radius-lg);
+	border-radius: var(--24px);
 	gap: var(--16px);
 	padding: var(--16px);
 }
@@ -49,7 +49,7 @@ body {
 .accountSection {
 	flex-grow: 1;
 	height: 100%;
-	border-radius: var(--radius-lg);
+	border-radius: var(--24px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -60,14 +60,13 @@ body {
 .avatarSection {
 	position: relative;
 	width: 100%;
-	height: 17.292vw;
-	border-radius: var(--radius-lg);
+	border-radius: var(--24px);
 	display: flex;
-	justify-content: space-around;
+	justify-content: space-between;
 	align-items: center;
 	flex-direction: row;
 	background-color: var(--dark-grey);
-	padding: 0 var(--24px);
+	padding: var(--16px) var(--0px);
 }
 
 .avatarButtons {
@@ -76,6 +75,7 @@ body {
 	align-items: center;
 	gap: var(--16px);
 	position: relative;
+	padding-right: 5.208vw;
 }
 
 .btn-icon#toggle2FAButton {
@@ -165,7 +165,7 @@ body {
 .informationSection {
 	width: 100%;
 	height: 100%;
-	border-radius: var(--radius-lg);
+	border-radius: var(--24px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -195,17 +195,17 @@ body {
 	justify-content: center;
 	align-items: center;
 	flex-direction: column;
-	gap: var(--16px);
+	gap: var(--12px);
 }
 
 .avatarFrame {
-	border: var(--dusty-grey) solid var(--4px);
-	border-radius: 100%;
-	width: 7.552vw;
-	height: 7.552vw;
+	width: 7vw;
+	height: 7vw;
+	border-radius: 50%;
+	border: var(--4px) solid var(--dusty-grey);
 	display: flex;
-	justify-content: center;
 	align-items: center;
+	justify-content: center;
 }
 
 .avatarImg {
@@ -221,11 +221,11 @@ body {
 	justify-content: center;
 	align-items: center;
 	gap: var(--12px);
-	width: 10.833vw;
-	border: var(--dusty-grey) solid var(--4px);
+	width: 10vw;
+	border: var(--4px) solid var(--dusty-grey);
 	padding: var(--8px) var(--16px);
 	border-radius: var(--16px);
-	font-size: var(--16px);
+	font-size: 1rem;
 	color: var(--snow);
 	font-weight: 600;
 }
@@ -285,7 +285,7 @@ body {
 	height: 100%;
 	flex-grow: 1;
 	background-color: var(--dark-grey);
-	border-radius: var(--radius-lg);
+	border-radius: var(--24px);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -349,7 +349,7 @@ body {
 	width: 100%;
 	height: 22.903vw;
 	background-color: var(--dark-grey);
-	border-radius: var(--radius-lg);
+	border-radius: var(--24px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -673,15 +673,8 @@ body {
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
+	width: 35.146vw;
 	gap: var(--70px);
-}
-
-.playerProfilFrame {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	gap: var(--16px);
 }
 
 .rankSection {

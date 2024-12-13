@@ -796,13 +796,17 @@ function initializeHome() {
 				.catch((error) => {
 					console.error("Erreur lors de la récupération des paramètres :", error);
 				});
-		} handlePlayButtonClick() {
+		}
+		handlePlayButtonClick() {
       const selectedGame = Array.from(DOM.game.options).find((option) =>
         option.classList.contains("option-selected")
       );
       const selectedMode = Array.from(DOM.game.modeOptions).find((option) =>
         option.classList.contains("option-selected")
       );
+
+	  //Afficher l'id du button selectionne
+		  console.log(selectedGame.id);
 
       if (!selectedGame || !selectedMode) {
         alert("Please select both a game type and a mode!");

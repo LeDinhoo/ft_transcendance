@@ -294,14 +294,6 @@ function initializeSettingsPage() {
 
 				console.log("Paramètres de jeu sauvegardés avec succès :", data);
 
-				// const saveButton = document.getElementById("save-settings");
-				// saveButton.textContent = "Saved!";
-				// saveButton.disabled = true;
-				//
-				// setTimeout(() => {
-				// 	saveButton.textContent = "SAV";
-				// 	saveButton.disabled = false;
-				// }, 1500);
 			})
 			.catch((error) => {
 				console.error("Erreur lors de la sauvegarde :", error);
@@ -366,7 +358,9 @@ function initializeSettingsPage() {
 				otherButton.disabled = false;
 			});
 
-			
+			hasKeyboardChanges = true;
+			toggleKeyboardSaveButtonVisibility();
+
 			window.removeEventListener("keydown", onKeyPress);
 		}
 
@@ -418,6 +412,8 @@ function initializeSettingsPage() {
 				}
 
 				console.log("Paramètres clavier sauvegardés avec succès :", data);
+				hasKeyboardChanges = false;
+				toggleKeyboardSaveButtonVisibility();
 			})
 			.catch((error) => {
 				console.error("Erreur lors de la sauvegarde :", error);
@@ -530,6 +526,20 @@ function initializeSettingsPage() {
 			saveButton.style.pointerEvents = "none"; // Désactive le clic
 		}
 	}
+
+	let hasKeyboardChanges = false;
+
+	function toggleKeyboardSaveButtonVisibility() {
+		const keyboardSaveButton = document.getElementById("save-keyboard-settings");
+		if (hasKeyboardChanges) {
+			keyboardSaveButton.style.opacity = "1";
+			keyboardSaveButton.style.pointerEvents = "auto"; // Permet le clic
+		} else {
+			keyboardSaveButton.style.opacity = "0";
+			keyboardSaveButton.style.pointerEvents = "none"; // Désactive le clic
+		}
+	}
+
 
 	initializeSettingsFromDatabase();
 }
