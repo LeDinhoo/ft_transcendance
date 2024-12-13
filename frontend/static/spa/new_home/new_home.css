@@ -106,7 +106,7 @@ body {
   background-color: var(--dark-grey);
   min-height: 0;
   overflow: hidden;
-  padding: var(--24px);
+  /*padding: var(--24px);*/
 }
 
 .upLeftFrame {
@@ -115,7 +115,7 @@ body {
   align-items: center;
   border-radius: var(--24px);
   background-color: var(--dark-grey);
-  width: 100%;
+  width: 35.79vw;
   min-height: 200px;
   flex: none;
   flex-direction: row;
@@ -341,6 +341,7 @@ body {
   font-size: var(--36px);
   color: var(--snow);
   font-weight: 600;
+  padding: var(--24px);
 }
 
 .profile-modal {
@@ -922,6 +923,9 @@ body {
   gap: var(--16px);
   background-color: var(--dark-grey);
   overflow: hidden;
+  padding-bottom: var(--24px);
+  padding-left: var(--24px);
+  padding-right: var(--24px);
 }
 
 .chatMessages {

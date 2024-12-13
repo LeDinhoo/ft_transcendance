@@ -37,7 +37,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: var(--24px);
-  padding: var(--24px);
+  padding: var(--16px);
 }
 
 .tournamentSection {
