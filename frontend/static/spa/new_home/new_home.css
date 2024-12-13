@@ -1406,3 +1406,24 @@ body {
     opacity: 0.8;
     margin-right: 4px;
 }
+
+
+.message.system {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+  padding: 8px;
+}
+
+.message.system .messageContent {
+  background-color: var(--gluon-grey);
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--snow);
+  font-style: italic;
+}
+
+.message.system .messageText {
+  background: none;
+  padding: 0;
+}

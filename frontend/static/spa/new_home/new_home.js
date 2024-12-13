@@ -1011,142 +1011,137 @@ const GameInvitationManager = {
   template: null,
 
   initialize() {
-    console.log("Initializing GameInvitationManager");
-    this.template = document.getElementById("gameInvitationTemplate");
+      console.log("Initializing GameInvitationManager");
+      this.template = document.getElementById("gameInvitationTemplate");
 
-    if (!this.template) {
-      console.error("Game invitation template not found");
-      return;
-    }
-
-    window.wsManager.addMessageListener((data) => {
-      console.log("Message received in GameInvitationManager:", data);
-
-      
-      if (data.type === "game_invitation" && data.receiver === window.currentUser?.username) {
-        console.log("Game invitation received for current user");
-        this.handleInvitation(data);
+      if (!this.template) {
+          console.error("Game invitation template not found");
+          return;
       }
-    });
+
+      window.wsManager.addMessageListener((data) => {
+          console.log("Message received in GameInvitationManager:", data);
+          if (data.type === "game_invitation" && 
+              data.receiver === window.currentUser?.username) {
+              console.log("Game invitation received for current user");
+              this.handleInvitation(data);
+          }
+      });
   },
 
-  handleInvitation(data) {
-    this.activeInvitations.set(data.invitationId, data);
-
-    const modalElement = this.template.content.cloneNode(true);
-    this.modal = modalElement.querySelector(".game-invitation-modal");
-
-    
-    const avatar = this.modal.querySelector(".inviter-avatar");
-    const name = this.modal.querySelector(".inviter-name");
-    const gameType = this.modal.querySelector(".game-type");
-
-    avatar.src = data.sender.avatar;
-    name.textContent = data.sender.username;
-    gameType.textContent = data.gameType;
-
-    
-    const acceptBtn = this.modal.querySelector(".accept-btn");
-    const declineBtn = this.modal.querySelector(".decline-btn");
-    const closeBtn = this.modal.querySelector(".close-invitation");
-
-    acceptBtn.addEventListener("click", () => this.respondToInvitation(data.invitationId, "accept"));
-    declineBtn.addEventListener("click", () => this.respondToInvitation(data.invitationId, "decline"));
-    closeBtn.addEventListener("click", () => this.respondToInvitation(data.invitationId, "decline"));
-
-    document.body.appendChild(this.modal);
-    this.modal.style.display = "block";
-  },
-
-  respondToInvitation(invitationId, response) {
-    const invitation = this.activeInvitations.get(invitationId);
-    if (!invitation) return;
-
-    wsManager.sendMessage({
-      type: "game_invitation_response",
-      invitationId: invitationId,
-      response: response,
-      sender: invitation.sender,
-      receiver: invitation.receiver,
-    });
-
-    
-    this.activeInvitations.delete(invitationId);
-    this.closeModal();
-
-    if (response === "accept") {
-      
-      this.initializeGameSession(invitation);
-    }
-  },
-
-  closeModal() {
-    if (this.modal) {
-      this.modal.remove();
-      this.modal = null;
-    }
-  },
-
-  handleInvitationResponse(data) {
-    const invitation = this.activeInvitations.get(data.invitationId);
-    if (!invitation) return;
-
-    this.activeInvitations.delete(data.invitationId);
-
-    if (data.response === "accept") {
-      this.initializeGameSession(invitation);
-    } else {
-      
-      this.showNotification(
-        `${data.receiver} has declined your game invitation`
-      );
-    }
-  },
   sendInvitation(username) {
-    
-    const gameType =
-      document
-        .querySelector(".gameOption.option-selected")
-        ?.textContent.trim() || "CLASSIC PONG";
+      console.log("Sending invitation to:", username);
+      
+      const gameType = document
+          .querySelector(".gameOption.option-selected")
+          ?.textContent.trim() || "CLASSIC PONG";
 
-    console.log("Sending invitation to:", username); 
+      const invitationId = crypto.randomUUID();
+      const invitation = {
+          type: "game_invitation",
+          invitationId: invitationId,
+          sender: {
+              username: window.currentUser.username,
+              avatar: window.currentUser.avatar,
+          },
+          receiver: username,
+          gameType: gameType,
+          timestamp: Date.now(),
+      };
 
-    const invitationId = crypto.randomUUID();
-    const invitation = {
-      type: "game_invitation",
-      invitationId: invitationId,
-      sender: {
-        username: window.currentUser.username,
-        avatar: window.currentUser.avatar,
-      },
-      receiver: username,
-      gameType: gameType,
-      timestamp: Date.now(),
-    };
+      console.log("Sending invitation object:", invitation);
 
-    console.log("Invitation object:", invitation); 
-
-    this.activeInvitations.set(invitationId, invitation);
-    window.wsManager.sendMessage(invitation);
-
-    this.showNotification(`Game invitation sent to ${username}`);
+      this.activeInvitations.set(invitationId, invitation);
+      
+      // Envoyer via WebSocket
+      if (window.wsManager && window.wsManager.chatSocket) {
+          window.wsManager.chatSocket.send(JSON.stringify(invitation));
+          this.showNotification(`Game invitation sent to ${username}`);
+      } else {
+          console.error("WebSocket connection not available");
+          this.showNotification("Unable to send invitation: connection error");
+      }
   },
 
   showNotification(message) {
-    const notification = document.createElement("div");
-    notification.classList.add("confirmation-animation");
-    notification.innerHTML = `
+      const homePageMain = document.querySelector(".homePageMain");
+      if (!homePageMain) return;
+
+      const notification = document.createElement("div");
+      notification.classList.add("confirmation-animation");
+      notification.innerHTML = `
           <div class="confirmation-icon"></div>
           <div class="confirmation-text">${message}</div>
       `;
-    document.querySelector(".homePageMain").appendChild(notification);
-    setTimeout(() => notification.remove(), 2000);
+      homePageMain.appendChild(notification);
+      setTimeout(() => notification.remove(), 2000);
   },
 
-  initializeGameSession(invitation) {
-    
-    console.log("Starting game session:", invitation);
-    
+  handleInvitation(data) {
+      console.log("Handling invitation:", data);
+      this.activeInvitations.set(data.invitationId, data);
+
+      const modalElement = this.template.content.cloneNode(true);
+      this.modal = modalElement.querySelector(".game-invitation-modal");
+
+      const avatar = this.modal.querySelector(".inviter-avatar");
+      const name = this.modal.querySelector(".inviter-name");
+      const gameType = this.modal.querySelector(".game-type");
+
+      avatar.src = data.sender.avatar || "/static/assets/avatars/default.png";
+      name.textContent = data.sender.username;
+      gameType.textContent = data.gameType;
+
+      const acceptBtn = this.modal.querySelector(".accept-btn");
+      const declineBtn = this.modal.querySelector(".decline-btn");
+      const closeBtn = this.modal.querySelector(".close-invitation");
+
+      acceptBtn.addEventListener("click", () => {
+          console.log("Accepting invitation:", data.invitationId);
+          this.respondToInvitation(data.invitationId, "accept");
+      });
+
+      declineBtn.addEventListener("click", () => {
+          console.log("Declining invitation:", data.invitationId);
+          this.respondToInvitation(data.invitationId, "decline");
+      });
+
+      closeBtn.addEventListener("click", () => {
+          console.log("Closing invitation:", data.invitationId);
+          this.respondToInvitation(data.invitationId, "decline");
+      });
+
+      document.body.appendChild(this.modal);
+      this.modal.style.display = "block";
   },
+
+  respondToInvitation(invitationId, response) {
+      const invitation = this.activeInvitations.get(invitationId);
+      if (!invitation) {
+          console.error("No invitation found with ID:", invitationId);
+          return;
+      }
+
+      console.log("Sending response:", {invitationId, response});
+      
+      window.wsManager.chatSocket.send(JSON.stringify({
+          type: "game_invitation_response",
+          invitationId: invitationId,
+          response: response,
+          sender: invitation.sender.username,
+          receiver: window.currentUser.username
+      }));
+
+      this.activeInvitations.delete(invitationId);
+      this.closeModal();
+  },
+
+  closeModal() {
+      if (this.modal) {
+          this.modal.remove();
+          this.modal = null;
+      }
+  }
 };
 
+window.GameInvitationManager = GameInvitationManager;
