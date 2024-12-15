@@ -1427,3 +1427,134 @@ def set_game_settings(request):
         return JsonResponse({'message': 'Settings updated successfully'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+from django.http import JsonResponse
+from django.db import models
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import CustomUser, GameHistory
+import logging
+logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile_stats(request, user_id):
+    try:
+        logger.debug(f"Fetching stats for user_id: {user_id}")
+
+        user = CustomUser.objects.get(id=user_id)
+        logger.debug(f"Found user: {user.username}")
+
+        try:
+            games_queryset = GameHistory.objects.filter(user=user)
+            total_games = games_queryset.count()
+            logger.debug(f"Total games found: {total_games}")
+
+            total_wins = games_queryset.filter(result=True).count()
+            logger.debug(f"Total wins found: {total_wins}")
+
+            stats = games_queryset.aggregate(
+                max_ball_speed=models.Max('max_ball_speed'),
+                longest_rally=models.Max('longest_rally')
+            )
+            logger.debug(f"Aggregated stats: {stats}")
+
+        except Exception as e:
+            logger.error(f"Error during game statistics calculation: {str(e)}")
+            raise Exception(f"Game statistics error: {str(e)}")
+
+        logger.debug(f"Total games: {total_games}, Total wins: {total_wins}")
+
+        win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
+
+        # Statistiques supplémentaires avec gestion des None
+        stats = games_queryset.aggregate(
+            max_ball_speed=models.Max('max_ball_speed'),
+            longest_rally=models.Max('longest_rally')
+        )
+
+        max_ball_speed = stats['max_ball_speed'] or 0
+        longest_rally = stats['longest_rally'] or 0
+
+        logger.debug(f"Stats: max_ball_speed={max_ball_speed}, longest_rally={longest_rally}")
+
+        # Déterminer le rang
+        if win_ratio >= 80 and total_games >= 5:
+            rank = "Platinium"
+        elif (win_ratio >= 66 and win_ratio < 80) or (win_ratio >= 66 and total_games < 5):
+            rank = "Gold"
+        elif win_ratio >= 33 and win_ratio < 66:
+            rank = "Silver"
+        else:
+            rank = "Bronze"
+
+        logger.debug(f"Calculated rank: {rank}")
+
+        # Gérer l'avatar
+        avatar_url = None
+        if user.avatar:
+            if str(user.avatar).startswith('assets/avatars/'):
+                avatar_url = f"/static/{user.avatar}"
+            else:
+                avatar_url = f"/media/{user.avatar}"
+        else:
+            avatar_url = '/static/assets/avatars/ladybug.png'
+
+        # Récupérer l'historique des matchs
+        recent_games = games_queryset.order_by('-date_played')[:5]
+        match_history = []
+
+        for game in recent_games:
+            game_date = game.date_played.strftime('%d/%m/%Y')
+
+            # Avatar de l'adversaire
+            if game.opponent_user:
+                if game.opponent_user.avatar:
+                    if str(game.opponent_user.avatar).startswith('assets/avatars/'):
+                        opponent_avatar = f"/static/{game.opponent_user.avatar}"
+                    else:
+                        opponent_avatar = game.opponent_user.avatar.url
+                else:
+                    opponent_avatar = '/static/assets/avatars/clown-fish.png'
+            else:
+                opponent_avatar = '/static/assets/avatars/crabe.png'
+
+            match_history.append({
+                'score_user': game.score_user,
+                'score_opponent': game.score_opponent,
+                'result': "VICTORY" if game.result else "DEFEAT",
+                'opponent_avatar': opponent_avatar,
+                'user_avatar': avatar_url,
+                'game_date': game_date
+            })
+
+        # Préparer la réponse complète
+        response_data = {
+            'nickname': user.username,
+            'avatar': avatar_url,
+            'rank': rank,
+            'stats': {
+                'totalGames': total_games,
+                'winRate': f"{win_ratio:.1f}%",
+                'longestRally': longest_rally,
+                'maxBallSpeed': round(max_ball_speed, 2)
+            },
+            'matchHistory': match_history
+        }
+
+        logger.debug(f"Returning response data: {response_data}")
+        return JsonResponse(response_data)
+
+    except CustomUser.DoesNotExist:
+        logger.error(f"User {user_id} not found")
+        return JsonResponse({
+            'error': f'User {user_id} not found'
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Error in get_user_profile_stats: {str(e)}")
+        logger.error(f"Error type: {type(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)

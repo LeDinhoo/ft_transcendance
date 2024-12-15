@@ -242,24 +242,24 @@ function initializeHome() {
 				menu.className = "chat-context-menu";
 
 				menu.innerHTML = `
-            <div class="chat-menu-option" data-action="profile">
-                See profile
-            </div>
-            ${!isOwnMessage ? `
-                <div class="chat-menu-option" data-action="add-friend">
-                    Add friend
-                </div>
-                <div class="chat-menu-option" data-action="send-invitation">
-                    Send online invitation
-                </div>
-            ` : ''}
-            <div class="chat-menu-option" data-action="block">
-                ${isBlocked ? "Unblock user" : "Block user"}
-            </div>
-            <div class="chat-menu-option" data-action="private-message">
-                Private message
-            </div>
-            `;
+					<div class="chat-menu-option" data-action="profile">
+						See profile
+					</div>
+					${!isOwnMessage ? `
+						<div class="chat-menu-option" data-action="add-friend">
+							Add friend
+						</div>
+						<div class="chat-menu-option" data-action="send-invitation">
+							Send online invitation
+						</div>
+						<div class="chat-menu-option" data-action="block">
+							${isBlocked ? "Unblock user" : "Block user"}
+						</div>
+						<div class="chat-menu-option" data-action="private-message">
+							Private message
+						</div>
+					` : ''}
+					`;
 
 				document.body.appendChild(menu);
 				const rect = avatar.getBoundingClientRect();
@@ -276,13 +276,8 @@ function initializeHome() {
 						console.log("Sending invitation from chat to:", username);
 						GameInvitationManager.sendInvitation(username);
 					} else if (action === "profile") {
-						const playerData = {
-							nickname: username,
-							avatar: avatarSrc,
-							rank: "Bronze",
-							stats: { totalGames: 0, winRate: "0%" },
-						};
-						ProfileModal.show(playerData);
+						const userId = messageElement.querySelector(".messageHeader").dataset.userId;
+						ProfileModal.show(userId);
 					} else if (action === "add-friend") {
 						await ChatHandler.sendFriendRequest(messageElement);
 					} else if (action === "block") {
@@ -548,34 +543,67 @@ function initializeHome() {
 		static initialize() {
 			if (!DOM.profile.modal) return;
 
-			DOM.profile.closeBtn?.addEventListener("click", () =>
-				ProfileModal.hide()
-			);
+			DOM.profile.closeBtn?.addEventListener("click", () => ProfileModal.hide());
 			window.addEventListener("click", (event) => {
 				if (event.target === DOM.profile.modal) ProfileModal.hide();
 			});
 			document.addEventListener("keydown", (event) => {
-				if (
-					event.key === "Escape" &&
-					DOM.profile.modal.style.display === "block"
-				) {
+				if (event.key === "Escape" && DOM.profile.modal.style.display === "block") {
 					ProfileModal.hide();
 				}
 			});
 		}
 
-		static show(playerData) {
+		static async show(userId) {
 			if (!DOM.profile.modal) return;
 
-			DOM.profile.avatar.src = playerData.avatar;
-			DOM.profile.nickname.textContent = playerData.nickname;
-			DOM.profile.rankIcon.src = `/static/assets/icons/${playerData.rank.toLowerCase()}.png`;
-			DOM.profile.rankText.textContent = playerData.rank;
-			DOM.profile.totalGames.textContent = playerData.stats.totalGames;
-			DOM.profile.winRate.textContent = playerData.stats.winRate;
+			try {
+				const response = await fetch(`/api/user/profile-stats/${userId}/`, {
+					credentials: 'include'
+				});
 
-			DOM.profile.modal.style.display = "block";
-			document.body.style.overflow = "hidden";
+				if (!response.ok) {
+					throw new Error('Failed to fetch user profile');
+				}
+
+				const playerData = await response.json();
+
+				// Update basic info
+				DOM.profile.avatar.src = playerData.avatar;
+				DOM.profile.nickname.textContent = playerData.nickname;
+				DOM.profile.rankIcon.src = `/static/assets/icons/${playerData.rank.toLowerCase()}.png`;
+				DOM.profile.rankText.textContent = playerData.rank;
+
+				// Update statistics
+				document.getElementById('totalGames').textContent = playerData.stats.totalGames;
+				document.getElementById('winRate').textContent = playerData.stats.winRate;
+				document.getElementById('longestRally').textContent = playerData.stats.longestRally;
+				document.getElementById('maxBallSpeed').textContent = playerData.stats.maxBallSpeed;
+
+				// Update match history
+				const recentGamesList = document.getElementById('recentGamesList');
+				if (playerData.matchHistory.length === 0) {
+					recentGamesList.innerHTML = '<div class="no-games">No recent games</div>';
+				} else {
+					recentGamesList.innerHTML = playerData.matchHistory.map(match => `
+						<div class="match-resume">
+							<div class="game-date">${match.game_date}</div>
+							<img src="${match.user_avatar}" alt="User" class="avatar-history">
+							<div class="score-player">${match.score_user}</div>
+							<div class="separator-match">-</div>
+							<div class="score-player">${match.score_opponent}</div>
+							<img src="${match.opponent_avatar}" alt="Opponent" class="avatar-history">
+							<div class="result-label" style="color: ${match.result === 'VICTORY' ? '#ff710d' : '#878787'}">${match.result}</div>
+						</div>
+					`).join('');
+				}
+
+				DOM.profile.modal.style.display = "block";
+				document.body.style.overflow = "hidden";
+
+			} catch (error) {
+				console.error('Error fetching profile data:', error);
+			}
 		}
 
 		static hide() {
