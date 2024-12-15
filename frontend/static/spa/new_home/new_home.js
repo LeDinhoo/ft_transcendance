@@ -621,84 +621,92 @@ function initializeHome() {
 			const downLeftFrame = document.querySelector(".downLeftFrame");
 			if (!homePageMain || !downLeftFrame) return;
 
-			const contextMenuTemplate = document.getElementById(
-				"contextMenuTemplate"
-			);
-			if (!contextMenuTemplate) return;
-
-			const contextMenu = contextMenuTemplate.content.cloneNode(true);
-			downLeftFrame.appendChild(contextMenu);
-
-			const contextMenuElement = downLeftFrame.querySelector(
-				".player-context-menu"
-			);
-			if (!contextMenuElement) return;
-
-			downLeftFrame.style.position = "relative";
-			contextMenuElement.style.position = "absolute";
-			contextMenuElement.style.zIndex = "100";
-
-			downLeftFrame.addEventListener("click", (e) => {
+			downLeftFrame.addEventListener("click", async (e) => {
 				const nickname = e.target.closest(".onlineNickname");
-				if (nickname) {
-					e.preventDefault();
-					const rect = nickname.getBoundingClientRect();
-					const frameRect = downLeftFrame.getBoundingClientRect();
+				if (!nickname) return;
 
-					const top = rect.bottom - frameRect.top;
-					const left = rect.left - frameRect.left;
+				e.preventDefault();
+				e.stopPropagation();
 
-					contextMenuElement.style.top = `${top}px`;
-					contextMenuElement.style.left = `${left}px`;
-					contextMenuElement.style.display = "block";
-					contextMenuElement.dataset.player = nickname.textContent.trim();
-				} else if (!e.target.closest(".player-context-menu")) {
-					contextMenuElement.style.display = "none";
+				// Supprimer tout menu contextuel existant
+				const existingMenu = document.querySelector(".chat-context-menu");
+				if (existingMenu) {
+					existingMenu.remove();
 				}
+
+				const rect = nickname.getBoundingClientRect();
+				const username = nickname.textContent.trim();
+				const userId = nickname.dataset.userId;
+				const isBlocked = ChatHandler.blockedUsers.has(username);
+				const isOwnUser = username === window.currentUser.username;
+
+				const menu = document.createElement("div");
+				menu.className = "chat-context-menu";
+
+				menu.innerHTML = `
+					<div class="chat-menu-option" data-action="profile">
+						See profile
+					</div>
+					${!isOwnUser ? `
+						<div class="chat-menu-option" data-action="add-friend">
+							Add friend
+						</div>
+						<div class="chat-menu-option" data-action="send-invitation">
+							Send online invitation
+						</div>
+						<div class="chat-menu-option" data-action="block">
+							${isBlocked ? "Unblock user" : "Block user"}
+						</div>
+						<div class="chat-menu-option" data-action="private-message">
+							Private message
+						</div>
+					` : ''}
+				`;
+
+				document.body.appendChild(menu);
+				ChatHandler.positionMenuWithinViewport(menu, rect);
+
+				menu.addEventListener("click", async (e) => {
+					const option = e.target.closest(".chat-menu-option");
+					if (!option) return;
+
+					const action = option.dataset.action;
+					switch(action) {
+						case "profile":
+							ProfileModal.show(userId);
+							break;
+						case "add-friend":
+							await ChatHandler.sendFriendRequest({
+								querySelector: () => ({
+									dataset: { userId }
+								})
+							});
+							break;
+						case "send-invitation":
+							GameInvitationManager.sendInvitation(username);
+							break;
+						case "block":
+							ChatHandler.toggleBlockUser(username);
+							ChatHandler.showBlockConfirmation(username, !ChatHandler.blockedUsers.has(username));
+							break;
+						case "private-message":
+							ChatHandler.startPrivateMessage(username);
+							break;
+					}
+
+					menu.remove();
+				});
+
+				// Fermer le menu lors d'un clic en dehors
+				document.addEventListener("click", function closeMenu(e) {
+					if (!menu.contains(e.target) && !nickname.contains(e.target)) {
+						menu.remove();
+						document.removeEventListener("click", closeMenu);
+					}
+				});
 			});
-
-			contextMenuElement.addEventListener("click", (e) => {
-				const action = e.target.dataset.action;
-				if (!action) return;
-
-				const player = contextMenuElement.dataset.player;
-
-				if (action === "profile") {
-					const playerData = {
-						nickname: player,
-						rank: "Bronze",
-						avatar: "/static/assets/avatars/clown-fish.png",
-						stats: { totalGames: 0, winRate: "0%" },
-					};
-					ProfileModal.show(playerData);
-				} else if (action === "add-friend") {
-					ContextMenu.showConfirmation(player);
-				}
-				contextMenuElement.style.display = "none";
-			});
-			document.addEventListener("click", (e) => {
-				if (!downLeftFrame.contains(e.target)) {
-					contextMenuElement.style.display = "none";
-				}
-			});
-		}
-
-		static showConfirmation(player) {
-			const homePageMain = document.querySelector(".homePageMain");
-			if (!homePageMain) return;
-
-			const confirmation = document.createElement("div");
-			confirmation.classList.add("confirmation-animation");
-			confirmation.innerHTML = `
-        <div class="confirmation-icon"></div>
-        <div class="confirmation-text">Friend request sent to ${player}</div>
-      `;
-
-			homePageMain.appendChild(confirmation);
-			setTimeout(() => confirmation.remove(), 2000);
 		}
 	}
-
 
 	class GameOptionsManager {
 		static initialize() {
@@ -768,16 +776,19 @@ function initializeHome() {
 			const players = [
 				{
 					name: "Player1",
+					id: "1",  // Ajoutez les IDs pour chaque joueur
 					status: PLAYER_STATUSES.ONLINE,
 					avatar: "/static/assets/avatars/buffalo.png",
 				},
 				{
 					name: "Player2",
+					id: "2",
 					status: PLAYER_STATUSES.IN_GAME,
 					avatar: "/static/assets/avatars/clown-fish.png",
 				},
 				{
 					name: "Player3",
+					id: "3",
 					status: PLAYER_STATUSES.ONLINE,
 					avatar: "/static/assets/avatars/buffalo.png",
 				},
@@ -786,14 +797,18 @@ function initializeHome() {
 			const template = players
 				.map(
 					(player) => `
-        <div class="online-player" data-player="${player.name}">
-          <img src="${player.avatar}" alt="avatar" class="player-avatar">
-          <div class="player-info">
-            <div class="player-name">${player.name}</div>
-            <div class="player-status">${player.status}</div>
-          </div>
-        </div>
-      `
+				<div class="online-player" data-player="${player.name}">
+					<img src="${player.avatar}" alt="avatar" class="player-avatar">
+					<div class="player-info">
+						<div class="player-name">
+							<div class="onlineNickname" data-username="${player.name}" data-user-id="${player.id}">
+								${player.name}
+							</div>
+						</div>
+						<div class="player-status">${player.status}</div>
+					</div>
+				</div>
+			`
 				)
 				.join("");
 
