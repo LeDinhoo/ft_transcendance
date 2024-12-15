@@ -1,12 +1,12 @@
 import json
 import logging
 from django.http import JsonResponse
-from django.db import IntegrityError 
+from django.db import IntegrityError
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password, make_password
 from django.shortcuts import render
 from .forms import RegisterForm, LoginForm
-from .validators import ComplexPasswordValidator  
+from .validators import ComplexPasswordValidator
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
@@ -55,22 +55,22 @@ from rest_framework import status
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  
+@permission_classes([IsAuthenticated])
 def auth_check(request):
     """
     Vérifie si l'utilisateur est authentifié avec un token valide.
     """
     try:
-        
+
         JWTAuthentication().authenticate(request)
         return Response({"authenticated": True}, status=status.HTTP_200_OK)
 
     except TokenError as e:
-        
+
         return Response({"error": "Token invalide ou expiré.", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
-        
+
         return Response({"error": "Erreur inattendue.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -80,7 +80,7 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  
+@permission_classes([AllowAny])
 def index_view(request):
     login_form = LoginForm()
     register_form = RegisterForm()
@@ -88,20 +88,20 @@ def index_view(request):
 
 
 def set_jwt_cookies(response, access_token, refresh_token):
-    
+
     response.set_cookie(
         key='access_token',
         value=access_token,
-        httponly=True,  
-        secure=True,    
-        samesite='None'  
+        httponly=True,
+        secure=True,
+        samesite='None'
     )
     response.set_cookie(
         key='refresh_token',
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite='None' 
+        samesite='None'
     )
 
 
@@ -115,17 +115,17 @@ def login_view(request):
 
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            
-            if user.is_2fa_enabled:  
-                
+
+            if user.is_2fa_enabled:
+
                 code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
 
-                
+
                 user.two_factor_code = code
                 user.two_factor_code_timestamp = timezone.now()
                 user.save()
 
-                
+
                 if send_2fa_email(user, code):
                     return JsonResponse({
                         'success': True,
@@ -139,7 +139,7 @@ def login_view(request):
                         'message': 'Erreur lors de l\'envoi du code 2FA'
                     }, status=500)
             else:
-                
+
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
@@ -177,20 +177,20 @@ def register_view(request):
             user = register_form.save()
             logger.info(f"Utilisateur créé : {user.username}")
 
-            
+
             refresh = RefreshToken.for_user(user)
             return JsonResponse({
                 'success': True,
                 'message': 'User registered successfully',
-                
-                
+
+
             }, status=201)
         else:
             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
             return JsonResponse({
                 'success': False,
                 'message': 'Form is not valid',
-                'errors': register_form.errors.get_json_data()  
+                'errors': register_form.errors.get_json_data()
             }, status=400)
 
     except json.JSONDecodeError:
@@ -218,24 +218,25 @@ def profile_view(request):
     avatar_url = None
     if user.avatar:
         if str(user.avatar).startswith('assets/avatars/'):
-            
+
             avatar_url = f"/static/{user.avatar}"
         else:
-            
+
             avatar_url = f"/media/{user.avatar}"
 
-        
+
     total_games = GameHistory.objects.filter(user=user).count()
 
-    
+
     total_wins = GameHistory.objects.filter(user=user, result=True).count()
 
-    
+
     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
 
 
     response_data = {
         'username': user.username,
+        'id': user.id,
         'email': user.email,
         'avatar': avatar_url,
         'is_2fa_enabled': user.is_2fa_enabled,
@@ -251,43 +252,43 @@ def update_profile_view(request):
     user = request.user
     data = request.data
 
-    
+
     if 'username' in data:
         new_username = data['username']
-        if new_username.strip():  
+        if new_username.strip():
             user.username = new_username
         else:
             return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
 
-    
+
     if 'email' in data:
         new_email = data['email']
         try:
-            validate_email(new_email)  
+            validate_email(new_email)
             user.email = new_email
         except ValidationError:
             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
 
-    
+
     if 'old_password' in data and 'new_password' in data:
         old_password = data['old_password']
         new_password = data['new_password']
 
-        
+
         if not check_password(old_password, user.password):
             return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
 
-        
+
         password_validator = ComplexPasswordValidator()
         try:
             password_validator.validate(new_password)
         except ValidationError as e:
             return JsonResponse({'error': e.messages[0]}, status=400)
 
-        
+
         user.password = make_password(new_password)
 
-   
+
     if 'avatar' in request.FILES:
         avatar = request.FILES['avatar']
         valid_image_extensions = ['png', 'jpg', 'jpeg']
@@ -298,20 +299,20 @@ def update_profile_view(request):
 
     elif 'selected_avatar' in data:
         selected_avatar = data['selected_avatar']
-        print("Avatar sélectionné:", selected_avatar) 
-        
+        print("Avatar sélectionné:", selected_avatar)
+
         expected_prefix = 'assets/avatars/'
         if selected_avatar.startswith(expected_prefix):
             user.avatar = selected_avatar
-            
+
         else:
-            
+
             return JsonResponse({
                 'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
             }, status=400)
 
     try:
-        user.save()  
+        user.save()
     except Exception as e:
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
 
@@ -322,7 +323,7 @@ def update_profile_view(request):
         else:
             avatar_url = f"/media/{user.avatar}"
 
-    print("URL de l'avatar renvoyée:", avatar_url)  
+    print("URL de l'avatar renvoyée:", avatar_url)
 
     return JsonResponse({
         'username': user.username,
@@ -466,7 +467,7 @@ def get_auth_url(request):
             'auth_url': auth_url
         })
 
-        
+
         response["Access-Control-Allow-Origin"] = "https://localhost:4430"
         response["Access-Control-Allow-Credentials"] = "true"
 
@@ -499,7 +500,7 @@ def callback_42(request):
                 'message': 'No authorization code received'
             }, status=400)
 
-        
+
         token_url = 'https://api.intra.42.fr/oauth/token'
         token_data = {
             'grant_type': 'authorization_code',
@@ -538,15 +539,15 @@ def callback_42(request):
             }, status=400)
 
         try:
-            
+
             avatar_url = user_data.get('image', {}).get('versions', {}).get('large')
             logger.info(f"Found avatar URL: {avatar_url}")
 
-            
+
             user = CustomUser.objects.filter(intra_42_id=user_data['id']).first()
 
             if user is None:
-                
+
                 existing_user = CustomUser.objects.filter(email=user_data['email']).first()
 
                 if existing_user:
@@ -563,7 +564,7 @@ def callback_42(request):
                         avatar='assets/avatars/ladybug.png'
                     )
 
-            
+
             if avatar_url:
                 try:
                     logger.info(f"Attempting to download avatar from: {avatar_url}")
@@ -572,10 +573,10 @@ def callback_42(request):
                     if avatar_response.status_code == 200:
                         logger.info("Avatar download successful")
 
-                        
+
                         file_name = f"42_avatar_{user.username}_{user.id}.jpg"
 
-                        
+
                         user.avatar.save(
                             file_name,
                             ContentFile(avatar_response.content),
@@ -589,16 +590,16 @@ def callback_42(request):
                     logger.error(f"Failed to save avatar: {str(e)}")
                     logger.exception("Detailed error:")
 
-            
+
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
 
-            
+
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             refresh_token = str(refresh)
 
-            
+
             response = HttpResponse(f"""
             <!DOCTYPE html>
             <html>
@@ -687,7 +688,7 @@ def callback_42(request):
             """)
 
 
-            
+
             set_jwt_cookies(response, access_token, refresh_token)
             return response
 
@@ -731,16 +732,16 @@ def check_auth(request):
 #######################################2FA views#####################################################################
 
 
-from django.core.mail import send_mail  
-from django.conf import settings        
-from django.utils import timezone       
-from datetime import timedelta         
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-import random                          
-import string                          
+import random
+import string
 
 class Toggle2FAView(APIView):
     permission_classes = [IsAuthenticated]
@@ -755,7 +756,7 @@ class Toggle2FAView(APIView):
             user.two_factor_code_timestamp = timezone.now()
             user.save()
 
-            
+
             if send_2fa_email(user, code):
                 return Response({
                     'message': 'Code de vérification envoyé par email'
@@ -829,7 +830,7 @@ class Verify2FAView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        
+
         if user.two_factor_code_timestamp and \
            timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
             return Response(
@@ -868,15 +869,15 @@ class TestEmailView(APIView):
             print(f"EMAIL_HOST_USER: {settings.EMAIL_HOST_USER}")
             print(f"FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
 
-            
+
             context = {
                 'username': 'Test User',
-                'code': '123456',  
+                'code': '123456',
                 'valid_minutes': 10,
                 'support_email': settings.DEFAULT_FROM_EMAIL
             }
 
-            
+
             html_message = render_to_string('email/2fa_code.html', context)
             plain_message = strip_tags(html_message)
 
@@ -889,14 +890,14 @@ class TestEmailView(APIView):
                 fail_silently=False,
             )
 
-            
+
             return Response({
                 'message': 'Email de test envoyé avec succès!',
                 'email_host': settings.EMAIL_HOST,
                 'email_port': settings.EMAIL_PORT,
                 'email_use_tls': settings.EMAIL_USE_TLS,
                 'from_email': settings.DEFAULT_FROM_EMAIL,
-                'template_context': context  
+                'template_context': context
             })
 
         except Exception as e:
@@ -941,25 +942,25 @@ def send_2fa_email(user, code):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])  
+@permission_classes([AllowAny])
 def verify_2fa(request):
     logger.info("Appel reçu pour verify_2fa avec body : %s", request.body)
     try:
-        
+
         data = json.loads(request.body)
-        code = data.get('code')  
+        code = data.get('code')
 
         if not code:
             logger.warning("Aucun code 2FA fourni.")
             return JsonResponse({'success': False, 'message': 'Le code 2FA est requis.'}, status=400)
 
-        
+
         if request.user.is_authenticated:
-            
+
             logger.info("Contexte : Profil utilisateur.")
             user = request.user
         else:
-            
+
             logger.info("Contexte : Login utilisateur.")
             user_id = data.get('user_id')
             if not user_id:
@@ -969,7 +970,7 @@ def verify_2fa(request):
                     'message': "L'identifiant utilisateur est requis pour cette opération."
                 }, status=400)
 
-            
+
             try:
                 user = CustomUser.objects.get(id=user_id)
                 logger.info("Utilisateur trouvé : %s", user.email)
@@ -980,7 +981,7 @@ def verify_2fa(request):
                     'message': 'Utilisateur non trouvé.'
                 }, status=404)
 
-        
+
         if not user.two_factor_code or not user.two_factor_code_timestamp:
             logger.warning("Aucun code 2FA actif trouvé pour l'utilisateur : %s", user.email)
             return JsonResponse({
@@ -988,7 +989,7 @@ def verify_2fa(request):
                 'message': "Aucun code 2FA actif trouvé. Réessayez."
             }, status=400)
 
-        
+
         if timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
             logger.warning("Code 2FA expiré pour l'utilisateur : %s", user.email)
             return JsonResponse({
@@ -996,28 +997,28 @@ def verify_2fa(request):
                 'message': 'Code expiré.'
             }, status=400)
 
-        
+
         if code == user.two_factor_code:
             logger.info("Code 2FA valide pour l'utilisateur : %s", user.email)
-            
+
             user.two_factor_code = None
             user.two_factor_code_timestamp = None
 
             if not request.user.is_authenticated:
-                
+
                 logger.info("Génération des tokens pour l'utilisateur : %s", user.email)
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
 
-                
+
                 response = JsonResponse({
                     'success': True,
                     'message': 'Login successful',
                 })
                 set_jwt_cookies(response, access_token, refresh_token)
             else:
-                
+
                 logger.info("Activation du 2FA pour l'utilisateur : %s", user.email)
                 user.is_2fa_enabled = True
                 response = JsonResponse({
@@ -1025,7 +1026,7 @@ def verify_2fa(request):
                     'message': '2FA activé avec succès.',
                 })
 
-            
+
             user.save()
             return response
         else:
@@ -1061,7 +1062,7 @@ def record_game(request):
     score_user = data.get('score_user')
     score_opponent = data.get('score_opponent')
     result = data.get('result')
-    longest_rally = data.get('longest_rally', 0)  
+    longest_rally = data.get('longest_rally', 0)
     opponent_id = data.get('opponent_id')
     opponent_name = data.get('opponent_name', 'IA')
     max_ball_speed = data.get('max_ball_speed', 0)
@@ -1080,7 +1081,7 @@ def record_game(request):
         except CustomUser.DoesNotExist:
             return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
 
-    
+
     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
         Max('longest_rally')
     )['longest_rally__max'] or 0
@@ -1120,34 +1121,34 @@ def match_history(request):
     history = []
 
     for game in games:
-        
+
         game_date = game.date_played.strftime('%d/%m/%Y')
-        
+
         if request.user.avatar:
             if str(request.user.avatar).startswith('assets/avatars/'):
-                
+
                 user_avatar = f"/static/{request.user.avatar}"
             else:
-                
+
                 user_avatar = request.user.avatar.url
         else:
-            
+
             user_avatar = '/static/assets/avatars/ladybug.png'
 
-        
+
         if game.opponent_user:
             if game.opponent_user.avatar:
                 if str(game.opponent_user.avatar).startswith('assets/avatars/'):
-                    
+
                     opponent_avatar = f"/static/{game.opponent_user.avatar}"
                 else:
-                    
+
                     opponent_avatar = game.opponent_user.avatar.url
             else:
-                
+
                 opponent_avatar = '/static/assets/avatars/clown-fish.png'
         else:
-            
+
             opponent_avatar = '/static/assets/avatars/crabe.png'
 
         history.append({
@@ -1156,9 +1157,9 @@ def match_history(request):
             'result': "VICTORY" if game.result else "DEFEAT",
             'opponent_avatar': opponent_avatar,
             'user_avatar': user_avatar,
-            'longest_rally': game.longest_rally,  
+            'longest_rally': game.longest_rally,
             'max_ball_speed': game.max_ball_speed,
-            'game_date': game_date  
+            'game_date': game_date
         })
 
     return JsonResponse({'history': history})
@@ -1173,14 +1174,14 @@ from .models import GameHistory
 def get_user_statistics(request):
     user = request.user
 
-    
+
     total_games = GameHistory.objects.filter(user=user).count()
     total_wins = GameHistory.objects.filter(user=user, result=True).count()
     win_ratio = (total_wins / total_games * 100) if total_games > 0 else 0
 
     rank = "***" if win_ratio > 66 else "**" if win_ratio > 33 else "*"
 
-    
+
     power_catch_avg = GameHistory.objects.filter(user=user).aggregate(Avg('power_catch'))['power_catch__avg']
     max_ball_speed = GameHistory.objects.filter(user=user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
     longest_rally = GameHistory.objects.filter(user=user).aggregate(Max('longest_rally'))['longest_rally__max'] or 0
@@ -1192,7 +1193,7 @@ def get_user_statistics(request):
         'win_ratio': win_ratio,
         'power_catch_avg': power_catch_avg or 0,
         'max_ball_speed': max_ball_speed,
-        'longest_rally': longest_rally  
+        'longest_rally': longest_rally
     }
 
     return JsonResponse(statistics, status=200)
@@ -1304,7 +1305,7 @@ def get_friends(request):
 
         # Filtrer les amitiés acceptées où l'utilisateur est impliqué
         friendships = FriendShip.objects.filter(
-            Q(from_user=request.user, status='accepted') | 
+            Q(from_user=request.user, status='accepted') |
             Q(to_user=request.user, status='accepted')
         )
 
@@ -1339,7 +1340,7 @@ def get_pending_requests(request):
     pending_requests = []
 
     for req in pending:
-        
+
         if req.from_user.avatar:
             if str(req.from_user.avatar).startswith('assets/avatars/'):
                 sender_avatar = f"/static/{req.from_user.avatar}"

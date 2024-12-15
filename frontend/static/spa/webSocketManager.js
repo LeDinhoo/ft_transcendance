@@ -94,42 +94,85 @@ const wsManager = {
 
 
 	async updateOnlinePlayersList(users) {
-		console.log("Appel de updateOnlinePlayersList avec les utilisateurs :", users);
+        console.log("Appel de updateOnlinePlayersList avec les utilisateurs :", users);
 
-		const listContainer = document.getElementById('onlinePlayersList');
-		if (!listContainer) {
-			console.error("Conteneur `#onlinePlayersList` introuvable.");
-			return;
-		}
+        // Récupérons d'abord les infos de l'utilisateur courant
+        if (!window.currentUser) {
+            try {
+                const response = await fetch("/api/profil/", {
+                    credentials: "include",
+                });
+                if (response.ok) {
+                    const userData = await response.json();
+                    // Log détaillé des données reçues
+                    console.log("Profile API response:", userData);
 
-		const friendsList = await getFriendsList();
-		console.log("Liste des amis récupérée :", friendsList);
+                    // Assurons-nous que l'ID est correctement attribué
+                    window.currentUser = {
+                        ...userData,
+                        id: userData.id || userData.user_id  // essayons les deux possibilités
+                    };
+                    console.log("Current user details:", {
+                        username: window.currentUser.username,
+                        id: window.currentUser.id,
+                        all_data: window.currentUser
+                    });
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération du profil:", error);
+            }
+        }
 
-		// Clear only the player list, not the title
-		listContainer.innerHTML = '';
+        const listContainer = document.getElementById('onlinePlayersList');
+        if (!listContainer) {
+            console.error("Conteneur `#onlinePlayersList` introuvable.");
+            return;
+        }
 
-		users.forEach(user => {
-			const isFriend = friendsList.some(friend => friend.id === user.id);
-			console.log(`Utilisateur : ${user.username}, Est ami : ${isFriend}`);
+        const friendsList = await getFriendsList();
+        console.log("Liste des amis récupérée :", friendsList);
 
-			const playerDiv = document.createElement('div');
-			playerDiv.className = 'onlinePlayers';
+        listContainer.innerHTML = '';
 
-			const iconSrc = isFriend
-				? "/static/assets/icons/friends.svg"
-				: "/static/assets/icons/online.svg";
+        users.forEach(user => {
+            const isFriend = friendsList.some(friend => friend.id === user.id);
+            // Log détaillé pour la comparaison
+            console.log("Comparing IDs:", {
+                userID: user.id,
+                currentUserID: window.currentUser?.id,
+                user: user,
+                currentUser: window.currentUser
+            });
 
-			playerDiv.innerHTML = `
-				<div class="onlineFlag ${user.status === 'in_game' ? 'in-game' : ''}"></div>
-				<div class="onlineNickname" data-user-id="${user.id}">
-					<img src="${user.avatar}" alt="avatar" class="onlineAvatar">
-					${user.username}
-				</div>
-				<img src="${iconSrc}" class="onlineIcon">
-			`;
-			listContainer.appendChild(playerDiv);
-		});
-	},
+            const isCurrentUser = window.currentUser && String(user.id) === String(window.currentUser.id);
+
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'onlinePlayers';
+
+            let iconSrc;
+            if (isCurrentUser) {
+                iconSrc = "/static/assets/icons/account_circle.svg";
+            } else if (isFriend) {
+                iconSrc = "/static/assets/icons/friends.svg";
+            } else {
+                iconSrc = "/static/assets/icons/online.svg";
+            }
+
+            console.log(`Icon path for ${user.username}:`, iconSrc, 'isCurrentUser:', isCurrentUser);
+
+            playerDiv.innerHTML = `
+                <img src="/static/assets/icons/connected_circle.svg"
+                     class="onlineFlag ${user.status === 'in_game' ? 'in-game' : ''}"
+                     alt="status">
+                <div class="onlineNickname" data-user-id="${user.id}">
+                    <img src="${user.avatar}" alt="avatar" class="onlineAvatar">
+                    ${user.username}
+                </div>
+                <img src="${iconSrc}" class="onlineIcon">
+            `;
+            listContainer.appendChild(playerDiv);
+        });
+    },
 
 	sendMessage() {
 		const chatInput = document.getElementById('messageInput');
