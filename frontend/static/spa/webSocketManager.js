@@ -81,7 +81,7 @@ const wsManager = {
 						console.error('Erreur lors de la mise à jour de la liste des utilisateurs :', error);
 					}
 					break;
-									
+
 				default:
 					console.log("Unhandled message type:", data.type);
 			}
@@ -95,31 +95,30 @@ const wsManager = {
 
 	async updateOnlinePlayersList(users) {
 		console.log("Appel de updateOnlinePlayersList avec les utilisateurs :", users);
-	
-		const container = document.querySelector('.downLeftFrame');
-		if (!container) {
-			console.error("Conteneur `.downLeftFrame` introuvable.");
+
+		const listContainer = document.getElementById('onlinePlayersList');
+		if (!listContainer) {
+			console.error("Conteneur `#onlinePlayersList` introuvable.");
 			return;
 		}
-	
+
 		const friendsList = await getFriendsList();
 		console.log("Liste des amis récupérée :", friendsList);
-	
-		container.innerHTML = ''; // Vide le conteneur
-		const title = container.querySelector('.onlinePlayersTitle');
-		if (title) container.appendChild(title);
-	
+
+		// Clear only the player list, not the title
+		listContainer.innerHTML = '';
+
 		users.forEach(user => {
 			const isFriend = friendsList.some(friend => friend.id === user.id);
 			console.log(`Utilisateur : ${user.username}, Est ami : ${isFriend}`);
-	
+
 			const playerDiv = document.createElement('div');
 			playerDiv.className = 'onlinePlayers';
-	
+
 			const iconSrc = isFriend
 				? "/static/assets/icons/friends.svg"
 				: "/static/assets/icons/online.svg";
-	
+
 			playerDiv.innerHTML = `
 				<div class="onlineFlag ${user.status === 'in_game' ? 'in-game' : ''}"></div>
 				<div class="onlineNickname" data-user-id="${user.id}">
@@ -128,7 +127,7 @@ const wsManager = {
 				</div>
 				<img src="${iconSrc}" class="onlineIcon">
 			`;
-			container.appendChild(playerDiv);
+			listContainer.appendChild(playerDiv);
 		});
 	},
 

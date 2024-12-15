@@ -145,18 +145,18 @@ function initializeHome() {
 		static async sendFriendRequest(messageElement) {
 			const headerElement = messageElement.querySelector(".messageHeader");
 			const userId = headerElement?.dataset?.userId;
-		
+
 			if (!userId) {
 				console.error('No user ID found');
 				ChatHandler.showNotification('Unable to send friend request: User ID not found');
 				return;
 			}
-		
+
 			if (userId === String(window.currentUser?.id)) {
 				ChatHandler.showNotification('You cannot send a friend request to yourself');
 				return;
 			}
-		
+
 			try {
 				const response = await fetch('/api/friends/send-request/', {
 					method: 'POST',
@@ -168,10 +168,10 @@ function initializeHome() {
 						receiver_id: userId.trim()
 					})
 				});
-		
+
 				const data = await response.text();
 				console.log("Response raw data:", data);
-		
+
 				try {
 					const jsonData = JSON.parse(data);
 					// Ajout de l'événement ici, après une réponse réussie
@@ -648,7 +648,6 @@ function initializeHome() {
 				}
 				contextMenuElement.style.display = "none";
 			});
-			console.log("TEST3\n");
 			document.addEventListener("click", (e) => {
 				if (!downLeftFrame.contains(e.target)) {
 					contextMenuElement.style.display = "none";
