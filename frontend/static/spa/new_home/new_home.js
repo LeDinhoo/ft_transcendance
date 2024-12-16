@@ -832,56 +832,6 @@ function initializeHome() {
         });
     }
 
-    // handlePlayButtonClick() {
-    //   const selectedGame = Array.from(DOM.game.options).find((option) =>
-    //     option.classList.contains("option-selected")
-    //   );
-    //   const selectedMode = Array.from(DOM.game.modeOptions).find((option) =>
-    //     option.classList.contains("option-selected")
-    //   );
-
-    //   //Afficher l'id du button selectionne
-    //   console.log(selectedGame.id);
-
-    //   if (!selectedGame || !selectedMode) {
-    //     alert("Please select both a game type and a mode!");
-    //     return;
-    //   }
-
-    //   const gameType = selectedGame.textContent.trim();
-    //   const modeType = selectedMode.textContent.trim();
-
-    //   console.log(`Selected Game: ${gameType}, Selected Mode: ${modeType}`);
-
-    //   if (gameType === "CLASSIC PONG" && modeType === "AGAINST AI") {
-    //     console.log("Launching Classic Pong against AI...");
-    //     startMatch(this.options, true, false);
-    //   } else if (gameType === "POWER PONG" && modeType === "AGAINST AI") {
-    //     console.log("Launching Power Pong against AI...");
-    //     startMatch(this.options, true, true);
-    //   } else if (gameType === "CLASSIC PONG" && modeType === "1 VS 1") {
-    //     console.log("Launching Classic Pong against a friend...");
-    //     startMatch(this.options, false, false);
-    //   } else if (gameType === "POWER PONG" && modeType === "1 VS 1") {
-    //     console.log("Launching Power Pong against a friend...");
-    //     startMatch(this.options, false, true);
-    //   } else if (gameType === "CLASSIC PONG" && modeType === "TOURNAMENT") {
-    //     console.log("Redirecting to /tournament...");
-    //     window.location.href = "/tournament";
-    //   } else if (gameType === "POWER PONG" && modeType === "TOURNAMENT") {
-    //     console.log("Redirecting to /tournament...");
-    //     window.location.href = "/tournament";
-    //   } else if (
-    //     (gameType === "CLASSIC PONG" || gameType === "POWER PONG") &&
-    //     modeType === "ONLINE" //
-    //   ) {
-    //     console.log(`Launching ${gameType} Online...`);
-    //     OnlineGameModal.show();
-    //   } else {
-    //     console.log(`${gameType} ${modeType} mode is not implemented yet.`);
-    //   }
-    // }
-
     handlePlayButtonClick() {
       // Récupérer les options sélectionnées
       const selectedGame = Array.from(DOM.game.options).find((option) =>
@@ -913,12 +863,6 @@ function initializeHome() {
       } else if (gameType === "powerPong" && modeType === "1vs1") {
         console.log("Launching Power Pong against a friend...");
         startMatch(this.options, false, true);
-      } else if (
-        (gameType === "classicPong" || gameType === "powerPong") &&
-        modeType === "online"
-      ) {
-        console.log(`Launching ${gameType} Online...`);
-        OnlineGameModal.show();
       } else if (modeType === "tournament") {
         console.log("Redirecting to /tournament...");
         window.location.href = "/tournament";
