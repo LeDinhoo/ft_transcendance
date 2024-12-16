@@ -67,6 +67,41 @@ async function getFriendsList() {
 	}
 }
 
+async function initializeBlockedUsers() {
+    try {
+        const response = await fetch('/api/blocked/list/', {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            ChatHandler.blockedUsers = data.blocked_users || [];
+            updateBlockedMessagesDisplay();
+        }
+    } catch (error) {
+        console.error('Error initializing blocked users:', error);
+    }
+}
+
+function updateBlockedMessagesDisplay() {
+    if (!DOM.chat.messages) return;
+    
+    const messages = DOM.chat.messages.querySelectorAll(".message");
+    messages.forEach((message) => {
+        const messageUserId = message.querySelector(".messageHeader").dataset.userId;
+        const isBlocked = ChatHandler.blockedUsers.some(user => user.id === messageUserId);
+        
+        if (isBlocked) {
+            message.style.opacity = "0.5";
+            const messageText = message.querySelector(".messageText");
+            if (!messageText.dataset.originalText) {
+                messageText.dataset.originalText = messageText.textContent;
+                messageText.textContent = "Message blocked";
+            }
+        }
+    });
+}
+
 let currentUser = null;
 
 function initializeHome() {
@@ -112,52 +147,62 @@ function initializeHome() {
 	};
 
 	updateProfilOnHome();
-
-
-
+	
+	
 	let isGameInitialized = false;
 	window.currentUser = null;
-
+	
 	class ChatHandler {
+		static blockedUsers = [];
 		static async initialize() {
 			try {
 				const response = await fetch("/api/profil/", {
 					credentials: "include",
 				});
-
+				
 				if (response.ok) {
 					window.currentUser = await response.json();
-					ChatHandler.blockedUsers = await getBlockedUsersList();
-
+					
+					// Charger la liste des utilisateurs bloqués depuis l'API
+					const blockedResponse = await fetch('/api/blocked/list/', {
+						credentials: 'include'
+					});
+					
+					if (blockedResponse.ok) {
+						const data = await blockedResponse.json();
+						ChatHandler.blockedUsers = data.blocked_users || [];
+					}
+					
 					ChatHandler.setupEventListeners();
 					ChatHandler.initializeContextMenu();
 					window.wsManager.addMessageListener(ChatHandler.handleMessage);
-
+					
 					const messageHistory = window.wsManager.getMessageHistory();
-					messageHistory.forEach((message) =>
-						ChatHandler.handleMessage(message)
-					);
+					messageHistory.forEach((message) => ChatHandler.handleMessage(message));
 				}
 			} catch (error) {
 				console.error("Erreur lors de l'initialisation du chat:", error);
 			}
 		}
-
+		static isUserBlocked(userId) {
+			return ChatHandler.blockedUsers.some(user => user.id === userId);
+		}
+		
 		static async sendFriendRequest(messageElement) {
 			const headerElement = messageElement.querySelector(".messageHeader");
 			const userId = headerElement?.dataset?.userId;
-
+			
 			if (!userId) {
 				console.error('No user ID found');
 				ChatHandler.showNotification('Unable to send friend request: User ID not found');
 				return;
 			}
-
+			
 			if (userId === String(window.currentUser?.id)) {
 				ChatHandler.showNotification('You cannot send a friend request to yourself');
 				return;
 			}
-
+			
 			try {
 				const response = await fetch('/api/friends/send-request/', {
 					method: 'POST',
@@ -169,10 +214,10 @@ function initializeHome() {
 						receiver_id: userId.trim()
 					})
 				});
-
+				
 				const data = await response.text();
 				console.log("Response raw data:", data);
-
+				
 				try {
 					const jsonData = JSON.parse(data);
 					// Ajout de l'événement ici, après une réponse réussie
@@ -187,12 +232,12 @@ function initializeHome() {
 				ChatHandler.showNotification('Error sending friend request');
 			}
 		}
-
+		
 		static setupEventListeners() {
 			if (DOM.chat.sendButton) {
 				DOM.chat.sendButton.addEventListener("click", ChatHandler.sendMessage);
 			}
-
+			
 			if (DOM.chat.input) {
 				DOM.chat.input.addEventListener("keypress", (e) => {
 					if (e.key === "Enter") {
@@ -283,10 +328,10 @@ function initializeHome() {
 					} else if (action === "profile") {
 						const userId = messageElement.querySelector(".messageHeader").dataset.userId;
 						ProfileModal.show(userId);
-					} else if (action === "add-friend") {
+					} else if (action === "add-friend") {		initializeBlockedUsers();
 						await ChatHandler.sendFriendRequest(messageElement);
 					} else if (action === "block") {
-						ChatHandler.toggleBlockUser(username);
+						ChatHandler.toggleBlockUser(userId, username);
 						ChatHandler.showBlockConfirmation(username, !isBlocked);
 					} else if (action === "private-message") {
 						ChatHandler.startPrivateMessage(username);
@@ -315,29 +360,28 @@ function initializeHome() {
 			});
 		}
 
-		static async toggleBlockUser(userId, username) {
+		static async toggleBlockUser(userId, username) {  // Ajout de userId comme paramètre
 			try {
 				const isBlocked = ChatHandler.isUserBlocked(userId);
 				const endpoint = isBlocked ? '/api/blocked/unblock/' : '/api/blocked/block/';
-
+		
 				const response = await fetch(endpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					credentials: 'include',
-					body: JSON.stringify({ user_id: userId })
+					body: JSON.stringify({ user_id: userId })  // Envoi du user_id
 				});
-
+		
 				if (response.ok) {
 					// Mettre à jour la liste locale des utilisateurs bloqués
 					if (isBlocked) {
 						ChatHandler.blockedUsers = ChatHandler.blockedUsers.filter(user => user.id !== userId);
 					} else {
-						const blockedUser = { id: userId, username: username };
-						ChatHandler.blockedUsers.push(blockedUser);
+						ChatHandler.blockedUsers.push({ id: userId, username: username });
 					}
-
+		
 					// Mettre à jour l'affichage des messages
 					const messages = DOM.chat.messages.querySelectorAll(".message");
 					messages.forEach((message) => {
@@ -353,7 +397,7 @@ function initializeHome() {
 							}
 						}
 					});
-
+		
 					// Afficher la confirmation
 					ChatHandler.showBlockConfirmation(username, !isBlocked);
 				}
@@ -366,19 +410,19 @@ function initializeHome() {
 		static showBlockConfirmation(username, isBlocking) {
 			const homePageMain = document.querySelector(".homePageMain");
 			if (!homePageMain) return;
-
+	
 			const confirmation = document.createElement("div");
 			confirmation.classList.add("confirmation-animation");
 			confirmation.innerHTML = `
-          <div class="confirmation-icon"></div>
-          <div class="confirmation-text">
-              ${isBlocking
-					? `User ${username} has been blocked`
-					: `User ${username} has been unblocked`
-				}
-          </div>
-      `;
-
+				<div class="confirmation-icon"></div>
+				<div class="confirmation-text">
+					${isBlocking 
+						? `User ${username} has been blocked`
+						: `User ${username} has been unblocked`
+					}
+				</div>
+			`;
+	
 			homePageMain.appendChild(confirmation);
 			setTimeout(() => confirmation.remove(), 2000);
 		}
@@ -392,42 +436,40 @@ function initializeHome() {
 
 		static handleMessage(data) {
 			if (!DOM.chat.messages) return;
-
+	
 			const isBlocked = ChatHandler.isUserBlocked(data.userId);
 			if (isBlocked) {
 				data.originalMessage = data.message;
 				data.message = "Message blocked";
 			}
-
-			const isCurrentUser =
-				window.currentUser && data.username === window.currentUser.username;
+	
+			const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
 			const messageElement = document.createElement("div");
-			messageElement.className = `message ${isCurrentUser ? "sent" : "received"
-				}`;
-
-			if (ChatHandler.blockedUsers.has(data.username)) {
+			messageElement.className = `message ${isCurrentUser ? "sent" : "received"}`;
+	
+			if (isBlocked) {
 				messageElement.style.opacity = "0.5";
 			}
-
+	
 			if (data.type === "private_message") {
 				messageElement.classList.add("private-message");
 			}
-
+	
 			messageElement.innerHTML = `
-        <img src="${data.avatar}"
-            alt="${data.username}"
-            class="messageAvatar"
-            title="Click for options">
-        <div class="messageContent">
-            <div class="messageHeader"
-                 data-user-id="${data.userId}"
-                 data-username="${data.username}">
-                ${data.username}
-            </div>
-            <div class="messageText">${data.message}</div>
-        </div>
-      `;
-
+				<img src="${data.avatar}"
+					alt="${data.username}"
+					class="messageAvatar"
+					title="Click for options">
+				<div class="messageContent">
+					<div class="messageHeader"
+						 data-user-id="${data.userId}"
+						 data-username="${data.username}">
+						${data.username}
+					</div>
+					<div class="messageText">${data.message}</div>
+				</div>
+			`;
+	
 			DOM.chat.messages.appendChild(messageElement);
 			DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
 		}
@@ -512,7 +554,7 @@ function initializeHome() {
 				DOM.chat.messages.innerHTML = "";
 			}
 
-			ChatHandler.blockedUsers.clear();
+			ChatHandler.blockedUsers = [];
 		}
 	}
 
@@ -645,29 +687,27 @@ function initializeHome() {
 
 	class ContextMenu {
 		static initialize() {
-			// Utiliser document.body comme parent pour l'écouteur d'événements
 			document.body.addEventListener("click", async (e) => {
 				const nickname = e.target.closest(".onlineNickname");
 				if (!nickname) return;
-
+	
 				e.preventDefault();
 				e.stopPropagation();
-
-				// Supprimer tout menu contextuel existant
+	
 				const existingMenu = document.querySelector(".chat-context-menu");
 				if (existingMenu) {
 					existingMenu.remove();
 				}
-
+	
 				const rect = nickname.getBoundingClientRect();
 				const username = nickname.textContent.trim();
 				const userId = nickname.dataset.userId;
-				const isBlocked = ChatHandler.blockedUsers.has(username);
 				const isOwnUser = username === window.currentUser.username;
-
+				const isBlocked = ChatHandler.isUserBlocked(userId);
+	
 				const menu = document.createElement("div");
 				menu.className = "chat-context-menu";
-
+	
 				menu.innerHTML = `
 					<div class="chat-menu-option" data-action="profile">
 						See profile
@@ -687,14 +727,14 @@ function initializeHome() {
 						</div>
 					` : ''}
 				`;
-
+	
 				document.body.appendChild(menu);
 				ChatHandler.positionMenuWithinViewport(menu, rect);
-
+	
 				menu.addEventListener("click", async (e) => {
 					const option = e.target.closest(".chat-menu-option");
 					if (!option) return;
-
+	
 					const action = option.dataset.action;
 					switch(action) {
 						case "profile":
@@ -711,18 +751,16 @@ function initializeHome() {
 							GameInvitationManager.sendInvitation(username);
 							break;
 						case "block":
-							ChatHandler.toggleBlockUser(username);
-							ChatHandler.showBlockConfirmation(username, !ChatHandler.blockedUsers.has(username));
+							await ChatHandler.toggleBlockUser(userId, username);
 							break;
 						case "private-message":
 							ChatHandler.startPrivateMessage(username);
 							break;
 					}
-
+	
 					menu.remove();
 				});
-
-				// Fermer le menu lors d'un clic en dehors
+	
 				document.addEventListener("click", function closeMenu(e) {
 					if (!menu.contains(e.target) && !nickname.contains(e.target)) {
 						menu.remove();
@@ -996,6 +1034,7 @@ function initializeHome() {
 	GameOptionsManager.initialize();
 	OnlineGameModal.initialize();
 	ChatHandler.initialize();
+	initializeBlockedUsers();
 	GameInvitationManager.initialize();
 	wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
