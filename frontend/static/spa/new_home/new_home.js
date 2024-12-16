@@ -131,6 +131,9 @@ function initializeHome() {
 					// Initialisation des utilisateurs bloqués
 					await ChatHandler.initializeBlockedUsers();
 
+					// Définir la fonction de vérification pour wsManager
+					window.wsManager.isUserBlocked = (userId) => ChatHandler.blockedUsers.has(String(userId));
+
 					ChatHandler.setupEventListeners();
 					ChatHandler.initializeContextMenu();
 					window.wsManager.addMessageListener(ChatHandler.handleMessage);
@@ -271,37 +274,51 @@ function initializeHome() {
 				const headerElement = messageElement.querySelector(".messageHeader");
 				const userId = headerElement.dataset.userId;
 				const username = headerElement.textContent.trim();
-				const avatarSrc = avatar.src;
-				const isBlocked = ChatHandler.isUserBlocked(userId);;
+				const isBlocked = ChatHandler.blockedUsers.has(userId);
 				const isOwnMessage = userId === String(window.currentUser.id);
-				console.log('Comparaison des IDs :', {
-					messageUserId: userId,
-					currentUserId: window.currentUser.id,
-					isOwnMessage: isOwnMessage
-				});
 
 				const menu = document.createElement("div");
 				menu.className = "chat-context-menu";
 
-				menu.innerHTML = `
+				// Construction conditionnelle du menu
+				let menuOptions = '';
+
+				// Option "See profile" toujours présente
+				menuOptions += `
 					<div class="chat-menu-option" data-action="profile">
 						See profile
 					</div>
-					${!isOwnMessage ? `
-						<div class="chat-menu-option" data-action="add-friend">
-							Add friend
-						</div>
-						<div class="chat-menu-option" data-action="send-invitation">
-							Send online invitation
-						</div>
-						<div class="chat-menu-option" data-action="block">
-							${isBlocked ? "Unblock user" : "Block user"}
-						</div>
-						<div class="chat-menu-option" data-action="private-message">
-							Private message
-						</div>
-					` : ''}
-					`;
+				`;
+
+				// Si c'est un message d'un autre utilisateur
+				if (!isOwnMessage) {
+					if (isBlocked) {
+						// Si l'utilisateur est bloqué, on montre uniquement l'option de déblocage
+						menuOptions += `
+							<div class="chat-menu-option" data-action="block">
+								Unblock user
+							</div>
+						`;
+					} else {
+						// Si l'utilisateur n'est pas bloqué et ce n'est pas notre propre message
+						menuOptions += `
+							<div class="chat-menu-option" data-action="add-friend">
+								Add friend
+							</div>
+							<div class="chat-menu-option" data-action="send-invitation">
+								Send online invitation
+							</div>
+							<div class="chat-menu-option" data-action="block">
+								Block user
+							</div>
+							<div class="chat-menu-option" data-action="private-message">
+								Private message
+							</div>
+						`;
+					}
+				}
+
+				menu.innerHTML = menuOptions;
 
 				document.body.appendChild(menu);
 				const rect = avatar.getBoundingClientRect();
@@ -309,6 +326,7 @@ function initializeHome() {
 
 				activeMenu = menu;
 
+				// Le reste du code pour gérer les clics sur les options reste inchangé
 				menu.addEventListener("click", async (e) => {
 					const option = e.target.closest(".chat-menu-option");
 					if (!option) return;
@@ -318,9 +336,8 @@ function initializeHome() {
 						console.log("Sending invitation from chat to:", username);
 						GameInvitationManager.sendInvitation(username);
 					} else if (action === "profile") {
-						const userId = messageElement.querySelector(".messageHeader").dataset.userId;
 						ProfileModal.show(userId);
-					} else if (action === "add-friend") {		initializeBlockedUsers();
+					} else if (action === "add-friend") {
 						await ChatHandler.sendFriendRequest(messageElement);
 					} else if (action === "block") {
 						ChatHandler.toggleBlockUser(userId, username);
@@ -334,6 +351,7 @@ function initializeHome() {
 				});
 			});
 
+			// Le reste du code pour gérer la fermeture du menu reste inchangé
 			document.addEventListener("click", (e) => {
 				if (activeMenu &&
 					!e.target.closest(".chat-context-menu") &&
@@ -407,22 +425,17 @@ function initializeHome() {
 		static handleMessage(data) {
 			if (!DOM.chat.messages) return;
 
-			const isBlocked = ChatHandler.isUserBlocked(data.userId);
-			if (isBlocked) {
-				data.originalMessage = data.message;
-				data.message = "Message blocked";
-			}
-
 			const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
 			const messageElement = document.createElement("div");
 			messageElement.className = `message ${isCurrentUser ? "sent" : "received"}`;
 
-			if (isBlocked) {
-				messageElement.style.opacity = "0.5";
-			}
-
 			if (data.type === "private_message") {
 				messageElement.classList.add("private-message");
+			}
+
+			let messageHeader = data.username;
+			if (data.type === "private_message") {
+				messageHeader += ` → ${data.recipient}`;
 			}
 
 			messageElement.innerHTML = `
@@ -434,7 +447,7 @@ function initializeHome() {
 					<div class="messageHeader"
 						 data-user-id="${data.userId}"
 						 data-username="${data.username}">
-						${data.username}
+						${messageHeader}
 					</div>
 					<div class="messageText">${data.message}</div>
 				</div>

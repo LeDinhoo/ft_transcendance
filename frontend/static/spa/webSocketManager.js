@@ -29,6 +29,7 @@ const wsManager = {
 	messageListeners: new Set(),
 	messageHistory: [],
 	onlinePlayers: new Set(),
+	isUserBlocked: null,
 
 	initializeChatSocket() {
 		if (this.chatSocket?.readyState === WebSocket.OPEN) return;
@@ -53,15 +54,16 @@ const wsManager = {
 
 			switch (data.type) {
 				case 'chat_message':
-					this.messageHistory.push(data);
-					this.messageListeners.forEach(listener => listener(data));
-					break;
+					if (this.isUserBlocked && this.isUserBlocked(data.userId)) {
+							break;
+						}
+						this.messageHistory.push(data);
+						this.messageListeners.forEach(listener => listener(data));
+						break;
 
 				case 'private_message':
-					console.log("Private message received:", data);
-					if (window.currentUser &&
-						(data.username === window.currentUser.username ||
-							data.recipient === window.currentUser.username)) {
+					const isOwnMessage = window.currentUser && data.username === window.currentUser.username;
+					if (isOwnMessage || !(this.isUserBlocked && this.isUserBlocked(data.userId))) {
 						this.messageHistory.push(data);
 						this.messageListeners.forEach(listener => listener(data));
 					}
@@ -242,7 +244,7 @@ const wsManager = {
 	handleMessage(data) {
 		const chatMessages = document.getElementById('chatMessages');
 		if (!chatMessages) return;
-		
+
 		const isBlocked = ChatHandler.blockedUsers.has(String(data.userId));
 		if (isBlocked) {
 			data.originalMessage = data.message;
