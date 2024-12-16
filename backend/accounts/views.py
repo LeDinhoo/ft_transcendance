@@ -1558,3 +1558,61 @@ def get_user_profile_stats(request, user_id):
         return JsonResponse({
             'error': str(e)
         }, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_blocked_users(request):
+    blocked_users = request.user.blocked_users.all()
+    blocked_list = [{
+        'id': user.id,
+        'username': user.username,
+        'avatar': f"/static/{user.avatar}" if str(user.avatar).startswith('assets/avatars/')
+                 else user.avatar.url if user.avatar else '/static/assets/avatars/ladybug.png',
+    } for user in blocked_users]
+
+    return JsonResponse({'blocked_users': blocked_list})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def block_user(request):
+    try:
+        user_id = request.data.get('user_id')
+
+        if not user_id:
+            return JsonResponse({'error': 'User ID is required'}, status=400)
+
+        if str(user_id) == str(request.user.id):
+            return JsonResponse({'error': 'Cannot block yourself'}, status=400)
+
+        user_to_block = CustomUser.objects.get(id=user_id)
+        request.user.blocked_users.add(user_to_block)
+
+        return JsonResponse({
+            'message': f'User {user_to_block.username} has been blocked'
+        })
+
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unblock_user(request):
+    try:
+        user_id = request.data.get('user_id')
+
+        if not user_id:
+            return JsonResponse({'error': 'User ID is required'}, status=400)
+
+        user_to_unblock = CustomUser.objects.get(id=user_id)
+        request.user.blocked_users.remove(user_to_unblock)
+
+        return JsonResponse({
+            'message': f'User {user_to_unblock.username} has been unblocked'
+        })
+
+    except CustomUser.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

@@ -29,7 +29,6 @@ urlpatterns = [
 
     path('test-email/', TestEmailView.as_view(), name='test_email'),
 
-
     path('friends/send-request/', views.send_friend_request, name='send_friend_request'),
     path('friends/handle-request/', views.handle_friend_request, name='handle_friend_request'),
     path('friends/list/', views.get_friends, name='get_friends'),
@@ -37,6 +36,9 @@ urlpatterns = [
 
 	path('user/profile-stats/<int:user_id>/', views.get_user_profile_stats, name='get_user_profile_stats'),
 
+	path('blocked/list/', views.get_blocked_users, name='blocked-users-list'),
+	path('blocked/block/', views.block_user, name='block-user'),
+	path('blocked/unblock/', views.unblock_user, name='unblock-user'),
 ]
 
 import logging

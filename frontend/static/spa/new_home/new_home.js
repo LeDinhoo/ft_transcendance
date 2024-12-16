@@ -127,7 +127,8 @@ function initializeHome() {
 
 				if (response.ok) {
 					window.currentUser = await response.json();
-					ChatHandler.blockedUsers = new Set();
+					ChatHandler.blockedUsers = await getBlockedUsersList();
+
 					ChatHandler.setupEventListeners();
 					ChatHandler.initializeContextMenu();
 					window.wsManager.addMessageListener(ChatHandler.handleMessage);
@@ -209,6 +210,10 @@ function initializeHome() {
 			setTimeout(() => notification.remove(), 3000);
 		}
 
+		static isUserBlocked(userId) {
+			return ChatHandler.blockedUsers.some(blockedUser => blockedUser.id === userId);
+		}
+
 		static initializeContextMenu() {
 			const chatMessages = DOM.chat.messages;
 			let activeMenu = null;
@@ -230,7 +235,7 @@ function initializeHome() {
 				const userId = headerElement.dataset.userId;
 				const username = headerElement.textContent.trim();
 				const avatarSrc = avatar.src;
-				const isBlocked = ChatHandler.blockedUsers.has(username);
+				const isBlocked = ChatHandler.isUserBlocked(userId);;
 				const isOwnMessage = userId === String(window.currentUser.id);
 				console.log('Comparaison des IDs :', {
 					messageUserId: userId,
@@ -310,31 +315,52 @@ function initializeHome() {
 			});
 		}
 
-		static toggleBlockUser(username) {
-			if (ChatHandler.blockedUsers.has(username)) {
-				ChatHandler.blockedUsers.delete(username);
-			} else {
-				ChatHandler.blockedUsers.add(username);
-			}
+		static async toggleBlockUser(userId, username) {
+			try {
+				const isBlocked = ChatHandler.isUserBlocked(userId);
+				const endpoint = isBlocked ? '/api/blocked/unblock/' : '/api/blocked/block/';
 
-			const messages = DOM.chat.messages.querySelectorAll(".message");
-			messages.forEach((message) => {
-				const messageUsername =
-					message.querySelector(".messageHeader").textContent;
-				if (messageUsername === username) {
-					message.style.opacity = ChatHandler.blockedUsers.has(username)
-						? "0.5"
-						: "1";
-					const messageText = message.querySelector(".messageText");
-					if (ChatHandler.blockedUsers.has(username)) {
-						messageText.dataset.originalText = messageText.textContent;
-						messageText.textContent = "Message blocked";
+				const response = await fetch(endpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					credentials: 'include',
+					body: JSON.stringify({ user_id: userId })
+				});
+
+				if (response.ok) {
+					// Mettre à jour la liste locale des utilisateurs bloqués
+					if (isBlocked) {
+						ChatHandler.blockedUsers = ChatHandler.blockedUsers.filter(user => user.id !== userId);
 					} else {
-						messageText.textContent =
-							messageText.dataset.originalText || messageText.textContent;
+						const blockedUser = { id: userId, username: username };
+						ChatHandler.blockedUsers.push(blockedUser);
 					}
+
+					// Mettre à jour l'affichage des messages
+					const messages = DOM.chat.messages.querySelectorAll(".message");
+					messages.forEach((message) => {
+						const messageUserId = message.querySelector(".messageHeader").dataset.userId;
+						if (messageUserId === userId) {
+							message.style.opacity = !isBlocked ? "0.5" : "1";
+							const messageText = message.querySelector(".messageText");
+							if (!isBlocked) {
+								messageText.dataset.originalText = messageText.textContent;
+								messageText.textContent = "Message blocked";
+							} else {
+								messageText.textContent = messageText.dataset.originalText || messageText.textContent;
+							}
+						}
+					});
+
+					// Afficher la confirmation
+					ChatHandler.showBlockConfirmation(username, !isBlocked);
 				}
-			});
+			} catch (error) {
+				console.error('Error toggling block status:', error);
+				ChatHandler.showNotification('Error updating block status');
+			}
 		}
 
 		static showBlockConfirmation(username, isBlocking) {
@@ -367,7 +393,8 @@ function initializeHome() {
 		static handleMessage(data) {
 			if (!DOM.chat.messages) return;
 
-			if (ChatHandler.blockedUsers.has(data.username)) {
+			const isBlocked = ChatHandler.isUserBlocked(data.userId);
+			if (isBlocked) {
 				data.originalMessage = data.message;
 				data.message = "Message blocked";
 			}
@@ -426,6 +453,7 @@ function initializeHome() {
 					type: "chat_message",
 					message: message,
 					username: window.currentUser.username,
+					userId: window.currentUser.id,
 					avatar: window.currentUser.avatar,
 				});
 			}
@@ -617,11 +645,8 @@ function initializeHome() {
 
 	class ContextMenu {
 		static initialize() {
-			const homePageMain = document.querySelector(".homePageMain");
-			const downLeftFrame = document.querySelector(".downLeftFrame");
-			if (!homePageMain || !downLeftFrame) return;
-
-			downLeftFrame.addEventListener("click", async (e) => {
+			// Utiliser document.body comme parent pour l'écouteur d'événements
+			document.body.addEventListener("click", async (e) => {
 				const nickname = e.target.closest(".onlineNickname");
 				if (!nickname) return;
 
@@ -773,43 +798,25 @@ function initializeHome() {
 		}
 
 		static generatePlayersList() {
-			const players = [
-				{
-					name: "Player1",
-					id: "1",  // Ajoutez les IDs pour chaque joueur
-					status: PLAYER_STATUSES.ONLINE,
-					avatar: "/static/assets/avatars/buffalo.png",
-				},
-				{
-					name: "Player2",
-					id: "2",
-					status: PLAYER_STATUSES.IN_GAME,
-					avatar: "/static/assets/avatars/clown-fish.png",
-				},
-				{
-					name: "Player3",
-					id: "3",
-					status: PLAYER_STATUSES.ONLINE,
-					avatar: "/static/assets/avatars/buffalo.png",
-				},
-			];
+			if (!window.wsManager?.onlinePlayers) {
+				console.error("wsManager or onlinePlayers not available");
+				return;
+			}
 
-			const template = players
-				.map(
-					(player) => `
-				<div class="online-player" data-player="${player.name}">
-					<img src="${player.avatar}" alt="avatar" class="player-avatar">
-					<div class="player-info">
-						<div class="player-name">
-							<div class="onlineNickname" data-username="${player.name}" data-user-id="${player.id}">
-								${player.name}
+			const template = Array.from(window.wsManager.onlinePlayers)
+				.map(player => `
+					<div class="online-player" data-player="${player.username}">
+						<img src="${player.avatar || '/static/assets/avatars/buffalo.png'}" alt="avatar" class="player-avatar">
+						<div class="player-info">
+							<div class="player-name">
+								<div class="onlineNickname" data-username="${player.username}" data-user-id="${player.id}">
+									${player.username}
+								</div>
 							</div>
+							<div class="player-status">${player.status === 'in_game' ? PLAYER_STATUSES.IN_GAME : PLAYER_STATUSES.ONLINE}</div>
 						</div>
-						<div class="player-status">${player.status}</div>
 					</div>
-				</div>
-			`
-				)
+				`)
 				.join("");
 
 			DOM.onlineGame.playersList.innerHTML = template;
