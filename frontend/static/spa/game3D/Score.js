@@ -17,17 +17,29 @@ export class Score3D {
     this.scoreTextLeft = null;
     this.scoreTextRight = null;
     this.victoryText = null;
-    this.directionalLight = null; 
-    this.lightTarget = null; 
+    this.directionalLight = null;
+    this.lightTarget = null;
     this.gameOver = false;
     this.WINNING_SCORE = 1;
     this.POINT_DIFFERENCE_REQUIRED = 2;
     this.fontLoader = new FontLoader();
     this.pressSpaceText = null;
-    this.longestRally = 0; 
+    this.longestRally = 0;
     this.maxLongestrally = 0;
+    this.player1UpKey = "W";
+    this.player1DownKey = "S";
+    this.player1LaunchKey = "E";
+    this.player2UpKey = "ArrowUp";
+    this.player2DownKey = "ArrowDown";
+    this.player2LaunchKey = "ArrowLeft";
+    this.tutorialP1Text1 = null;
+    this.tutorialP1Text2 = null;
+    this.tutorialP1text3 = null;
+    this.tutorialP2Text1 = null;
+    this.tutorialP2Text2 = null;
+    this.tutorialP2text3 = null;
+    this.isAIisActive = false;
 
-    
     this.textMaterialLeft = new THREE.MeshStandardMaterial({
       color: 0xff5500,
       metalness: 0.7,
@@ -35,7 +47,6 @@ export class Score3D {
       side: THREE.DoubleSide,
     });
 
-    
     this.textMaterialRight = new THREE.MeshStandardMaterial({
       color: 0x3db8ff,
       metalness: 0.7,
@@ -43,7 +54,6 @@ export class Score3D {
       side: THREE.DoubleSide,
     });
 
-    
     this.victoryMaterial = new THREE.MeshStandardMaterial({
       color: 0xf39c12,
       metalness: 0.7,
@@ -51,7 +61,6 @@ export class Score3D {
       side: THREE.DoubleSide,
     });
 
-   
     this.textOptions = {
       size: 50,
       height: 5,
@@ -63,7 +72,17 @@ export class Score3D {
       bevelSegments: 5,
     };
 
-    
+    this.TutorialTextOptions = {
+      size: 15,
+      height: 5,
+      curveSegments: 5,
+      bevelEnabled: true,
+      bevelThickness: 2,
+      bevelSize: 2,
+      bevelOffset: 0,
+      bevelSegments: 3,
+    };
+
     this.victoryTextOptions = {
       size: 80,
       height: 5,
@@ -83,8 +102,19 @@ export class Score3D {
     this.fontLoader.load("./font/Mishmash_Regular.json", (font) => {
       this.font = font;
       this.createScoreText();
-      this.createPressSpaceText(); 
+      this.createPressSpaceText();
+      this.createTutorialText();
     });
+  }
+
+  setKeyTextForTutorial(options, isAIisActive) {
+    this.player1UpKey = options.player1.moveUp;
+    this.player1DownKey = options.player1.moveDown;
+    this.player1LaunchKey = options.player1.launchPower;
+    this.player2UpKey = options.player2.moveUp;
+    this.player2DownKey = options.player2.moveDown;
+    this.player2LaunchKey = options.player2.launchPower;
+    this.isAIisActive = isAIisActive;
   }
 
   createPressSpaceText() {
@@ -101,6 +131,116 @@ export class Score3D {
     this.pressSpaceText.position.set(0, 5, 0);
 
     this.scene.add(this.pressSpaceText);
+  }
+
+  createTutorialText() {
+    if (!this.font) return;
+
+    const options = { ...this.TutorialTextOptions, font: this.font };
+
+    // Tutorial for Player 1
+    const moveString = `${this.player1UpKey} and ${this.player1DownKey} to move`;
+    const powerString = `${this.player1LaunchKey} to use power`;
+
+    const geometry1 = new TextGeometry(moveString, options);
+    geometry1.computeBoundingBox();
+    geometry1.center();
+
+    this.tutorialP1Text1 = new THREE.Mesh(geometry1, this.textMaterialLeft);
+    this.tutorialP1Text1.rotation.x = -Math.PI / 2;
+    this.tutorialP1Text1.position.set(0, 5, -130);
+
+    const geometry2 = new TextGeometry(powerString, options);
+    geometry2.computeBoundingBox();
+    geometry2.center();
+
+    this.tutorialP1Text2 = new THREE.Mesh(geometry2, this.textMaterialLeft);
+    this.tutorialP1Text2.rotation.x = -Math.PI / 2;
+    this.tutorialP1Text2.position.set(0, 5, -100);
+
+    const geometry3 = new TextGeometry("Player 1 :", options);
+    geometry3.computeBoundingBox();
+    geometry3.center();
+
+    this.tutorialP1text3 = new THREE.Mesh(geometry3, this.textMaterialLeft);
+    this.tutorialP1text3.rotation.x = -Math.PI / 2;
+    this.tutorialP1text3.position.set(0, 5, -170);
+
+    this.scene.add(this.tutorialP1Text1);
+    this.scene.add(this.tutorialP1Text2);
+    this.scene.add(this.tutorialP1text3);
+
+    // Tutorial for Player 2
+    if (!this.isAIisActive) {
+      const moveString2 = `${this.player2UpKey} and ${this.player2DownKey} to move`;
+      const powerString2 = `${this.player2LaunchKey} to use power`;
+
+      const geometry4 = new TextGeometry(moveString2, options);
+      geometry4.computeBoundingBox();
+      geometry4.center();
+
+      this.tutorialP2Text1 = new THREE.Mesh(geometry4, this.textMaterialRight);
+      this.tutorialP2Text1.rotation.x = -Math.PI / 2;
+      this.tutorialP2Text1.position.set(0, 5, 140);
+
+      const geometry5 = new TextGeometry(powerString2, options);
+      geometry5.computeBoundingBox();
+      geometry5.center();
+
+      this.tutorialP2Text2 = new THREE.Mesh(geometry5, this.textMaterialRight);
+      this.tutorialP2Text2.rotation.x = -Math.PI / 2;
+      this.tutorialP2Text2.position.set(0, 5, 170);
+
+      const geometry6 = new TextGeometry("Player 2 :", options);
+      geometry6.computeBoundingBox();
+      geometry6.center();
+
+      this.tutorialP2text3 = new THREE.Mesh(geometry6, this.textMaterialRight);
+      this.tutorialP2text3.rotation.x = -Math.PI / 2;
+      this.tutorialP2text3.position.set(0, 5, 100);
+
+      this.scene.add(this.tutorialP2Text1);
+      this.scene.add(this.tutorialP2Text2);
+      this.scene.add(this.tutorialP2text3);
+    }
+  }
+
+  removeTutorialText() {
+    if (this.tutorialP1Text1) {
+      this.scene.remove(this.tutorialP1Text1);
+      this.tutorialP1Text1.geometry.dispose();
+      this.tutorialP1Text1 = null;
+    }
+
+    if (this.tutorialP1Text2) {
+      this.scene.remove(this.tutorialP1Text2);
+      this.tutorialP1Text2.geometry.dispose();
+      this.tutorialP1Text2 = null;
+    }
+
+    if (this.tutorialP1text3) {
+      this.scene.remove(this.tutorialP1text3);
+      this.tutorialP1text3.geometry.dispose();
+      this.tutorialP1text3 = null;
+    }
+
+    if (this.tutorialP2Text1) {
+      this.scene.remove(this.tutorialP2Text1);
+      this.tutorialP2Text1.geometry.dispose();
+      this.tutorialP2Text1 = null;
+    }
+
+    if (this.tutorialP2Text2) {
+      this.scene.remove(this.tutorialP2Text2);
+      this.tutorialP2Text2.geometry.dispose();
+      this.tutorialP2Text2 = null;
+    }
+
+    if (this.tutorialP2text3) {
+      this.scene.remove(this.tutorialP2text3);
+      this.tutorialP2text3.geometry.dispose();
+      this.tutorialP2text3 = null;
+    }
   }
 
   removePressSpaceText() {
@@ -126,9 +266,10 @@ export class Score3D {
 
   startGame() {
     this.gameOver = false;
-    this.removePressSpaceText(); 
+    this.removePressSpaceText();
     this.resetScore();
     this.removeVictoryText();
+    this.removeTutorialText();
   }
 
   resetGame() {
@@ -148,7 +289,8 @@ export class Score3D {
       const scoreDifference = Math.abs(this.score.player1 - this.score.player2);
 
       if (scoreDifference >= this.POINT_DIFFERENCE_REQUIRED) {
-        const winner = this.score.player1 > this.score.player2 ? "Orange" : "Blue";
+        const winner =
+          this.score.player1 > this.score.player2 ? "Orange" : "Blue";
         this.gameOver = true;
         this.createVictoryText(winner);
         return true;
@@ -278,7 +420,6 @@ export class Score3D {
 
     this.victoryText.position.set(0, 5, 0);
     this.scene.add(this.victoryText);
-
   }
 
   removeVictoryText() {
@@ -350,7 +491,6 @@ export class Score3D {
         if (this.gamePlane && this.specialTexture) {
           this.gamePlane.traverse((child) => {
             if (child.isMesh) {
-              
               if (!this.originalPlaneMaterial) {
                 this.originalPlaneMaterial = child.material.clone();
               }
@@ -360,7 +500,6 @@ export class Score3D {
           });
         }
 
-        
         this.paddle1.traverse((child) => {
           if (child.isMesh) {
             child.material.color.setHex(0x1d995b);
@@ -372,7 +511,6 @@ export class Score3D {
           }
         });
       } else {
-      
         if (this.gamePlane && this.originalPlaneMaterial) {
           this.gamePlane.traverse((child) => {
             if (child.isMesh) {
@@ -461,15 +599,12 @@ export class Score3D {
 
     this.updatePosition();
 
-
     if (this.checkWinCondition()) {
-      
       const scoreUser = this.score.player1;
       const scoreOpponent = this.score.player2;
-      const result = scoreUser > scoreOpponent; 
+      const result = scoreUser > scoreOpponent;
     }
   }
-  
 
   getScore() {
     return this.score;
@@ -489,7 +624,7 @@ export class Score3D {
     }
 
     if (this.score.player1 > this.score.player2) {
-      return "Blue"; 
+      return "Blue";
     } else if (this.score.player2 > this.score.player1) {
       return "Orange";
     } else {
@@ -525,7 +660,6 @@ export class Score3D {
     return this.maxLongestrally;
   }
 
-
   recordGame(scoreUser, scoreOpponent, result, longestRally, maxBallSpeed) {
     console.log("recordGame appelée avec :", {
       scoreUser,
@@ -550,7 +684,6 @@ export class Score3D {
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
-
       },
       credentials: "include",
       body: JSON.stringify(data),

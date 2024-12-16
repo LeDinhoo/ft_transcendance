@@ -259,22 +259,6 @@ function getBoundariesFromCorners() {
 let boundaries = getBoundariesFromCorners();
 
 
-// function closeWindowGame() {
-// 	const message = {
-// 		type: "gameComplete",
-// 		data: {winner: scoreSystem.getWinner()},
-// 	};
-// 	console.log("Message envoyé au parent :", message);
-
-// 	if (window.parent && window.parent !== window) {
-// 		window.parent.postMessage(message, "*");
-// 	} else {
-// 		console.error(
-// 			"Impossible d'envoyer un message au parent : window.parent inaccessible."
-// 		);
-// 	}
-// }
-
 function closeWindowGame() {
 	let winner = scoreSystem.getWinner();
 	let player1 = scoreSystem.score.player1;
@@ -463,9 +447,10 @@ function handleMessage(event) {
 		paddle1Controller.changeControlsDown(options.keyboardSettings.player1.moveDown);
 		paddle2Controller.changeControlsUp(options.keyboardSettings.player2.moveUp);
 		paddle2Controller.changeControlsDown(options.keyboardSettings.player2.moveDown);
-
+		
 		aiIsActive = !!isAI;
-
+		
+		
 		if (!power) {
 			isPowerActivated = false;
 			powerManager.deactivatePowers();
@@ -473,6 +458,8 @@ function handleMessage(event) {
 			isPowerActivated = true;
 			powerManager.activatePowers();
 		}
+		
+		scoreSystem.setKeyTextForTutorial(options.keyboardSettings, aiIsActive);
 
 		window.removeEventListener("message", handleMessage);
 	}
