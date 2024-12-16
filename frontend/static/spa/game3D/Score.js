@@ -624,9 +624,9 @@ export class Score3D {
     }
 
     if (this.score.player1 > this.score.player2) {
-      return "Blue";
-    } else if (this.score.player2 > this.score.player1) {
       return "Orange";
+    } else if (this.score.player2 > this.score.player1) {
+      return "Blue";
     } else {
       return "Draw";
     }
