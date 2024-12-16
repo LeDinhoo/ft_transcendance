@@ -202,6 +202,7 @@ const wsManager = {
 				type: "private_message",
 				message: privateMessage,
 				username: window.currentUser.username,
+				userId: window.currentUser.id,
 				avatar: window.currentUser.avatar,
 				recipient: recipient
 			}));
@@ -210,6 +211,7 @@ const wsManager = {
 			this.chatSocket.send(JSON.stringify({
 				type: "chat_message",
 				message: message,
+				userId: window.currentUser.id,
 				username: window.currentUser.username,
 				avatar: window.currentUser.avatar
 			}));
@@ -240,29 +242,25 @@ const wsManager = {
 	handleMessage(data) {
 		const chatMessages = document.getElementById('chatMessages');
 		if (!chatMessages) return;
-
-		if (ChatHandler.blockedUsers.has(data.username)) {
+		
+		const isBlocked = ChatHandler.blockedUsers.has(String(data.userId));
+		if (isBlocked) {
 			data.originalMessage = data.message;
-			data.message = "Message blocked";
+			data.message = "Message bloqué";
 		}
 
 		const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
 		const messageElement = document.createElement("div");
 
-
 		let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
-
 		if (data.type === "private_message") {
 			messageClasses.push("private-message");
 		}
 
-
 		messageElement.className = messageClasses.join(" ");
-
-		if (ChatHandler.blockedUsers.has(data.username)) {
+		if (isBlocked) {
 			messageElement.style.opacity = "0.5";
 		}
-
 
 		let messageHeader = data.username;
 		if (data.type === "private_message") {
@@ -270,18 +268,17 @@ const wsManager = {
 		}
 
 		messageElement.innerHTML = `
-            <img src="${data.avatar}"
-                alt="${data.username}"
-                class="messageAvatar"
-                title="Click for options">
-            <div class="messageContent">
-                <div class="messageHeader">${messageHeader}</div>
-                <div class="messageText" ${ChatHandler.blockedUsers.has(data.username)
-				? 'data-original-text="' + data.originalMessage + '"'
-				: ""
-			}>${data.message}</div>
-            </div>
-        `;
+			<img src="${data.avatar}"
+				alt="${data.username}"
+				class="messageAvatar"
+				title="Click for options">
+			<div class="messageContent">
+				<div class="messageHeader" data-user-id="${data.userId}">${messageHeader}</div>
+				<div class="messageText" ${isBlocked ? 'data-original-text="' + data.originalMessage + '"' : ""}>
+					${data.message}
+				</div>
+			</div>
+		`;
 
 		chatMessages.appendChild(messageElement);
 		chatMessages.scrollTop = chatMessages.scrollHeight;
