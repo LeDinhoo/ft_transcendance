@@ -488,6 +488,7 @@ function initializeTournamentPage() {
     tournamentConfig.style.display = "none";
   }
 
+
   function generatePlayerFields(count) {
     const container = document.getElementById("players-container");
     container.innerHTML = "";
@@ -535,7 +536,7 @@ function initializeTournamentPage() {
             <div class="player-entry">
                 <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
                 <div class="player-controls">
-                    <input type="text" class="player-input" value="Bot Player ${i}" />
+                    <input type="text" class="player-input" value="Bot Player ${i}" maxlenght="15"/>
                     <div class="bot-toggle">
                         <label class="switch">
                             <input type="checkbox" class="bot-checkbox" checked>
@@ -575,6 +576,66 @@ function initializeTournamentPage() {
           input.placeholder = "Entrez un pseudo";
         }
       });
+    });
+
+    // Configurer les cases à cocher pour les bots
+    setupBotCheckboxListeners();
+
+    // Ajouter une validation dynamique pour les saisies
+    setupInputValidation();
+
+    // Tronquer les pseudos déjà affichés
+    truncateNicknames();
+  }
+
+
+  function setupBotCheckboxListeners() {
+    const botCheckboxes = document.querySelectorAll(".bot-checkbox");
+    botCheckboxes.forEach((checkbox, index) => {
+        const input = checkbox
+            .closest(".player-entry")
+            .querySelector(".player-input");
+    
+        // Initialiser l'état de la case à cocher
+        if (checkbox.checked) {
+            input.classList.add("bot-active");
+            input.readOnly = true;
+            input.value = `Bot Player ${index + 1}`;
+        }
+      
+        // Écouteur pour le changement d'état
+        checkbox.addEventListener("change", (e) => {
+            if (e.target.checked) {
+                input.classList.add("bot-active");
+                input.readOnly = true;
+                input.value = `Bot Player ${index + 1}`;
+            } else {
+                input.classList.remove("bot-active");
+                input.readOnly = false;
+                input.value = "";
+                input.placeholder = "Entrez un pseudo";
+            }
+        });
+    });
+  }
+  
+  function truncateNicknames() {
+    const nicknames = document.querySelectorAll(".nickname");
+    nicknames.forEach((nickname) => {
+        if (nickname.textContent.length > 15) {
+            nickname.textContent = nickname.textContent.substring(0, 15) + "...";
+        }
+    });
+  }
+  
+  function setupInputValidation() {
+    document.addEventListener("input", (e) => {
+        if (e.target.classList.contains("player-input")) {
+            const input = e.target;
+            if (input.value.length > 15) {
+                input.value = input.value.substring(0, 15);
+            }
+        }
     });
   }
 

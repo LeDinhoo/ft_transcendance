@@ -263,7 +263,7 @@ AUTH_PASSWORD_VALIDATORS = [
     }
 ]
 
-PBKDF2_ITERATIONS = 310000 
+PBKDF2_ITERATIONS = 310000
 
 
 TIME_ZONE = 'Europe/Paris'
@@ -316,13 +316,3 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'csiffreinblanc@gmail.com')
 EMAIL_SUBJECT_PREFIX = os.getenv('EMAIL_SUBJECT_PREFIX', '[Pong42] ')
-
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'csiffreinblanc@gmail.com'
-# EMAIL_HOST_PASSWORD = 'cbws izxl miso dbij'  # Remplacez par votre mot de passe d'application
-# DEFAULT_FROM_EMAIL = 'csiffreinblanc@gmail.com'
-# EMAIL_SUBJECT_PREFIX = '[Pong42] '
