@@ -139,13 +139,13 @@ function initializeTournamentPage() {
       });
     }
 
-  //   getGameOptions() {
-  //     const options = localStorage.getItem('gameOptions');
-  //     if (options) {
-  //         return JSON.parse(options); // Désérialiser les options stockées
-  //     }
-  //     return null; // Si aucune option n'est trouvée
-  // }
+    //   getGameOptions() {
+    //     const options = localStorage.getItem('gameOptions');
+    //     if (options) {
+    //         return JSON.parse(options); // Désérialiser les options stockées
+    //     }
+    //     return null; // Si aucune option n'est trouvée
+    // }
 
     getGameOptions() {
       fetch("api/game-settings/", {
@@ -155,23 +155,25 @@ function initializeTournamentPage() {
           "Content-Type": "application/json",
         },
       })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log("Data received:", data);
-            this.options = data;
-            console.log("Options:", this.options);
-            // localStorage.setItem('gameOptions', JSON.stringify(data));
-          })
-          .catch((error) => {
-            console.error("Erreur lors de la récupération des paramètres :", error);
-          });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Data received:", data);
+          this.options = data;
+          console.log("Options:", this.options);
+          // localStorage.setItem('gameOptions', JSON.stringify(data));
+        })
+        .catch((error) => {
+          console.error(
+            "Erreur lors de la récupération des paramètres :",
+            error
+          );
+        });
     }
-  
 
     startGame() {
       this.isSimulationInProgress = false;
@@ -216,8 +218,8 @@ function initializeTournamentPage() {
       // Charger les options de jeu depuis localStorage
       // const gameOptions = this.getGameOptions();
       if (!this.options) {
-          console.error("Game options not found in localStorage!");
-          return;
+        console.error("Game options not found in localStorage!");
+        return;
       }
       console.log("Game options retrieved:", this.options);
 
@@ -306,14 +308,14 @@ function initializeTournamentPage() {
         );
 
         if (!player1IsBot && player2IsBot) {
-          const options = this.options
+          const options = this.options;
           console.log("options : ", options);
           const isAI = true;
           const power = true;
           this.gameContainer.contentWindow.postMessage(
             {
               type: "setOptions",
-              data: { options , isAI, power },
+              data: { options, isAI, power },
             },
             "*"
           );
@@ -354,7 +356,6 @@ function initializeTournamentPage() {
         console.log("Barre d'espace bloquée pendant la simulation");
       }
     }
-    
 
     endGame() {
       this.gameContainer.style.display = "none";
@@ -398,7 +399,7 @@ function initializeTournamentPage() {
   // Sélecteurs
   const optionButtons = document.querySelectorAll(".option-btn");
   const shapes = document.querySelectorAll(".shape");
-  const playButton = document.querySelector(".buttonPlay");
+  const playButton = document.getElementById("buttonPlay");
   const tournamentConfig = document.getElementById("tournamentConfig");
   // let gameManager;
 
@@ -487,7 +488,6 @@ function initializeTournamentPage() {
   function closeTournamentConfig() {
     tournamentConfig.style.display = "none";
   }
-
 
   function generatePlayerFields(count) {
     const container = document.getElementById("players-container");
@@ -588,54 +588,53 @@ function initializeTournamentPage() {
     truncateNicknames();
   }
 
-
   function setupBotCheckboxListeners() {
     const botCheckboxes = document.querySelectorAll(".bot-checkbox");
     botCheckboxes.forEach((checkbox, index) => {
-        const input = checkbox
-            .closest(".player-entry")
-            .querySelector(".player-input");
-    
-        // Initialiser l'état de la case à cocher
-        if (checkbox.checked) {
-            input.classList.add("bot-active");
-            input.readOnly = true;
-            input.value = `Bot Player ${index + 1}`;
+      const input = checkbox
+        .closest(".player-entry")
+        .querySelector(".player-input");
+
+      // Initialiser l'état de la case à cocher
+      if (checkbox.checked) {
+        input.classList.add("bot-active");
+        input.readOnly = true;
+        input.value = `Bot Player ${index + 1}`;
+      }
+
+      // Écouteur pour le changement d'état
+      checkbox.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          input.classList.add("bot-active");
+          input.readOnly = true;
+          input.value = `Bot Player ${index + 1}`;
+        } else {
+          input.classList.remove("bot-active");
+          input.readOnly = false;
+          input.value = "";
+          input.placeholder = "Entrez un pseudo";
         }
-      
-        // Écouteur pour le changement d'état
-        checkbox.addEventListener("change", (e) => {
-            if (e.target.checked) {
-                input.classList.add("bot-active");
-                input.readOnly = true;
-                input.value = `Bot Player ${index + 1}`;
-            } else {
-                input.classList.remove("bot-active");
-                input.readOnly = false;
-                input.value = "";
-                input.placeholder = "Entrez un pseudo";
-            }
-        });
+      });
     });
   }
-  
+
   function truncateNicknames() {
     const nicknames = document.querySelectorAll(".nickname");
     nicknames.forEach((nickname) => {
-        if (nickname.textContent.length > 15) {
-            nickname.textContent = nickname.textContent.substring(0, 15) + "...";
-        }
+      if (nickname.textContent.length > 15) {
+        nickname.textContent = nickname.textContent.substring(0, 15) + "...";
+      }
     });
   }
-  
+
   function setupInputValidation() {
     document.addEventListener("input", (e) => {
-        if (e.target.classList.contains("player-input")) {
-            const input = e.target;
-            if (input.value.length > 15) {
-                input.value = input.value.substring(0, 15);
-            }
+      if (e.target.classList.contains("player-input")) {
+        const input = e.target;
+        if (input.value.length > 15) {
+          input.value = input.value.substring(0, 15);
         }
+      }
     });
   }
 
@@ -1145,11 +1144,12 @@ function initializeTournamentPage() {
     const lastMatchIndex = playerCount === 4 ? 3 : 7;
     const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
     const nextMatch = tournamentState.matches[tournamentState.currentMatch];
-    const playButton = document.querySelector(".buttonPlay");
+    const playButton = document.getElementById("buttonPlay");
 
     console.log("current match :", tournamentState.currentMatch);
 
     if (isLastMatch) {
+      // remove the button
       playButton.innerHTML = `
         <span class="button-text">Tournament Complete!</span>
       `;
@@ -1182,8 +1182,10 @@ function initializeTournamentPage() {
 
     if (player1IsBot && player2IsBot) {
       playButton.innerHTML = `
-        <img class="playIcon" src="/static/assets/icons/play.svg" />
-        <span class="button-text">Simulate Bots Match</span>
+              <svg>
+          <use href="/static/assets/icons/sprite.svg#play"></use>
+      </svg>
+      SIMULATE BOTS MATCH
       `;
       playButton.disabled = false;
 
@@ -1200,9 +1202,11 @@ function initializeTournamentPage() {
     }
 
     playButton.innerHTML = `
-      <img class="playIcon" src="/static/assets/icons/play.svg" />
-      <span class="button-text">${matchText}</span>
-    `;
+              <svg>
+          <use href="/static/assets/icons/sprite.svg#play"></use>
+      </svg>
+      ${matchText}
+      `;
     playButton.disabled = false;
 
     // Réactiver la barre d'espace à la fin de la fonction
@@ -1267,11 +1271,11 @@ function initializeTournamentPage() {
     tournamentConfig.style.display = "none";
     document.querySelector(".chipSelectorPlayer").style.display = "none";
 
-    document.querySelector(".buttonPlay").innerHTML = `
+    document.getElementById("buttonPlay").innerHTML = `
       <img class="playIcon" src="/static/assets/icons/play.svg" />
       <span class="button-text">LAUNCH NEXT MATCH</span>
     `;
-    document.querySelector(".reset-btn").style.display = "block";
+    document.getElementById("resetTournamentButton").style.display = "flex";
 
     tournamentState.isStarted = true;
     tournamentState.currentMatch = 0;
@@ -1296,12 +1300,12 @@ function initializeTournamentPage() {
     });
   }
 
-  const startButton = document.querySelector(".start-tournament-btn");
+  const startButton = document.getElementById("startTournamentButton");
   if (startButton) {
     startButton.addEventListener("click", startTournament);
   }
 
-  const resetButton = document.querySelector(".reset-btn");
+  const resetButton = document.getElementById("resetTournamentButton");
   if (resetButton) {
     resetButton.addEventListener("click", () => {
       location.reload();
@@ -1424,17 +1428,17 @@ function initializeTournamentPage() {
   // function showMatchVictory(winner, score1, score2) {
   //   // Bloquer la barre d'espace lorsqu'on affiche l'écran de victoire
   //   gameManager.blockSpacebar(true);
-  
+
   //   const overlay = document.querySelector(".victory-overlay");
   //   const winnerNameElement = overlay.querySelector(".winner-name");
   //   const scoreElement = overlay.querySelector(".victory-score");
   //   const continueBtn = overlay.querySelector(".continue-btn");
-  
+
   //   winnerNameElement.textContent = winner.name;
   //   scoreElement.innerHTML = `WON THE GAME`;
-  
+
   //   overlay.classList.add("show");
-  
+
   //   // Ajouter un écouteur sur l'overlay pour bloquer la barre d'espace dans la pop-up
   //   overlay.addEventListener("keydown", (event) => {
   //     // Empêche la propagation de la barre d'espace si l'overlay est affiché
@@ -1442,17 +1446,17 @@ function initializeTournamentPage() {
   //       event.preventDefault(); // Bloque la barre d'espace dans la pop-up
   //     }
   //   });
-  
+
   //   const handleContinue = () => {
   //     // Réactiver la barre d'espace lorsque l'utilisateur clique sur "Continue"
   //     gameManager.blockSpacebar(false);
-      
+
   //     overlay.classList.remove("show");
   //     continueBtn.removeEventListener("click", handleContinue);
   //   };
-  
+
   //   continueBtn.addEventListener("click", handleContinue);
-  
+
   //   // Focus sur l'overlay pour capter l'événement keydown
   //   overlay.tabIndex = -1; // Rend l'overlay focusable
   //   overlay.focus(); // Donne le focus à l'overlay pour capturer les événements clavier
@@ -1461,17 +1465,17 @@ function initializeTournamentPage() {
   function showMatchVictory(winner, score1, score2) {
     // Bloquer la barre d'espace lorsqu'on affiche l'écran de victoire
     gameManager.blockSpacebar(true);
-  
+
     const overlay = document.querySelector(".victory-overlay");
     const winnerNameElement = overlay.querySelector(".winner-name");
     const scoreElement = overlay.querySelector(".victory-score");
     const continueBtn = overlay.querySelector(".continue-btn");
-  
+
     winnerNameElement.textContent = winner.name;
     scoreElement.innerHTML = `WON THE GAME`;
-  
+
     overlay.classList.add("show");
-  
+
     // Assurez-vous que l'overlay capte l'événement de la barre d'espace
     overlay.addEventListener("keydown", (event) => {
       if (event.code === "Space") {
@@ -1479,70 +1483,67 @@ function initializeTournamentPage() {
         console.log("Barre d'espace bloquée dans la pop-up");
       }
     });
-  
+
     // Focus sur l'overlay pour que l'overlay capte les événements
     overlay.tabIndex = -1; // Permet à l'overlay d'être focusable
     overlay.focus(); // Assure que l'overlay a le focus
-  
+
     const handleContinue = () => {
       // Réactiver la barre d'espace après que l'utilisateur ait cliqué sur "Continue"
       gameManager.blockSpacebar(false);
-  
+
       overlay.classList.remove("show");
       continueBtn.removeEventListener("click", handleContinue);
     };
-  
+
     continueBtn.addEventListener("click", handleContinue);
   }
-  
-  
-  
+
   function showTournamentWinner(winner, finalScores) {
     // Bloquer la barre d'espace lors de l'affichage de l'écran de la victoire finale
     gameManager.blockSpacebar(true);
-  
+
     const overlay = document.querySelector(".tournament-winner-overlay");
     const winnerNameElement = overlay.querySelector(".winner-name");
     const titleElement = overlay.querySelector(".winner-title");
     const scoreElement = overlay.querySelector(".final-score");
     const continueBtn = overlay.querySelector(".continue-btn");
-  
+
     // Nettoyer les confettis existants
     overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
-  
+
     titleElement.textContent = "TOURNAMENT CHAMPION";
     winnerNameElement.textContent = winner.name;
-  
+
     // On cache ou on enlève le score element qui n'est plus nécessaire
     if (scoreElement) {
       scoreElement.style.display = "none";
     }
-  
+
     overlay.classList.add("show");
-  
+
     // Créer les confettis initiaux
     createConfetti();
-  
+
     // Créer de nouveaux confettis toutes les 2 secondes
     const confettiInterval = setInterval(() => {
       if (overlay.classList.contains("show")) {
         createConfetti();
       }
     }, 2000);
-  
+
     const handleContinue = () => {
       // Réactiver la barre d'espace quand l'utilisateur clique sur "Continue"
       gameManager.blockSpacebar(false);
-      
+
       overlay.classList.remove("show");
       clearInterval(confettiInterval);
       overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
       continueBtn.removeEventListener("click", handleContinue);
     };
-  
+
     continueBtn.addEventListener("click", handleContinue);
   }
-  
 
   // function showMatchVictory(winner, score1, score2) {
   //   const overlay = document.querySelector(".victory-overlay");

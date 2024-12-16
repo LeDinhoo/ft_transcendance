@@ -234,16 +234,20 @@
       <div id="8" class="numberMid option-btn">8</div>
     </div>
 
-    <button class="buttonPlay">
-      <img class="playIcon" src="/static/assets/icons/play.svg" />
-      <span class="button-text">PLAY</span>
+    <button class="btn-icon-orange" id="buttonPlay">
+      <svg>
+        <use href="/static/assets/icons/sprite.svg#play"></use>
+      </svg>
+      PLAY
     </button>
 
-    <button class="reset-btn" style="display: none">
+    <button class="btn-icon" id="resetTournamentButton" style="display: none">
+      <svg>
+        <use href="/static/assets/icons/sprite.svg#reset"></use>
+      </svg>
       RESET TOURNAMENT
     </button>
   </div>
-</div>
 </div>
 
 <div id="tournamentConfig" class="popup-overlay">
@@ -257,10 +261,14 @@
       <div class="player-entry">
         <img class="player-avatar" src="/static/assets/avatars/mouton.png" />
         <div class="player-controls">
-          <input type="text" class="player-input" placeholder="Entrez un pseudo" />
+          <input
+            type="text"
+            class="player-input"
+            placeholder="Entrez un pseudo"
+          />
           <div class="bot-toggle">
             <label class="switch">
-              <input type="checkbox" class="bot-checkbox">
+              <input type="checkbox" class="bot-checkbox" />
               <span class="slider round"></span>
             </label>
             <span class="bot-label">Bot</span>
@@ -269,41 +277,43 @@
       </div>
     </div>
     <div class="popup-footer">
-      <button class="start-tournament-btn">
-        <img class="playIcon" src="/static/assets/icons/play.svg" />
-        START TOURNAMENT
+      <button class="btn-icon-orange" id="startTournamentButton">
+        <svg>
+          <use href="/static/assets/icons/sprite.svg#play"></use>
+        </svg>
+        START
       </button>
     </div>
   </div>
 </div>
 
 <div class="victory-overlay">
-<div class="victory-content">
-  <div class="victory-flash"></div>
-  <img
-    src="/static/assets/icons/victory.svg"
-    class="victory-icon"
-    alt="Victory"
-  />
-  <div class="winner-name"></div>
-  <div class="victory-score"></div>
-  <button class="continue-btn">NEXT MATCH</button>
-</div>
+  <div class="victory-content">
+    <div class="victory-flash"></div>
+    <img
+      src="/static/assets/icons/victory.svg"
+      class="victory-icon"
+      alt="Victory"
+    />
+    <div class="winner-name"></div>
+    <div class="victory-score"></div>
+    <button class="continue-btn">NEXT MATCH</button>
+  </div>
 </div>
 
 <div class="tournament-winner-overlay">
-<div class="tournament-winner-content">
-  <div class="trophy-container">
-    <div class="trophy-rays"></div>
-    <img
-      src="/static/assets/icons/trophy.svg"
-      class="trophy-icon"
-      alt="Trophy"
-    />
+  <div class="tournament-winner-content">
+    <div class="trophy-container">
+      <div class="trophy-rays"></div>
+      <img
+        src="/static/assets/icons/trophy.svg"
+        class="trophy-icon"
+        alt="Trophy"
+      />
+    </div>
+    <div class="winner-title">Tournament Champion</div>
+    <div class="winner-name"></div>
+    <div class="final-score"></div>
+    <button class="continue-btn">FINISH TOURNAMENT</button>
   </div>
-  <div class="winner-title">Tournament Champion</div>
-  <div class="winner-name"></div>
-  <div class="final-score"></div>
-  <button class="continue-btn">FINISH TOURNAMENT</button>
-</div>
 </div>
