@@ -43,16 +43,52 @@ const wsManager = {
           }
           break;
 
+        // case "game_invitation":
+        //   console.log("Game invitation received:", data);
+        //   this.handleGameInvitation(data);
+        //   // this.messageListeners.forEach((listener) => listener(data));
+        //   // Laisser passer l'événement original pour la popup
+        //   if (data.receiver === window.currentUser?.username) {
+        //     this.messageListeners.forEach((listener) => listener(data));
+        //   }
+        //   break;
+
         case "game_invitation":
           console.log("Game invitation received:", data);
-          this.handleGameInvitation(data);
-          this.messageListeners.forEach((listener) => listener(data));
+          // Message système dans le chat
+          if (data.receiver === window.currentUser?.username) {
+            const systemMessage = {
+              type: "chat_message",
+              message: `${data.sender.username} has invited you to play ${data.gameType}`,
+              username: "System",
+              avatar: "/static/assets/icons/system.png",
+              userId: "system",
+              timestamp: new Date().toISOString(),
+            };
+            this.messageHistory.push(systemMessage);
+            this.messageListeners.forEach((listener) =>
+              listener(systemMessage)
+            );
+            // Gestion de la popup séparément
+            window.GameInvitationManager?.handleInvitation?.(data);
+          }
           break;
 
         case "game_invitation_response":
           console.log("Game invitation response received:", data);
           this.handleGameInvitationResponse(data);
-          this.messageListeners.forEach((listener) => listener(data));
+          // this.messageListeners.forEach((listener) => listener(data));
+          // if (data.sender === window.currentUser?.username) {
+          //   this.messageListeners.forEach((listener) => listener(data));
+          // }
+          //   if (data.sender === window.currentUser?.username) {
+          //     // Filtre pour ne pas envoyer au handler de messages du chat
+          //     this.messageListeners.forEach((listener) => {
+          //         if (listener !== this.handleMessage) {
+          //             listener(data);
+          //         }
+          //     });
+          // }
           break;
 
         case "user_list_update":
@@ -100,6 +136,8 @@ const wsManager = {
       type: "chat_message",
       message: `${data.sender.username} has invited you to play ${data.gameType}`,
       username: "System",
+      avatar: "/static/assets/icons/system.png",  // Ajout de l'avatar
+      userId: "system",                           // Ajout de l'userId 
       timestamp: new Date().toISOString(),
     };
     this.messageHistory.push(systemMessage);
@@ -114,6 +152,8 @@ const wsManager = {
           ? `${data.receiver} accepted your game invitation. Module remote not done.`
           : `${data.receiver} declined your game invitation.`,
       username: "System",
+      avatar: "/static/assets/icons/system.png", // Ajout explicit de l'avatar
+      userId: "system", // Ajout d'un userId
       timestamp: new Date().toISOString(),
     };
     this.messageHistory.push(responseMessage);
