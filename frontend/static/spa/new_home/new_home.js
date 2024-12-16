@@ -821,23 +821,23 @@ function initializeHome() {
       if (gameType === "CLASSIC PONG" && modeType === "AGAINST AI") {
         console.log("Launching Classic Pong against AI...");
         startMatch(this.options, true, false);
-			} else if (gameType === "POWER PONG" && modeType === "AGAINST AI") {
+			} else if (gameType === "CUSTOM PONG" && modeType === "AGAINST AI") {
 				console.log("Launching Power Pong against AI...");
 				startMatch(this.options, true, true);
 			} else if (gameType === "CLASSIC PONG" && modeType === "1 VS 1") {
 				console.log("Launching Classic Pong against a friend...");
 				startMatch(this.options, false, false);
-			} else if (gameType === "POWER PONG" && modeType === "1 VS 1") {
+			} else if (gameType === "CUSTOM PONG" && modeType === "1 VS 1") {
 				console.log("Launching Power Pong against a friend...");
 				startMatch(this.options, false, true);
       } else if (gameType === "CLASSIC PONG" && modeType === "TOURNAMENT") {
         console.log("Redirecting to /tournament...");
         window.location.href = "/tournament";
-      } else if (gameType === "POWER PONG" && modeType === "TOURNAMENT") {
+      } else if (gameType === "CUSTOM PONG" && modeType === "TOURNAMENT") {
         console.log("Redirecting to /tournament...");
         window.location.href = "/tournament";
       } else if (
-        (gameType === "CLASSIC PONG" || gameType === "POWER PONG") &&
+        (gameType === "CLASSIC PONG" || gameType === "CUSTOM PONG") &&
         modeType === "ONLINE"//
       ) {
         console.log(`Launching ${gameType} Online...`);
