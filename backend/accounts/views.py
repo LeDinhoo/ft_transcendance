@@ -94,14 +94,14 @@ def set_jwt_cookies(response, access_token, refresh_token):
         value=access_token,
         httponly=True,  
         secure=True,    
-        samesite='None'  
+        samesite='Strict'  
     )
     response.set_cookie(
         key='refresh_token',
         value=refresh_token,
         httponly=True,
         secure=True,
-        samesite='None' 
+        samesite='Strict' 
     )
 
 
@@ -564,26 +564,16 @@ def callback_42(request):
                     )
 
             
-            if avatar_url:
+            if avatar_url and user.is_42_user and (not user.avatar or user.avatar.name == 'assets/avatars/ladybug.png'):
                 try:
-                    logger.info(f"Attempting to download avatar from: {avatar_url}")
                     avatar_response = requests.get(avatar_url, timeout=10)
-
                     if avatar_response.status_code == 200:
-                        logger.info("Avatar download successful")
-
-                        
                         file_name = f"42_avatar_{user.username}_{user.id}.jpg"
-
-                        
                         user.avatar.save(
                             file_name,
                             ContentFile(avatar_response.content),
                             save=True
                         )
-                        logger.info(f"Avatar saved to: {user.avatar.path}")
-                    else:
-                        logger.error(f"Failed to download avatar. Status code: {avatar_response.status_code}")
 
                 except Exception as e:
                     logger.error(f"Failed to save avatar: {str(e)}")
