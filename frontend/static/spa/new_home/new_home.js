@@ -353,14 +353,14 @@ function initializeHome() {
     static initializeContextMenu() {
       const chatMessages = DOM.chat.messages;
       let activeMenu = null;
-    
+
       chatMessages.addEventListener("click", async (e) => {
         const avatar = e.target.closest(".messageAvatar");
         if (!avatar) return;
-    
+
         e.preventDefault();
         e.stopPropagation();
-    
+
         if (activeMenu) {
           activeMenu.remove();
           activeMenu = null;
@@ -378,54 +378,55 @@ function initializeHome() {
     if (username === "System" || userId === "system") {
       return;
     }
-    
+
         const menu = document.createElement("div");
         menu.className = "chat-context-menu";
-    
-        // Construction du menu
+
+        // Construction  du menu
         let menuOptions = "";
-    
+
         // Option "See profile" toujours présente
         menuOptions += `
-          <div class="chat-menu-option" data-action="profile">
-            See profile
-          </div>
-        `;
-    
+					<div class="chat-menu-option" data-action="profile">
+						See profile
+					</div>
+				`;
+
         // Si ce n'est pas notre propre message
         if (!isOwnMessage) {
           if (isBlocked) {
+
             menuOptions += `
-              <div class="chat-menu-option" data-action="block">
-                Unblock user
-              </div>
-            `;
+							<div class="chat-menu-option" data-action="block">
+								Unblock user
+							</div>
+						`;
           } else {
+
             menuOptions += `
-              <div class="chat-menu-option" data-action="add-friend">
-                Add friend
-              </div>
-              <div class="chat-menu-option" data-action="send-invitation">
-                Send online invitation
-              </div>
-              <div class="chat-menu-option" data-action="block">
-                Block user
-              </div>
-              <div class="chat-menu-option" data-action="private-message">
-                Private message
-              </div>
-            `;
+							<div class="chat-menu-option" data-action="add-friend">
+								Add friend
+							</div>
+							<div class="chat-menu-option" data-action="send-invitation">
+								Send online invitation
+							</div>
+							<div class="chat-menu-option" data-action="block">
+								Block user
+							</div>
+							<div class="chat-menu-option" data-action="private-message">
+								Private message
+							</div>
+						`;
           }
         }
-    
+
         menu.innerHTML = menuOptions;
-    
         document.body.appendChild(menu);
         const rect = avatar.getBoundingClientRect();
         ChatHandler.positionMenuWithinViewport(menu, rect);
-    
+
         activeMenu = menu;
-    
+
         // Le reste du code reste inchangé...
 
         // Le reste du code pour gérer les clics sur les options reste inchangé
@@ -924,9 +925,9 @@ function initializeHome() {
         //       }
         //     }
 
-        //     menu.innerHTML = menuOptions;
+        //menu.innerHTML = menuOptions;
 
-        //     document.body.appendChild(menu);
+        //document.body.appendChild(menu);
         //     ChatHandler.positionMenuWithinViewport(menu, rect);
 
         menu.addEventListener("click", async (e) => {
@@ -1422,6 +1423,7 @@ const GameInvitationManager = {
     // Envoyer via WebSocket
     if (window.wsManager && window.wsManager.chatSocket) {
       window.wsManager.chatSocket.send(JSON.stringify(invitation));
+      console.log("Game invitation sent via WebSocket");
       this.showNotification(`Game invitation sent to ${username}`);
     } else {
       console.error("WebSocket connection not available");
@@ -1429,18 +1431,34 @@ const GameInvitationManager = {
     }
   },
 
-  showNotification(message) {
-    const homePageMain = document.querySelector(".homePageMain");
-    if (!homePageMain) return;
+  // showNotification(message) {
+  //   console.log("Showing notification:", message);
+  //   const homePageMain = document.querySelector(".homePageMain");
+  //   if (!homePageMain) return;
 
+  //   const notification = document.createElement("div");
+  //   notification.classList.add("confirmation-animation");
+  //   notification.innerHTML = `
+  //         <div class="confirmation-icon"></div>
+  //         <div class="confirmation-text">${message}</div>
+  //     `;
+  //   homePageMain.appendChild(notification);
+  //   setTimeout(() => notification.remove(), 2000);
+  // },
+
+  showNotification(message) {
+    console.log("Showing notification:", message);
+
+    // Création de l'élément de notification
     const notification = document.createElement("div");
-    notification.classList.add("confirmation-animation");
-    notification.innerHTML = `
-          <div class="confirmation-icon"></div>
-          <div class="confirmation-text">${message}</div>
-      `;
-    homePageMain.appendChild(notification);
-    setTimeout(() => notification.remove(), 2000);
+    notification.classList.add("custom-notification");
+    notification.textContent = message;
+
+    // Ajout au body pour s'assurer qu'elle apparaît partout
+    document.body.appendChild(notification);
+
+    // Retirer l'élément après 3 secondes
+    setTimeout(() => notification.remove(), 3000);
   },
 
   handleInvitation(data) {

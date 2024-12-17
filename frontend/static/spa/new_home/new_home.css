@@ -735,6 +735,35 @@ body {
   }
 }
 
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%); /* Déplacement hors de l'écran à droite */
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0); /* Position finale */
+    opacity: 1;
+  }
+}
+
+.custom-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #333;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+
+  /* Animation */
+  animation: slide-in-right 0.5s ease-out;
+  opacity: 1;
+}
+
 .online-game-modal {
   display: none;
   position: fixed;
@@ -1407,7 +1436,6 @@ body {
   margin-right: 4px;
 }
 
-
 .message.system {
   display: flex;
   justify-content: center;
@@ -1428,95 +1456,94 @@ body {
   padding: 0;
 }
 
-
 /* henrik profil popup */
 /* Style pour la section de l'historique des matchs */
 .recent-games {
-    width: 100%;
-    margin-top: 20px;
-    padding: 16px;
-    background-color: var(--gluon-grey);
-    border-radius: var(--24px);
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  background-color: var(--gluon-grey);
+  border-radius: var(--24px);
 }
 
 .recent-games h4 {
-    font-size: var(--36px);
-    font-weight: 600;
-    color: var(--snow);
-    text-align: center;
-    margin-bottom: var(--16px);
+  font-size: var(--36px);
+  font-weight: 600;
+  color: var(--snow);
+  text-align: center;
+  margin-bottom: var(--16px);
 }
 
 /* Conteneur des matchs */
 .recent-games-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--8px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--8px);
 }
 
 /* Style pour chaque résumé de match */
 .match-resume {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: var(--12px);
-    width: 100%;
-    padding: var(--8px) 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--12px);
+  width: 100%;
+  padding: var(--8px) 0;
 }
 
 /* Date du match */
 .game-date {
-    color: #878787;
-    font-size: 0.9em;
-    margin-right: 10px;
-    min-width: 65px;
+  color: #878787;
+  font-size: 0.9em;
+  margin-right: 10px;
+  min-width: 65px;
 }
 
 /* Avatar dans l'historique */
 .avatar-history {
-    height: var(--36px);
-    width: var(--36px);
-    border-radius: 50%;
-    object-fit: cover;
+  height: var(--36px);
+  width: var(--36px);
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Score du joueur */
 .score-player {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: var(--40px);
-    width: var(--40px);
-    border: var(--dusty-grey) solid var(--4px);
-    border-radius: var(--16px);
-    color: var(--snow);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--40px);
+  width: var(--40px);
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--16px);
+  color: var(--snow);
 }
 
 /* Séparateur entre les scores */
 .separator-match {
-    font-size: 600;
-    color: var(--snow);
+  font-size: 600;
+  color: var(--snow);
 }
 
 /* Label du résultat */
 .result-label {
-    font-size: var(--16px);
-    font-weight: 600;
-    color: var(--liquid-lava);
+  font-size: var(--16px);
+  font-weight: 600;
+  color: var(--liquid-lava);
 }
 
 /* Style spécifique pour les défaites */
 .result-label[style*="DEFEAT"] {
-    color: #878787;
+  color: #878787;
 }
 
 /* Message quand il n'y a pas de parties */
 .no-games {
-    color: #878787;
-    text-align: center;
-    padding: var(--24px);
-    font-style: italic;
-    font-size: var(--16px);
+  color: #878787;
+  text-align: center;
+  padding: var(--24px);
+  font-style: italic;
+  font-size: var(--16px);
 }
 
 
