@@ -332,17 +332,12 @@ body {
   }
 }
 
-
-
-/* Styliser la scrollbar pour les sections de paramètres */
 .leftSettings,
 .rightSettings {
-  /* Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--dusty-grey) var(--dark-grey);
 }
 
-/* Chrome, Edge, Safari */
 .leftSettings::-webkit-scrollbar,
 .rightSettings::-webkit-scrollbar {
   width: 8px;
@@ -367,47 +362,41 @@ body {
   background: var(--dusty-grey);
 }
 
-/* Améliorer le comportement du scroll */
 .leftSettings,
 .rightSettings {
   scroll-behavior: smooth;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-right: 16px; /* Compensation pour la scrollbar */
+  padding-right: 16px;
 }
 
-/* Optimiser l'espacement du contenu */
 .settings-group {
-  padding-right: 8px; /* Éviter que le contenu ne touche la scrollbar */
+  padding-right: 8px;
 }
 
-/* Cacher les scrollbars sur les appareils mobiles */
 @media (max-width: 768px) {
   .leftSettings,
   .rightSettings {
     scrollbar-width: none;
     padding-right: 8px;
   }
-  
+
   .leftSettings::-webkit-scrollbar,
   .rightSettings::-webkit-scrollbar {
     display: none;
   }
-  
-  /* Ajuster l'espacement en mobile */
+
   .settings-group {
     padding-right: 0;
   }
 }
 
-/* Assurer un bon comportement du scroll dans le conteneur principal */
 .settingsContent {
-  overflow: hidden; /* Empêcher le double scroll */
+  overflow: hidden;
 }
 
-/* Ajuster la hauteur des conteneurs pour éviter les problèmes de scroll */
 .settingsWrapper {
-  overflow: hidden; /* Empêcher le double scroll */
-  height: calc(100vh - 200px); /* Ajuster selon vos besoins */
+  overflow: hidden;
+  height: calc(100vh - 200px);
 }

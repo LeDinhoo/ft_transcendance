@@ -31,12 +31,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.accept()
 
             await self.channel_layer.group_send(
-                "chat",
-                {
-                    "type": "user_list_update",
-                    "users": [json.dumps(user) for user in ChatConsumer.connected_users.values()]
-                }
-            )
+                "chat", {
+                    "type":
+                    "user_list_update",
+                    "users": [
+                        json.dumps(user)
+                        for user in ChatConsumer.connected_users.values()
+                    ]
+                })
 
         except Exception as e:
             print(f"Erreur lors de la connexion: {str(e)}")
@@ -46,12 +48,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if hasattr(self, 'user') and not self.user.is_anonymous:
             ChatConsumer.connected_users.pop(self.user.id, None)
             await self.channel_layer.group_send(
-                "chat",
-                {
-                    "type": "user_list_update",
-                    "users": [json.dumps(user) for user in ChatConsumer.connected_users.values()]
-                }
-            )
+                "chat", {
+                    "type":
+                    "user_list_update",
+                    "users": [
+                        json.dumps(user)
+                        for user in ChatConsumer.connected_users.values()
+                    ]
+                })
 
         await self.channel_layer.group_discard("chat", self.channel_name)
 
@@ -68,13 +72,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             **data,
             'userId': str(self.user.id),
         }
-        await self.channel_layer.group_send(
-            "chat",
-            {
-                "type": "chat_message",
-                "message": message_data
-            }
-        )
+        await self.channel_layer.group_send("chat", {
+            "type": "chat_message",
+            "message": message_data
+        })
 
     async def chat_message(self, event):
         message_data = event['message']
@@ -82,8 +83,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         try:
             current_user = self.scope["user"]
-            sender_blocked_me = await self.is_user_blocked(sender_id, current_user.id)
-            i_blocked_sender = await self.is_user_blocked(current_user.id, sender_id)
+            sender_blocked_me = await self.is_user_blocked(
+                sender_id, current_user.id)
+            i_blocked_sender = await self.is_user_blocked(
+                current_user.id, sender_id)
 
             if not sender_blocked_me and not i_blocked_sender:
                 await self.send(text_data=json.dumps(message_data))
@@ -97,7 +100,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         user = await User.objects.aget(id=user_id)
         return await user.blocked_users.filter(id=blocked_id).aexists()
 
+
 class GameConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         await self.channel_layer.group_add("game", self.channel_name)
         await self.accept()
@@ -107,13 +112,10 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        await self.channel_layer.group_send(
-            "game",
-            {
-                "type": "game_message",
-                "message": data
-            }
-        )
+        await self.channel_layer.group_send("game", {
+            "type": "game_message",
+            "message": data
+        })
 
     async def game_message(self, event):
         await self.send(text_data=json.dumps(event["message"]))

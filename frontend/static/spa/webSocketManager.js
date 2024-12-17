@@ -57,15 +57,13 @@ const wsManager = {
         case "private_message":
           const messageId = this.addMessageToHistory(data);
           this.messageListeners.forEach((listener) =>
-              listener({ ...data, id: messageId })
+            listener({ ...data, id: messageId })
           );
           break;
 
         case "game_invitation":
           console.log("Game invitation received:", data);
-          // Vérification que le destinataire est l'utilisateur courant
           if (data.receiver === window.currentUser?.username) {
-            // Ajout d'un message système dans l'historique des messages
             const systemMessage = {
               type: "chat_message",
               message: `${data.sender.username} has invited you to play ${data.gameType}`,
@@ -75,13 +73,11 @@ const wsManager = {
               timestamp: new Date().toISOString(),
             };
 
-            // Ajout du message au messageHistory via la méthode existante
             const messageId = this.addMessageToHistory(systemMessage);
             this.messageListeners.forEach((listener) =>
-                listener({ ...systemMessage, id: messageId })
+              listener({ ...systemMessage, id: messageId })
             );
 
-            // Gestion de l'invitation via une popup ou autre composant
             if (window.GameInvitationManager?.handleInvitation) {
               window.GameInvitationManager.handleInvitation(data);
             }
@@ -90,7 +86,6 @@ const wsManager = {
 
         case "game_invitation_response":
           console.log(`Game event received:`, data);
-          // this.messageListeners.forEach((listener) => listener(data));
           this.handleGameInvitationResponse(data);
           break;
 
@@ -109,33 +104,28 @@ const wsManager = {
   },
 
   handleGameInvitationResponse(data) {
-    // Construction du message système
     const responseMessage = {
       type: "chat_message",
       message:
-          data.response === "accept"
-              ? `${data.receiver} accepted your game invitation.`
-              : `${data.receiver} declined your game invitation.`,
+        data.response === "accept"
+          ? `${data.receiver} accepted your game invitation.`
+          : `${data.receiver} declined your game invitation.`,
       username: "System",
-      avatar: "/static/assets/icons/system.png", // Avatar système
-      userId: "system", // ID utilisateur système
+      avatar: "/static/assets/icons/system.png",
+      userId: "system",
       timestamp: new Date().toISOString(),
     };
 
-    // Ajout du message dans l'historique via la méthode existante
     const messageId = this.addMessageToHistory(responseMessage);
 
-    // Notification des écouteurs
     this.messageListeners.forEach((listener) =>
-        listener({ ...responseMessage, id: messageId })
+      listener({ ...responseMessage, id: messageId })
     );
 
-    // Si l'invitation est refusée, fermeture de la modal
     if (data.response === "decline" && window.GameInvitationManager) {
       window.GameInvitationManager.closeModal();
     }
   },
-
 
   handleUserListUpdate(data) {
     try {
@@ -162,7 +152,7 @@ const wsManager = {
 
     const friendsList = await getFriendsList();
     const blockedUsers = new Set(
-        (await getBlockedUsersList()).map((u) => String(u.id))
+      (await getBlockedUsersList()).map((u) => String(u.id))
     );
 
     listContainer.innerHTML = "";
@@ -171,25 +161,25 @@ const wsManager = {
       const isFriend = friendsList.some((friend) => friend.id === user.id);
       const isBlocked = blockedUsers.has(String(user.id));
       const isCurrentUser =
-          window.currentUser && String(user.id) === String(window.currentUser.id);
+        window.currentUser && String(user.id) === String(window.currentUser.id);
 
       let iconSrc = isCurrentUser
-          ? "/static/assets/icons/account_circle.svg"
-          : isBlocked
-              ? "/static/assets/icons/blocked.svg"
-              : isFriend
-                  ? "/static/assets/icons/friends.svg"
-                  : "/static/assets/icons/online.svg";
+        ? "/static/assets/icons/account_circle.svg"
+        : isBlocked
+        ? "/static/assets/icons/blocked.svg"
+        : isFriend
+        ? "/static/assets/icons/friends.svg"
+        : "/static/assets/icons/online.svg";
 
       const playerDiv = document.createElement("div");
       playerDiv.className = "onlinePlayers";
       playerDiv.innerHTML = `
           <img src="/static/assets/icons/connected_circle.svg" class="onlineFlag ${
-          user.status === "in_game" ? "in-game" : ""
-      }">
+            user.status === "in_game" ? "in-game" : ""
+          }">
           <div class="onlineNickname" data-username="${
-          user.username
-      }" data-user-id="${user.id}">
+            user.username
+          }" data-user-id="${user.id}">
             <img src="${user.avatar}" class="onlineAvatar">
             ${user.username}
           </div>
@@ -209,14 +199,14 @@ const wsManager = {
 
     const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
     const payload = pmMatch
-        ? {
+      ? {
           type: "private_message",
           recipient: pmMatch[1],
           message: pmMatch[2],
           username: window.currentUser.username,
           avatar: window.currentUser.avatar,
         }
-        : {
+      : {
           type: "chat_message",
           message,
           username: window.currentUser.username,

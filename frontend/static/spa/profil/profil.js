@@ -1,5 +1,5 @@
 function updateProfilOnProfil() {
-  console.log("fonction updateprofilonProfil appelee...")
+  console.log("fonction updateprofilonProfil appelee...");
   fetch("/api/profil/", {
     method: "GET",
     credentials: "include",
@@ -15,7 +15,6 @@ function updateProfilOnProfil() {
     })
     .then((data) => {
       if (data.username && data.email) {
-
         const win_ratio = data.win_ratio ?? 0;
         const totalGames = data.total_games ?? 0;
         console.log("total games : ", totalGames);
@@ -40,7 +39,6 @@ function updateProfilOnProfil() {
             "static/assets/icons/platinium.png";
           document.getElementById("rankText").innerText = "Platinium";
         }
-
       }
     })
     .catch((error) => {
@@ -161,7 +159,7 @@ function updateMatchHistoryUI(history) {
       resultLabel.style.color = "#878787";
     }
 
-    matchResume.appendChild(gameDate);   
+    matchResume.appendChild(gameDate);
     matchResume.appendChild(userAvatar);
     matchResume.appendChild(userScore);
     matchResume.appendChild(separator);
@@ -186,8 +184,10 @@ function loadUserStatistics() {
       console.log("Statistiques de l'utilisateur :", data);
 
       document.getElementById("total_games").innerText = data.total_games;
-      document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
-      document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
+      document.getElementById("win_ratio").innerText =
+        data.win_ratio.toFixed(2) + "%";
+      document.getElementById("max_ball_speed").innerText =
+        data.max_ball_speed.toFixed(2);
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
@@ -355,17 +355,19 @@ function initializeProfilePage() {
         document.getElementById("playerFrame").innerText = data.username;
         document.getElementById("username").value = data.username;
         document.getElementById("registerEmail").value = data.email;
-  
+
         if ("is_2fa_enabled" in data) {
           updateUI2FAStatus(data.is_2fa_enabled);
         }
-  
+
         // Mise à jour du rank
         if (data.rank) {
-          document.getElementById("profileRankIcon").src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
+          document.getElementById(
+            "profileRankIcon"
+          ).src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
           document.getElementById("profileRankText").textContent = data.rank;
         }
-  
+
         avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
       }
     })
@@ -524,7 +526,9 @@ https: function updateUI2FAStatus(enabled) {
 
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
- <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
+ <img src="/static/assets/icons/${
+   enabled ? "check" : "close"
+ }.svg" class="popuplogo" />
   ${enabled ? "2FA On" : "2FA Off"}
 `;
 
@@ -774,18 +778,21 @@ function initializeAvatarFeature() {
 }
 
 function loadFriendRequests() {
-    fetch('/api/friends/pending/', {
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        const requestsList = document.getElementById('friendRequestsList');
-        if (!data.pending_requests.length) {
-            requestsList.innerHTML = '<div class="no-requests">No pending friend requests</div>';
-            return;
-        }
+  fetch("/api/friends/pending/", {
+    credentials: "include",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      const requestsList = document.getElementById("friendRequestsList");
+      if (!data.pending_requests.length) {
+        requestsList.innerHTML =
+          '<div class="no-requests">No pending friend requests</div>';
+        return;
+      }
 
-        requestsList.innerHTML = data.pending_requests.map(request => `
+      requestsList.innerHTML = data.pending_requests
+        .map(
+          (request) => `
             <div class="friendRequest">
                 <img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
                 <div class="requestInfo">
@@ -800,61 +807,29 @@ function loadFriendRequests() {
                     </button>
                 </div>
             </div>
-        `).join('');
+        `
+        )
+        .join("");
     })
-    .catch(error => console.error('Error loading friend requests:', error));
+    .catch((error) => console.error("Error loading friend requests:", error));
 }
 
-// function handleFriendRequest(requestId, action) {
-//     fetch('/api/friends/handle-request/', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         credentials: 'include',
-//         body: JSON.stringify({ request_id: requestId, action })
-//     })
-//     .then(response => response.json())
-//     .then(() => {
-//         loadFriendRequests();
-//         if (action === 'accept') {
-//             // Créer un événement personnalisé avec des détails
-//             const event = new CustomEvent('friendRequestAccepted', {
-//                 detail: { requestId, action },
-//                 bubbles: true,
-//                 composed: true
-//             });
-//             document.dispatchEvent(event);
-            
-//             // Forcer une mise à jour immédiate si wsManager est disponible
-//             if (window.wsManager && window.wsManager.onlinePlayers) {
-//                 console.log("Mise à jour de la liste des joueurs en ligne après acceptation d'ami");
-//                 window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
-//             }
-//         }
-//     })
-//     .catch(error => console.error('Error handling friend request:', error));
-// }
-
 async function handleFriendRequest(requestId, action) {
-    try {
-        const response = await fetch('/api/friends/handle-request/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ request_id: requestId, action: action })
-        });
+  try {
+    const response = await fetch("/api/friends/handle-request/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ request_id: requestId, action: action }),
+    });
 
-        const result = await response.json();
-        console.log(result.message);
+    const result = await response.json();
+    console.log(result.message);
 
-        // Refresh the friend requests list
-        loadFriendRequests();
+    loadFriendRequests();
 
-        // Update the online players list
-        updateOnlinePlayersList([...wsManager.onlinePlayers]);
-
-    } catch (error) {
-        console.error("Error handling friend request:", error);
-    }
+    updateOnlinePlayersList([...wsManager.onlinePlayers]);
+  } catch (error) {
+    console.error("Error handling friend request:", error);
+  }
 }

@@ -361,7 +361,6 @@ body {
   }
 }
 
-/* Animation slide-out */
 .slide-out-left {
   animation: slideOutLeft 0.1s ease-in-out forwards;
 }
@@ -375,7 +374,6 @@ body {
   }
 }
 
-/* Animation slide-in */
 .slide-in-right {
   animation: slideInRight 0.15s ease-in-out forwards;
 }
@@ -389,7 +387,6 @@ body {
   }
 }
 
-/* Animation slide-out-right */
 .slide-out-right {
   animation: slideOutRight 0.1s ease-in-out forwards;
 }
@@ -403,7 +400,6 @@ body {
   }
 }
 
-/* Animation slide-in-left */
 .slide-in-left {
   animation: slideInLeft 0.15s ease-in-out forwards;
 }

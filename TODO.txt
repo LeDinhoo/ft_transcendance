@@ -60,3 +60,6 @@ A ete fait sur cette branche en + :
 HENRIK 
 
 - rajouter la fonction pour update online players lors du premier appelle a new_home js
+
+
+PENSER A ENLEVER LE .ENV

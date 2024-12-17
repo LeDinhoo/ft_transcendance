@@ -215,12 +215,12 @@ body {
 
 #save-settings {
     opacity: 0;
-    pointer-events: none; /* Empêche les clics */
-    transition: opacity 0.3s ease; /* Transition pour un effet fluide */
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 
 #save-keyboard-settings {
     opacity: 0;
-    pointer-events: none; /* Empêche les clics */
-    transition: opacity 0.3s ease; /* Transition pour un effet fluide */
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }

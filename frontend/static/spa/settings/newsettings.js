@@ -50,7 +50,6 @@ function initializeSettingsPage() {
 	});
 
 // POWERUPS ///////////////////////////////////////////////////////////////////////////////////////////
-// Sélectionne tous les boutons des power-ups
 	const powerupButtons = document.querySelectorAll(".powerupOptionLabel");
 
 
@@ -287,7 +286,6 @@ function initializeSettingsPage() {
 			.then((data) => {
 				console.log("Données de réponse :", data);
 
-				// Vérifiez la réponse correctement
 				if (data.message !== "Settings updated successfully") {
 					throw new Error(data.error || "Erreur inconnue côté serveur");
 				}
@@ -406,7 +404,6 @@ function initializeSettingsPage() {
 			.then((data) => {
 				console.log("Données de réponse :", data);
 
-				// Vérifiez la réponse correctement
 				if (data.message !== "Settings updated successfully") {
 					throw new Error(data.error || "Erreur inconnue côté serveur");
 				}
@@ -520,10 +517,10 @@ function initializeSettingsPage() {
 		const saveButton = document.getElementById("save-settings");
 		if (hasChanges) {
 			saveButton.style.opacity = "1";
-			saveButton.style.pointerEvents = "auto"; // Permet le clic
+			saveButton.style.pointerEvents = "auto";
 		} else {
 			saveButton.style.opacity = "0";
-			saveButton.style.pointerEvents = "none"; // Désactive le clic
+			saveButton.style.pointerEvents = "none";
 		}
 	}
 
@@ -533,10 +530,10 @@ function initializeSettingsPage() {
 		const keyboardSaveButton = document.getElementById("save-keyboard-settings");
 		if (hasKeyboardChanges) {
 			keyboardSaveButton.style.opacity = "1";
-			keyboardSaveButton.style.pointerEvents = "auto"; // Permet le clic
+			keyboardSaveButton.style.pointerEvents = "auto";
 		} else {
 			keyboardSaveButton.style.opacity = "0";
-			keyboardSaveButton.style.pointerEvents = "none"; // Désactive le clic
+			keyboardSaveButton.style.pointerEvents = "none";
 		}
 	}
 

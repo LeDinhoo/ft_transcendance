@@ -4,7 +4,6 @@
   box-sizing: border-box;
 }
 
-/* Suppression de la barre de défilement et fixation de la hauteur */
 html,
 body {
   margin: 0;
@@ -202,7 +201,6 @@ body {
 
 .chipSelectorPlayer {
   display: flex;
-  /* width: 9.063vw; */
   border-radius: var(--16px);
   flex-direction: row;
   justify-content: center;
@@ -394,19 +392,6 @@ body {
   z-index: 1000;
 }
 
-/* .popup-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--gluon-grey);
-  border-radius: var(--radius-xl);
-  padding: var(--24px);
-  width: 40vw;
-  max-height: 80vh;
-  overflow-y: auto;
-} */
-
 .popup-content {
   position: fixed;
   top: 50%;
@@ -419,28 +404,26 @@ body {
   max-height: 80vh;
   overflow-y: auto;
 
-  /* Scrollbar styles */
-  scrollbar-width: thin; /* Pour Firefox (fine) */
-  scrollbar-color: var(--dusty-grey) var(--slate-grey); /* Couleurs de la barre et du fond */
+  scrollbar-width: thin;
+  scrollbar-color: var(--dusty-grey) var(--slate-grey);
 }
 
-/* Styles pour Webkit-based browsers (Chrome, Edge, Safari) */
 .popup-content::-webkit-scrollbar {
-  width: 8px; /* Largeur de la scrollbar */
+  width: 8px;
 }
 
 .popup-content::-webkit-scrollbar-track {
-  background: var(--slate-grey); /* Couleur de l'arrière-plan */
-  border-radius: var(--radius-md); /* Arrondi */
+  background: var(--slate-grey);
+  border-radius: var(--radius-md);
 }
 
 .popup-content::-webkit-scrollbar-thumb {
-  background: var(--dusty-grey); /* Couleur de la barre */
-  border-radius: var(--radius-md); /* Arrondi */
+  background: var(--dusty-grey);
+  border-radius: var(--radius-md);
 }
 
 .popup-content::-webkit-scrollbar-thumb:hover {
-  background: var(--liquid-lava); /* Couleur au survol */
+  background: var(--liquid-lava);
 }
 
 .popup-header {
@@ -543,16 +526,15 @@ body {
   cursor: pointer;
 
   position: absolute;
-  /* left: calc(50% + 500px); */
-  left: calc(50% + 300px); /* Réduit la distance par rapport au centre */
-  white-space: nowrap; /* Empêche le texte de se wrapper */
-  min-width: max-content; /* Assure que le bouton garde sa taille minimale */
+  left: calc(50% + 300px);
+  white-space: nowrap;
+  min-width: max-content;
 }
 
 @media screen and (max-width: 1400px) {
   .reset-btn {
-    left: auto; /* Annule le left calculé */
-    right: 20px; /* Place le bouton à droite avec une marge fixe */
+    left: auto;
+    right: 20px;
   }
 }
 
@@ -590,18 +572,15 @@ body {
   background: none;
 }
 
-/* Style pour le joueur gagnant */
 .player.winner {
   border: 3px solid var(--liquid-lava);
 }
 
-/* Style pour le score gagnant */
 .score.winner {
   border: 3px solid var(--liquid-lava);
   color: var(--liquid-lava);
 }
 
-/* Styles communs */
 .victory-overlay,
 .tournament-winner-overlay {
   display: none;
@@ -639,7 +618,7 @@ body {
   width: 100%;
   max-width: 800px;
 }
-/* Style pour la victoire de match */
+
 .victory-content {
   background: var(--gluon-grey);
   border-radius: var(--radius-xl);
@@ -652,7 +631,6 @@ body {
   overflow: hidden;
 }
 
-/* Pour l'écran de victoire de match */
 .victory-score {
   font-size: 32px;
   color: var(--liquid-lava);
@@ -686,7 +664,6 @@ body {
   animation: flashAnimation 1s ease-out;
 }
 
-/* Assurer que le conteneur des confettis ne crée pas de ligne */
 .tournament-winner-overlay {
   display: none;
   position: fixed;
@@ -699,14 +676,13 @@ body {
   align-items: center;
   opacity: 0;
   transition: opacity 0.5s ease;
-  overflow: hidden; /* Empêcher le débordement */
+  overflow: hidden;
 }
 
-/* Mise à jour du conteneur de trophée */
 .trophy-container {
   position: relative;
-  width: 300px; /* Largeur fixe */
-  height: 300px; /* Hauteur fixe */
+  width: 300px;
+  height: 300px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
@@ -714,16 +690,13 @@ body {
 }
 
 .trophy-icon {
-  position: relative; /* Changé de absolute à relative */
+  position: relative;
   width: 180px;
   height: 180px;
   filter: invert(1) drop-shadow(0 0 30px var(--liquid-lava));
   animation: trophyEntrance 2s ease-out, trophyFloat 3s ease-in-out infinite;
   z-index: 2;
-  transform: translate(
-    0,
-    0
-  ); /* Retiré le transform qui causait des problèmes */
+  transform: translate(0, 0);
 }
 
 .trophy-rays {
@@ -740,13 +713,12 @@ body {
 }
 
 .confetti {
-  position: fixed; /* Changed from absolute to fixed */
-  pointer-events: none; /* S'assurer que les confettis n'interfèrent pas avec les clics */
+  position: fixed;
+  pointer-events: none;
   z-index: 1;
   animation: confettiFall 3s linear infinite;
 }
 
-/* Style du nom du gagnant */
 .winner-name {
   font-size: 64px;
   font-weight: bold;
@@ -775,7 +747,6 @@ body {
   text-align: center;
 }
 
-/* Style pour le score final dans l'écran du champion */
 .final-score {
   font-size: 36px;
   color: var(--snow);
@@ -807,7 +778,6 @@ body {
   animation: buttonPulse 2s infinite;
 }
 
-/* Animations */
 @keyframes victoryIconSpin {
   0% {
     transform: scale(0) rotate(-180deg);
@@ -829,7 +799,6 @@ body {
   }
 }
 
-/* Mise à jour de l'animation du trophée */
 @keyframes trophyFloat {
   0%,
   100% {
@@ -912,7 +881,6 @@ body {
   }
 }
 
-/* Classes d'activation */
 .victory-overlay.show,
 .tournament-winner-overlay.show {
   display: flex;
@@ -925,15 +893,11 @@ body {
   opacity: 1;
 }
 
-/* Ajouter dans tournament.css */
-
-/* Animation pour le numéro de match actif */
 .doubleMatchNumber.active {
   animation: matchPulse 2s infinite;
   position: relative;
 }
 
-/* Effet de pulsation principal */
 @keyframes matchPulse {
   0% {
     background-color: var(--liquid-lava);
@@ -951,7 +915,6 @@ body {
   }
 }
 
-/* Ajouter un effet de particules autour du numéro */
 .doubleMatchNumber.active::before,
 .doubleMatchNumber.active::after {
   content: "";
@@ -981,13 +944,11 @@ body {
   }
 }
 
-/* Effet de surbrillance */
 .doubleMatchNumber.active {
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
   transition: all 0.3s ease;
 }
 
-/* Animation de l'icône de flèche */
 @keyframes arrowBounce {
   0%,
   100% {
@@ -998,7 +959,6 @@ body {
   }
 }
 
-/* Ajout d'une petite flèche à côté du numéro */
 .doubleMatchNumber.active::before {
   content: "►";
   position: absolute;
@@ -1011,7 +971,6 @@ body {
   text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
 }
 
-/* Style de base du numéro de match */
 .doubleMatchNumber {
   position: relative;
   transition: all 0.3s ease;
@@ -1029,9 +988,6 @@ body {
   z-index: 1;
 }
 
-/* Ajouter dans tournament.css */
-
-/* Style spécial pour le bouton de fin de tournoi */
 .btn-icon-orange.tournament-complete {
   background: linear-gradient(45deg, var(--liquid-lava), #ff8c42);
   display: none;
@@ -1046,7 +1002,6 @@ body {
   font-weight: 700;
 }
 
-/* Animation spéciale pour le numéro du vainqueur */
 .doubleMatch .doubleMatchNumber.winner-number {
   background: linear-gradient(45deg, var(--liquid-lava), #ff8c42);
   animation: winnerPulse 3s infinite;
@@ -1065,7 +1020,6 @@ body {
   }
 }
 
-/* Animation des bordures du joueur vainqueur */
 .player.winner-final {
   position: relative;
   border-color: var(--liquid-lava);
@@ -1109,7 +1063,6 @@ body {
   }
 }
 
-/* Styles pour le toggle bot - À ajouter à la fin du fichier */
 .player-controls {
   display: flex;
   flex: 1;
