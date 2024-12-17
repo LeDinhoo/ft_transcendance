@@ -37,6 +37,10 @@ const wsManager = {
 
 		this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
 
+		document.addEventListener('blockedUsersChanged', () => {
+            this.updateOnlinePlayersList([...this.onlinePlayers]);
+        });
+
 		console.log('TEST\n:NEW SOCKET CREATED\n');
 
 		this.chatSocket.onopen = () => {
@@ -71,21 +75,21 @@ const wsManager = {
 					break;
 
 				case 'user_list_update':
-					try {
-						this.onlinePlayers.clear();
-						data.users.forEach(userStr => {
-							try {
-								const user = JSON.parse(userStr);
-								this.onlinePlayers.add(user);
-							} catch (e) {
-								console.error("Utilisateur JSON invalide :", userStr);
-							}
-						});
-						this.updateOnlinePlayersList([...this.onlinePlayers]);
-					} catch (error) {
-						console.error('Erreur lors de la mise à jour de la liste des utilisateurs :', error);
-					}
-					break;
+						try {
+							this.onlinePlayers.clear();
+							data.users.forEach(userStr => {
+								try {
+									const user = JSON.parse(userStr);
+									this.onlinePlayers.add(user);
+								} catch (e) {
+									console.error("Utilisateur JSON invalide :", userStr);
+								}
+							});
+							this.updateOnlinePlayersList([...this.onlinePlayers]);
+						} catch (error) {
+							console.error('Erreur lors de la mise à jour de la liste des utilisateurs :', error);
+						}
+						break;
 
 				default:
 					console.log("Unhandled message type:", data.type);

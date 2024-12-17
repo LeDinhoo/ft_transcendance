@@ -385,9 +385,16 @@ function initializeHome() {
 				});
 
 				if (response.ok) {
-					// Au lieu de modifier directement le Set, on recharge toute la liste
 					await ChatHandler.initializeBlockedUsers();
 					ChatHandler.showBlockConfirmation(username, !isBlocked);
+
+					// Déclencher la mise à jour de l'affichage
+					document.dispatchEvent(new Event('blockedUsersChanged'));
+
+					// Mettre à jour la liste des joueurs en ligne
+					if (window.wsManager) {
+						await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
+					}
 				}
 			} catch (error) {
 				console.error('Erreur lors de la modification du statut de blocage:', error);
