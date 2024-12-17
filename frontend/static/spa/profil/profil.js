@@ -840,21 +840,26 @@ async function handleFriendRequest(requestId, action) {
     try {
         const response = await fetch('/api/friends/handle-request/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             credentials: 'include',
-            body: JSON.stringify({ request_id: requestId, action: action })
+            body: JSON.stringify({ request_id: requestId, action })
         });
 
-        const result = await response.json();
-        console.log(result.message);
+        if (response.ok) {
+            // Mettre à jour la liste des demandes d'ami
+            loadFriendRequests();
+            
+            // Utiliser la méthode correcte de wsManager
+            if (window.wsManager && window.wsManager.onlinePlayers) {
+                await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
+            }
 
-        // Refresh the friend requests list
-        loadFriendRequests();
-
-        // Update the online players list
-        updateOnlinePlayersList([...wsManager.onlinePlayers]);
-
+            // Afficher un message de confirmation
+            showConfirmationMessage(`Friend request ${action}ed successfully`);
+        }
     } catch (error) {
-        console.error("Error handling friend request:", error);
+        console.error('Error handling friend request:', error);
     }
 }
