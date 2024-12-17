@@ -31,7 +31,7 @@ class UserSettings(models.Model):
 
 
 class CustomUser(AbstractUser):
-	
+
 	is_2fa_enabled = models.BooleanField(default=False)
 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
@@ -40,7 +40,7 @@ class CustomUser(AbstractUser):
 	email = models.EmailField(unique=True)
 	intra_42_id = models.IntegerField(null=True, blank=True, unique=True)
 	is_42_user = models.BooleanField(default=False)
-	
+
 # 	is_2fa_enabled = models.BooleanField(default=False)
 # 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
 # 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
@@ -63,6 +63,12 @@ class CustomUser(AbstractUser):
 		related_name='user_friends'
 	)
 
+	blocked_users = models.ManyToManyField(
+		'self',
+		symmetrical=False,
+		related_name='blocked_by',
+	)
+
 	def generate_2fa_code(self):
 		"""Génère un code 2FA à 6 chiffres"""
 		code = ''.join(random.choices(string.digits, k=6))
@@ -83,16 +89,16 @@ class GameHistory(models.Model):
 		null=True,
 		blank=True,
 		related_name='games_as_opponent'
-	)  
-	opponent_name = models.CharField(max_length=100, null=True, blank=True) 
+	)
+	opponent_name = models.CharField(max_length=100, null=True, blank=True)
 	score_user = models.IntegerField()
 	score_opponent = models.IntegerField()
 	result = models.BooleanField()
 	date_played = models.DateTimeField(auto_now_add=True)
 
-	power_catch = models.IntegerField(default=0)  
-	max_ball_speed = models.FloatField(default=0.0)  
-	longest_rally = models.IntegerField(default=0)  
+	power_catch = models.IntegerField(default=0)
+	max_ball_speed = models.FloatField(default=0.0)
+	longest_rally = models.IntegerField(default=0)
 
 	def __str__(self):
 		return f"{self.user.username} vs {self.opponent_name or self.opponent_user.username if self.opponent_user else 'Unknown'}"
@@ -130,3 +136,4 @@ class GameHostOptions(models.Model):
                 f"ballSpeedStart={self.ballSpeedStart}, ballSpeedMax={self.ballSpeedMax}, "
                 f"ballSpeedIncrease={self.ballSpeedIncrease}, powerups={self.powerups}, "
                 f"keyboardSettings={self.keyboardSettings})")
+

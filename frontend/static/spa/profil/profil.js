@@ -805,20 +805,56 @@ function loadFriendRequests() {
     .catch(error => console.error('Error loading friend requests:', error));
 }
 
-function handleFriendRequest(requestId, action) {
-    fetch('/api/friends/handle-request/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ request_id: requestId, action })
-    })
-    .then(response => response.json())
-    .then(() => {
+// function handleFriendRequest(requestId, action) {
+//     fetch('/api/friends/handle-request/', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         credentials: 'include',
+//         body: JSON.stringify({ request_id: requestId, action })
+//     })
+//     .then(response => response.json())
+//     .then(() => {
+//         loadFriendRequests();
+//         if (action === 'accept') {
+//             // Créer un événement personnalisé avec des détails
+//             const event = new CustomEvent('friendRequestAccepted', {
+//                 detail: { requestId, action },
+//                 bubbles: true,
+//                 composed: true
+//             });
+//             document.dispatchEvent(event);
+            
+//             // Forcer une mise à jour immédiate si wsManager est disponible
+//             if (window.wsManager && window.wsManager.onlinePlayers) {
+//                 console.log("Mise à jour de la liste des joueurs en ligne après acceptation d'ami");
+//                 window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
+//             }
+//         }
+//     })
+//     .catch(error => console.error('Error handling friend request:', error));
+// }
+
+async function handleFriendRequest(requestId, action) {
+    try {
+        const response = await fetch('/api/friends/handle-request/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ request_id: requestId, action: action })
+        });
+
+        const result = await response.json();
+        console.log(result.message);
+
+        // Refresh the friend requests list
         loadFriendRequests();
-    })
-    .catch(error => console.error('Error handling friend request:', error));
+
+        // Update the online players list
+        updateOnlinePlayersList([...wsManager.onlinePlayers]);
+
+    } catch (error) {
+        console.error("Error handling friend request:", error);
+    }
 }
-
-

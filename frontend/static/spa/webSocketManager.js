@@ -1,209 +1,255 @@
+async function getFriendsList() {
+  try {
+    const response = await fetch("/api/friends/list/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    return data.friends || [];
+  } catch (error) {
+    console.error("Error fetching friends list:", error);
+    return [];
+  }
+}
+
+async function getBlockedUsersList() {
+  try {
+    const response = await fetch("/api/blocked/list/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    return data.blocked_users || [];
+  } catch (error) {
+    console.error("Error fetching blocked users list:", error);
+    return [];
+  }
+}
+
 const wsManager = {
-    chatSocket: null,
-    messageListeners: new Set(),
-    messageHistory: [],
-    onlinePlayers: new Set(),
+  chatSocket: null,
+  messageListeners: new Set(),
+  messageHistory: new Map(),
+  onlinePlayers: new Set(),
+  MAX_MESSAGES: 20,
 
-    initializeChatSocket() {
-        if (this.chatSocket?.readyState === WebSocket.OPEN) return;
+  initializeChatSocket() {
+    if (this.chatSocket?.readyState === WebSocket.OPEN) return;
 
-        this.chatSocket = new WebSocket('wss://localhost:4430/wss/chat/');
+    this.chatSocket = new WebSocket("wss://localhost:4430/wss/chat/");
 
-        console.log('TEST\n:NEW SOCKET CREATED\n');
+    console.log("TEST\n:NEW SOCKET CREATED\n");
 
-        this.chatSocket.onopen = () => {
-            console.log('Chat WebSocket Connected');
-        };
+    this.chatSocket.onopen = () => {
+      console.log("Chat WebSocket Connected");
+    };
 
-        this.chatSocket.onclose = () => {
-            console.log('Chat WebSocket disconnected');
-            setTimeout(() => this.initializeChatSocket(), 5000);
-        };
+    this.chatSocket.onclose = () => {
+      console.log("Chat WebSocket disconnected");
+      setTimeout(() => this.initializeChatSocket(), 5000);
+    };
 
-        this.chatSocket.onmessage = (e) => {
-            console.log("Raw WebSocket message received:", e.data);
-            const data = JSON.parse(e.data);
-            console.log("Parsed message:", data);
+    this.chatSocket.onmessage = (e) => {
+      console.log("Raw WebSocket message received:", e.data);
+      const data = JSON.parse(e.data);
+      console.log("Parsed message:", data);
 
-            switch (data.type) {
-                case 'chat_message':
-                    this.messageHistory.push(data);
-                    this.messageListeners.forEach(listener => listener(data));
-                    break;
+      switch (data.type) {
+        case "chat_message":
+        case "private_message":
+          const messageId = this.addMessageToHistory(data);
+          this.messageListeners.forEach((listener) =>
+              listener({ ...data, id: messageId })
+          );
+          break;
 
-                case 'private_message':
-                    console.log("Private message received:", data);
-                    if (window.currentUser &&
-                        (data.username === window.currentUser.username ||
-                         data.recipient === window.currentUser.username)) {
-                        this.messageHistory.push(data);
-                        this.messageListeners.forEach(listener => listener(data));
-                    }
-                    break;
+        case "game_invitation":
+          console.log("Game invitation received:", data);
+          // Vérification que le destinataire est l'utilisateur courant
+          if (data.receiver === window.currentUser?.username) {
+            // Ajout d'un message système dans l'historique des messages
+            const systemMessage = {
+              type: "chat_message",
+              message: `${data.sender.username} has invited you to play ${data.gameType}`,
+              username: "System",
+              avatar: "/static/assets/icons/system.png",
+              userId: "system",
+              timestamp: new Date().toISOString(),
+            };
 
-                case 'game_invitation':
-                    console.log("Game invitation received:", data);
-                    this.messageListeners.forEach(listener => listener(data));
-                    break;
+            // Ajout du message au messageHistory via la méthode existante
+            const messageId = this.addMessageToHistory(systemMessage);
+            this.messageListeners.forEach((listener) =>
+                listener({ ...systemMessage, id: messageId })
+            );
 
-                case 'game_invitation_response':
-                    console.log("Game invitation response received:", data);
-                    this.messageListeners.forEach(listener => listener(data));
-                    break;
-
-                case 'user_list_update':
-                    try {
-                        this.onlinePlayers.clear();
-                        data.users.forEach(userStr => {
-                            try {
-                                const user = JSON.parse(userStr);
-                                this.onlinePlayers.add(user);
-                            } catch (e) {
-                                console.error('Error parsing user:', e);
-                            }
-                        });
-                        this.updateOnlinePlayersList([...this.onlinePlayers]);
-                    } catch (error) {
-                        console.error('Error updating users list:', error);
-                    }
-                    break;
-
-                default:
-                    console.log("Unhandled message type:", data.type);
+            // Gestion de l'invitation via une popup ou autre composant
+            if (window.GameInvitationManager?.handleInvitation) {
+              window.GameInvitationManager.handleInvitation(data);
             }
-        };
+          }
+          break;
 
-        this.chatSocket.onerror = (error) => {
-            console.error('WebSocket Error:', error);
-        };
-    },
+        case "game_invitation_response":
+          console.log(`Game event received:`, data);
+          // this.messageListeners.forEach((listener) => listener(data));
+          this.handleGameInvitationResponse(data);
+          break;
 
-    updateOnlinePlayersList(users) {
-        const container = document.querySelector('.downLeftFrame');
-        if (!container) return;
+        case "user_list_update":
+          this.handleUserListUpdate(data);
+          break;
 
-        const title = container.querySelector('.onlinePlayersTitle');
-        container.innerHTML = '';
-        if (title) container.appendChild(title);
+        default:
+          console.log("Unhandled message type:", data.type);
+      }
+    };
 
-        users.forEach(user => {
-            const playerDiv = document.createElement('div');
-            playerDiv.className = 'onlinePlayers';
-            playerDiv.innerHTML = `
-                <div class="onlineFlag ${user.status === 'in_game' ? 'in-game' : ''}"></div>
-                <div class="onlineNickname" data-user-id="${user.id}">
-                    <img src="${user.avatar}" alt="avatar" class="onlineAvatar">
-                    ${user.username}
-                </div>
-                <img src="/static/assets/icons/online.svg" class="onlineIcon">
-            `;
-            container.appendChild(playerDiv);
-        });
-    },
+    this.chatSocket.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+  },
 
-    sendMessage() {
-        const chatInput = document.getElementById('messageInput');
-        if (!chatInput || !window.currentUser) return;
+  handleGameInvitationResponse(data) {
+    // Construction du message système
+    const responseMessage = {
+      type: "chat_message",
+      message:
+          data.response === "accept"
+              ? `${data.receiver} accepted your game invitation.`
+              : `${data.receiver} declined your game invitation.`,
+      username: "System",
+      avatar: "/static/assets/icons/system.png", // Avatar système
+      userId: "system", // ID utilisateur système
+      timestamp: new Date().toISOString(),
+    };
 
-        const message = chatInput.value.trim();
-        if (!message) return;
+    // Ajout du message dans l'historique via la méthode existante
+    const messageId = this.addMessageToHistory(responseMessage);
 
-        
-        const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
-        if (pmMatch) {
-            
-            const [, recipient, privateMessage] = pmMatch;
+    // Notification des écouteurs
+    this.messageListeners.forEach((listener) =>
+        listener({ ...responseMessage, id: messageId })
+    );
 
-            
-            this.chatSocket.send(JSON.stringify({
-                type: "private_message",
-                message: privateMessage,
-                username: window.currentUser.username,
-                avatar: window.currentUser.avatar,
-                recipient: recipient
-            }));
-        } else {
-            
-            this.chatSocket.send(JSON.stringify({
-                type: "chat_message",
-                message: message,
-                username: window.currentUser.username,
-                avatar: window.currentUser.avatar
-            }));
+    // Si l'invitation est refusée, fermeture de la modal
+    if (data.response === "decline" && window.GameInvitationManager) {
+      window.GameInvitationManager.closeModal();
+    }
+  },
+
+
+  handleUserListUpdate(data) {
+    try {
+      this.onlinePlayers.clear();
+      data.users.forEach((userStr) => {
+        try {
+          const user = JSON.parse(userStr);
+          this.onlinePlayers.add(user);
+        } catch (e) {
+          console.error("Error parsing user:", e);
         }
-        chatInput.value = "";
-    },
+      });
+      this.updateOnlinePlayersList([...this.onlinePlayers]);
+    } catch (error) {
+      console.error("Error updating users list:", error);
+    }
+  },
 
-    startPrivateMessage(username) {
-        const chatInput = document.getElementById('messageInput');
-        if (!chatInput) return;
+  async updateOnlinePlayersList(users) {
+    console.log("Updating online players list:", users);
 
-        chatInput.value = `/pm ${username} `;
-        chatInput.focus();
-    },
+    const listContainer = document.getElementById("onlinePlayersList");
+    if (!listContainer) return;
 
-    getMessageHistory() {
-        return this.messageHistory;
-    },
+    const friendsList = await getFriendsList();
+    const blockedUsers = new Set(
+        (await getBlockedUsersList()).map((u) => String(u.id))
+    );
 
-    addMessageListener(listener) {
-        this.messageListeners.add(listener);
-    },
+    listContainer.innerHTML = "";
 
-    removeMessageListener(listener) {
-        this.messageListeners.delete(listener);
-    },
+    users.forEach((user) => {
+      const isFriend = friendsList.some((friend) => friend.id === user.id);
+      const isBlocked = blockedUsers.has(String(user.id));
+      const isCurrentUser =
+          window.currentUser && String(user.id) === String(window.currentUser.id);
 
-    handleMessage(data) {
-        const chatMessages = document.getElementById('chatMessages');
-        if (!chatMessages) return;
+      let iconSrc = isCurrentUser
+          ? "/static/assets/icons/account_circle.svg"
+          : isBlocked
+              ? "/static/assets/icons/blocked.svg"
+              : isFriend
+                  ? "/static/assets/icons/friends.svg"
+                  : "/static/assets/icons/online.svg";
 
-        if (ChatHandler.blockedUsers.has(data.username)) {
-            data.originalMessage = data.message;
-            data.message = "Message blocked";
-        }
-
-        const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
-        const messageElement = document.createElement("div");
-        
-        
-        let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
-
-        if (data.type === "private_message") {
-            messageClasses.push("private-message");
-        }
-
-        
-        messageElement.className = messageClasses.join(" ");
-
-        if (ChatHandler.blockedUsers.has(data.username)) {
-            messageElement.style.opacity = "0.5";
-        }
-
-        
-        let messageHeader = data.username;
-        if (data.type === "private_message") {
-            messageHeader += ` → ${data.recipient}`;
-        }
-
-        messageElement.innerHTML = `
-            <img src="${data.avatar}"
-                alt="${data.username}"
-                class="messageAvatar"
-                title="Click for options">
-            <div class="messageContent">
-                <div class="messageHeader">${messageHeader}</div>
-                <div class="messageText" ${
-                    ChatHandler.blockedUsers.has(data.username)
-                        ? 'data-original-text="' + data.originalMessage + '"'
-                        : ""
-                }>${data.message}</div>
-            </div>
+      const playerDiv = document.createElement("div");
+      playerDiv.className = "onlinePlayers";
+      playerDiv.innerHTML = `
+          <img src="/static/assets/icons/connected_circle.svg" class="onlineFlag ${
+          user.status === "in_game" ? "in-game" : ""
+      }">
+          <div class="onlineNickname" data-username="${
+          user.username
+      }" data-user-id="${user.id}">
+            <img src="${user.avatar}" class="onlineAvatar">
+            ${user.username}
+          </div>
+          <img src="${iconSrc}" class="onlineIcon">
         `;
 
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+      listContainer.appendChild(playerDiv);
+    });
+  },
+
+  sendMessage() {
+    const chatInput = document.getElementById("messageInput");
+    if (!chatInput || !window.currentUser) return;
+
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+    const payload = pmMatch
+        ? {
+          type: "private_message",
+          recipient: pmMatch[1],
+          message: pmMatch[2],
+          username: window.currentUser.username,
+          avatar: window.currentUser.avatar,
+        }
+        : {
+          type: "chat_message",
+          message,
+          username: window.currentUser.username,
+          avatar: window.currentUser.avatar,
+        };
+
+    this.chatSocket.send(JSON.stringify(payload));
+    chatInput.value = "";
+  },
+
+  addMessageToHistory(message) {
+    const messageId = crypto.randomUUID();
+    message.id = messageId;
+    this.messageHistory.set(messageId, message);
+
+    if (this.messageHistory.size > this.MAX_MESSAGES) {
+      const oldestKey = this.messageHistory.keys().next().value;
+      this.messageHistory.delete(oldestKey);
     }
+    return messageId;
+  },
+
+  getMessageHistory() {
+    return Array.from(this.messageHistory.values());
+  },
+
+  addMessageListener(listener) {
+    this.messageListeners.add(listener);
+  },
+
+  removeMessageListener(listener) {
+    this.messageListeners.delete(listener);
+  },
 };
 
 window.wsManager = wsManager;
