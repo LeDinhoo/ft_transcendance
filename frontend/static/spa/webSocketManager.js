@@ -1,8 +1,35 @@
+async function getFriendsList() {
+  try {
+    const response = await fetch("/api/friends/list/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    return data.friends || [];
+  } catch (error) {
+    console.error("Error fetching friends list:", error);
+    return [];
+  }
+}
+
+async function getBlockedUsersList() {
+  try {
+    const response = await fetch("/api/blocked/list/", {
+      credentials: "include",
+    });
+    const data = await response.json();
+    return data.blocked_users || [];
+  } catch (error) {
+    console.error("Error fetching blocked users list:", error);
+    return [];
+  }
+}
+
 const wsManager = {
   chatSocket: null,
   messageListeners: new Set(),
-  messageHistory: [],
+  messageHistory: new Map(),
   onlinePlayers: new Set(),
+  MAX_MESSAGES: 20,
 
   initializeChatSocket() {
     if (this.chatSocket?.readyState === WebSocket.OPEN) return;
@@ -27,36 +54,18 @@ const wsManager = {
 
       switch (data.type) {
         case "chat_message":
-          this.messageHistory.push(data);
-          this.messageListeners.forEach((listener) => listener(data));
-          break;
-
         case "private_message":
-          console.log("Private message received:", data);
-          if (
-            window.currentUser &&
-            (data.username === window.currentUser.username ||
-              data.recipient === window.currentUser.username)
-          ) {
-            this.messageHistory.push(data);
-            this.messageListeners.forEach((listener) => listener(data));
-          }
+          const messageId = this.addMessageToHistory(data);
+          this.messageListeners.forEach((listener) =>
+              listener({ ...data, id: messageId })
+          );
           break;
-
-        // case "game_invitation":
-        //   console.log("Game invitation received:", data);
-        //   this.handleGameInvitation(data);
-        //   // this.messageListeners.forEach((listener) => listener(data));
-        //   // Laisser passer l'événement original pour la popup
-        //   if (data.receiver === window.currentUser?.username) {
-        //     this.messageListeners.forEach((listener) => listener(data));
-        //   }
-        //   break;
 
         case "game_invitation":
           console.log("Game invitation received:", data);
-          // Message système dans le chat
+          // Vérification que le destinataire est l'utilisateur courant
           if (data.receiver === window.currentUser?.username) {
+            // Ajout d'un message système dans l'historique des messages
             const systemMessage = {
               type: "chat_message",
               message: `${data.sender.username} has invited you to play ${data.gameType}`,
@@ -65,47 +74,28 @@ const wsManager = {
               userId: "system",
               timestamp: new Date().toISOString(),
             };
-            this.messageHistory.push(systemMessage);
+
+            // Ajout du message au messageHistory via la méthode existante
+            const messageId = this.addMessageToHistory(systemMessage);
             this.messageListeners.forEach((listener) =>
-              listener(systemMessage)
+                listener({ ...systemMessage, id: messageId })
             );
-            // Gestion de la popup séparément
-            window.GameInvitationManager?.handleInvitation?.(data);
+
+            // Gestion de l'invitation via une popup ou autre composant
+            if (window.GameInvitationManager?.handleInvitation) {
+              window.GameInvitationManager.handleInvitation(data);
+            }
           }
           break;
 
         case "game_invitation_response":
-          console.log("Game invitation response received:", data);
-          this.handleGameInvitationResponse(data);
+          console.log(`Game event received:`, data);
           // this.messageListeners.forEach((listener) => listener(data));
-          // if (data.sender === window.currentUser?.username) {
-          //   this.messageListeners.forEach((listener) => listener(data));
-          // }
-          //   if (data.sender === window.currentUser?.username) {
-          //     // Filtre pour ne pas envoyer au handler de messages du chat
-          //     this.messageListeners.forEach((listener) => {
-          //         if (listener !== this.handleMessage) {
-          //             listener(data);
-          //         }
-          //     });
-          // }
+          this.handleGameInvitationResponse(data);
           break;
 
         case "user_list_update":
-          try {
-            this.onlinePlayers.clear();
-            data.users.forEach((userStr) => {
-              try {
-                const user = JSON.parse(userStr);
-                this.onlinePlayers.add(user);
-              } catch (e) {
-                console.error("Error parsing user:", e);
-              }
-            });
-            this.updateOnlinePlayersList([...this.onlinePlayers]);
-          } catch (error) {
-            console.error("Error updating users list:", error);
-          }
+          this.handleUserListUpdate(data);
           break;
 
         default:
@@ -118,95 +108,95 @@ const wsManager = {
     };
   },
 
-  //   handleGameInvitation(data) {
-  //     // Ajouter un message système dans le chat
-  //     const systemMessage = {
-  //       type: "chat_message",
-  //       message: `${data.sender.username} has invited you to play ${data.gameType}`,
-  //       username: "System",
-  //       avatar: "/static/assets/icons/system.png",
-  //       timestamp: new Date().toISOString(),
-  //     };
-  //     this.messageHistory.push(systemMessage);
-  //     this.messageListeners.forEach((listener) => listener(systemMessage));
-  //   },
-
-  handleGameInvitation(data) {
-    const systemMessage = {
-      type: "chat_message",
-      message: `${data.sender.username} has invited you to play ${data.gameType}`,
-      username: "System",
-      avatar: "/static/assets/icons/system.png",  // Ajout de l'avatar
-      userId: "system",                           // Ajout de l'userId 
-      timestamp: new Date().toISOString(),
-    };
-    this.messageHistory.push(systemMessage);
-    this.messageListeners.forEach((listener) => listener(systemMessage));
-  },
-
   handleGameInvitationResponse(data) {
+    // Construction du message système
     const responseMessage = {
       type: "chat_message",
       message:
-        data.response === "accept"
-          ? `${data.receiver} accepted your game invitation. Module remote not done.`
-          : `${data.receiver} declined your game invitation.`,
+          data.response === "accept"
+              ? `${data.receiver} accepted your game invitation.`
+              : `${data.receiver} declined your game invitation.`,
       username: "System",
-      avatar: "/static/assets/icons/system.png", // Ajout explicit de l'avatar
-      userId: "system", // Ajout d'un userId
+      avatar: "/static/assets/icons/system.png", // Avatar système
+      userId: "system", // ID utilisateur système
       timestamp: new Date().toISOString(),
     };
-    this.messageHistory.push(responseMessage);
-    this.messageListeners.forEach((listener) => listener(responseMessage));
 
+    // Ajout du message dans l'historique via la méthode existante
+    const messageId = this.addMessageToHistory(responseMessage);
+
+    // Notification des écouteurs
+    this.messageListeners.forEach((listener) =>
+        listener({ ...responseMessage, id: messageId })
+    );
+
+    // Si l'invitation est refusée, fermeture de la modal
     if (data.response === "decline" && window.GameInvitationManager) {
       window.GameInvitationManager.closeModal();
     }
   },
 
-  //   handleGameInvitationResponse(data) {
-  //     // Ajouter un message système dans le chat pour la réponse
-  //     const responseMessage = {
-  //       type: "chat_message",
-  //       message:
-  //         data.response === "accept"
-  //           ? `${data.receiver} accepted your game invitation. Module remote not done.`
-  //           : `${data.receiver} declined your game invitation.`,
-  //       username: "System",
-  //       avatar: "/static/assets/icons/system.png",
-  //       timestamp: new Date().toISOString(),
-  //     };
-  //     this.messageHistory.push(responseMessage);
-  //     this.messageListeners.forEach((listener) => listener(responseMessage));
 
-  //     // Si l'invitation a été refusée, fermer la modal
-  //     if (data.response === "decline" && window.GameInvitationManager) {
-  //       window.GameInvitationManager.closeModal();
-  //     }
-  //   },
+  handleUserListUpdate(data) {
+    try {
+      this.onlinePlayers.clear();
+      data.users.forEach((userStr) => {
+        try {
+          const user = JSON.parse(userStr);
+          this.onlinePlayers.add(user);
+        } catch (e) {
+          console.error("Error parsing user:", e);
+        }
+      });
+      this.updateOnlinePlayersList([...this.onlinePlayers]);
+    } catch (error) {
+      console.error("Error updating users list:", error);
+    }
+  },
 
-  updateOnlinePlayersList(users) {
-    const container = document.querySelector(".downLeftFrame");
-    if (!container) return;
+  async updateOnlinePlayersList(users) {
+    console.log("Updating online players list:", users);
 
-    const title = container.querySelector(".onlinePlayersTitle");
-    container.innerHTML = "";
-    if (title) container.appendChild(title);
+    const listContainer = document.getElementById("onlinePlayersList");
+    if (!listContainer) return;
+
+    const friendsList = await getFriendsList();
+    const blockedUsers = new Set(
+        (await getBlockedUsersList()).map((u) => String(u.id))
+    );
+
+    listContainer.innerHTML = "";
 
     users.forEach((user) => {
+      const isFriend = friendsList.some((friend) => friend.id === user.id);
+      const isBlocked = blockedUsers.has(String(user.id));
+      const isCurrentUser =
+          window.currentUser && String(user.id) === String(window.currentUser.id);
+
+      let iconSrc = isCurrentUser
+          ? "/static/assets/icons/account_circle.svg"
+          : isBlocked
+              ? "/static/assets/icons/blocked.svg"
+              : isFriend
+                  ? "/static/assets/icons/friends.svg"
+                  : "/static/assets/icons/online.svg";
+
       const playerDiv = document.createElement("div");
       playerDiv.className = "onlinePlayers";
       playerDiv.innerHTML = `
-                <div class="onlineFlag ${
-                  user.status === "in_game" ? "in-game" : ""
-                }"></div>
-                <div class="onlineNickname" data-user-id="${user.id}">
-                    <img src="${user.avatar}" alt="avatar" class="onlineAvatar">
-                    ${user.username}
-                </div>
-                <img src="/static/assets/icons/online.svg" class="onlineIcon">
-            `;
-      container.appendChild(playerDiv);
+          <img src="/static/assets/icons/connected_circle.svg" class="onlineFlag ${
+          user.status === "in_game" ? "in-game" : ""
+      }">
+          <div class="onlineNickname" data-username="${
+          user.username
+      }" data-user-id="${user.id}">
+            <img src="${user.avatar}" class="onlineAvatar">
+            ${user.username}
+          </div>
+          <img src="${iconSrc}" class="onlineIcon">
+        `;
+
+      listContainer.appendChild(playerDiv);
     });
   },
 
@@ -218,41 +208,39 @@ const wsManager = {
     if (!message) return;
 
     const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
-    if (pmMatch) {
-      const [, recipient, privateMessage] = pmMatch;
-
-      this.chatSocket.send(
-        JSON.stringify({
+    const payload = pmMatch
+        ? {
           type: "private_message",
-          message: privateMessage,
+          recipient: pmMatch[1],
+          message: pmMatch[2],
           username: window.currentUser.username,
           avatar: window.currentUser.avatar,
-          recipient: recipient,
-        })
-      );
-    } else {
-      this.chatSocket.send(
-        JSON.stringify({
+        }
+        : {
           type: "chat_message",
-          message: message,
+          message,
           username: window.currentUser.username,
           avatar: window.currentUser.avatar,
-        })
-      );
-    }
+        };
+
+    this.chatSocket.send(JSON.stringify(payload));
     chatInput.value = "";
   },
 
-  startPrivateMessage(username) {
-    const chatInput = document.getElementById("messageInput");
-    if (!chatInput) return;
+  addMessageToHistory(message) {
+    const messageId = crypto.randomUUID();
+    message.id = messageId;
+    this.messageHistory.set(messageId, message);
 
-    chatInput.value = `/pm ${username} `;
-    chatInput.focus();
+    if (this.messageHistory.size > this.MAX_MESSAGES) {
+      const oldestKey = this.messageHistory.keys().next().value;
+      this.messageHistory.delete(oldestKey);
+    }
+    return messageId;
   },
 
   getMessageHistory() {
-    return this.messageHistory;
+    return Array.from(this.messageHistory.values());
   },
 
   addMessageListener(listener) {
@@ -262,242 +250,6 @@ const wsManager = {
   removeMessageListener(listener) {
     this.messageListeners.delete(listener);
   },
-
-  //   handleMessage(data) {
-  //     const chatMessages = document.getElementById('chatMessages');
-  //     if (!chatMessages) return;
-
-  //     // Ne pas traiter les messages sans type
-  //     if (!data || !data.type) {
-  //         console.warn("Message invalide reçu:", data);
-  //         return;
-  //     }
-
-  //     // Configuration spéciale pour les messages système
-  //     if (data.username === "System") {
-  //         const messageElement = document.createElement("div");
-  //         messageElement.className = "message system";
-  //         messageElement.innerHTML = `
-  //             <div class="messageContent">
-  //                 <div class="messageText">${data.message}</div>
-  //             </div>
-  //         `;
-  //         chatMessages.appendChild(messageElement);
-  //         chatMessages.scrollTop = chatMessages.scrollHeight;
-  //         return;
-  //     }
-
-  //     // Vérifier tous les champs requis pour les messages normaux
-  //     if (!data.message || !data.username) {
-  //         console.warn("Message incomplet reçu:", data);
-  //         return;
-  //     }
-
-  //     // Nettoyer et normaliser les données
-  //     const cleanData = {
-  //         message: String(data.message || "").trim(),
-  //         username: String(data.username || "").trim(),
-  //         avatar: data.avatar || "/static/assets/avatars/default.png",
-  //         userId: data.userId || "",
-  //         type: data.type,
-  //         recipient: data.recipient || null
-  //     };
-
-  //     // Créer l'élément de message
-  //     const messageElement = document.createElement("div");
-  //     const isCurrentUser = window.currentUser && cleanData.username === window.currentUser.username;
-  //     let classes = ["message"];
-
-  //     if (isCurrentUser) {
-  //         classes.push("sent");
-  //     } else {
-  //         classes.push("received");
-  //     }
-
-  //     if (cleanData.type === "private_message") {
-  //         classes.push("private-message");
-  //     }
-
-  //     messageElement.className = classes.join(" ");
-
-  //     // Construction du header pour les messages privés
-  //     let headerText = cleanData.username;
-  //     if (cleanData.type === "private_message" && cleanData.recipient) {
-  //         headerText += ` → ${cleanData.recipient}`;
-  //     }
-
-  //     messageElement.innerHTML = `
-  //         <img src="${cleanData.avatar}"
-  //             alt="${cleanData.username}"
-  //             class="messageAvatar"
-  //             title="Click for options">
-  //         <div class="messageContent">
-  //             <div class="messageHeader"
-  //                  data-user-id="${cleanData.userId}"
-  //                  data-username="${cleanData.username}">
-  //                 ${headerText}
-  //             </div>
-  //             <div class="messageText">${cleanData.message}</div>
-  //         </div>
-  //     `;
-
-  //     chatMessages.appendChild(messageElement);
-  //     chatMessages.scrollTop = chatMessages.scrollHeight;
-  // }
-
-  handleMessage(data) {
-    const chatMessages = document.getElementById("chatMessages");
-    if (!chatMessages) return;
-
-    // Ne pas traiter les messages sans type
-    if (!data || !data.type) {
-      console.warn("Message invalide reçu:", data);
-      return;
-    }
-
-    // Configuration spéciale pour les messages système
-    if (data.username === "System") {
-      const messageElement = document.createElement("div");
-      messageElement.className = "message system";
-      // Style inline pour les messages système - pas besoin d'avatar
-      messageElement.style.cssText = `
-            background-color: rgba(43, 93, 245, 0.1);
-            margin: 8px auto;
-            padding: 8px 16px;
-            border-radius: 8px;
-            max-width: 80%;
-            text-align: center;
-            font-style: italic;
-            color: #2b5df5;
-        `;
-      messageElement.innerHTML = `
-            <div class="messageContent">
-                <div class="messageText">${data.message}</div>
-            </div>
-        `;
-      chatMessages.appendChild(messageElement);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      return;
-    }
-
-    // Vérifier tous les champs requis pour les messages normaux
-    if (!data.message || !data.username) {
-      console.warn("Message incomplet reçu:", data);
-      return;
-    }
-
-    // Nettoyer et normaliser les données
-    const cleanData = {
-      message: String(data.message || "").trim(),
-      username: String(data.username || "").trim(),
-      avatar: data.avatar || "/static/assets/avatars/default.png",
-      userId: data.userId || "",
-      type: data.type,
-      recipient: data.recipient || null,
-    };
-
-    // Ne pas afficher les messages vides
-    if (!cleanData.message.length) {
-      return;
-    }
-
-    // Créer l'élément de message
-    const messageElement = document.createElement("div");
-    const isCurrentUser =
-      window.currentUser && cleanData.username === window.currentUser.username;
-    let classes = ["message"];
-
-    if (isCurrentUser) {
-      classes.push("sent");
-    } else {
-      classes.push("received");
-    }
-
-    if (cleanData.type === "private_message") {
-      classes.push("private-message");
-    }
-
-    messageElement.className = classes.join(" ");
-
-    // Construction du header pour les messages privés
-    let headerText = cleanData.username;
-    if (cleanData.type === "private_message" && cleanData.recipient) {
-      headerText += ` → ${cleanData.recipient}`;
-    }
-
-    // Vérifier que l'avatar existe avant de l'utiliser
-    const avatarHtml = cleanData.avatar
-      ? `
-        <img src="${cleanData.avatar}"
-            alt="${cleanData.username}"
-            class="messageAvatar"
-            title="Click for options">
-    `
-      : "";
-
-    messageElement.innerHTML = `
-        ${avatarHtml}
-        <div class="messageContent">
-            <div class="messageHeader"
-                 data-user-id="${cleanData.userId}"
-                 data-username="${cleanData.username}">
-                ${headerText}
-            </div>
-            <div class="messageText">${cleanData.message}</div>
-        </div>
-    `;
-
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  },
-
-  // handleMessage(data) {
-  //     const chatMessages = document.getElementById('chatMessages');
-  //     if (!chatMessages) return;
-
-  //     if (ChatHandler.blockedUsers.has(data.username)) {
-  //         data.originalMessage = data.message;
-  //         data.message = "Message blocked";
-  //     }
-
-  //     const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
-  //     const messageElement = document.createElement("div");
-
-  //     let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
-
-  //     if (data.type === "private_message") {
-  //         messageClasses.push("private-message");
-  //     }
-
-  //     messageElement.className = messageClasses.join(" ");
-
-  //     if (ChatHandler.blockedUsers.has(data.username)) {
-  //         messageElement.style.opacity = "0.5";
-  //     }
-
-  //     let messageHeader = data.username;
-  //     if (data.type === "private_message") {
-  //         messageHeader += ` → ${data.recipient}`;
-  //     }
-
-  //     messageElement.innerHTML = `
-  //         <img src="${data.avatar}"
-  //             alt="${data.username}"
-  //             class="messageAvatar"
-  //             title="Click for options">
-  //         <div class="messageContent">
-  //             <div class="messageHeader">${messageHeader}</div>
-  //             <div class="messageText" ${
-  //                 ChatHandler.blockedUsers.has(data.username)
-  //                     ? 'data-original-text="' + data.originalMessage + '"'
-  //                     : ""
-  //             }>${data.message}</div>
-  //         </div>
-  //     `;
-
-  //     chatMessages.appendChild(messageElement);
-  //     chatMessages.scrollTop = chatMessages.scrollHeight;
-  // }
 };
 
 window.wsManager = wsManager;
