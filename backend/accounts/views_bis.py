@@ -163,6 +163,52 @@ def login_view(request):
             'message': str(e)
         }, status=500)
 
+
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def register_view(request):
+#     try:
+#         logger.info("Requête d'inscription reçue")
+#         data = json.loads(request.body)
+
+#         register_form = RegisterForm(data)
+#         if register_form.is_valid():
+#             user = register_form.save()
+#             logger.info(f"Utilisateur créé : {user.username}")
+
+            
+#             refresh = RefreshToken.for_user(user)
+#             return JsonResponse({
+#                 'success': True,
+#                 'message': 'User registered successfully',
+                
+                
+#             }, status=201)
+#         else:
+#             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
+#             return JsonResponse({
+#                 'success': False,
+#                 'message': 'Form is not valid',
+#                 'errors': register_form.errors.get_json_data()  
+#             }, status=400)
+
+#     except json.JSONDecodeError:
+#         logger.error("Erreur de parsing JSON")
+#         return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+#     except IntegrityError as e:
+#         logger.error(f"Erreur d'intégrité : {str(e)}")
+#         return JsonResponse({
+#             'success': False,
+#             'message': f'Integrity error: {str(e)}'
+#         }, status=400)
+#     except Exception as e:
+#         logger.exception(f"Erreur inattendue : {str(e)}")
+#         return JsonResponse({
+#             'success': False,
+#             'message': f'Unexpected error: {str(e)}'
+#         }, status=500)
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
