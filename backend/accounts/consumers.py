@@ -77,16 +77,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
+        """Gère la diffusion des messages"""
         message_data = event['message']
         sender_id = message_data['userId']
 
         try:
-            current_user = self.scope["user"]
-            sender_blocked_me = await self.is_user_blocked(sender_id, current_user.id)
-            i_blocked_sender = await self.is_user_blocked(current_user.id, sender_id)
+            # Pour les messages publics
+            if message_data['type'] == 'chat_message':
+                current_user = self.scope["user"]
+                sender_blocked_me = await self.is_user_blocked(sender_id, current_user.id)
+                i_blocked_sender = await self.is_user_blocked(current_user.id, sender_id)
 
-            if not sender_blocked_me and not i_blocked_sender:
-                await self.send(text_data=json.dumps(message_data))
+                if not sender_blocked_me and not i_blocked_sender:
+                    await self.send(text_data=json.dumps(message_data))
+
+            # Pour les messages privés
+            elif message_data['type'] == 'private_message':
+                recipient_name = message_data.get('recipient')
+                if recipient_name:
+                    from django.contrib.auth import get_user_model
+                    User = get_user_model()
+                    try:
+                        recipient = await User.objects.aget(username=recipient_name)
+                        if recipient:
+                            # Ne diffuser le message que si c'est l'expéditeur ou le destinataire
+                            if str(self.scope["user"].id) == str(sender_id) or self.scope["user"].username == recipient_name:
+                                # Vérifier le blocage dans les deux sens
+                                sender_blocked_recipient = await self.is_user_blocked(sender_id, recipient.id)
+                                recipient_blocked_sender = await self.is_user_blocked(recipient.id, sender_id)
+
+                                if not sender_blocked_recipient and not recipient_blocked_sender:
+                                    await self.send(text_data=json.dumps(message_data))
+                    except User.DoesNotExist:
+                        pass
 
         except Exception as e:
             print(f"Erreur dans chat_message: {str(e)}")
@@ -96,6 +119,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         User = get_user_model()
         user = await User.objects.aget(id=user_id)
         return await user.blocked_users.filter(id=blocked_id).aexists()
+
 
 class GameConsumer(AsyncWebsocketConsumer):
     async def connect(self):

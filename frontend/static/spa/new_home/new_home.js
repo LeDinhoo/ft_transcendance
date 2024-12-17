@@ -543,70 +543,88 @@ function initializeHome() {
     }
 
     static handleMessage(data) {
-      if (!DOM.chat.messages) return;
-
-      const isCurrentUser =
-        window.currentUser && data.username === window.currentUser.username;
-      const messageElement = document.createElement("div");
-      messageElement.className = `message ${
-        isCurrentUser ? "sent" : "received"
-      }`;
-
-      if (data.type === "private_message") {
-        messageElement.classList.add("private-message");
-      }
-
-      messageElement.innerHTML = `
-				<img src="${data.avatar}"
-					alt="${data.username}"
-					class="messageAvatar"
-					title="Click for options">
-				<div class="messageContent">
-					<div class="messageHeader"
-						 data-user-id="${data.userId}"
-						 data-username="${data.username}">
-						${
-              data.type === "private_message"
-                ? `${data.username} → ${data.recipient}`
-                : data.username
-            }
-					</div>
-					<div class="messageText">${data.message}</div>
+		if (!DOM.chat.messages) return;
+	
+		// Vérifier si le message est bloqué
+		const isBlocked = ChatHandler.blockedUsers.has(String(data.userId));
+		if (isBlocked) {
+			data.originalMessage = data.message;
+			data.message = "Message bloqué";
+		}
+	
+		const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
+		const messageElement = document.createElement("div");
+	
+		let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
+		if (data.type === "private_message") {
+			messageClasses.push("private-message");
+		}
+	
+		messageElement.className = messageClasses.join(" ");
+		if (isBlocked) {
+			messageElement.style.opacity = "0.5";
+		}
+	
+		const messageHeader = data.type === "private_message" 
+			? `${data.username} → ${data.recipient}`
+			: data.username;
+	
+		messageElement.innerHTML = `
+			<img src="${data.avatar}"
+				alt="${data.username}"
+				class="messageAvatar"
+				title="Click for options">
+			<div class="messageContent">
+				<div class="messageHeader" 
+					 data-user-id="${data.userId}"
+					 data-username="${data.username}">
+					${messageHeader}
 				</div>
-			`;
-
-      DOM.chat.messages.appendChild(messageElement);
-      DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
-    }
+				<div class="messageText" ${isBlocked ? 'data-original-text="' + data.originalMessage + '"' : ""}>
+					${data.message}
+				</div>
+			</div>
+		`;
+	
+		DOM.chat.messages.appendChild(messageElement);
+		DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
+	}
 
     static sendMessage() {
-      if (!DOM.chat.input || !window.currentUser) return;
-
-      const message = DOM.chat.input.value.trim();
-      if (!message) return;
-
-      const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
-      if (pmMatch) {
-        const [, recipient, privateMessage] = pmMatch;
-        window.wsManager.sendMessage({
-          type: "private_message",
-          message: privateMessage,
-          username: window.currentUser.username,
-          avatar: window.currentUser.avatar,
-          recipient: recipient,
-        });
-      } else {
-        window.wsManager.sendMessage({
-          type: "chat_message",
-          message: message,
-          username: window.currentUser.username,
-          userId: window.currentUser.id,
-          avatar: window.currentUser.avatar,
-        });
-      }
-
-      DOM.chat.input.value = "";
-    }
+		if (!DOM.chat.input || !window.currentUser) return;
+	
+		const message = DOM.chat.input.value.trim();
+		if (!message) return;
+	
+		const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+		if (pmMatch) {
+			// Bloquer les messages privés vers System
+			if (pmMatch[1].toLowerCase() === "system") {
+				ChatHandler.showNotification("Cannot send private messages to System");
+				return;
+			}
+	
+			const [, recipient, privateMessage] = pmMatch;
+			window.wsManager.chatSocket.send(JSON.stringify({
+				type: "private_message",
+				message: privateMessage,
+				username: window.currentUser.username,
+				userId: window.currentUser.id,
+				avatar: window.currentUser.avatar,
+				recipient: recipient
+			}));
+		} else {
+			window.wsManager.chatSocket.send(JSON.stringify({
+				type: "chat_message",
+				message: message,
+				username: window.currentUser.username,
+				userId: window.currentUser.id,
+				avatar: window.currentUser.avatar
+			}));
+		}
+	
+		DOM.chat.input.value = "";
+	}
 
     static positionMenuWithinViewport(menu, rect) {
       const viewportHeight = window.innerHeight;

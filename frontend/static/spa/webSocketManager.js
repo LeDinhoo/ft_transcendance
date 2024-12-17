@@ -249,39 +249,38 @@ const wsManager = {
       listContainer.appendChild(playerDiv);
     });
 },
-
-  sendMessage() {
-    const chatInput = document.getElementById("messageInput");
-    if (!chatInput || !window.currentUser) return;
-
-    const message = chatInput.value.trim();
-    if (!message) return;
-
-    const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
-    if (pmMatch && pmMatch[1].toLowerCase() === "system") {
-      return; // Bloquer les messages privés vers System
-    }
-
-
-    const payload = pmMatch
-      ? {
-          type: "private_message",
-          recipient: pmMatch[1],
-          message: pmMatch[2],
-          username: window.currentUser.username,
-          avatar: window.currentUser.avatar,
-        }
-      : {
-          type: "chat_message",
-          message,
-          username: window.currentUser.username,
-          avatar: window.currentUser.avatar,
-        };
-
-    this.chatSocket.send(JSON.stringify(payload));
-    chatInput.value = "";
-  },
-
+  
+//   sendMessage(message) {
+//       if (this.chatSocket?.readyState !== WebSocket.OPEN) {
+//         console.error('WebSocket is not connected');
+//         return;
+//       }
+  
+//       const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+//       if (pmMatch && pmMatch[1].toLowerCase() === "system") {
+//         return; // Bloquer les messages privés vers System
+//       }
+  
+//       const payload = pmMatch
+//         ? {
+//             type: "private_message",
+//             recipient: pmMatch[1],
+//             message: pmMatch[2],
+//             username: window.currentUser.username,
+//             userId: window.currentUser.id,
+//             avatar: window.currentUser.avatar,
+//           }
+//         : {
+//             type: "chat_message",
+//             message: message,
+//             username: window.currentUser.username,
+//             userId: window.currentUser.id,
+//             avatar: window.currentUser.avatar,
+//           };
+  
+//       this.chatSocket.send(JSON.stringify(payload));
+//     },
+  
   addMessageToHistory(message) {
     const messageId = crypto.randomUUID();
     message.id = messageId;

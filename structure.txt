@@ -381,12 +381,15 @@ flag-swe.svg
 
 ./frontend/static/assets/icons:
 42_Logo.svg
+account_circle.svg
 addcircle.svg
 add_friend.svg
+blocked.svg
 bronze.png
 check.svg
 close.svg
 close_white.svg
+connected_circle.svg
 edit.svg
 favicon.ico
 friends.svg
@@ -505,7 +508,6 @@ Mishmash_Regular.json
 
 ./frontend/static/spa/game3D/libs:
 BufferGeometryUtils.js
-cannon-es.js
 CopyShader.js
 EffectComposer.js
 FontLoader.js
