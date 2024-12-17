@@ -27,9 +27,10 @@ async function getBlockedUsersList() {
 const wsManager = {
 	chatSocket: null,
 	messageListeners: new Set(),
-	messageHistory: [],
+	messageHistory: new Map(),
 	onlinePlayers: new Set(),
 	isUserBlocked: null,
+	MAX_MESSAGES: 20,
 
 	initializeChatSocket() {
 		if (this.chatSocket?.readyState === WebSocket.OPEN) return;
@@ -55,9 +56,8 @@ const wsManager = {
 			switch (data.type) {
 				case 'chat_message':
 				case 'private_message':
-					// Plus besoin de vérifier le blocage ici car c'est géré côté serveur
-					this.messageHistory.push(data);
-					this.messageListeners.forEach(listener => listener(data));
+					const messageId = this.addMessageToHistory(data);
+					this.messageListeners.forEach(listener => listener({...data, id: messageId}));
 					break;
 
 				case 'game_invitation':
@@ -108,19 +108,14 @@ const wsManager = {
 				});
 				if (response.ok) {
 					const userData = await response.json();
-					console.log("Profile API response:", userData);
 					window.currentUser = {
 						...userData,
 						id: userData.id || userData.user_id
 					};
-					console.log("Current user details:", {
-						username: window.currentUser.username,
-						id: window.currentUser.id,
-						all_data: window.currentUser
-					});
 				}
 			} catch (error) {
 				console.error("Erreur lors de la récupération du profil:", error);
+				return;
 			}
 		}
 
@@ -130,50 +125,63 @@ const wsManager = {
 			return;
 		}
 
-		const friendsList = await getFriendsList();
-		console.log("Liste des amis récupérée :", friendsList);
+		try {
+			// Récupérer la liste des amis
+			const friendsList = await getFriendsList();
 
-		listContainer.innerHTML = '';
-
-		users.forEach(user => {
-			const isFriend = friendsList.some(friend => friend.id === user.id);
-			console.log("Comparing IDs:", {
-				userID: user.id,
-				currentUserID: window.currentUser?.id,
-				user: user,
-				currentUser: window.currentUser
-			});
-
-			const isCurrentUser = window.currentUser && String(user.id) === String(window.currentUser.id);
-
-			const playerDiv = document.createElement('div');
-			playerDiv.className = 'onlinePlayers';
-
-			let iconSrc;
-			if (isCurrentUser) {
-				iconSrc = "/static/assets/icons/account_circle.svg";
-			} else if (isFriend) {
-				iconSrc = "/static/assets/icons/friends.svg";
-			} else {
-				iconSrc = "/static/assets/icons/online.svg";
+			// Récupérer la liste des utilisateurs bloqués directement via l'API
+			let blockedUsers = new Set();
+			try {
+				const blockedResponse = await fetch('/api/blocked/list/', {
+					credentials: 'include'
+				});
+				if (blockedResponse.ok) {
+					const blockedData = await blockedResponse.json();
+					blockedUsers = new Set(blockedData.blocked_users.map(user => String(user.id)));
+				}
+			} catch (error) {
+				console.error('Erreur lors de la récupération des utilisateurs bloqués:', error);
 			}
 
-			console.log(`Icon path for ${user.username}:`, iconSrc, 'isCurrentUser:', isCurrentUser);
+			listContainer.innerHTML = '';
 
-			playerDiv.innerHTML = `
-				<img src="/static/assets/icons/connected_circle.svg"
-					 class="onlineFlag ${user.status === 'in_game' ? 'in-game' : ''}"
-					 alt="status">
-				<div class="onlineNickname"
-					 data-username="${user.username}"
-					 data-user-id="${user.id}">
-					<img src="${user.avatar}" alt="avatar" class="onlineAvatar">
-					${user.username}
-				</div>
-				<img src="${iconSrc}" class="onlineIcon">
-			`;
-			listContainer.appendChild(playerDiv);
-		});
+			users.forEach(user => {
+				const isFriend = friendsList.some(friend => friend.id === user.id);
+				const isCurrentUser = window.currentUser && String(user.id) === String(window.currentUser.id);
+				const isBlocked = blockedUsers.has(String(user.id));
+
+				const playerDiv = document.createElement('div');
+				playerDiv.className = 'onlinePlayers';
+
+				let iconSrc;
+				if (isCurrentUser) {
+					iconSrc = "/static/assets/icons/account_circle.svg";
+				} else if (isBlocked) {
+					iconSrc = "/static/assets/icons/blocked.svg";
+				} else if (isFriend) {
+					iconSrc = "/static/assets/icons/friends.svg";
+				} else {
+					iconSrc = "/static/assets/icons/online.svg";
+				}
+
+				playerDiv.innerHTML = `
+					<img src="/static/assets/icons/connected_circle.svg"
+						 class="onlineFlag ${user.status === 'in_game' ? 'in-game' : ''}"
+						 alt="status">
+					<div class="onlineNickname"
+						 data-username="${user.username}"
+						 data-user-id="${user.id}">
+						<img src="${user.avatar}" alt="avatar" class="onlineAvatar">
+						${user.username}
+					</div>
+					<img src="${iconSrc}" class="onlineIcon">
+				`;
+				listContainer.appendChild(playerDiv);
+			});
+
+		} catch (error) {
+			console.error("Erreur lors de la mise à jour de la liste des joueurs:", error);
+		}
 	},
 
 	sendMessage() {
@@ -219,8 +227,24 @@ const wsManager = {
 		chatInput.focus();
 	},
 
+	addMessageToHistory(message) {
+        const messageId = crypto.randomUUID(); // Génère un ID unique
+        message.id = messageId;
+
+        // Ajouter le nouveau message
+        this.messageHistory.set(messageId, message);
+
+        // Si on dépasse la limite, supprimer le plus ancien message
+        if (this.messageHistory.size > this.MAX_MESSAGES) {
+            const oldestKey = this.messageHistory.keys().next().value;
+            this.messageHistory.delete(oldestKey);
+        }
+
+        return messageId;
+    },
+
 	getMessageHistory() {
-		return this.messageHistory;
+		return Array.from(this.messageHistory.values());
 	},
 
 	addMessageListener(listener) {
