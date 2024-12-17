@@ -1518,3 +1518,19 @@ body {
     font-style: italic;
     font-size: var(--16px);
 }
+
+
+.blocked-user {
+  opacity: 0.7;
+}
+
+.blocked-icon {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.blocked-icon:hover {
+  transform: scale(1.1);
+}
+
+

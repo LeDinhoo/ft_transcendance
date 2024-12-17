@@ -154,6 +154,53 @@ const wsManager = {
     }
   },
 
+  // async updateOnlinePlayersList(users) {
+  //   console.log("Updating online players list:", users);
+
+  //   const listContainer = document.getElementById("onlinePlayersList");
+  //   if (!listContainer) return;
+
+  //   const friendsList = await getFriendsList();
+  //   const blockedUsers = new Set(
+  //       (await getBlockedUsersList()).map((u) => String(u.id))
+  //   );
+
+  //   listContainer.innerHTML = "";
+
+  //   users.forEach((user) => {
+  //     const isFriend = friendsList.some((friend) => friend.id === user.id);
+  //     const isBlocked = blockedUsers.has(String(user.id));
+  //     const isCurrentUser =
+  //         window.currentUser && String(user.id) === String(window.currentUser.id);
+
+  //     let iconSrc = isCurrentUser
+  //         ? "/static/assets/icons/account_circle.svg"
+  //         : isBlocked
+  //             ? "/static/assets/icons/blocked.svg"
+  //             : isFriend
+  //                 ? "/static/assets/icons/friends.svg"
+  //                 : "/static/assets/icons/online.svg";
+
+  //     const playerDiv = document.createElement("div");
+  //     playerDiv.className = "onlinePlayers";
+  //     playerDiv.innerHTML = `
+  //         <img src="/static/assets/icons/connected_circle.svg" class="onlineFlag ${
+  //         user.status === "in_game" ? "in-game" : ""
+  //     }">
+  //         <div class="onlineNickname" data-username="${
+  //         user.username
+  //     }" data-user-id="${user.id}">
+  //           <img src="${user.avatar}" class="onlineAvatar">
+  //           ${user.username}
+  //         </div>
+  //         <img src="${iconSrc}" class="onlineIcon">
+  //       `;
+
+  //     listContainer.appendChild(playerDiv);
+  //   });
+  // },
+
+
   async updateOnlinePlayersList(users) {
     console.log("Updating online players list:", users);
 
@@ -170,13 +217,12 @@ const wsManager = {
     users.forEach((user) => {
       const isFriend = friendsList.some((friend) => friend.id === user.id);
       const isBlocked = blockedUsers.has(String(user.id));
-      const isCurrentUser =
-          window.currentUser && String(user.id) === String(window.currentUser.id);
+      const isCurrentUser = window.currentUser && String(user.id) === String(window.currentUser.id);
 
       let iconSrc = isCurrentUser
           ? "/static/assets/icons/account_circle.svg"
           : isBlocked
-              ? "/static/assets/icons/blocked.svg"
+              ? "/static/assets/icons/blocked.svg"  // Cette icône indique que l'utilisateur est bloqué
               : isFriend
                   ? "/static/assets/icons/friends.svg"
                   : "/static/assets/icons/online.svg";
@@ -187,18 +233,22 @@ const wsManager = {
           <img src="/static/assets/icons/connected_circle.svg" class="onlineFlag ${
           user.status === "in_game" ? "in-game" : ""
       }">
-          <div class="onlineNickname" data-username="${
+          <div class="onlineNickname ${isBlocked ? 'blocked-user' : ''}" data-username="${
           user.username
       }" data-user-id="${user.id}">
             <img src="${user.avatar}" class="onlineAvatar">
             ${user.username}
           </div>
-          <img src="${iconSrc}" class="onlineIcon">
+          <img src="${iconSrc}" class="onlineIcon ${isBlocked ? 'blocked-icon' : ''}" 
+               title="${isBlocked ? 'Unblock user' : ''}"
+               style="${isBlocked ? 'cursor: pointer;' : ''}"
+               onclick="${isBlocked ? `ChatHandler.toggleBlockUser('${user.id}', '${user.username}')` : ''}"
+          >
         `;
 
       listContainer.appendChild(playerDiv);
     });
-  },
+},
 
   sendMessage() {
     const chatInput = document.getElementById("messageInput");
@@ -208,6 +258,11 @@ const wsManager = {
     if (!message) return;
 
     const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+    if (pmMatch && pmMatch[1].toLowerCase() === "system") {
+      return; // Bloquer les messages privés vers System
+    }
+    
+
     const payload = pmMatch
         ? {
           type: "private_message",
