@@ -280,8 +280,8 @@ body {
 }
 
 .onlineIcon {
-	width: 20px;
-	height: 20px;
+	width: var(--30px);
+	height: var(--30px);
 	opacity: 0.7;
 }
 
@@ -1426,4 +1426,95 @@ body {
 .message.system .messageText {
   background: none;
   padding: 0;
+}
+
+
+/* henrik profil popup */
+/* Style pour la section de l'historique des matchs */
+.recent-games {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    background-color: var(--gluon-grey);
+    border-radius: var(--24px);
+}
+
+.recent-games h4 {
+    font-size: var(--36px);
+    font-weight: 600;
+    color: var(--snow);
+    text-align: center;
+    margin-bottom: var(--16px);
+}
+
+/* Conteneur des matchs */
+.recent-games-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--8px);
+}
+
+/* Style pour chaque résumé de match */
+.match-resume {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--12px);
+    width: 100%;
+    padding: var(--8px) 0;
+}
+
+/* Date du match */
+.game-date {
+    color: #878787;
+    font-size: 0.9em;
+    margin-right: 10px;
+    min-width: 65px;
+}
+
+/* Avatar dans l'historique */
+.avatar-history {
+    height: var(--36px);
+    width: var(--36px);
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Score du joueur */
+.score-player {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: var(--40px);
+    width: var(--40px);
+    border: var(--dusty-grey) solid var(--4px);
+    border-radius: var(--16px);
+    color: var(--snow);
+}
+
+/* Séparateur entre les scores */
+.separator-match {
+    font-size: 600;
+    color: var(--snow);
+}
+
+/* Label du résultat */
+.result-label {
+    font-size: var(--16px);
+    font-weight: 600;
+    color: var(--liquid-lava);
+}
+
+/* Style spécifique pour les défaites */
+.result-label[style*="DEFEAT"] {
+    color: #878787;
+}
+
+/* Message quand il n'y a pas de parties */
+.no-games {
+    color: #878787;
+    text-align: center;
+    padding: var(--24px);
+    font-style: italic;
+    font-size: var(--16px);
 }

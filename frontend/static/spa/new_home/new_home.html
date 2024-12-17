@@ -28,7 +28,10 @@
 			<div class="onlinePlayersTitle">
 			  Online Players
 			</div>
-		   </div>
+			<div class="onlinePlayersList" id="onlinePlayersList">
+			  <!-- The player list will be dynamically updated here -->
+			</div>
+		  </div>
       </div>
 
       <div class="homeSectionMiddle">
@@ -79,51 +82,49 @@
 </div>
 
 <div id="profileModal" class="profile-modal">
-  <div class="profile-modal-content">
-    <span class="close-profile-modal">&times;</span>
-    <div class="profile-header">
-      <div class="profile-avatar">
-        <img
-          id="profileAvatar"
-          src="/static/assets/avatars/clown-fish.png"
-          alt="Player avatar"
-        />
-      </div>
-      <div class="profile-info">
-        <h2 id="profileNickname">Nickname</h2>
-        <div class="profile-rank">
-          <img
-            id="profileRankIcon"
-            src="/static/assets/icons/bronze.png"
-            alt="rank"
-          />
-          <span id="profileRankText">Bronze</span>
-        </div>
-      </div>
-    </div>
+	<div class="profile-modal-content">
+	  <span class="close-profile-modal">&times;</span>
+	  <div class="profile-header">
+		<div class="profile-avatar">
+		  <img id="profileAvatar" alt="Player avatar" />
+		</div>
+		<div class="profile-info">
+		  <h2 id="profileNickname"></h2>
+		  <div class="profile-rank">
+			<img id="profileRankIcon" alt="rank" />
+			<span id="profileRankText"></span>
+		  </div>
+		</div>
+	  </div>
 
-    <div class="profile-stats">
-      <h3>Statistics</h3>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">Total Games</div>
-          <div id="totalGames" class="stat-value">0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Win Rate</div>
-          <div id="winRate" class="stat-value">0%</div>
-        </div>
-      </div>
+	  <div class="profile-stats">
+		<div class="stats-grid">
+		  <div class="stat-box">
+			<div class="stat-label">Gameplay played</div>
+			<div id="totalGames" class="stat-value">0</div>
+		  </div>
+		  <div class="stat-box">
+			<div class="stat-label">Win Rate</div>
+			<div id="winRate" class="stat-value">0%</div>
+		  </div>
+		  <div class="stat-box">
+			<div class="stat-label">Longest Rally</div>
+			<div id="longestRally" class="stat-value">0</div>
+		  </div>
+		  <div class="stat-box">
+			<div class="stat-label">Top Speed</div>
+			<div id="maxBallSpeed" class="stat-value">0</div>
+		  </div>
+		</div>
 
-      <div class="recent-games">
-        <h4>Recent Games</h4>
-        <div id="recentGamesList" class="recent-games-list">
-          <div class="no-games">No recent games</div>
-        </div>
-      </div>
-    </div>
+		<div class="recent-games">
+		  <h4>Recent Games</h4>
+		  <div id="recentGamesList" class="recent-games-list">
+		  </div>
+		</div>
+	  </div>
+	</div>
   </div>
-</div>
 
 <div class="online-game-modal">
   <div class="online-game-content">
