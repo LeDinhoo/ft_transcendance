@@ -60,6 +60,58 @@ function resetPasswordFields() {
   }
 }
 
+
+/////////////////////////////////////////////////////////////////
+
+
+function initializePasswordModification() {
+  const toggleChangePassword = document.getElementById("toggleChangePassword");
+  const savePasswordButton = document.getElementById("savePasswordButton"); // Vous devrez ajouter ce bouton dans votre HTML
+
+  const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
+  toggleChangePassword.parentNode.replaceChild(
+    cloneToggleChangePassword,
+    toggleChangePassword
+  );
+
+  cloneToggleChangePassword.addEventListener("click", function () {
+    const newFrame = document.getElementById("newFrame");
+    const newPlusFrame = document.getElementById("newPlusFrame");
+    const isHidden = newFrame.style.display === "none";
+    
+    cloneToggleChangePassword.innerText = isHidden ? "Cancel" : "Modify";
+    newFrame.style.display = isHidden ? "block" : "none";
+    newPlusFrame.style.display = isHidden ? "block" : "none";
+  });
+
+  if (savePasswordButton) {
+    savePasswordButton.addEventListener("click", function() {
+      const formData = {
+        oldPassword: document.getElementById("oldPassword").value,
+        newPassword: document.getElementById("newPassword").value,
+        confirmNewPassword: document.getElementById("confirmNewPassword").value
+      };
+
+      // Validation du formulaire
+      const validationError = validatePasswordFields(formData);
+      if (validationError) {
+        showErrorPopup(validationError);
+        return;
+      }
+
+      // Création et envoi du FormData
+      const formDataToSend = new FormData();
+      formDataToSend.append("old_password", formData.oldPassword);
+      formDataToSend.append("new_password", formData.newPassword);
+
+      // Envoi au serveur
+      updateProfile(formDataToSend, true);
+    });
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 function showConfirmationMessage(message) {
   const confirmationMessage = document.createElement("div");
   confirmationMessage.className = "confirmation-message";
@@ -196,8 +248,10 @@ function loadUserStatistics() {
 }
 
 function initializeProfilePage() {
+  initializeProfileModification();
+  initializePasswordModification();
   initializeAvatarFeature();
-  resetPasswordFields();
+  // resetPasswordFields();
 
   const userInput = document.getElementById("username");
   const emailInput = document.getElementById("registerEmail");
