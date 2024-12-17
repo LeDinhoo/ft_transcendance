@@ -213,11 +213,13 @@ function initializeProfilePage() {
     if (input.files && input.files[0]) {
         const fileSize = input.files[0].size / 1024 / 1024;
         if (fileSize > maxSizeMB) {
-            alert(`La taille du fichier doit être inférieure à ${maxSizeMB}MB`);
+            showErrorPopup(`La taille du fichier doit être inférieure à ${maxSizeMB}MB`);
             input.value = '';
         }
     }
 }
+
+
 
 function validatePasswordMatch() {
     const newPassword = document.getElementById('newPassword');
@@ -232,10 +234,6 @@ function validatePasswordMatch() {
         saveButton.disabled = false;
     }
 }
-
-// Initialisation des composants
-initializeAvatarFeature();
-resetPasswordFields();
 
 // Ajout de l'écouteur d'événement pour la validation de taille de fichier
 if (avatarInput) {
