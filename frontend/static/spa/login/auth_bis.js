@@ -28,8 +28,7 @@ document
       } else if (loginData.success) {
         handleSuccessfulLogin(loginData);
       } else {
-        // showErrorPopup(loginData.message || "Identifiants invalides");
-        showErrorPopup("Identifiants invalides");
+        showErrorPopup(loginData.message || "Identifiants invalides");
       }
     } catch (error) {
       console.error("Erreur lors de la connexion :", error);
@@ -339,20 +338,6 @@ document
     
     clearErrors();
 
-
-    // Valider les champs
-    let validationError = validateRegistrationForm({
-      username,
-      email,
-      password1,
-      password2,
-    });
-
-    if (validationError) {
-      // Affiche une popup pour la première erreur trouvée
-      showErrorPopup(validationError);
-      return;
-    }
     
     if (password1 !== password2) {
       showErrorPopup("Les mots de passe ne correspondent pas.");
@@ -414,88 +399,6 @@ document
         document.getElementById("submitRegisterBtn").disabled = false;
       });
   });
-
-/**
- * Valide le formulaire d'inscription et retourne un message d'erreur en cas de problème.
- * @param {Object} formData - Les données du formulaire à valider
- * @returns {string|null} - Message d'erreur ou null si aucune erreur
- */
-function validateRegistrationForm(formData) {
-  const { username, email, password1, password2 } = formData;
-
-  // Vérifie si le nom d'utilisateur est vide
-  if (!username.trim()) {
-    return "Le nom d'utilisateur ne peut pas être vide.";
-  }
-
-  // Vérifie si le nom d'utilisateur dépasse 15 caractères
-  if (username.length > 15) {
-    return "Le nom d'utilisateur ne doit pas dépasser 15 caractères.";
-  }
-
-  // Vérifie si l'email est valide
-  if (!isValidEmail(email)) {
-    return "L'adresse email est invalide.";
-  }
-
-  // Vérifie si le mot de passe respecte les règles
-  if (!isValidPassword(password1)) {
-    return (
-      "Le mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial :  @$!%*?& <br>- 8 caractères minimum."
-    );
-  }
-
-  // Vérifie si les mots de passe correspondent
-  if (password1 !== password2) {
-    return "Les mots de passe ne correspondent pas.";
-  }
-
-  // Pas d'erreur
-  return null;
-}
-
-
-/**
- * Valide si un email est correct.
- * @param {string} email
- * @returns {boolean}
- */
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-/**
- * Valide si un mot de passe est valide.
- * @param {string} password
- * @returns {boolean}
- */
-function isValidPassword(password) {
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  return passwordRegex.test(password);
-}
-
-// /**
-//  * Affiche une popup d'erreur.
-//  * @param {string} message - Message d'erreur à afficher.
-//  */
-// function showErrorPopup(message) {
-//   const popup = document.createElement("div");
-//   popup.className = "error-popup"; 
-//   popup.innerHTML = `
-//     <div class="popup-content">
-//       <p>${message}</p>
-//       <button id="closePopup">OK</button>
-//     </div>
-//   `;
-//   document.body.appendChild(popup);
-
-//   // Ajouter un événement pour fermer la popup
-//   document.getElementById("closePopup").addEventListener("click", () => {
-//     popup.remove();
-//   });
-// }
 
 
 function displayError(field, message) {
