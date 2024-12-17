@@ -257,7 +257,8 @@ function initializeHome() {
 
 		static isUserBlocked(userId) {
 			return ChatHandler.blockedUsers.has(userId);
-		}static initializeContextMenu() {
+		}
+		static initializeContextMenu() {
       const chatMessages = DOM.chat.messages;
       let activeMenu = null;
 
@@ -335,7 +336,8 @@ function initializeHome() {
 
         activeMenu = menu;
 
-        // Le reste du code pour gérer les clics sur les options reste inchangémenu.addEventListener("click", async (e) => {
+        // Le reste du code pour gérer les clics sur les options reste inchangé
+		  menu.addEventListener("click", async (e) => {
           const option = e.target.closest(".chat-menu-option");
           if (!option) return;
 
@@ -355,29 +357,29 @@ function initializeHome() {
             ChatHandler.startPrivateMessage(username);
           }
 
-          menu.remove();
-          activeMenu = null;
-        });
-      });
+					menu.remove();
+					activeMenu = null;
+				});
+			});
 
-      // Le reste du code pour gérer la fermeture du menu reste inchangédocument.addEventListener("click", (e) => {
-        if (
-          activeMenu &&
-          !e.target.closest(".chat-context-menu") &&
-          !e.target.closest(".messageAvatar")
-        ) {
-          activeMenu.remove();
-          activeMenu = null;
-        }
-      });
+			// Le reste du code pour gérer la fermeture du menu reste inchangé
+			document.addEventListener("click", (e) => {
+				if (activeMenu &&
+					!e.target.closest(".chat-context-menu") &&
+					!e.target.closest(".messageAvatar")
+				) {
+					activeMenu.remove();
+					activeMenu = null;
+				}
+			});
 
-      chatMessages.addEventListener("scroll", () => {
-        if (activeMenu) {
-          activeMenu.remove();
-          activeMenu = null;
-        }
-      });
-    }
+			chatMessages.addEventListener("scroll", () => {
+				if (activeMenu) {
+					activeMenu.remove();
+					activeMenu = null;
+				}
+			});
+		}
 
     static async toggleBlockUser(userId,username) {
       try {
