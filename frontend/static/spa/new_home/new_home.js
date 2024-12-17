@@ -433,11 +433,6 @@ function initializeHome() {
 				messageElement.classList.add("private-message");
 			}
 
-			let messageHeader = data.username;
-			if (data.type === "private_message") {
-				messageHeader += ` → ${data.recipient}`;
-			}
-
 			messageElement.innerHTML = `
 				<img src="${data.avatar}"
 					alt="${data.username}"
@@ -447,7 +442,7 @@ function initializeHome() {
 					<div class="messageHeader"
 						 data-user-id="${data.userId}"
 						 data-username="${data.username}">
-						${messageHeader}
+						${data.type === "private_message" ? `${data.username} → ${data.recipient}` : data.username}
 					</div>
 					<div class="messageText">${data.message}</div>
 				</div>
@@ -691,25 +686,45 @@ function initializeHome() {
 				const menu = document.createElement("div");
 				menu.className = "chat-context-menu";
 
-				menu.innerHTML = `
+				// Construction conditionnelle du menu
+				let menuOptions = '';
+
+				// Option "See profile" toujours présente
+				menuOptions += `
 					<div class="chat-menu-option" data-action="profile">
 						See profile
 					</div>
-					${!isOwnUser ? `
-						<div class="chat-menu-option" data-action="add-friend">
-							Add friend
-						</div>
-						<div class="chat-menu-option" data-action="send-invitation">
-							Send online invitation
-						</div>
-						<div class="chat-menu-option" data-action="block">
-							${isBlocked ? "Unblock user" : "Block user"}
-						</div>
-						<div class="chat-menu-option" data-action="private-message">
-							Private message
-						</div>
-					` : ''}
 				`;
+
+				// Si ce n'est pas notre propre utilisateur
+				if (!isOwnUser) {
+					if (isBlocked) {
+						// Si l'utilisateur est bloqué, on montre uniquement l'option de déblocage
+						menuOptions += `
+							<div class="chat-menu-option" data-action="block">
+								Unblock user
+							</div>
+						`;
+					} else {
+						// Si l'utilisateur n'est pas bloqué et ce n'est pas notre propre message
+						menuOptions += `
+							<div class="chat-menu-option" data-action="add-friend">
+								Add friend
+							</div>
+							<div class="chat-menu-option" data-action="send-invitation">
+								Send online invitation
+							</div>
+							<div class="chat-menu-option" data-action="block">
+								Block user
+							</div>
+							<div class="chat-menu-option" data-action="private-message">
+								Private message
+							</div>
+						`;
+					}
+				}
+
+				menu.innerHTML = menuOptions;
 
 				document.body.appendChild(menu);
 				ChatHandler.positionMenuWithinViewport(menu, rect);

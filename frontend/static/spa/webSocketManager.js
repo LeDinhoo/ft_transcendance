@@ -54,19 +54,10 @@ const wsManager = {
 
 			switch (data.type) {
 				case 'chat_message':
-					if (this.isUserBlocked && this.isUserBlocked(data.userId)) {
-							break;
-						}
-						this.messageHistory.push(data);
-						this.messageListeners.forEach(listener => listener(data));
-						break;
-
 				case 'private_message':
-					const isOwnMessage = window.currentUser && data.username === window.currentUser.username;
-					if (isOwnMessage || !(this.isUserBlocked && this.isUserBlocked(data.userId))) {
-						this.messageHistory.push(data);
-						this.messageListeners.forEach(listener => listener(data));
-					}
+					// Plus besoin de vérifier le blocage ici car c'est géré côté serveur
+					this.messageHistory.push(data);
+					this.messageListeners.forEach(listener => listener(data));
 					break;
 
 				case 'game_invitation':
@@ -84,13 +75,12 @@ const wsManager = {
 						this.onlinePlayers.clear();
 						data.users.forEach(userStr => {
 							try {
-								const user = JSON.parse(userStr); // Parse chaque utilisateur
-								this.onlinePlayers.add(user);    // Ajoute à la liste
+								const user = JSON.parse(userStr);
+								this.onlinePlayers.add(user);
 							} catch (e) {
 								console.error("Utilisateur JSON invalide :", userStr);
 							}
 						});
-						console.log("Liste des utilisateurs valides :", [...this.onlinePlayers]);
 						this.updateOnlinePlayersList([...this.onlinePlayers]);
 					} catch (error) {
 						console.error('Erreur lors de la mise à jour de la liste des utilisateurs :', error);
