@@ -256,10 +256,17 @@ function initializeHome() {
     }
 
     static showNotification(message) {
+      console.log("Showing notification:", message);
+  
+      // Création de l'élément de notification
       const notification = document.createElement("div");
-      notification.classList.add("notification");
+      notification.classList.add("custom-notification");
       notification.textContent = message;
+  
+      // Ajout au body pour s'assurer qu'elle apparaît partout
       document.body.appendChild(notification);
+  
+      // Retirer l'élément après 3 secondes
       setTimeout(() => notification.remove(), 3000);
     }
 
@@ -310,36 +317,36 @@ function initializeHome() {
 
     //     // Option "See profile" toujours présente
     //     menuOptions += `
-		// 			<div class="chat-menu-option" data-action="profile">
-		// 				See profile
-		// 			</div>
-		// 		`;
+    // 			<div class="chat-menu-option" data-action="profile">
+    // 				See profile
+    // 			</div>
+    // 		`;
 
     //     // Si c'est un message d'un autre utilisateur
     //     if (!isOwnMessage) {
     //       if (isBlocked) {
     //         // Si l'utilisateur est bloqué, on montre uniquement l'option de déblocage
     //         menuOptions += `
-		// 					<div class="chat-menu-option" data-action="block">
-		// 						Unblock user
-		// 					</div>
-		// 				`;
+    // 					<div class="chat-menu-option" data-action="block">
+    // 						Unblock user
+    // 					</div>
+    // 				`;
     //       } else {
     //         // Si l'utilisateur n'est pas bloqué et ce n'est pas notre propre message
     //         menuOptions += `
-		// 					<div class="chat-menu-option" data-action="add-friend">
-		// 						Add friend
-		// 					</div>
-		// 					<div class="chat-menu-option" data-action="send-invitation">
-		// 						Send online invitation
-		// 					</div>
-		// 					<div class="chat-menu-option" data-action="block">
-		// 						Block user
-		// 					</div>
-		// 					<div class="chat-menu-option" data-action="private-message">
-		// 						Private message
-		// 					</div>
-		// 				`;
+    // 					<div class="chat-menu-option" data-action="add-friend">
+    // 						Add friend
+    // 					</div>
+    // 					<div class="chat-menu-option" data-action="send-invitation">
+    // 						Send online invitation
+    // 					</div>
+    // 					<div class="chat-menu-option" data-action="block">
+    // 						Block user
+    // 					</div>
+    // 					<div class="chat-menu-option" data-action="private-message">
+    // 						Private message
+    // 					</div>
+    // 				`;
     //       }
     //     }
 
@@ -374,10 +381,10 @@ function initializeHome() {
         const isBlocked = ChatHandler.blockedUsers.has(userId);
         const isOwnMessage = userId === String(window.currentUser.id);
 
-            // Bloquer toute interaction avec System
-    if (username === "System" || userId === "system") {
-      return;
-    }
+        // Bloquer toute interaction avec System
+        if (username === "System" || userId === "system") {
+          return;
+        }
 
         const menu = document.createElement("div");
         menu.className = "chat-context-menu";
@@ -395,14 +402,12 @@ function initializeHome() {
         // Si ce n'est pas notre propre message
         if (!isOwnMessage) {
           if (isBlocked) {
-
             menuOptions += `
 							<div class="chat-menu-option" data-action="block">
 								Unblock user
 							</div>
 						`;
           } else {
-
             menuOptions += `
 							<div class="chat-menu-option" data-action="add-friend">
 								Add friend
@@ -542,8 +547,57 @@ function initializeHome() {
       DOM.chat.input.focus();
     }
 
+    // static handleMessage(data) {
+    //   if (!DOM.chat.messages) return;
+
+    //   const isCurrentUser =
+    //     window.currentUser && data.username === window.currentUser.username;
+    //   const messageElement = document.createElement("div");
+    //   messageElement.className = `message ${
+    //     isCurrentUser ? "sent" : "received"
+    //   }`;
+
+    //   if (data.type === "private_message") {
+    //     messageElement.classList.add("private-message");
+    //   }
+
+    //   messageElement.innerHTML = `
+    // 		<img src="${data.avatar}"
+    // 			alt="${data.username}"
+    // 			class="messageAvatar"
+    // 			title="Click for options">
+    // 		<div class="messageContent">
+    // 			<div class="messageHeader"
+    // 				 data-user-id="${data.userId}"
+    // 				 data-username="${data.username}">
+    // 				${
+    //           data.type === "private_message"
+    //             ? `${data.username} → ${data.recipient}`
+    //             : data.username
+    //         }
+    // 			</div>
+    // 			<div class="messageText">${data.message}</div>
+    // 		</div>
+    // 	`;
+
+    //   DOM.chat.messages.appendChild(messageElement);
+    //   DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
+    // }
+
     static handleMessage(data) {
       if (!DOM.chat.messages) return;
+
+      // Ignorer les messages système
+      // if (data.type === "system" || data.username === "System") {
+      //   console.log("System message ignored:", data.message);
+      //   return;
+      // }
+
+      if (data.type === "system" || data.username === "System") {
+        console.log("System message shown as notification:", data.message);
+        ChatHandler.showNotification(data.message);
+        return;
+      }
 
       const isCurrentUser =
         window.currentUser && data.username === window.currentUser.username;
@@ -557,23 +611,23 @@ function initializeHome() {
       }
 
       messageElement.innerHTML = `
-				<img src="${data.avatar}"
-					alt="${data.username}"
-					class="messageAvatar"
-					title="Click for options">
-				<div class="messageContent">
-					<div class="messageHeader"
-						 data-user-id="${data.userId}"
-						 data-username="${data.username}">
-						${
+        <img src="${data.avatar}"
+          alt="${data.username}"
+          class="messageAvatar"
+          title="Click for options">
+        <div class="messageContent">
+          <div class="messageHeader"
+               data-user-id="${data.userId}"
+               data-username="${data.username}">
+            ${
               data.type === "private_message"
                 ? `${data.username} → ${data.recipient}`
                 : data.username
             }
-					</div>
-					<div class="messageText">${data.message}</div>
-				</div>
-			`;
+          </div>
+          <div class="messageText">${data.message}</div>
+        </div>
+      `;
 
       DOM.chat.messages.appendChild(messageElement);
       DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
@@ -1423,8 +1477,8 @@ const GameInvitationManager = {
     // Envoyer via WebSocket
     if (window.wsManager && window.wsManager.chatSocket) {
       window.wsManager.chatSocket.send(JSON.stringify(invitation));
-      console.log("Game invitation sent via WebSocket");
-      this.showNotification(`Game invitation sent to ${username}`);
+      // console.log("Game invitation sent via WebSocket");
+      this.showNotification(`Game invitation sent to ${username}.`);
     } else {
       console.error("WebSocket connection not available");
       this.showNotification("Unable to send invitation: connection error");
@@ -1446,6 +1500,7 @@ const GameInvitationManager = {
   //   setTimeout(() => notification.remove(), 2000);
   // },
 
+  
   showNotification(message) {
     console.log("Showing notification:", message);
 
@@ -1499,6 +1554,29 @@ const GameInvitationManager = {
     this.modal.style.display = "block";
   },
 
+  // respondToInvitation(invitationId, response) {
+  //   const invitation = this.activeInvitations.get(invitationId);
+  //   if (!invitation) {
+  //     console.error("No invitation found with ID:", invitationId);
+  //     return;
+  //   }
+
+  //   console.log("Sending response:", { invitationId, response });
+
+  //   window.wsManager.chatSocket.send(
+  //     JSON.stringify({
+  //       type: "game_invitation_response",
+  //       invitationId: invitationId,
+  //       response: response,
+  //       sender: invitation.sender.username,
+  //       receiver: window.currentUser.username,
+  //     })
+  //   );
+
+  //   this.activeInvitations.delete(invitationId);
+  //   this.closeModal();
+  // },
+
   respondToInvitation(invitationId, response) {
     const invitation = this.activeInvitations.get(invitationId);
     if (!invitation) {
@@ -1517,6 +1595,12 @@ const GameInvitationManager = {
         receiver: window.currentUser.username,
       })
     );
+
+    // // Afficher une notification simple
+    // const actionMessage =
+    //   response === "accept"
+    //     ? `Game invitation from ${invitation.sender.username} accepted`
+    //     : `Game invitation from ${invitation.sender.username} declined`;
 
     this.activeInvitations.delete(invitationId);
     this.closeModal();

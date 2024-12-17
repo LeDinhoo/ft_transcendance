@@ -61,14 +61,49 @@ const wsManager = {
           );
           break;
 
+        // case "game_invitation":
+        //   // console.log("Game invitation received:", data);
+        //   // Vérification que le destinataire est l'utilisateur courant
+        //   if (data.receiver === window.currentUser?.username) {
+        //     // Ajout d'un message système dans l'historique des messages
+        //     const systemMessage = {
+        //       type: "chat_message",
+        //       message: `Game invitation from ${data.sender.username}.`,
+        //       username: "System",
+        //       avatar: "/static/assets/icons/system.png",
+        //       userId: "system",
+        //       timestamp: new Date().toISOString(),
+        //     };
+
+        //     // Ajout du message au messageHistory via la méthode existante
+        //     const messageId = this.addMessageToHistory(systemMessage);
+        //     this.messageListeners.forEach((listener) =>
+        //       listener({ ...systemMessage, id: messageId })
+        //     );
+
+        //     // Gestion de l'invitation via une popup ou autre composant
+        //     if (window.GameInvitationManager?.handleInvitation) {
+        //       window.GameInvitationManager.handleInvitation(data);
+        //     }
+        //   }
+        //   break;
+
         case "game_invitation":
-          console.log("Game invitation received:", data);
           // Vérification que le destinataire est l'utilisateur courant
           if (data.receiver === window.currentUser?.username) {
+            // Ajout de la sécurité pour éviter d'afficher le message au sender
+            if (data.sender.username === window.currentUser?.username) {
+              console.log(
+                "Invitation message ignored for the sender:",
+                data.sender.username
+              );
+              break; // On ignore le reste du code pour le sender
+            }
+
             // Ajout d'un message système dans l'historique des messages
             const systemMessage = {
               type: "chat_message",
-              message: `${data.sender.username} has invited you to play ${data.gameType}`,
+              message: `Game invitation from ${data.sender.username}.`,
               username: "System",
               avatar: "/static/assets/icons/system.png",
               userId: "system",
@@ -114,8 +149,8 @@ const wsManager = {
       type: "chat_message",
       message:
         data.response === "accept"
-          ? `${data.receiver} accepted your game invitation.`
-          : `${data.receiver} declined your game invitation.`,
+          ? `Invitation accepted. Game starting...`
+          : `Invitation declined.`,
       username: "System",
       avatar: "/static/assets/icons/system.png", // Avatar système
       userId: "system", // ID utilisateur système
@@ -199,7 +234,6 @@ const wsManager = {
   //   });
   // },
 
-
   async updateOnlinePlayersList(users) {
     console.log("Updating online players list:", users);
 
@@ -222,7 +256,7 @@ const wsManager = {
       let iconSrc = isCurrentUser
         ? "/static/assets/icons/account_circle.svg"
         : isBlocked
-        ? "/static/assets/icons/blocked.svg"  // Cette icône indique que l'utilisateur est bloqué
+        ? "/static/assets/icons/blocked.svg" // Cette icône indique que l'utilisateur est bloqué
         : isFriend
         ? "/static/assets/icons/friends.svg"
         : "/static/assets/icons/online.svg";
@@ -233,22 +267,28 @@ const wsManager = {
           <img src="/static/assets/icons/connected_circle.svg" class="onlineFlag ${
             user.status === "in_game" ? "in-game" : ""
           }">
-          <div class="onlineNickname ${isBlocked ? 'blocked-user' : ''}" data-username="${
-            user.username
-          }" data-user-id="${user.id}">
+          <div class="onlineNickname ${
+            isBlocked ? "blocked-user" : ""
+          }" data-username="${user.username}" data-user-id="${user.id}">
             <img src="${user.avatar}" class="onlineAvatar">
             ${user.username}
           </div>
-          <img src="${iconSrc}" class="onlineIcon ${isBlocked ? 'blocked-icon' : ''}" 
-               title="${isBlocked ? 'Unblock user' : ''}"
-               style="${isBlocked ? 'cursor: pointer;' : ''}"
-               onclick="${isBlocked ? `ChatHandler.toggleBlockUser('${user.id}', '${user.username}')` : ''}"
+          <img src="${iconSrc}" class="onlineIcon ${
+        isBlocked ? "blocked-icon" : ""
+      }" 
+               title="${isBlocked ? "Unblock user" : ""}"
+               style="${isBlocked ? "cursor: pointer;" : ""}"
+               onclick="${
+                 isBlocked
+                   ? `ChatHandler.toggleBlockUser('${user.id}', '${user.username}')`
+                   : ""
+               }"
           >
         `;
 
       listContainer.appendChild(playerDiv);
     });
-},
+  },
 
   sendMessage() {
     const chatInput = document.getElementById("messageInput");
@@ -261,7 +301,6 @@ const wsManager = {
     if (pmMatch && pmMatch[1].toLowerCase() === "system") {
       return; // Bloquer les messages privés vers System
     }
-
 
     const payload = pmMatch
       ? {
