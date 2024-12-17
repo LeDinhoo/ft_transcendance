@@ -222,27 +222,26 @@ hr {
 }
 
 .languageSwitcher {
-	position: absolute;
-	top: 30px;
-	right: 60px;
-	display: flex;
-	gap: 10px;
+  position: absolute;
+  top: 30px;
+  right: 60px;
+  display: flex;
+  gap: 10px;
 }
 
 .languageSwitcher img {
-	width: 30px;
-	height: auto;
-	cursor: pointer;
+  width: 30px;
+  height: auto;
+  cursor: pointer;
 }
 
 .languageSwitcher img:hover {
-	opacity: 0.8;
+  opacity: 0.8;
 }
 
 .headerMenuSection {
-	position: relative;
+  position: relative;
 }
-
 
 .popup-overlay {
   position: fixed;
@@ -319,4 +318,13 @@ hr {
   color: #666;
   margin-top: 10px;
   font-size: 0.9rem;
+}
+
+/* CSS - Appliqué par défaut */
+#registerWidget {
+  display: none; /* Masqué par défaut */
+}
+
+#loginWidget {
+  display: flex; /* Affiché par défaut */
 }
