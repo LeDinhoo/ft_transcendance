@@ -207,8 +207,42 @@ function initializeProfilePage() {
   const saveButton = document.getElementById("saveButton");
   const uploadButton = document.getElementById("uploadButton");
 
-  initializePasswordManagement();
-  initialize2FA();
+  //////////////////////////////////////////////////////////////////
+
+  function validateFileSize(input, maxSizeMB) {
+    if (input.files && input.files[0]) {
+        const fileSize = input.files[0].size / 1024 / 1024;
+        if (fileSize > maxSizeMB) {
+            alert(`La taille du fichier doit être inférieure à ${maxSizeMB}MB`);
+            input.value = '';
+        }
+    }
+}
+
+function validatePasswordMatch() {
+    const newPassword = document.getElementById('newPassword');
+    const confirmPassword = document.getElementById('confirmNewPassword');
+    const saveButton = document.getElementById('saveButton');
+
+    if (newPassword.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity('Les mots de passe ne correspondent pas');
+        saveButton.disabled = true;
+    } else {
+        confirmPassword.setCustomValidity('');
+        saveButton.disabled = false;
+    }
+}
+
+// Initialisation des composants
+initializeAvatarFeature();
+resetPasswordFields();
+
+// Ajout de l'écouteur d'événement pour la validation de taille de fichier
+if (avatarInput) {
+    avatarInput.addEventListener('change', function(event) {
+        validateFileSize(event.target, 1);
+    });
+}
 
   const unlockedColor = "#ff710d";
 
@@ -820,5 +854,3 @@ function handleFriendRequest(requestId, action) {
     })
     .catch(error => console.error('Error handling friend request:', error));
 }
-
-
