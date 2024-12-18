@@ -5,16 +5,16 @@
                 <div class="playerProfilFrame">
                     <div class="avatarFrame">
                         <img
-                                id="avatarDisplay"
-                                class="avatarImg"
-                                src="/static/assets/avatars/ladybug.png"
-                                alt="user's avatar"
+                            id="avatarDisplay"
+                            class="avatarImg"
+                            src="/static/assets/avatars/ladybug.png"
+                            alt="user's avatar"
                         />
                         <input
-                                type="file"
-                                id="avatarInput"
-                                accept="image/png, image/jpeg"
-                                style="display: none"
+                            type="file"
+                            id="avatarInput"
+                            accept="image/png, image/jpeg"
+                            style="display: none"
                         />
                     </div>
                     <div class="playerFrame" id="playerFrame">Nickname</div>
@@ -66,22 +66,22 @@
                     Enable 2FA
                 </button>
 
-                <div
-                        id="2faVerificationFrame"
-                        class="formInputFrame"
-                        style="display: none"
-                >
+                <div id="2faVerificationFrame" class="formInputFrame" style="display: none">
                     <input
-                            type="text"
-                            id="verificationCode"
-                            name="verificationCode"
-                            class="inputFrame"
-                            placeholder=" "
-                            required
+                        type="text"
+                        id="verificationCode"
+                        name="verificationCode"
+                        class="inputFrame"
+                        placeholder=" "
+                        required
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        minlength="6"
+                        autocomplete="one-time-code"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6)"
+                        title="Le code doit contenir exactement 6 chiffres"
                     />
-                    <label for="verificationCode" class="inputLabel"
-                    >Verification Code</label
-                    >
+                    <label for="verificationCode" class="inputLabel">Verification Code</label>
                     <button class="btn-icon" id="confirm2FAButton">
                         <svg>
                             <use href="/static/assets/icons/sprite.svg#save"></use>

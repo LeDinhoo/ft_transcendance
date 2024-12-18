@@ -18,6 +18,7 @@ RUN apt-get update && \
         openssl \
         ca-certificates \
         curl \
+        libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
 

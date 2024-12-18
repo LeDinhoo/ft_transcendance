@@ -315,37 +315,121 @@ def profile_view(request):
 
     return JsonResponse(response_data, status=200)
 
+from django.http import JsonResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
+from django.core.files.storage import default_storage
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+import os
+import magic
+from datetime import datetime
+import re
+
+import imghdr
+import magic
+from PIL import Image
+from io import BytesIO
+
+from PIL import Image
+from django.core.exceptions import ValidationError
+import io
+
+def validate_image_thoroughly(image_file):
+    try:
+        # Copie du fichier en mémoire pour éviter les problèmes de buffer
+        image_copy = io.BytesIO(image_file.read())
+        image_file.seek(0)  # Remettre le pointeur au début pour usage ultérieur
+        
+        with Image.open(image_copy) as img:
+            # Force le chargement complet de l'image
+            img.load()
+            
+            # Essayer de convertir l'image
+            img.convert('RGB')
+            
+            # Vérifier que l'image peut être parcourue
+            list(img.getdata())  # Force l'accès aux données de l'image
+            
+            # Vérifier les métadonnées basiques
+            if not hasattr(img, 'format') or img.format not in ['JPEG', 'PNG']:
+                raise ValidationError("Format d'image non supporté (JPEG ou PNG uniquement)")
+                
+            # Essayer de créer une miniature pour vérifier que l'image est manipulable
+            thumbnail = img.copy()
+            thumbnail.thumbnail((100, 100))
+            
+            return True
+    except Exception as e:
+        raise ValidationError(f"Image corrompue ou invalide: {str(e)}")
+
+
+logger = logging.getLogger('profile_api')
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_profile_view(request):
-    user = request.user
-    data = request.data
+    logger.debug("====== Début update_profile_view ======")
+    logger.debug(f"Utilisateur: ID={request.user.id} | Username={request.user.username}")
+    logger.debug(f"Données reçues: {request.data}")
 
-    
-    if 'username' in data:
-        new_username = data['username']
-        if new_username.strip():  
+    try:
+        user = request.user
+        data = request.data.copy()
+
+        # Traitement username
+        if 'username' in data:
+            new_username = data['username'].strip()
+            logger.debug(f"Tentative mise à jour username: '{new_username}'")
+            
+            if not new_username:
+                logger.warning("Username vide reçu")
+                return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+            
+            if len(new_username) > 30:
+                logger.warning(f"Username trop long: {len(new_username)} caractères")
+                return JsonResponse({'error': 'Le nom d\'utilisateur est trop long.'}, status=400)
+
+            if user.__class__.objects.filter(username=new_username).exclude(id=user.id).exists():
+                logger.warning(f"Username déjà existant: {new_username}")
+                return JsonResponse({'error': 'Ce nom d\'utilisateur est déjà pris.'}, status=400)
+
             user.username = new_username
-        else:
-            return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+            logger.debug(f"Username mis à jour: {new_username}")
 
-    
-    if 'email' in data:
-        new_email = data['email']
-        try:
-            validate_email(new_email)  
-            user.email = new_email
-        except ValidationError:
-            return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
+        # Traitement email
+        if 'email' in data:
+            new_email = data['email'].lower().strip()
+            
+            # Vérification de la longueur
+            if len(new_email) > 70:
+                return JsonResponse({
+                    'error': 'L\'adresse email ne peut pas dépasser 70 caractères.'
+                }, status=400)
+            
+            try:
+                validate_email(new_email)
+                if user.__class__.objects.filter(email=new_email).exclude(id=user.id).exists():
+                    return JsonResponse({
+                        'error': 'Cette adresse email est déjà utilisée.'
+                    }, status=400)
+                
+                user.email = new_email
+            except ValidationError:
+                return JsonResponse({
+                    'error': 'L\'adresse email est invalide.'
+                }, status=400)
 
-    
-    if 'old_password' in data and 'new_password' in data:
-        old_password = data['old_password']
-        new_password = data['new_password']
+        # Traitement mot de passe
+        if 'old_password' in data and 'new_password' in data:
+            old_password = data['old_password']
+            new_password = data['new_password']
 
         
-        if not check_password(old_password, user.password):
-            return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
+            if not check_password(old_password, user.password):
+                return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
 
         
         password_validator = ComplexPasswordValidator()
@@ -357,137 +441,130 @@ def update_profile_view(request):
         
         user.password = make_password(new_password)
 
-   
-    if 'avatar' in request.FILES:
-        avatar = request.FILES['avatar']
-        valid_image_extensions = ['png', 'jpg', 'jpeg']
-        ext = avatar.name.split('.')[-1].lower()
-        if ext not in valid_image_extensions:
-            return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
-        user.avatar = avatar
 
-    elif 'selected_avatar' in data:
-        selected_avatar = data['selected_avatar']
-        print("Avatar sélectionné:", selected_avatar) 
+        # Traitement avatar
+        if 'avatar' in request.FILES:
+            avatar = request.FILES['avatar']
+            logger.debug(f"Upload avatar: nom={avatar.name}, taille={avatar.size} bytes")
+            
+            try:
+                # Vérifier la taille
+                if avatar.size > 2 * 1024 * 1024:  # 2MB
+                    logger.warning(f"Avatar trop volumineux: {avatar.size} bytes")
+                    return JsonResponse({'error': 'L\'image est trop volumineuse (max 2MB).'}, status=400)
+
+                # Vérifier le type MIME
+                mime = magic.Magic(mime=True)
+                file_type = mime.from_buffer(avatar.read())
+                avatar.seek(0)
+                
+                allowed_types = ['image/jpeg', 'image/png']
+                logger.debug(f"Type de fichier détecté: {file_type}")
+                
+                if file_type not in allowed_types:
+                    logger.warning(f"Type de fichier non autorisé: {file_type}")
+                    return JsonResponse({'error': 'Format de fichier non autorisé. Utilisez JPG ou PNG.'}, status=400)
+
+                # Vérifier que c'est une vraie image
+                try:
+                    avatar.seek(0)
+                    validate_image_thoroughly(avatar)
+                    avatar.seek(0)
+                    
+                    # Vérifier les dimensions
+                    img = Image.open(avatar)
+                    if img.height > 2000 or img.width > 2000:
+                        logger.warning(f"Image trop grande: {img.width}x{img.height}")
+                        return JsonResponse({'error': 'Dimensions de l\'image trop grandes (max 2000x2000)'}, status=400)
+                    
+                    if img.height < 100 or img.width < 100:
+                        logger.warning(f"Image trop petite: {img.width}x{img.height}")
+                        return JsonResponse({'error': 'Dimensions de l\'image trop petites (min 100x100)'}, status=400)
+
+                except Exception as e:
+                    logger.error(f"Erreur de validation d'image: {str(e)}")
+                    return JsonResponse({'error': 'Fichier image corrompu ou invalide'}, status=400)
+
+                avatar.seek(0)
+                
+                # Sauvegarder le fichier validé
+                file_path = os.path.join('avatars', f"avatar_{user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+                user.avatar = default_storage.save(file_path, avatar)
+                logger.debug(f"Avatar sauvegardé: {file_path}")
+
+            except Exception as e:
+                logger.error(f"Erreur lors du traitement de l'avatar: {str(e)}")
+                return JsonResponse({'error': 'Erreur lors du traitement de l\'image'}, status=500)
+
+        elif 'selected_avatar' in data:
+            selected_avatar = data['selected_avatar']
+            logger.debug(f"Sélection avatar prédéfini: {selected_avatar}")
+            
+            try:
+                if not selected_avatar.startswith('assets/avatars/'):
+                    logger.warning(f"Chemin avatar invalide: {selected_avatar}")
+                    return JsonResponse({'error': 'Chemin d\'avatar invalide.'}, status=400)
+                
+                # Sécuriser le chemin pour éviter la traversée de répertoire
+                safe_path = os.path.normpath(selected_avatar)
+                if '..' in safe_path or not safe_path.startswith('assets/avatars/'):
+                    logger.warning(f"Tentative de traversée de répertoire détectée: {selected_avatar}")
+                    return JsonResponse({'error': 'Chemin d\'avatar non autorisé'}, status=400)
+                
+                avatar_path = os.path.join(settings.STATIC_ROOT, selected_avatar[7:])
+                if not os.path.exists(avatar_path):
+                    logger.warning(f"Avatar non trouvé: {avatar_path}")
+                    return JsonResponse({'error': 'Avatar non trouvé'}, status=404)
+                
+                # Vérifier que le fichier est bien une image
+                mime = magic.Magic(mime=True)
+                with open(avatar_path, 'rb') as f:
+                    file_type = mime.from_buffer(f.read())
+                    if file_type not in ['image/jpeg', 'image/png']:
+                        logger.warning(f"Type de fichier prédéfini non autorisé: {file_type}")
+                        return JsonResponse({'error': 'Format d\'avatar non autorisé'}, status=400)
+                
+                user.avatar = selected_avatar
+                logger.debug(f"Avatar prédéfini assigné: {selected_avatar}")
+                
+            except Exception as e:
+                logger.error(f"Erreur lors de la sélection de l'avatar: {str(e)}")
+                return JsonResponse({'error': 'Erreur lors de la sélection de l\'avatar'}, status=500)
+
+        # Sauvegarde des modifications
+        try:
+            user.save()
+            logger.debug("Sauvegarde utilisateur réussie")
+        except Exception as e:
+            logger.error(f"Erreur lors de la sauvegarde: {str(e)}", exc_info=True)
+            return JsonResponse({'error': 'Erreur lors de la sauvegarde des modifications.'}, status=500)
+
+        # Préparation réponse
+        avatar_url = None
+        if user.avatar:
+            if str(user.avatar).startswith('assets/avatars/'):
+                avatar_url = f"/static/{user.avatar}"
+            else:
+                avatar_url = f"/media/{user.avatar}"
+            logger.debug(f"URL avatar générée: {avatar_url}")
+
+        response_data = {
+            'username': user.username,
+            'email': user.email,
+            'avatar': avatar_url
+        }
         
-        expected_prefix = 'assets/avatars/'
-        if selected_avatar.startswith(expected_prefix):
-            user.avatar = selected_avatar
-            
-        else:
-            
-            return JsonResponse({
-                'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
-            }, status=400)
+        logger.debug(f"Réponse finale: {response_data}")
+        logger.debug("====== Fin update_profile_view - Succès ======")
+        return JsonResponse(response_data, status=200)
 
-    try:
-        user.save()  
     except Exception as e:
+        logger.error("====== Erreur Critique ======")
+        logger.error(f"Type d'erreur: {type(e).__name__}")
+        logger.error(f"Message d'erreur: {str(e)}")
+        logger.error("Détails:", exc_info=True)
+        logger.error("====== Fin Erreur Critique ======")
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
-
-    avatar_url = None
-    if user.avatar:
-        if str(user.avatar).startswith('assets/avatars/'):
-            avatar_url = f"/static/{user.avatar}"
-        else:
-            avatar_url = f"/media/{user.avatar}"
-
-    print("URL de l'avatar renvoyée:", avatar_url)  
-
-    return JsonResponse({
-        'username': user.username,
-        'email': user.email,
-        'avatar': avatar_url
-    }, status=200)
-
-
-# from django.core.exceptions import ValidationError
-# from django.core.validators import validate_email
-# from django.contrib.auth.hashers import check_password, make_password
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.permissions import IsAuthenticated
-# from django.http import JsonResponse
-# import logging
-
-# logger = logging.getLogger(__name__)
-
-# @api_view(['PATCH'])
-# @permission_classes([IsAuthenticated])
-# def update_profile_view(request):
-#     user = request.user
-#     data = request.data
-
-#     # Vérifier les champs autorisés
-#     allowed_fields = {'username', 'email', 'old_password', 'new_password', 'avatar', 'selected_avatar'}
-#     extra_fields = set(data.keys()) - allowed_fields
-#     if extra_fields:
-#         return JsonResponse({'error': f'Champs non autorisés détectés : {list(extra_fields)}'}, status=400)
-
-#     # Mise à jour du username
-#     if 'username' in data:
-#         new_username = data['username']
-#         if not new_username.strip() or len(new_username) > 150:
-#             return JsonResponse({'error': 'Le nom d\'utilisateur doit contenir entre 1 et 150 caractères.'}, status=400)
-#         user.username = new_username
-
-#     # Mise à jour de l'email
-#     if 'email' in data:
-#         new_email = data['email']
-#         try:
-#             validate_email(new_email)
-#             user.email = new_email
-#         except ValidationError:
-#             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
-
-#     # Mise à jour du mot de passe
-#     if 'old_password' in data and 'new_password' in data:
-#         old_password = data['old_password']
-#         new_password = data['new_password']
-#         if not check_password(old_password, user.password):
-#             return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
-#         user.password = make_password(new_password)
-
-#     # Mise à jour de l'avatar
-#     MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
-#     if 'avatar' in request.FILES:
-#         avatar = request.FILES['avatar']
-#         valid_extensions = ['png', 'jpg', 'jpeg']
-#         ext = avatar.name.split('.')[-1].lower()
-#         if ext not in valid_extensions:
-#             return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
-#         if avatar.size > MAX_FILE_SIZE:
-#             return JsonResponse({'error': 'La taille de l\'image ne doit pas dépasser 2MB.'}, status=400)
-#         user.avatar = avatar
-#     elif 'selected_avatar' in data:
-#         selected_avatar = data['selected_avatar']
-#         expected_prefix = 'assets/avatars/'
-#         if selected_avatar.startswith(expected_prefix):
-#             user.avatar = selected_avatar
-#         else:
-#             return JsonResponse({'error': f'Chemin d\'avatar invalide. Il doit commencer par {expected_prefix}'}, status=400)
-
-#     # Sauvegarde des modifications
-#     try:
-#         user.save()
-#     except Exception as e:
-#         logger.error(f"Erreur de mise à jour du profil : {str(e)}")
-#         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
-
-#     # Construction de l'URL de l'avatar
-#     avatar_url = None
-#     if user.avatar:
-#         avatar_path = str(user.avatar)
-#         if avatar_path.startswith('assets/avatars/'):
-#             avatar_url = f"/static/{avatar_path}"
-#         else:
-#             avatar_url = f"/media/{avatar_path}"
-
-#     return JsonResponse({
-#         'username': user.username,
-#         'email': user.email,
-#         'avatar': avatar_url
-#     }, status=200)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
