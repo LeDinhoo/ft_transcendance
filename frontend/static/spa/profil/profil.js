@@ -72,24 +72,24 @@ function showConfirmationMessage(message) {
   }, 3000);
 }
 
-function initializePasswordManagement() {
-  const newFrame = document.getElementById("newFrame");
-  const newPlusFrame = document.getElementById("newPlusFrame");
-  const toggleChangePassword = document.getElementById("toggleChangePassword");
+// function initializePasswordManagement() {
+//   const newFrame = document.getElementById("newFrame");
+//   const newPlusFrame = document.getElementById("newPlusFrame");
+//   const toggleChangePassword = document.getElementById("toggleChangePassword");
 
-  const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
-  toggleChangePassword.parentNode.replaceChild(
-    cloneToggleChangePassword,
-    toggleChangePassword
-  );
+//   const cloneToggleChangePassword = toggleChangePassword.cloneNode(true);
+//   toggleChangePassword.parentNode.replaceChild(
+//     cloneToggleChangePassword,
+//     toggleChangePassword
+//   );
 
-  cloneToggleChangePassword.addEventListener("click", function () {
-    const isHidden = newFrame.style.display === "none";
-    cloneToggleChangePassword.innerText = isHidden ? "Cancel" : "Modify";
-    newFrame.style.display = isHidden ? "block" : "none";
-    newPlusFrame.style.display = isHidden ? "block" : "none";
-  });
-}
+//   cloneToggleChangePassword.addEventListener("click", function () {
+//     const isHidden = newFrame.style.display === "none";
+//     cloneToggleChangePassword.innerText = isHidden ? "Cancel" : "Modify";
+//     newFrame.style.display = isHidden ? "block" : "none";
+//     newPlusFrame.style.display = isHidden ? "block" : "none";
+//   });
+// }
 
 function loadMatchHistory() {
   fetch("/api/match-history/", {
@@ -207,7 +207,6 @@ function initializeProfilePage() {
   const saveButton = document.getElementById("saveButton");
   const uploadButton = document.getElementById("uploadButton");
 
-  initializePasswordManagement();
   initialize2FA();
 
   const unlockedColor = "#ff710d";
