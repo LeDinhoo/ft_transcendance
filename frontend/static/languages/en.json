@@ -1,20 +1,200 @@
 {
-    "login": {
-        "title": "Join the Battle",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Password",
-        "submitButton": "Log In",
-        "registerButton": "Register",
-        "emailError": "Invalid email address.",
-        "passwordError": "Password cannot be empty."
+  "login": {
+    "title": "Join the Battle",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Password",
+    "submitButton": "Log In",
+    "registerButton": "Register",
+    "emailError": "Invalid email address.",
+    "passwordError": "Password cannot be empty."
+  },
+  "register": {
+    "title": "Create Account",
+    "usernameLabel": "Username",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "submitButton": "Register",
+    "signUpButton": "Sign Up"
+  },
+  "home": {
+    "titles": {
+      "game": "GAME",
+      "mode": "MODE"
     },
-    "register": {
-        "title": "Create Account",
-        "usernameLabel": "Username",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Password",
-        "confirmPasswordLabel": "Confirm Password",
-        "submitButton": "Register",
-        "signUpButton": "Sign Up"
+    "game": {
+      "classic": "CLASSIC PONG",
+      "power": "POWER PONG"
+    },
+    "mode": {
+      "versus": "1 VS 1",
+      "ai": "AGAINST AI",
+      "online": "ONLINE",
+      "tournament": "TOURNAMENT"
+    },
+    "online": {
+      "players": "Online Players"
+    },
+    "chat": {
+      "blockedMessage": "Message blocked",
+      "clickForOptions": "Click for options",
+      "userTyping": "{username} is typing...",
+      "title": "Live chat"
+    },
+    "notifications": {
+      "friendRequest": {
+        "noUser": "Unable to send friend request: User ID not found",
+        "selfRequest": "You cannot send a friend request to yourself",
+        "success": "Friend request sent successfully",
+        "error": "Error sending friend request"
+      }
+    },
+    "buttons": {
+      "play": "PLAY"
+    },
+    "tooltips": {
+      "profil": {
+        "title": "profil",
+        "info": "You can click on the profil section on the navbar to update your infos"
+      },
+      "ranking": {
+        "title": "Ranking system",
+        "bronze": "Bronze: 0 - 5 victories",
+        "silver": "Silver: 5 - 10 victories",
+        "gold": "Gold: at least 10 victories"
+      }
+    },
+    "context": {
+      "profil": "See profil",
+      "addFriend": "Add friend request"
+    },
+    "errors": {
+      "templateNotFound": "Game invitation template not found",
+      "selectGameAndMode": "Please select both a game type and a mode!"
+    },
+    "status": {
+      "loading": "Loading game...",
+      "focus": "Setting focus to game",
+      "initialized": "Game is already initialized",
+      "winner": "The winner is: {winner}"
     }
+  },
+  "profil": {
+    "nickname": "Nickname",
+    "rank_bronze": "Bronze",
+    "rank_silver": "Silver",
+    "rank_gold": "Gold",
+    "rank_Platinum": "Platinum",
+    "modify": "Modify",
+    "cancel": "Cancel",
+    "match_history": "Match History",
+    "defeat": "Defeat",
+    "no_friend_requests": "No pending friend requests",
+    "accept": "Accept",
+    "reject": "Reject",
+    "account_settings": "Account Settings",
+    "username": "Username",
+    "email": "E-mail",
+    "password": "Password",
+    "new_password": "New Password",
+    "confirm_new_password": "Confirm New Password",
+    "save_changes": "Save Changes",
+    "friend_requests": "Friend Requests",
+    "gamesPlayed": "Games Played",
+    "winRatio": "Win Ratio",
+    "longestRally": "Longest Rally",
+    "topSpeed": "Top Speed",
+    "enable_2fa": "Enable 2FA",
+    "confirm": "Confirm",
+    "verification_code": "Verification Code",
+    "avatar_upload": "Upload",
+    "avatar_select": "Select Avatar",
+    "avatar_apply": "Apply",
+    "avatar_cancel": "Cancel"
+  },
+  "settings": {
+    "title": {
+      "game": "Game",
+      "shortcut": "Shortcut"
+    },
+    "label": {
+      "scoreToWin": "Score to win",
+      "aiDifficulty": "AI Difficulty",
+      "powerEnabled": "Power enabled",
+      "ballSpeedStart": "Initial ball speed",
+      "ballSpeedMax": "Maximum ball speed",
+      "speedIncrease": "Speed increase",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "launchPower": "Launch power"
+    },
+    "scoreOption": {
+      "2": "2",
+      "3": "3",
+      "5": "5",
+      "11": "11",
+      "21": "21"
+    },
+    "difficulty": {
+      "easy": "EASY",
+      "medium": "MEDIUM",
+      "hard": "HARD"
+    },
+    "powerup": {
+      "flash": "FLASH",
+      "inverse": "INVERSE",
+      "tornado": "TORNADO"
+    },
+    "ballSpeedStart": {
+      "1": "1",
+      "3": "3",
+      "5": "5",
+      "10": "10",
+      "20": "20"
+    },
+    "ballSpeedMax": {
+      "5": "5",
+      "10": "10",
+      "15": "15",
+      "25": "25",
+      "30": "30"
+    },
+    "speedIncrease": {
+      "0.5": "0.5",
+      "1": "1",
+      "2": "2",
+      "3": "3"
+    },
+    "saveButton": "Save",
+    "saveKeyboardButton": "Save keyboard",
+    "playerTitle": {
+      "player1": "Player 1",
+      "player2": "Player 2"
+    },
+    "key": {
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "launchPower": "Launch power"
+    }
+  },
+  "tournament": {
+    "players_4": "4 Players",
+    "players_8": "8 Players",
+    "play": "PLAY",
+    "reset_tournament": "RESET TOURNAMENT",
+    "tournament_config": "Tournament Configuration",
+    "start_tournament": "START TOURNAMENT",
+    "next_match": "NEXT MATCH",
+    "tournament_champion": "Tournament Champion",
+    "finish_tournament": "FINISH TOURNAMENT",
+    "waiting_next_matches": "Waiting for next matches",
+    "launch_match": "Launch Match",
+    "launch_final": "Launch Final",
+    "launch_semi_final": "Launch Semi-Final",
+    "tournament_complete": "Tournament Complete!",
+    "won_the_game": "Won the Game",
+    "launch_next_match": "Launch Next Match",
+    "your_nickname": "Your Nickname",
+    "bot_player": "Bot Player {0}"
+  }
 }

@@ -1,20 +1,200 @@
 {
-    "login": {
-        "title": "Rejoindre la bataille",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Mot de passe",
-        "submitButton": "Se connecter",
-        "registerButton": "S'inscrire",
-        "emailError": "Adresse e-mail invalide.",
-        "passwordError": "Le mot de passe ne peut pas être vide."
+  "login": {
+    "title": "Rejoindre la Bataille",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Mot de passe",
+    "submitButton": "Se connecter",
+    "registerButton": "S'inscrire",
+    "emailError": "Adresse e-mail invalide.",
+    "passwordError": "Le mot de passe ne peut pas être vide."
+  },
+  "register": {
+    "title": "Créer un compte",
+    "usernameLabel": "Nom d'utilisateur",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Mot de passe",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
+    "submitButton": "S'inscrire",
+    "signUpButton": "S'enregistrer"
+  },
+  "home": {
+    "titles": {
+      "game": "JEU",
+      "mode": "MODE"
     },
-    "register": {
-        "title": "Créer un compte",
-        "usernameLabel": "Nom d'utilisateur",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Mot de passe",
-        "confirmPasswordLabel": "Confirmer le mot de passe",
-        "submitButton": "S'inscrire",
-        "signUpButton": "Se connecter"
+    "game": {
+      "classic": "PONG CLASSIQUE",
+      "power": "PONG PUISSANT"
+    },
+    "mode": {
+      "versus": "1 CONTRE 1",
+      "ai": "CONTRE IA",
+      "online": "EN LIGNE",
+      "tournament": "TOURNOI"
+    },
+    "online": {
+      "players": "Joueurs en ligne"
+    },
+    "chat": {
+      "blockedMessage": "Message bloqué",
+      "clickForOptions": "Cliquez pour les options",
+      "userTyping": "{username} est en train d'écrire...",
+      "title": "Chat en direct"
+    },
+    "notifications": {
+      "friendRequest": {
+        "noUser": "Impossible d'envoyer la demande d'ami : ID utilisateur introuvable",
+        "selfRequest": "Vous ne pouvez pas vous envoyer une demande d'ami",
+        "success": "Demande d'ami envoyée avec succès",
+        "error": "Erreur lors de l'envoi de la demande d'ami"
+      }
+    },
+    "buttons": {
+      "play": "JOUER"
+    },
+    "tooltips": {
+      "profil": {
+        "title": "Profil",
+        "info": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations"
+      },
+      "ranking": {
+        "title": "Système de classement",
+        "bronze": "Bronze : 0 - 5 victoires",
+        "silver": "Argent : 5 - 10 victoires",
+        "gold": "Or : au moins 10 victoires"
+      }
+    },
+    "context": {
+      "profil": "Voir le profil",
+      "addFriend": "Ajouter une demande d'ami"
+    },
+    "errors": {
+      "templateNotFound": "Modèle d'invitation au jeu introuvable",
+      "selectGameAndMode": "Veuillez sélectionner à la fois un type de jeu et un mode !"
+    },
+    "status": {
+      "loading": "Chargement du jeu...",
+      "focus": "Mise au point sur le jeu",
+      "initialized": "Le jeu est déjà initialisé",
+      "winner": "Le gagnant est : {winner}"
     }
+  },
+  "profil": {
+    "nickname": "Surnom",
+    "rank_bronze": "Bronze",
+    "rank_silver": "Argent",
+    "rank_gold": "Or",
+    "rank_Platinum": "Platine",
+    "modify": "Modifier",
+    "cancel": "Annuler",
+    "match_history": "Historique des matchs",
+    "defeat": "Défaite",
+    "no_friend_requests": "Aucune demande d'ami en attente",
+    "accept": "Accepter",
+    "reject": "Rejeter",
+    "account_settings": "Paramètres du compte",
+    "username": "Nom d'utilisateur",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "new_password": "Nouveau mot de passe",
+    "confirm_new_password": "Confirmer le nouveau mot de passe",
+    "save_changes": "Enregistrer les modifications",
+    "friend_requests": "Demandes d'amis",
+    "gamesPlayed": "Parties jouées",
+    "winRatio": "Taux de victoire",
+    "longestRally": "Plus long échange",
+    "topSpeed": "Vitesse maximale",
+    "enable_2fa": "Activer la 2FA",
+    "confirm": "Confirmer",
+    "verification_code": "Code de vérification",
+    "avatar_upload": "Télécharger",
+    "avatar_select": "Sélectionner un avatar",
+    "avatar_apply": "Appliquer",
+    "avatar_cancel": "Annuler"
+  },
+  "settings": {
+    "title": {
+      "game": "Jeu",
+      "shortcut": "Raccourci"
+    },
+    "label": {
+      "scoreToWin": "Score pour gagner",
+      "aiDifficulty": "Difficulté IA",
+      "powerEnabled": "Pouvoir activé",
+      "ballSpeedStart": "Vitesse de balle initiale",
+      "ballSpeedMax": "Vitesse de balle maximale",
+      "speedIncrease": "Augmentation de vitesse",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "launchPower": "Lancer le pouvoir"
+    },
+    "scoreOption": {
+      "2": "2",
+      "3": "3",
+      "5": "5",
+      "11": "11",
+      "21": "21"
+    },
+    "difficulty": {
+      "easy": "FACILE",
+      "medium": "MOYEN",
+      "hard": "DIFFICILE"
+    },
+    "powerup": {
+      "flash": "FLASH",
+      "inverse": "INVERSE",
+      "tornado": "TORNADE"
+    },
+    "ballSpeedStart": {
+      "1": "1",
+      "3": "3",
+      "5": "5",
+      "10": "10",
+      "20": "20"
+    },
+    "ballSpeedMax": {
+      "5": "5",
+      "10": "10",
+      "15": "15",
+      "25": "25",
+      "30": "30"
+    },
+    "speedIncrease": {
+      "0.5": "0.5",
+      "1": "1",
+      "2": "2",
+      "3": "3"
+    },
+    "saveButton": "Enregistrer",
+    "saveKeyboardButton": "Enregistrer",
+    "playerTitle": {
+      "player1": "Joueur 1",
+      "player2": "Joueur 2"
+    },
+    "key": {
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "launchPower": "Lancer le pouvoir"
+    }
+  },
+  "tournament": {
+    "players_4": "4 Joueurs",
+    "players_8": "8 Joueurs",
+    "play": "JOUER",
+    "reset_tournament": "RÉINITIALISER LE TOURNOI",
+    "tournament_config": "Configuration du tournoi",
+    "start_tournament": "COMMENCER LE TOURNOI",
+    "next_match": "MATCH SUIVANT",
+    "tournament_champion": "Champion du tournoi",
+    "finish_tournament": "TERMINER LE TOURNOI",
+    "waiting_next_matches": "En attente des prochains matchs",
+    "launch_match": "Lancer le match",
+    "launch_final": "Lancer la finale",
+    "launch_semi_final": "Lancer la demi-finale",
+    "tournament_complete": "Tournoi terminé !",
+    "won_the_game": "A gagné le match",
+    "launch_next_match": "Lancer le prochain match",
+    "your_nickname": "Votre pseudo",
+    "bot_player": "Joueur Bot {0}"
+  }
 }

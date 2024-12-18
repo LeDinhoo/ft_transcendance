@@ -1,5 +1,53 @@
+function addLanguageSelector() {
+    const navbar = document.querySelector('.headerNavBar');
+    if (!navbar) return;
 
+    const existingSelector = document.querySelector('.language-selector, .languageSwitcher');
+    if (existingSelector) {
+        return;
+    }
+
+    // Créer le conteneur pour le sélecteur de langue
+    const languageSelector = document.createElement('div');
+    languageSelector.className = 'language-selector';
+    languageSelector.innerHTML = `
+        <div class="language-flags">
+            <img src="/static/assets/flags/flag-en.svg" alt="English" data-language="en" class="language-flag">
+            <img src="/static/assets/flags/flag-fr.svg" alt="Français" data-language="fr" class="language-flag">
+            <img src="/static/assets/flags/flag-es.svg" alt="Español" data-language="es" class="language-flag">
+            <img src="/static/assets/flags/flag-swe.svg" alt="Svenska" data-language="swe" class="language-flag">
+        </div>
+    `;
+
+    // Gestionnaires d'événements pour les drapeaux
+    languageSelector.querySelectorAll('.language-flag').forEach(flag => {
+        flag.addEventListener('click', async (e) => {
+            const language = e.target.dataset.language;
+            await window.setPreferredLanguage(language);
+
+            document.querySelectorAll('.language-flag').forEach(f =>
+                f.classList.remove('active'));
+            e.target.classList.add('active');
+        });
+    });
+
+    navbar.insertBefore(languageSelector, navbar.firstChild);
+
+    window.getPreferredLanguage().then(currentLanguage => {
+        const currentFlag = languageSelector.querySelector(
+            `[data-language="${currentLanguage}"]`
+        );
+        if (currentFlag) {
+            currentFlag.classList.add('active');
+        }
+    });
+}
+
+// Fonction pour initialiser la navbar et gérer les événements de clic
 function initializeNavBar() {
+
+  addLanguageSelector();
+
   const labels = document.querySelectorAll(".navLabel");
   const icons = document.querySelectorAll(".iconMenu");
 

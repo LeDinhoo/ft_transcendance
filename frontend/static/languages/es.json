@@ -1,20 +1,200 @@
 {
-    "login": {
-        "title": "Únete a la batalla",
-        "emailLabel": "Correo electrónico",
-        "passwordLabel": "Contraseña",
-        "submitButton": "Iniciar sesión",
-        "registerButton": "Registrarse",
-        "emailError": "Dirección de correo electrónico inválida.",
-        "passwordError": "La contraseña no puede estar vacía."
+  "login": {
+    "title": "Únete a la Batalla",
+    "emailLabel": "Correo electrónico",
+    "passwordLabel": "Contraseña",
+    "submitButton": "Iniciar sesión",
+    "registerButton": "Registrarse",
+    "emailError": "Dirección de correo electrónico no válida.",
+    "passwordError": "La contraseña no puede estar vacía."
+  },
+  "register": {
+    "title": "Crear Cuenta",
+    "usernameLabel": "Nombre de usuario",
+    "emailLabel": "Correo electrónico",
+    "passwordLabel": "Contraseña",
+    "confirmPasswordLabel": "Confirmar contraseña",
+    "submitButton": "Registrarse",
+    "signUpButton": "Inscribirse"
+  },
+  "home": {
+    "titles": {
+      "game": "JUEGO",
+      "mode": "MODO"
     },
-    "register": {
-        "title": "Crear cuenta",
-        "usernameLabel": "Nombre de usuario",
-        "emailLabel": "Correo electrónico",
-        "passwordLabel": "Contraseña",
-        "confirmPasswordLabel": "Confirmar contraseña",
-        "submitButton": "Registrarse",
-        "signUpButton": "Inscribirse"
+    "game": {
+      "classic": "PONG CLÁSICO",
+      "power": "PONG PODEROSO"
+    },
+    "mode": {
+      "versus": "1 CONTRA 1",
+      "ai": "CONTRA IA",
+      "online": "EN LÍNEA",
+      "tournament": "TORNEO"
+    },
+    "online": {
+      "players": "Jugadores en línea"
+    },
+    "chat": {
+      "blockedMessage": "Mensaje bloqueado",
+      "clickForOptions": "Haga clic para opciones",
+      "userTyping": "{username} está escribiendo...",
+      "title": "Chat en vivo"
+    },
+    "notifications": {
+      "friendRequest": {
+        "noUser": "No se pudo enviar la solicitud de amistad: ID de usuario no encontrado",
+        "selfRequest": "No puedes enviarte una solicitud de amistad a ti mismo",
+        "success": "Solicitud de amistad enviada con éxito",
+        "error": "Error al enviar la solicitud de amistad"
+      }
+    },
+    "buttons": {
+      "play": "JUGAR"
+    },
+    "tooltips": {
+      "profil": {
+        "title": "Perfil",
+        "info": "Puedes hacer clic en la sección de perfil en la barra de navegación para actualizar tu información"
+      },
+      "ranking": {
+        "title": "Sistema de clasificación",
+        "bronze": "Bronce: 0 - 5 victorias",
+        "silver": "Plata: 5 - 10 victorias",
+        "gold": "Oro: al menos 10 victorias"
+      }
+    },
+    "context": {
+      "profil": "Ver perfil",
+      "addFriend": "Agregar solicitud de amistad"
+    },
+    "errors": {
+      "templateNotFound": "Plantilla de invitación al juego no encontrada",
+      "selectGameAndMode": "¡Por favor selecciona un tipo de juego y un modo!"
+    },
+    "status": {
+      "loading": "Cargando juego...",
+      "focus": "Enfocando el juego",
+      "initialized": "El juego ya está inicializado",
+      "winner": "El ganador es: {winner}"
     }
+  },
+  "profil": {
+    "nickname": "Apodo",
+    "rank_bronze": "Bronce",
+    "rank_silver": "Plata",
+    "rank_gold": "Oro",
+    "rank_Platinum": "Platino",
+    "modify": "Modificar",
+    "cancel": "Cancelar",
+    "match_history": "Historial de partidas",
+    "defeat": "Derrota",
+    "no_friend_requests": "No hay solicitudes de amistad pendientes",
+    "accept": "Aceptar",
+    "reject": "Rechazar",
+    "account_settings": "Configuración de la cuenta",
+    "username": "Nombre de usuario",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "new_password": "Nueva contraseña",
+    "confirm_new_password": "Confirmar nueva contraseña",
+    "save_changes": "Guardar cambios",
+    "friend_requests": "Solicitudes de amistad",
+    "gamesPlayed": "Partidas jugadas",
+    "winRatio": "Proporción de victorias",
+    "longestRally": "Rally más largo",
+    "topSpeed": "Velocidad máxima",
+    "enable_2fa": "Habilitar 2FA",
+    "confirm": "Confirmar",
+    "verification_code": "Código de verificación",
+    "avatar_upload": "Subir",
+    "avatar_select": "Seleccionar avatar",
+    "avatar_apply": "Aplicar",
+    "avatar_cancel": "Cancelar"
+  },
+  "settings": {
+    "title": {
+      "game": "Juego",
+      "shortcut": "Atajo"
+    },
+    "label": {
+      "scoreToWin": "Puntuación para ganar",
+      "aiDifficulty": "Dificultad IA",
+      "powerEnabled": "Poder activado",
+      "ballSpeedStart": "Velocidad inicial de la pelota",
+      "ballSpeedMax": "Velocidad máxima de la pelota",
+      "speedIncrease": "Incremento de velocidad",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "launchPower": "Lanzar poder"
+    },
+    "scoreOption": {
+      "2": "2",
+      "3": "3",
+      "5": "5",
+      "11": "11",
+      "21": "21"
+    },
+    "difficulty": {
+      "easy": "FÁCIL",
+      "medium": "MEDIO",
+      "hard": "DIFÍCIL"
+    },
+    "powerup": {
+      "flash": "DESTELLO",
+      "inverse": "INVERSO",
+      "tornado": "TORNADO"
+    },
+    "ballSpeedStart": {
+      "1": "1",
+      "3": "3",
+      "5": "5",
+      "10": "10",
+      "20": "20"
+    },
+    "ballSpeedMax": {
+      "5": "5",
+      "10": "10",
+      "15": "15",
+      "25": "25",
+      "30": "30"
+    },
+    "speedIncrease": {
+      "0.5": "0.5",
+      "1": "1",
+      "2": "2",
+      "3": "3"
+    },
+    "saveButton": "Guardar",
+    "saveKeyboardButton": "Guardar el teclado",
+    "playerTitle": {
+      "player1": "Jugador 1",
+      "player2": "Jugador 2"
+    },
+    "key": {
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "launchPower": "Lanzar poder"
+    }
+  },
+  "tournament": {
+    "players_4": "4 Jugadores",
+    "players_8": "8 Jugadores",
+    "play": "JUGAR",
+    "reset_tournament": "REINICIAR TORNEO",
+    "tournament_config": "Configuración del torneo",
+    "start_tournament": "INICIAR TORNEO",
+    "next_match": "SIGUIENTE PARTIDA",
+    "tournament_champion": "Campeón del torneo",
+    "finish_tournament": "FINALIZAR TORNEO",
+    "waiting_next_matches": "Esperando los próximos partidos",
+    "launch_match": "Iniciar partida",
+    "launch_final": "Iniciar la final",
+    "launch_semi_final": "Iniciar la semifinal",
+    "tournament_complete": "¡Torneo completado!",
+    "won_the_game": "Ganó la partida",
+    "launch_next_match": "Iniciar la siguiente partida",
+    "your_nickname": "Tu apodo",
+    "bot_player": "Jugador Bot {0}"
+  }
 }

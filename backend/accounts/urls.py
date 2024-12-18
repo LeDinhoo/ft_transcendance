@@ -34,6 +34,10 @@ urlpatterns = [
     path('friends/list/', views.get_friends, name='get_friends'),
     path('friends/pending/', views.get_pending_requests, name='get_pending_requests'),
 
+	path('language/get/', views.get_preferred_language, name='get_preferred_language'),
+    path('language/set/', views.set_preferred_language, name='set_preferred_language'),
+
+
 	path('user/profile-stats/<int:user_id>/', views.get_user_profile_stats, name='get_user_profile_stats'),
 
 	path('blocked/list/', views.get_blocked_users, name='blocked-users-list'),
