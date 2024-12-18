@@ -423,23 +423,23 @@ def update_profile_view(request):
                 }, status=400)
 
         # Traitement mot de passe
-        if 'old_password' in data and 'new_password' in data:
-            old_password = data['old_password']
-            new_password = data['new_password']
+        # Traitement mot de passe
+            if data.get('old_password') and data.get('new_password'):
+                logger.debug("Tentative changement mot de passe")
+                old_password = data.get('old_password')
+                new_password = data.get('new_password')
+                
+                if not check_password(old_password, user.password):
+                    logger.warning("Ancien mot de passe incorrect")
+                    return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
 
-        
-            if not check_password(old_password, user.password):
-                return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
-
-        
-        password_validator = ComplexPasswordValidator()
-        try:
-            password_validator.validate(new_password)
-        except ValidationError as e:
-            return JsonResponse({'error': e.messages[0]}, status=400)
-
-        
-        user.password = make_password(new_password)
+                password_validator = ComplexPasswordValidator()
+                try:
+                    password_validator.validate(new_password)
+                    user.password = make_password(new_password)
+                    logger.debug("Mot de passe mis à jour avec succès")
+                except ValidationError as e:
+                    return JsonResponse({'error': str(e)}, status=400)
 
 
         # Traitement avatar
@@ -498,38 +498,22 @@ def update_profile_view(request):
 
         elif 'selected_avatar' in data:
             selected_avatar = data['selected_avatar']
-            logger.debug(f"Sélection avatar prédéfini: {selected_avatar}")
+            print("Avatar sélectionné:", selected_avatar) 
             
-            try:
-                if not selected_avatar.startswith('assets/avatars/'):
-                    logger.warning(f"Chemin avatar invalide: {selected_avatar}")
-                    return JsonResponse({'error': 'Chemin d\'avatar invalide.'}, status=400)
-                
-                # Sécuriser le chemin pour éviter la traversée de répertoire
-                safe_path = os.path.normpath(selected_avatar)
-                if '..' in safe_path or not safe_path.startswith('assets/avatars/'):
-                    logger.warning(f"Tentative de traversée de répertoire détectée: {selected_avatar}")
-                    return JsonResponse({'error': 'Chemin d\'avatar non autorisé'}, status=400)
-                
-                avatar_path = os.path.join(settings.STATIC_ROOT, selected_avatar[7:])
-                if not os.path.exists(avatar_path):
-                    logger.warning(f"Avatar non trouvé: {avatar_path}")
-                    return JsonResponse({'error': 'Avatar non trouvé'}, status=404)
-                
-                # Vérifier que le fichier est bien une image
-                mime = magic.Magic(mime=True)
-                with open(avatar_path, 'rb') as f:
-                    file_type = mime.from_buffer(f.read())
-                    if file_type not in ['image/jpeg', 'image/png']:
-                        logger.warning(f"Type de fichier prédéfini non autorisé: {file_type}")
-                        return JsonResponse({'error': 'Format d\'avatar non autorisé'}, status=400)
-                
+            expected_prefix = 'assets/avatars/'
+            if selected_avatar.startswith(expected_prefix):
                 user.avatar = selected_avatar
-                logger.debug(f"Avatar prédéfini assigné: {selected_avatar}")
                 
-            except Exception as e:
-                logger.error(f"Erreur lors de la sélection de l'avatar: {str(e)}")
-                return JsonResponse({'error': 'Erreur lors de la sélection de l\'avatar'}, status=500)
+            else:
+                
+                return JsonResponse({
+                    'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
+                }, status=400)
+
+        try:
+            user.save()  
+        except Exception as e:
+            return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
 
         # Sauvegarde des modifications
         try:
