@@ -1202,57 +1202,117 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def record_game(request):
+#     data = request.data
+#     score_user = data.get('score_user')
+#     score_opponent = data.get('score_opponent')
+#     result = data.get('result')
+#     longest_rally = data.get('longest_rally', 0)  
+#     opponent_id = data.get('opponent_id')
+#     opponent_name = data.get('opponent_name', 'IA')
+#     max_ball_speed = data.get('max_ball_speed', 0)
+
+#     if max_ball_speed is None:
+#         return JsonResponse({'error': 'Données incorrectes : max_ball_speed manquant'}, status=400)
+
+
+#     if not all([score_user is not None, score_opponent is not None, result is not None]):
+#         return JsonResponse({'error': 'Données manquantes'}, status=400)
+
+#     opponent_user = None
+#     if opponent_id:
+#         try:
+#             opponent_user = CustomUser.objects.get(id=opponent_id)
+#         except CustomUser.DoesNotExist:
+#             return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
+
+    
+#     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
+#         Max('longest_rally')
+#     )['longest_rally__max'] or 0
+
+#     if longest_rally > user_longest_rally:
+#         print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
+
+#     user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
+
+#     if max_ball_speed > user_max_ball_speed:
+#         print(f"Mise à jour du max ball speed : {max_ball_speed} (ancien : {user_max_ball_speed})")
+
+#     game = GameHistory.objects.create(
+#         user=request.user,
+#         score_user=score_user,
+#         score_opponent=score_opponent,
+#         result=result,
+#         longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
+#         opponent_user=opponent_user,
+#         opponent_name=opponent_name if not opponent_user else None,
+#         max_ball_speed = max_ball_speed if max_ball_speed > user_max_ball_speed else user_max_ball_speed,
+#     )
+
+#     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def record_game(request):
     data = request.data
-    score_user = data.get('score_user')
-    score_opponent = data.get('score_opponent')
-    result = data.get('result')
-    longest_rally = data.get('longest_rally', 0)  
+
+    # Validation des champs nécessaires
+    try:
+        score_user = int(data.get('score_user', None))
+        score_opponent = int(data.get('score_opponent', None))
+        result = bool(data.get('result', None))
+        longest_rally = int(data.get('longest_rally', 0))
+        max_ball_speed = int(data.get('max_ball_speed', 0))
+    except (ValueError, TypeError):
+        return JsonResponse({
+            'error': 'Les champs score_user, score_opponent, result, longest_rally, et max_ball_speed doivent contenir des valeurs valides.'
+        }, status=400)
+
+    # Vérification des données obligatoires
+    if score_user is None or score_opponent is None or result is None:
+        return JsonResponse({'error': 'Les champs score_user, score_opponent et result sont obligatoires.'}, status=400)
+
+    # Récupération de l'adversaire si fourni
+    opponent_user = None
     opponent_id = data.get('opponent_id')
     opponent_name = data.get('opponent_name', 'IA')
-    max_ball_speed = data.get('max_ball_speed', 0)
-
-    if max_ball_speed is None:
-        return JsonResponse({'error': 'Données incorrectes : max_ball_speed manquant'}, status=400)
-
-
-    if not all([score_user is not None, score_opponent is not None, result is not None]):
-        return JsonResponse({'error': 'Données manquantes'}, status=400)
-
-    opponent_user = None
     if opponent_id:
         try:
             opponent_user = CustomUser.objects.get(id=opponent_id)
         except CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
+            return JsonResponse({'error': 'Adversaire introuvable.'}, status=404)
 
-    
+    # Calcul des statistiques utilisateur
     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
         Max('longest_rally')
     )['longest_rally__max'] or 0
 
-    if longest_rally > user_longest_rally:
-        print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
+    user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(
+        Max('max_ball_speed')
+    )['max_ball_speed__max'] or 0
 
-    user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
-
-    if max_ball_speed > user_max_ball_speed:
-        print(f"Mise à jour du max ball speed : {max_ball_speed} (ancien : {user_max_ball_speed})")
-
-    game = GameHistory.objects.create(
-        user=request.user,
-        score_user=score_user,
-        score_opponent=score_opponent,
-        result=result,
-        longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
-        opponent_user=opponent_user,
-        opponent_name=opponent_name if not opponent_user else None,
-        max_ball_speed = max_ball_speed if max_ball_speed > user_max_ball_speed else user_max_ball_speed,
-    )
+    # Création de la partie
+    try:
+        game = GameHistory.objects.create(
+            user=request.user,
+            score_user=score_user,
+            score_opponent=score_opponent,
+            result=result,
+            longest_rally=max(longest_rally, user_longest_rally),
+            max_ball_speed=max(max_ball_speed, user_max_ball_speed),
+            opponent_user=opponent_user,
+            opponent_name=opponent_name if not opponent_user else None,
+        )
+    except Exception as e:
+        logger.error(f"Erreur lors de la création du jeu : {str(e)}")
+        return JsonResponse({'error': 'Une erreur est survenue lors de l\'enregistrement de la partie.'}, status=500)
 
     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
 
 
 from django.http import JsonResponse
@@ -1347,25 +1407,89 @@ def get_user_statistics(request):
 
 from .models import FriendShip
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def send_friend_request(request):
+#     receiver_id = request.data.get('receiver_id')
+
+
+#     if not receiver_id:
+#         return JsonResponse({
+#             'message': 'Receiver ID is required'
+#         }, status=400)
+
+#     try:
+#         if str(request.user.id) == str(receiver_id):
+#             return JsonResponse({
+#                 'message': 'You cannot send a friend request to yourself'
+#             }, status=400)
+
+#         receiver = CustomUser.objects.get(id=receiver_id)
+
+#         existing_request = FriendShip.objects.filter(
+#             from_user=request.user,
+#             to_user=receiver
+#         ).first()
+
+#         if existing_request:
+#             if existing_request.status == 'pending':
+#                 return JsonResponse({
+#                     'message': 'A friend request is already pending'
+#                 }, status=400)
+#             elif existing_request.status == 'accepted':
+#                 return JsonResponse({
+#                     'message': 'You are already friends'
+#                 }, status=400)
+
+#         FriendShip.objects.create(
+#             from_user=request.user,
+#             to_user=receiver,
+#             status='pending'
+#         )
+
+#         return JsonResponse({
+#             'message': 'Friend request sent successfully'
+#         }, status=200)
+
+#     except CustomUser.DoesNotExist:
+#         return JsonResponse({
+#             'message': 'User not found'
+#         }, status=404)
+#     except Exception as e:
+#         print(f"Error in send_friend_request: {str(e)}")
+#         return JsonResponse({
+#             'message': 'An error occurred while processing the request'
+#         }, status=500)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
-    receiver_id = request.data.get('receiver_id')
-
-
-    if not receiver_id:
-        return JsonResponse({
-            'message': 'Receiver ID is required'
-        }, status=400)
-
     try:
-        if str(request.user.id) == str(receiver_id):
+        # Récupérer et valider le receiver_id
+        receiver_id = request.data.get('receiver_id')
+
+        if not receiver_id:
+            return JsonResponse({'message': 'Receiver ID is required'}, status=400)
+
+        # Vérifier que le receiver_id est un entier valide
+        try:
+            receiver_id = int(receiver_id)
+        except ValueError:
+            return JsonResponse({'message': 'Invalid Receiver ID'}, status=400)
+
+        if request.user.id == receiver_id:
             return JsonResponse({
                 'message': 'You cannot send a friend request to yourself'
             }, status=400)
 
-        receiver = CustomUser.objects.get(id=receiver_id)
+        # Vérifier si l'utilisateur existe
+        try:
+            receiver = CustomUser.objects.get(id=receiver_id)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'message': 'User not found'}, status=404)
 
+        # Vérifier les demandes existantes
         existing_request = FriendShip.objects.filter(
             from_user=request.user,
             to_user=receiver
@@ -1373,33 +1497,24 @@ def send_friend_request(request):
 
         if existing_request:
             if existing_request.status == 'pending':
-                return JsonResponse({
-                    'message': 'A friend request is already pending'
-                }, status=400)
+                return JsonResponse({'message': 'A friend request is already pending'}, status=400)
             elif existing_request.status == 'accepted':
-                return JsonResponse({
-                    'message': 'You are already friends'
-                }, status=400)
+                return JsonResponse({'message': 'You are already friends'}, status=400)
 
+        # Créer la demande d'ami
         FriendShip.objects.create(
             from_user=request.user,
             to_user=receiver,
             status='pending'
         )
 
-        return JsonResponse({
-            'message': 'Friend request sent successfully'
-        }, status=200)
+        return JsonResponse({'message': 'Friend request sent successfully'}, status=200)
 
-    except CustomUser.DoesNotExist:
-        return JsonResponse({
-            'message': 'User not found'
-        }, status=404)
     except Exception as e:
-        print(f"Error in send_friend_request: {str(e)}")
-        return JsonResponse({
-            'message': 'An error occurred while processing the request'
-        }, status=500)
+        # Loguer l'erreur et répondre avec un message générique
+        logger.error(f"Error in send_friend_request: {str(e)}")
+        return JsonResponse({'message': 'An error occurred while processing the request'}, status=500)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1504,6 +1619,7 @@ def get_game_settings(request):
         return JsonResponse(data, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 
 from rest_framework.decorators import api_view, permission_classes
