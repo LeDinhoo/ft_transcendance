@@ -107,25 +107,16 @@ const wsManager = {
 	handleGameInvitationResponse(data) {
 		console.log("Handling game invitation response:", data);
 		
-		// Vérifier si c'est une réponse pour une invitation que nous avons envoyée
-		if (data.sender && data.sender.id === window.currentUser?.id) {
-			if (data.response === "accept") {
-				// Notification pour les deux joueurs
-				const notification = "Remote play feature is not implemented yet. You can play 1v1 locally!";
-				window.GameInvitationManager?.showNotification(notification);
-				
-				// Envoyer une notification système à l'autre joueur
-				if (this.chatSocket?.readyState === WebSocket.OPEN) {
-					this.chatSocket.send(JSON.stringify({
-						type: "chat_message",
-						message: notification,
-						username: "System",
-						userId: "system",
-						avatar: "/static/assets/icons/system.svg"
-					}));
-				}
-			} else if (data.response === "decline") {
-				// Notification uniquement pour l'expéditeur
+		if (data.response === "accept") {
+			// Si je suis l'expéditeur ou le destinataire, afficher la notification
+			if (data.sender.id === window.currentUser?.id || data.receiverId === window.currentUser?.id) {
+				window.GameInvitationManager?.showNotification(
+					"Remote play feature is not implemented yet. You can play 1v1 locally!"
+				);
+			}
+		} else if (data.response === "decline") {
+			// Si je suis l'expéditeur, montrer la notification de refus
+			if (data.sender.id === window.currentUser?.id) {
 				window.GameInvitationManager?.showNotification(
 					`${data.receiver} declined your game invitation.`
 				);
