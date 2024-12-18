@@ -178,23 +178,42 @@
     }
   },
   "tournament": {
-    "players_4": "4 Players",
-    "players_8": "8 Players",
-    "play": "PLAY",
-    "reset_tournament": "RESET TOURNAMENT",
-    "tournament_config": "Tournament Configuration",
-    "start_tournament": "START TOURNAMENT",
-    "next_match": "NEXT MATCH",
-    "tournament_champion": "Tournament Champion",
-    "finish_tournament": "FINISH TOURNAMENT",
-    "waiting_next_matches": "Waiting for next matches",
-    "launch_match": "Launch Match",
-    "launch_final": "Launch Final",
-    "launch_semi_final": "Launch Semi-Final",
-    "tournament_complete": "Tournament Complete!",
-    "won_the_game": "Won the Game",
-    "launch_next_match": "Launch Next Match",
-    "your_nickname": "Your Nickname",
-    "bot_player": "Bot Player {0}"
+    "match": {
+      "number": "Match Number"
+    },
+    "player": {
+      "nickname": "Nickname"
+    },
+    "score": "Score",
+    "players4": "4 Players",
+    "players8": "8 Players",
+    "playButton": "Play",
+    "resetButton": "Reset Tournament",
+    "config": {
+      "title": "Tournament Configuration"
+    },
+    "input": {
+      "placeholder": "Enter a nickname"
+    },
+    "bot": {
+      "label": "Bot",
+      "name": "Bot Player {0}"
+    },
+    "startButton": "Start",
+    "winner": {
+      "name": "Winner's Name"
+    },
+    "victory": {
+      "score": "Victory Score"
+    },
+    "nextMatch": "Next Match",
+    "champion": {
+      "title": "Tournament Champion",
+      "name": "Champion's Name"
+    },
+    "final": {
+      "score": "Final Score"
+    },
+    "finishTournament": "Finish Tournament"
   }
 }

@@ -33,6 +33,29 @@ function ensureHumanFirst(player1, player2, gameManager) {
 function initializeTournamentPage() {
   console.log("fonction initializetournament game appele ...");
 
+  let translations = {};
+
+  language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
+
+  language.then((value) => {
+    fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load translations");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        translations = data;
+      })
+      .catch((error) => {
+        console.error("Error loading translations:", error);
+      });
+  });
+
   const DEFAULT_AVATAR = "/static/assets/icons/pending.svg";
 
   // État global du tournoi
@@ -138,14 +161,6 @@ function initializeTournamentPage() {
         }
       });
     }
-
-    //   getGameOptions() {
-    //     const options = localStorage.getItem('gameOptions');
-    //     if (options) {
-    //         return JSON.parse(options); // Désérialiser les options stockées
-    //     }
-    //     return null; // Si aucune option n'est trouvée
-    // }
 
     getGameOptions() {
       fetch("api/game-settings/", {
@@ -519,35 +534,95 @@ function initializeTournamentPage() {
       "walrus.png",
       "zebra.png",
     ];
+
     // Premier joueur (toujours humain)
     container.innerHTML += `
-        <div class="player-entry">
-            <img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
-            <div class="player-controls">
-                <input type="text" class="player-input" value="YourNickname" />
-            </div>
-        </div>
-    `;
+      <div class="player-entry">
+          <img class="player-avatar" src="/static/assets/avatars/buffalo.png" />
+          <div class="player-controls">
+              <input type="text" class="player-input" data-translate="tournament.input.placeholder" placeholder="Default"/>
+          </div>
+      </div>
+      `;
 
-    // Autres joueurs
+    // // Autres joueurs
+    // for (let i = 1; i < count; i++) {
+    //   const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+    //   container.innerHTML += `
+    //         <div class="player-entry">
+    //             <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
+    //             <div class="player-controls">
+    //                 <input type="text" class="player-input" data-translate="tournament.input.placeholder" value="Bot Player ${i}" maxlenght="15"/>
+    //                 <div class="bot-toggle">
+    //                     <label class="switch">
+    //                         <input type="checkbox" class="bot-checkbox" checked>
+    //                         <span class="slider round"></span>
+    //                     </label>
+    //                     <span class="bot-label">Bot</span>
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     `;
+    // }
+
     for (let i = 1; i < count; i++) {
       const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
       container.innerHTML += `
             <div class="player-entry">
                 <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
                 <div class="player-controls">
-                    <input type="text" class="player-input" value="Bot Player ${i}" maxlenght="15"/>
+                    <input 
+                        type="text" 
+                        class="player-input" 
+                        value="Bot Player ${i}" 
+                        maxlength="15" 
+                        data-translate="tournament.bot.name" 
+                        data-translate-params="${i}" 
+                    />
                     <div class="bot-toggle">
                         <label class="switch">
                             <input type="checkbox" class="bot-checkbox" checked>
                             <span class="slider round"></span>
                         </label>
-                        <span class="bot-label">Bot</span>
+                        <span 
+                            class="bot-label" 
+                            data-translate="tournament.bot.label">
+                            Bot
+                        </span>
                     </div>
                 </div>
             </div>
         `;
     }
+
+    // // Ajouter les event listeners pour les toggles
+    // const botCheckboxes = document.querySelectorAll(".bot-checkbox");
+    // botCheckboxes.forEach((checkbox, index) => {
+    //   const input = checkbox
+    //     .closest(".player-entry")
+    //     .querySelector(".player-input");
+
+    //   // État initial
+    //   if (checkbox.checked) {
+    //     input.classList.add("bot-active");
+    //     input.readOnly = true;
+    //     input.value = `Bot Player ${index + 1}`;
+    //   }
+
+    //   // Event listener pour le changement
+    //   checkbox.addEventListener("change", (e) => {
+    //     if (e.target.checked) {
+    //       input.classList.add("bot-active");
+    //       input.readOnly = true;
+    //       input.value = `Bot Player ${index + 1}`;
+    //     } else {
+    //       input.classList.remove("bot-active");
+    //       input.readOnly = false;
+    //       input.value = "";
+    //       input.placeholder = "Entrez un pseudo";
+    //     }
+    //   });
+    // });
 
     // Ajouter les event listeners pour les toggles
     const botCheckboxes = document.querySelectorAll(".bot-checkbox");
@@ -556,25 +631,32 @@ function initializeTournamentPage() {
         .closest(".player-entry")
         .querySelector(".player-input");
 
-      // État initial
-      if (checkbox.checked) {
-        input.classList.add("bot-active");
-        input.readOnly = true;
-        input.value = `Bot Player ${index + 1}`;
-      }
-
-      // Event listener pour le changement
-      checkbox.addEventListener("change", (e) => {
-        if (e.target.checked) {
+      // Fonction pour mettre à jour l'état du bot
+      const updateBotState = (isBot) => {
+        if (isBot) {
           input.classList.add("bot-active");
           input.readOnly = true;
-          input.value = `Bot Player ${index + 1}`;
+
+          // Accès direct à la traduction "Bot Player {0}"
+          const botName = translations.tournament.bot.name;
+          input.value = botName.replace("{0}", index + 1);
         } else {
           input.classList.remove("bot-active");
           input.readOnly = false;
+
+          // Accès direct à la traduction pour "Enter your nickname"
+          const placeholder = translations.tournament.input.placeholder;
           input.value = "";
-          input.placeholder = "Entrez un pseudo";
+          input.placeholder = placeholder;
         }
+      };
+
+      // État initial
+      updateBotState(checkbox.checked);
+
+      // Event listener pour le changement
+      checkbox.addEventListener("change", (e) => {
+        updateBotState(e.target.checked);
       });
     });
 
@@ -586,7 +668,42 @@ function initializeTournamentPage() {
 
     // Tronquer les pseudos déjà affichés
     truncateNicknames();
+
+    language = getLanguageFromAPI();
+    language.then((value) => {
+      setPreferredLanguage(value);
+    });
   }
+
+  // function setupBotCheckboxListeners() {
+  //   const botCheckboxes = document.querySelectorAll(".bot-checkbox");
+  //   botCheckboxes.forEach((checkbox, index) => {
+  //     const input = checkbox
+  //       .closest(".player-entry")
+  //       .querySelector(".player-input");
+
+  //     // Initialiser l'état de la case à cocher
+  //     if (checkbox.checked) {
+  //       input.classList.add("bot-active");
+  //       input.readOnly = true;
+  //       input.value = `Bot Player ${index + 1}`;
+  //     }
+
+  //     // Écouteur pour le changement d'état
+  //     checkbox.addEventListener("change", (e) => {
+  //       if (e.target.checked) {
+  //         input.classList.add("bot-active");
+  //         input.readOnly = true;
+  //         input.value = `Bot Player ${index + 1}`;
+  //       } else {
+  //         input.classList.remove("bot-active");
+  //         input.readOnly = false;
+  //         input.value = "";
+  //         input.placeholder = "Entrez un pseudo";
+  //       }
+  //     });
+  //   });
+  // }
 
   function setupBotCheckboxListeners() {
     const botCheckboxes = document.querySelectorAll(".bot-checkbox");
@@ -595,26 +712,40 @@ function initializeTournamentPage() {
         .closest(".player-entry")
         .querySelector(".player-input");
 
-      // Initialiser l'état de la case à cocher
-      if (checkbox.checked) {
-        input.classList.add("bot-active");
-        input.readOnly = true;
-        input.value = `Bot Player ${index + 1}`;
-      }
-
-      // Écouteur pour le changement d'état
-      checkbox.addEventListener("change", (e) => {
-        if (e.target.checked) {
+      // Fonction pour mettre à jour l'état du bot
+      const updateBotState = (isBot) => {
+        if (isBot) {
           input.classList.add("bot-active");
           input.readOnly = true;
-          input.value = `Bot Player ${index + 1}`;
+
+          // Accès direct à la traduction "Bot Player {0}"
+          const botName = translations.tournament.bot.name;
+          input.value = botName.replace("{0}", index + 1);
         } else {
           input.classList.remove("bot-active");
           input.readOnly = false;
+
+          // Accès direct à la traduction pour "Enter your nickname"
+          const placeholder = translations.tournament.input.placeholder;
           input.value = "";
-          input.placeholder = "Entrez un pseudo";
+          input.placeholder = placeholder;
         }
+        console.log("name:",translations.tournament.bot.name);
+        console.log("place",translations.tournament.input.placeholder);
+      };
+
+      // Initialiser l'état de la case à cocher
+      updateBotState(checkbox.checked);
+
+      // Écouteur pour le changement d'état
+      checkbox.addEventListener("change", (e) => {
+        updateBotState(e.target.checked);
       });
+    });
+
+    language = getLanguageFromAPI();
+    language.then((value) => {
+      setPreferredLanguage(value);
     });
   }
 
@@ -1015,127 +1146,6 @@ function initializeTournamentPage() {
     gameManager.blockSpacebar(false);
   }
 
-  // function updatePlayButton() {
-  //   const playerCount = getSelectedPlayerCount();
-  //   const lastMatchIndex = playerCount === 4 ? 3 : 7;
-  //   const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
-  //   const nextMatch = tournamentState.matches[tournamentState.currentMatch];
-  //   const playButton = document.querySelector(".buttonPlay");
-
-  //   console.log("current match :", tournamentState.currentMatch);
-
-  //   if (isLastMatch) {
-  //     playButton.innerHTML = `
-  //           <span class="button-text">Tournament Complete!</span>
-  //       `;
-  //     playButton.classList.add("tournament-complete");
-  //     playButton.disabled = true;
-
-  //     // Ajouter les effets spéciaux au vainqueur final
-  //     highlightFinalWinner();
-  //     return;
-  //   }
-
-  //   if (!nextMatch || !nextMatch.player1 || !nextMatch.player2) {
-  //     playButton.innerHTML = `
-  //           <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //           <span class="button-text">Waiting for next matches</span>
-  //       `;
-  //     playButton.disabled = true;
-  //     return;
-  //   }
-
-  //   // Vérifier si les deux joueurs du prochain match sont des bots
-  //   const player1IsBot = gameManager.isBot(nextMatch.player1);
-  //   const player2IsBot = gameManager.isBot(nextMatch.player2);
-
-  //   if (player1IsBot && player2IsBot) {
-  //     playButton.innerHTML = `
-  //           <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //           <span class="button-text">Simulate Bots Match</span>
-  //       `;
-  //     playButton.disabled = false;
-  //     return;
-  //   }
-
-  //   let matchText = "LAUNCH MATCH";
-  //   if (tournamentState.currentMatch === lastMatchIndex - 1) {
-  //     matchText = "LAUNCH FINAL";
-  //   } else if (playerCount === 8 && tournamentState.currentMatch >= 4) {
-  //     matchText = "LAUNCH SEMI-FINAL";
-  //   }
-
-  //   playButton.innerHTML = `
-  //       <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //       <span class="button-text">${matchText}</span>
-  //   `;
-  //   playButton.disabled = false;
-  // }
-
-  // // Nouvelle fonction pour mettre en évidence le vainqueur final
-  // function highlightFinalWinner() {
-  //   const playerCount = getSelectedPlayerCount();
-  //   const finalMatchIndex = playerCount === 4 ? 3 : 7;
-  //   const activeShape = document.querySelector(".shape.active");
-
-  //   // Trouver le dernier match
-  //   const finalMatch = activeShape.querySelector(
-  //     `.tournamentSection${playerCount === 4 ? "4" : "4"} .doubleMatch`
-  //   );
-
-  //   if (finalMatch) {
-  //     // Mettre en évidence le numéro
-  //     const matchNumber = finalMatch.querySelector(".doubleMatchNumber");
-  //     if (matchNumber) {
-  //       matchNumber.classList.remove("active");
-  //       matchNumber.classList.add("winner-number");
-  //     }
-
-  //     // Mettre en évidence le joueur
-  //     const playerElement = finalMatch.querySelector(".player");
-  //     if (playerElement) {
-  //       playerElement.classList.remove("winner");
-  //       playerElement.classList.add("winner-final");
-  //     }
-  //   }
-  // }
-
-  // function startTournament() {
-  //   const playerInputs = document.querySelectorAll(
-  //     ".player-entry .player-input"
-  //   );
-  //   const playerAvatars = document.querySelectorAll(
-  //     ".player-entry .player-avatar"
-  //   );
-
-  //   // Réinitialiser d'abord tout l'affichage
-  //   initializeTournamentDisplay();
-
-  //   tournamentState.players = Array.from(playerInputs).map((input, i) => ({
-  //     name: input.value,
-  //     avatar: playerAvatars[i].src,
-  //   }));
-
-  //   generateMatches();
-  //   updateBracketDisplay();
-
-  //   tournamentConfig.style.display = "none";
-  //   document.querySelector(".chipSelectorPlayer").style.display = "none";
-
-  //   document.querySelector(".buttonPlay").innerHTML = `
-  //     <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //     <span class="button-text">LAUNCH NEXT MATCH</span>
-  //   `;
-  //   document.querySelector(".reset-btn").style.display = "block";
-
-  //   tournamentState.isStarted = true;
-  //   tournamentState.currentMatch = 0;
-  //   tournamentState.currentRound = 1;
-
-  //   updateCurrentMatchIndicators();
-  //   updatePlayButton();
-  // }
-
   function updatePlayButton() {
     // Bloquer la barre d'espace pendant l'exécution de la fonction
     gameManager.blockSpacebar(true);
@@ -1332,52 +1342,6 @@ function initializeTournamentPage() {
     window.dispatchEvent(event);
   };
 
-  // function showVictoryScreen(winner, score1, score2) {
-  //   const overlay = document.querySelector(".victory-overlay");
-  //   const winnerNameElement = overlay.querySelector(".winner-name");
-  //   const scoreElement = overlay.querySelector(".victory-score");
-  //   const continueBtn = overlay.querySelector(".continue-btn");
-
-  //   winnerNameElement.textContent = winner.name;
-  //   scoreElement.innerHTML = `<span>${score1}</span> - <span>${score2}</span>`;
-
-  //   overlay.classList.add("show");
-
-  //   // Gérer le bouton continue
-  //   const handleContinue = () => {
-  //     overlay.classList.remove("show");
-  //     continueBtn.removeEventListener("click", handleContinue);
-  //   };
-
-  //   continueBtn.addEventListener("click", handleContinue);
-  // }
-
-  // function showVictoryScreen(winner, score1, score2) {
-  //   // Bloquer la barre d'espace lorsque l'écran de victoire est affiché
-  //   gameManager.blockSpacebar(true);
-
-  //   const overlay = document.querySelector(".victory-overlay");
-  //   const winnerNameElement = overlay.querySelector(".winner-name");
-  //   const scoreElement = overlay.querySelector(".victory-score");
-  //   const continueBtn = overlay.querySelector(".continue-btn");
-
-  //   winnerNameElement.textContent = winner.name;
-  //   scoreElement.innerHTML = `<span>${score1}</span> - <span>${score2}</span>`;
-
-  //   overlay.classList.add("show");
-
-  //   // Gérer le bouton continue
-  //   const handleContinue = () => {
-  //     // Réactiver la barre d'espace après que l'utilisateur ait cliqué sur "Continue"
-  //     gameManager.blockSpacebar(false);
-
-  //     overlay.classList.remove("show");
-  //     continueBtn.removeEventListener("click", handleContinue);
-  //   };
-
-  //   continueBtn.addEventListener("click", handleContinue);
-  // }
-
   function createConfetti() {
     const colors = [
       "var(--liquid-lava)", // Orange principal
@@ -1424,43 +1388,6 @@ function initializeTournamentPage() {
       }, 15000); // Suppression après 15 secondes
     }
   }
-
-  // function showMatchVictory(winner, score1, score2) {
-  //   // Bloquer la barre d'espace lorsqu'on affiche l'écran de victoire
-  //   gameManager.blockSpacebar(true);
-
-  //   const overlay = document.querySelector(".victory-overlay");
-  //   const winnerNameElement = overlay.querySelector(".winner-name");
-  //   const scoreElement = overlay.querySelector(".victory-score");
-  //   const continueBtn = overlay.querySelector(".continue-btn");
-
-  //   winnerNameElement.textContent = winner.name;
-  //   scoreElement.innerHTML = `WON THE GAME`;
-
-  //   overlay.classList.add("show");
-
-  //   // Ajouter un écouteur sur l'overlay pour bloquer la barre d'espace dans la pop-up
-  //   overlay.addEventListener("keydown", (event) => {
-  //     // Empêche la propagation de la barre d'espace si l'overlay est affiché
-  //     if (event.code === "Space") {
-  //       event.preventDefault(); // Bloque la barre d'espace dans la pop-up
-  //     }
-  //   });
-
-  //   const handleContinue = () => {
-  //     // Réactiver la barre d'espace lorsque l'utilisateur clique sur "Continue"
-  //     gameManager.blockSpacebar(false);
-
-  //     overlay.classList.remove("show");
-  //     continueBtn.removeEventListener("click", handleContinue);
-  //   };
-
-  //   continueBtn.addEventListener("click", handleContinue);
-
-  //   // Focus sur l'overlay pour capter l'événement keydown
-  //   overlay.tabIndex = -1; // Rend l'overlay focusable
-  //   overlay.focus(); // Donne le focus à l'overlay pour capturer les événements clavier
-  // }
 
   function showMatchVictory(winner, score1, score2) {
     // Bloquer la barre d'espace lorsqu'on affiche l'écran de victoire
@@ -1544,63 +1471,4 @@ function initializeTournamentPage() {
 
     continueBtn.addEventListener("click", handleContinue);
   }
-
-  // function showMatchVictory(winner, score1, score2) {
-  //   const overlay = document.querySelector(".victory-overlay");
-  //   const winnerNameElement = overlay.querySelector(".winner-name");
-  //   const scoreElement = overlay.querySelector(".victory-score");
-  //   const continueBtn = overlay.querySelector(".continue-btn");
-
-  //   winnerNameElement.textContent = winner.name;
-  //   scoreElement.innerHTML = `WON THE GAME`; // Texte modifié ici
-
-  //   overlay.classList.add("show");
-
-  //   const handleContinue = () => {
-  //     overlay.classList.remove("show");
-  //     continueBtn.removeEventListener("click", handleContinue);
-  //   };
-
-  //   continueBtn.addEventListener("click", handleContinue);
-  // }
-
-  // function showTournamentWinner(winner, finalScores) {
-  //   const overlay = document.querySelector(".tournament-winner-overlay");
-  //   const winnerNameElement = overlay.querySelector(".winner-name");
-  //   const titleElement = overlay.querySelector(".winner-title"); // Pour le "TOURNAMENT CHAMPION"
-  //   const scoreElement = overlay.querySelector(".final-score");
-  //   const continueBtn = overlay.querySelector(".continue-btn");
-
-  //   // Nettoyer les confettis existants
-  //   overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
-
-  //   titleElement.textContent = "TOURNAMENT CHAMPION";
-  //   winnerNameElement.textContent = winner.name;
-
-  //   // On cache ou on enlève le score element qui n'est plus nécessaire
-  //   if (scoreElement) {
-  //     scoreElement.style.display = "none";
-  //   }
-
-  //   overlay.classList.add("show");
-
-  //   // Créer les confettis initiaux
-  //   createConfetti();
-
-  //   // Créer de nouveaux confettis toutes les 2 secondes
-  //   const confettiInterval = setInterval(() => {
-  //     if (overlay.classList.contains("show")) {
-  //       createConfetti();
-  //     }
-  //   }, 2000);
-
-  //   const handleContinue = () => {
-  //     overlay.classList.remove("show");
-  //     clearInterval(confettiInterval);
-  //     overlay.querySelectorAll(".confetti").forEach((c) => c.remove());
-  //     continueBtn.removeEventListener("click", handleContinue);
-  //   };
-
-  //   continueBtn.addEventListener("click", handleContinue);
-  // }
 }

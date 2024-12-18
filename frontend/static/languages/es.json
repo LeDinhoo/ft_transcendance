@@ -177,24 +177,42 @@
       "launchPower": "Lanzar poder"
     }
   },
-  "tournament": {
-    "players_4": "4 Jugadores",
-    "players_8": "8 Jugadores",
-    "play": "JUGAR",
-    "reset_tournament": "REINICIAR TORNEO",
-    "tournament_config": "Configuración del torneo",
-    "start_tournament": "INICIAR TORNEO",
-    "next_match": "SIGUIENTE PARTIDA",
-    "tournament_champion": "Campeón del torneo",
-    "finish_tournament": "FINALIZAR TORNEO",
-    "waiting_next_matches": "Esperando los próximos partidos",
-    "launch_match": "Iniciar partida",
-    "launch_final": "Iniciar la final",
-    "launch_semi_final": "Iniciar la semifinal",
-    "tournament_complete": "¡Torneo completado!",
-    "won_the_game": "Ganó la partida",
-    "launch_next_match": "Iniciar la siguiente partida",
-    "your_nickname": "Tu apodo",
-    "bot_player": "Jugador Bot {0}"
+	"tournament": {
+	  "match": {
+		"number": "Número de Partido"
+	  },
+	  "player": {
+		"nickname": "Apodo"
+	  },
+	  "score": "Puntuación",
+	  "players4": "4 Jugadores",
+	  "players8": "8 Jugadores",
+	  "playButton": "Jugar",
+	  "resetButton": "Reiniciar Torneo",
+	  "config": {
+		"title": "Configuración del Torneo"
+	  },
+	  "input": {
+		"placeholder": "Ingrese un apodo"
+	  },
+	  "bot": {
+		"label": "Bot"
+	  },
+	  "startButton": "Comenzar",
+	  "winner": {
+		"name": "Nombre del Ganador"
+	  },
+	  "victory": {
+		"score": "Puntuación de Victoria"
+	  },
+	  "nextMatch": "Siguiente Partido",
+	  "champion": {
+		"title": "Campeón del Torneo",
+		"name": "Nombre del Campeón"
+	  },
+	  "final": {
+		"score": "Puntuación Final"
+	  },
+	  "finishTournament": "Terminar Torneo"
+	}
   }
-}

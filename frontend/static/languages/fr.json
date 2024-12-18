@@ -178,23 +178,42 @@
     }
   },
   "tournament": {
-    "players_4": "4 Joueurs",
-    "players_8": "8 Joueurs",
-    "play": "JOUER",
-    "reset_tournament": "RÉINITIALISER LE TOURNOI",
-    "tournament_config": "Configuration du tournoi",
-    "start_tournament": "COMMENCER LE TOURNOI",
-    "next_match": "MATCH SUIVANT",
-    "tournament_champion": "Champion du tournoi",
-    "finish_tournament": "TERMINER LE TOURNOI",
-    "waiting_next_matches": "En attente des prochains matchs",
-    "launch_match": "Lancer le match",
-    "launch_final": "Lancer la finale",
-    "launch_semi_final": "Lancer la demi-finale",
-    "tournament_complete": "Tournoi terminé !",
-    "won_the_game": "A gagné le match",
-    "launch_next_match": "Lancer le prochain match",
-    "your_nickname": "Votre pseudo",
-    "bot_player": "Joueur Bot {0}"
+    "match": {
+      "number": "Match Numéro"
+    },
+    "player": {
+      "nickname": "Surnom"
+    },
+    "score": "Score",
+    "players4": "4 Joueurs",
+    "players8": "8 Joueurs",
+    "playButton": "Jouer",
+    "resetButton": "Réinitialiser le Tournoi",
+    "config": {
+      "title": "Configuration du tournoi"
+    },
+    "input": {
+      "placeholder": "Entrez un pseudo"
+    },
+    "bot": {
+      "label": "Robot",
+	  "name": "Joueur Robot {0}"
+    },
+    "startButton": "Démarrer",
+    "winner": {
+      "name": "Nom du gagnant"
+    },
+    "victory": {
+      "score": "Score de victoire"
+    },
+    "nextMatch": "Prochain match",
+    "champion": {
+      "title": "Champion du Tournoi",
+      "name": "Nom du Champion"
+    },
+    "final": {
+      "score": "Score final"
+    },
+    "finishTournament": "Terminer le Tournoi"
   }
 }

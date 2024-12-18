@@ -413,7 +413,6 @@ function initializeSettingsPage() {
     console.log("Initialisation des paramètres depuis la base de données...");
 
     language = getLanguageFromAPI();
-    // Afficher le contenu de la promesse
     language.then((value) => {
       setPreferredLanguage(value);
     });

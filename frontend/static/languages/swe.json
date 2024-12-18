@@ -178,23 +178,41 @@
     }
   },
   "tournament": {
-    "players_4": "4 Spelare",
-    "players_8": "8 Spelare",
-    "play": "SPELA",
-    "reset_tournament": "ÅTERSTÄLL TURNERING",
-    "tournament_config": "Turneringskonfiguration",
-    "start_tournament": "STARTA TURNERING",
-    "next_match": "NÄSTA MATCH",
-    "tournament_champion": "Turneringsmästare",
-    "finish_tournament": "AVSLUTA TURNERING",
-    "waiting_next_matches": "Väntar på nästa matcher",
-    "launch_match": "Starta match",
-    "launch_final": "Starta finalen",
-    "launch_semi_final": "Starta semifinalen",
-    "tournament_complete": "Turneringen är klar!",
-    "won_the_game": "Vann matchen",
-    "launch_next_match": "Starta nästa match",
-    "your_nickname": "Ditt smeknamn",
-    "bot_player": "Botspelare {0}"
+    "match": {
+      "number": "Matchnummer"
+    },
+    "player": {
+      "nickname": "Smeknamn"
+    },
+    "score": "Poäng",
+    "players4": "4 Spelare",
+    "players8": "8 Spelare",
+    "playButton": "Spela",
+    "resetButton": "Återställ Turnering",
+    "config": {
+      "title": "Turneringskonfiguration"
+    },
+    "input": {
+      "placeholder": "Ange ett smeknamn"
+    },
+    "bot": {
+      "label": "Bot"
+    },
+    "startButton": "Starta",
+    "winner": {
+      "name": "Vinnarens namn"
+    },
+    "victory": {
+      "score": "Segrarscore"
+    },
+    "nextMatch": "Nästa match",
+    "champion": {
+      "title": "Turneringsmästare",
+      "name": "Mästarens namn"
+    },
+    "final": {
+      "score": "Slutpoäng"
+    },
+    "finishTournament": "Avsluta Turnering"
   }
 }
