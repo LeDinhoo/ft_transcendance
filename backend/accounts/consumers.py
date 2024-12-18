@@ -63,19 +63,73 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        print("Debug - User ID being sent:", self.user.id)
-        message_data = {
-            **data,
-            'userId': str(self.user.id),
-        }
-        await self.channel_layer.group_send(
-            "chat",
-            {
-                "type": "chat_message",
-                "message": message_data
+        print("Debug - Received message type:", data.get('type'))
+        
+        if data.get('type') == 'game_invitation':
+            # Traitement spécial pour les invitations de jeu
+            await self.channel_layer.group_send(
+                "chat",
+                {
+                    "type": "game_invitation",
+                    "invitation": data
+                }
+            )
+        elif data.get('type') == 'game_invitation_response':
+            await self.channel_layer.group_send(
+                "chat",
+                {
+                    "type": "game_invitation_response",
+                    "response": data
+                }
+            )
+        else:
+            # Traitement normal des messages
+            message_data = {
+                **data,
+                'userId': str(self.user.id),
             }
-        )
+            await self.channel_layer.group_send(
+                "chat",
+                {
+                    "type": "chat_message",
+                    "message": message_data
+                }
+            )
 
+    async def game_invitation(self, event):
+        """Gère la diffusion des invitations de jeu"""
+        invitation_data = event['invitation']
+        print(f"Debug - Received invitation data: {invitation_data}")
+
+        # Vérification basée sur l'ID unique
+        receiver_id = int(invitation_data.get('receiverId', -1))  # Assurez-vous que c'est un entier
+        sender_id = int(invitation_data['sender']['id'])
+        current_user_id = self.scope["user"].id
+
+        if current_user_id == receiver_id or current_user_id == sender_id:
+            print(f"Debug - Sending invitation to user ID: {current_user_id}")
+            await self.send(text_data=json.dumps(invitation_data))
+        else:
+            print(f"Debug - Skipping user ID: {current_user_id} (Not a sender or receiver)")
+
+
+
+    async def game_invitation_response(self, event):
+        """Gère la diffusion des réponses aux invitations"""
+        response_data = event['response']
+        print(f"Debug - Received invitation response data: {response_data}")
+
+        sender_id = int(response_data['sender']['id'])
+        receiver_id = int(response_data['receiverId'])
+        current_user_id = self.scope["user"].id
+
+        if current_user_id == sender_id or current_user_id == receiver_id:
+            print(f"Debug - Sending response to user ID: {current_user_id}")
+            await self.send(text_data=json.dumps(response_data))
+        else:
+            print(f"Debug - Skipping user ID: {current_user_id} (Not a sender or receiver)")
+
+           
     async def chat_message(self, event):
         """Gère la diffusion des messages"""
         message_data = event['message']
