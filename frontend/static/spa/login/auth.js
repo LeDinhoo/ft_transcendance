@@ -16,7 +16,7 @@ document
       const loginResponse = await fetch("/api/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify({ email: email, password: password }),
       });
 
@@ -38,7 +38,6 @@ document
       submitBtn.disabled = false;
     }
   });
-
 
 function showTwoFactorPopup(userId) {
   const popup = document.createElement("div");
@@ -133,11 +132,10 @@ async function verifyTwoFactorCode(userId, code) {
     verifyButton.disabled = true;
     verifyButton.textContent = "Vérification...";
 
-    
-      const response = await fetch("/api/2fa/verify/", {
+    const response = await fetch("/api/2fa/verify/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", 
+      credentials: "include",
       body: JSON.stringify({ user_id: userId, code: code }),
     });
 
@@ -195,7 +193,6 @@ class AuthService {
 
 const authService = new AuthService();
 
-
 document.getElementById("42").addEventListener("click", async function (e) {
   e.preventDefault();
   console.log("Starting 42 authentication process...");
@@ -222,32 +219,27 @@ document.getElementById("42").addEventListener("click", async function (e) {
     console.log("Received auth URL:", data.auth_url);
 
     if (data.success && data.auth_url) {
-      
       const messageHandler = function (event) {
         console.log("Message received:", event);
 
         if (event.origin === baseUrl && event.data.type === "auth_success") {
           console.log("Authentication successful, storing tokens...");
 
-          
           localStorage.setItem("access_token", event.data.tokens.access);
           localStorage.setItem("refresh_token", event.data.tokens.refresh);
 
-          
           if (event.data.user) {
             localStorage.setItem("user_data", JSON.stringify(event.data.user));
           }
 
-          
           window.removeEventListener("message", messageHandler);
 
           console.log("Redirecting to home...");
-          
+
           window.location.replace(`${baseUrl}/home`);
         }
       };
 
-      
       window.addEventListener("message", messageHandler);
 
       console.log("Opening auth window...");
@@ -262,14 +254,12 @@ document.getElementById("42").addEventListener("click", async function (e) {
         throw new Error("Popup window was blocked");
       }
 
-     
       const checkPopup = setInterval(() => {
         if (authWindow.closed) {
           console.log("Auth window closed, cleaning up...");
           clearInterval(checkPopup);
           window.removeEventListener("message", messageHandler);
 
-          
           fetch(`${baseUrl}/api/check-auth/`, {
             credentials: "include",
           })
@@ -291,7 +281,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
   }
 });
 
-
 async function fetchWithAuth(url, options = {}) {
   const token = localStorage.getItem("access_token");
   if (!token) {
@@ -311,7 +300,6 @@ async function fetchWithAuth(url, options = {}) {
     });
 
     if (response.status === 401) {
-      
       authService.clearAuth();
       window.location.href = "/login-register/";
       return null;
@@ -324,11 +312,10 @@ async function fetchWithAuth(url, options = {}) {
   }
 }
 
-
 document
   .getElementById("registerWidget")
   .addEventListener("submit", function (event) {
-    event.preventDefault(); 
+    event.preventDefault();
     console.log("Formulaire d'inscription intercepté.");
 
     const username = document.getElementById("username").value;
@@ -336,9 +323,7 @@ document
     const password1 = document.getElementById("registerPassword").value;
     const password2 = document.getElementById("confirmPassword").value;
 
-    
     clearErrors();
-
 
     // Valider les champs
     let validationError = validateRegistrationForm({
@@ -353,13 +338,12 @@ document
       showErrorPopup(validationError);
       return;
     }
-    
+
     if (password1 !== password2) {
       showErrorPopup("Les mots de passe ne correspondent pas.");
       return;
     }
 
-    
     document.getElementById("submitRegisterBtn").disabled = true;
 
     fetch("/api/register/", {
@@ -375,7 +359,7 @@ document
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          
+          // Connexion automatique après inscription
           fetch("/api/login/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -387,32 +371,85 @@ document
               if (loginData.success) {
                 window.location.href = "/home";
               } else {
-                showErrorPopup("Erreur lors de la connexion automatique");
-                
+                showErrorPopup("Erreur lors de la connexion automatique.");
               }
-            })
-            .catch((error) => {
-              console.error("Erreur lors de la connexion automatique :", error);
-              showErrorPopup("Erreur lors de la connexion automatique.");
-             
             });
         } else {
-          showErrorPopup(
-            "Votre mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial <br>- au minimum 8 caractères. "
-          );
+          // Vérifie si des erreurs spécifiques sont renvoyées
+          if (data.errors) {
+            let errorMessages = [];
+            for (const [field, errors] of Object.entries(data.errors)) {
+              errors.forEach((error) => {
+                errorMessages.push(`${field}: ${error.message}`);
+              });
+            }
+            showErrorPopup(errorMessages.join("<br>"));
+          } else {
+            showErrorPopup(data.message || "Une erreur est survenue.");
+          }
         }
       })
       .catch((error) => {
         console.error("Erreur lors de l'inscription :", error);
-        showErrorPopup(
-          "Une erreur est survenue, veuillez réessayer plus tard."
-        );
-        
+        showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
       })
       .finally(() => {
-        
         document.getElementById("submitRegisterBtn").disabled = false;
       });
+    
+    
+
+    // fetch("/api/register/", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     username: username,
+    //     email: email,
+    //     password1: password1,
+    //     password2: password2,
+    //   }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     if (data.success) {
+
+    //       fetch("/api/login/", {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         credentials: "include",
+    //         body: JSON.stringify({ email: email, password: password1 }),
+    //       })
+    //         .then((loginResponse) => loginResponse.json())
+    //         .then((loginData) => {
+    //           if (loginData.success) {
+    //             window.location.href = "/home";
+    //           } else {
+    //             showErrorPopup("Erreur lors de la connexion automatique");
+
+    //           }
+    //         })
+    //         .catch((error) => {
+    //           console.error("Erreur lors de la connexion automatique :", error);
+    //           showErrorPopup("Erreur lors de la connexion automatique.");
+
+    //         });
+    //     } else {
+    //       showErrorPopup(
+    //         "Votre mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial <br>- au minimum 8 caractères. "
+    //       );
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error("Erreur lors de l'inscription :", error);
+    //     showErrorPopup(
+    //       "Une erreur est survenue, veuillez réessayer plus tard."
+    //     );
+
+    //   })
+    //   .finally(() => {
+
+    //     document.getElementById("submitRegisterBtn").disabled = false;
+    //   });
   });
 
 /**
@@ -440,9 +477,7 @@ function validateRegistrationForm(formData) {
 
   // Vérifie si le mot de passe respecte les règles
   if (!isValidPassword(password1)) {
-    return (
-      "Le mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial :  @$!%*?& <br>- 8 caractères minimum."
-    );
+    return "Le mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial :  @$!%*?& <br>- 8 caractères minimum.";
   }
 
   // Vérifie si les mots de passe correspondent
@@ -453,7 +488,6 @@ function validateRegistrationForm(formData) {
   // Pas d'erreur
   return null;
 }
-
 
 /**
  * Valide si un email est correct.
@@ -482,7 +516,7 @@ function isValidPassword(password) {
 //  */
 // function showErrorPopup(message) {
 //   const popup = document.createElement("div");
-//   popup.className = "error-popup"; 
+//   popup.className = "error-popup";
 //   popup.innerHTML = `
 //     <div class="popup-content">
 //       <p>${message}</p>
@@ -497,18 +531,15 @@ function isValidPassword(password) {
 //   });
 // }
 
-
 function displayError(field, message) {
   const errorElement = document.getElementById(`${field}Error`);
   if (errorElement) {
     errorElement.innerText = message;
     errorElement.style.display = "block";
   } else {
-    
     alert(`Erreur dans ${field}: ${message}`);
   }
 }
-
 
 function clearErrors() {
   const errorElements = document.querySelectorAll(".error-message");
@@ -518,8 +549,7 @@ function clearErrors() {
   });
 }
 
-
 function navigateTo(path) {
-  history.pushState(null, "", path); 
-  loadPageFromURL(); 
+  history.pushState(null, "", path);
+  loadPageFromURL();
 }

@@ -104,28 +104,60 @@ def set_jwt_cookies(response, access_token, refresh_token):
         samesite='Strict' 
     )
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
     try:
-        data = json.loads(request.body)
-        email = data.get('email')
-        password = data.get('password')
+        logger.info("Requête de connexion reçue")
 
+        # Charger et vérifier les données JSON
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.error("Erreur de parsing JSON")
+            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+
+        # Liste des champs autorisés
+        allowed_fields = {'email', 'password'}
+
+        # Vérifier les champs supplémentaires
+        extra_fields = set(data.keys()) - allowed_fields
+        if extra_fields:
+            logger.warning(f"Champs non autorisés détectés : {extra_fields}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid fields in request',
+                'invalid_fields': list(extra_fields)
+            }, status=400)
+
+        # Vérifier que les champs contiennent uniquement des chaînes de caractères
+        for field, value in data.items():
+            if not isinstance(value, str):
+                logger.warning(f"Le champ '{field}' contient une valeur non textuelle : {type(value).__name__}")
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Le champ '{field}' doit être une chaîne de caractères."
+                }, status=400)
+
+        # Récupérer les valeurs
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+
+        # Vérifier si les champs sont vides
+        if not email or not password:
+            logger.warning("Email ou mot de passe manquant")
+            return JsonResponse({'success': False, 'message': 'Email and password are required'}, status=400)
+
+        # Authentifier l'utilisateur
         user = authenticate(request, email=email, password=password)
         if user is not None:
-            
             if user.is_2fa_enabled:  
-                
                 code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
 
-                
                 user.two_factor_code = code
                 user.two_factor_code_timestamp = timezone.now()
                 user.save()
 
-                
                 if send_2fa_email(user, code):
                     return JsonResponse({
                         'success': True,
@@ -134,80 +166,38 @@ def login_view(request):
                         'message': 'Code 2FA envoyé'
                     })
                 else:
+                    logger.error(f"Échec de l'envoi de l'email 2FA pour l'utilisateur {user.email}")
                     return JsonResponse({
                         'success': False,
                         'message': 'Erreur lors de l\'envoi du code 2FA'
                     }, status=500)
             else:
-                
+                # Générer les tokens JWT
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
+
+                # Configurer la réponse avec les cookies JWT
                 response = JsonResponse({
                     'success': True,
                     'message': 'Login successful',
-
                 }, status=200)
                 set_jwt_cookies(response, access_token, refresh_token)
                 return response
         else:
+            logger.warning(f"Tentative de connexion échouée pour l'email : {email}")
             return JsonResponse({
                 'success': False,
                 'message': 'Invalid credentials'
             }, status=401)
 
     except Exception as e:
-        logger.error(f"Erreur de connexion : {str(e)}")
+        logger.exception(f"Erreur inattendue lors de la connexion : {str(e)}")
         return JsonResponse({
             'success': False,
-            'message': str(e)
+            'message': 'An unexpected error occurred'
         }, status=500)
 
-
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def register_view(request):
-#     try:
-#         logger.info("Requête d'inscription reçue")
-#         data = json.loads(request.body)
-
-#         register_form = RegisterForm(data)
-#         if register_form.is_valid():
-#             user = register_form.save()
-#             logger.info(f"Utilisateur créé : {user.username}")
-
-            
-#             refresh = RefreshToken.for_user(user)
-#             return JsonResponse({
-#                 'success': True,
-#                 'message': 'User registered successfully',
-                
-                
-#             }, status=201)
-#         else:
-#             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
-#             return JsonResponse({
-#                 'success': False,
-#                 'message': 'Form is not valid',
-#                 'errors': register_form.errors.get_json_data()  
-#             }, status=400)
-
-#     except json.JSONDecodeError:
-#         logger.error("Erreur de parsing JSON")
-#         return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
-#     except IntegrityError as e:
-#         logger.error(f"Erreur d'intégrité : {str(e)}")
-#         return JsonResponse({
-#             'success': False,
-#             'message': f'Integrity error: {str(e)}'
-#         }, status=400)
-#     except Exception as e:
-#         logger.exception(f"Erreur inattendue : {str(e)}")
-#         return JsonResponse({
-#             'success': False,
-#             'message': f'Unexpected error: {str(e)}'
-#         }, status=500)
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -247,6 +237,15 @@ def register_view(request):
                 'invalid_fields': list(extra_fields)
             }, status=400)
 
+        # Vérifier que les champs contiennent uniquement du texte
+        for field, value in data.items():
+            if not isinstance(value, str):
+                logger.warning(f"Le champ '{field}' contient une valeur non textuelle : {type(value).__name__}")
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Le champ '{field}' doit être une chaîne de caractères."
+                }, status=400)
+
         # Validation des données avec le formulaire
         register_form = RegisterForm(data)
         if register_form.is_valid():
@@ -279,7 +278,6 @@ def register_view(request):
             'success': False,
             'message': f'Unexpected error: {str(e)}'
         }, status=500)
-
 
 
 @api_view(['GET'])
@@ -401,6 +399,94 @@ def update_profile_view(request):
         'email': user.email,
         'avatar': avatar_url
     }, status=200)
+
+
+# from django.core.exceptions import ValidationError
+# from django.core.validators import validate_email
+# from django.contrib.auth.hashers import check_password, make_password
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.permissions import IsAuthenticated
+# from django.http import JsonResponse
+# import logging
+
+# logger = logging.getLogger(__name__)
+
+# @api_view(['PATCH'])
+# @permission_classes([IsAuthenticated])
+# def update_profile_view(request):
+#     user = request.user
+#     data = request.data
+
+#     # Vérifier les champs autorisés
+#     allowed_fields = {'username', 'email', 'old_password', 'new_password', 'avatar', 'selected_avatar'}
+#     extra_fields = set(data.keys()) - allowed_fields
+#     if extra_fields:
+#         return JsonResponse({'error': f'Champs non autorisés détectés : {list(extra_fields)}'}, status=400)
+
+#     # Mise à jour du username
+#     if 'username' in data:
+#         new_username = data['username']
+#         if not new_username.strip() or len(new_username) > 150:
+#             return JsonResponse({'error': 'Le nom d\'utilisateur doit contenir entre 1 et 150 caractères.'}, status=400)
+#         user.username = new_username
+
+#     # Mise à jour de l'email
+#     if 'email' in data:
+#         new_email = data['email']
+#         try:
+#             validate_email(new_email)
+#             user.email = new_email
+#         except ValidationError:
+#             return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
+
+#     # Mise à jour du mot de passe
+#     if 'old_password' in data and 'new_password' in data:
+#         old_password = data['old_password']
+#         new_password = data['new_password']
+#         if not check_password(old_password, user.password):
+#             return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
+#         user.password = make_password(new_password)
+
+#     # Mise à jour de l'avatar
+#     MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
+#     if 'avatar' in request.FILES:
+#         avatar = request.FILES['avatar']
+#         valid_extensions = ['png', 'jpg', 'jpeg']
+#         ext = avatar.name.split('.')[-1].lower()
+#         if ext not in valid_extensions:
+#             return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
+#         if avatar.size > MAX_FILE_SIZE:
+#             return JsonResponse({'error': 'La taille de l\'image ne doit pas dépasser 2MB.'}, status=400)
+#         user.avatar = avatar
+#     elif 'selected_avatar' in data:
+#         selected_avatar = data['selected_avatar']
+#         expected_prefix = 'assets/avatars/'
+#         if selected_avatar.startswith(expected_prefix):
+#             user.avatar = selected_avatar
+#         else:
+#             return JsonResponse({'error': f'Chemin d\'avatar invalide. Il doit commencer par {expected_prefix}'}, status=400)
+
+#     # Sauvegarde des modifications
+#     try:
+#         user.save()
+#     except Exception as e:
+#         logger.error(f"Erreur de mise à jour du profil : {str(e)}")
+#         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+
+#     # Construction de l'URL de l'avatar
+#     avatar_url = None
+#     if user.avatar:
+#         avatar_path = str(user.avatar)
+#         if avatar_path.startswith('assets/avatars/'):
+#             avatar_url = f"/static/{avatar_path}"
+#         else:
+#             avatar_url = f"/media/{avatar_path}"
+
+#     return JsonResponse({
+#         'username': user.username,
+#         'email': user.email,
+#         'avatar': avatar_url
+#     }, status=200)
 
 
 @api_view(['POST'])
