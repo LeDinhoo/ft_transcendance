@@ -228,7 +228,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateNavBarVisibility(path);
 
-    window.wsManager.initializeChatSocket();
+    if (await isAuthenticated()) {
+        window.wsManager.initializeChatSocket();
+    }
 
     if (path === "/" || path === "/login-register") {
       loadComponent(
