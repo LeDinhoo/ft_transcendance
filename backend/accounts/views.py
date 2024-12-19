@@ -82,9 +82,9 @@ logger = logging.getLogger(__name__)
 @api_view(['GET'])
 @permission_classes([AllowAny])  
 def index_view(request):
-    login_form = LoginForm()
-    register_form = RegisterForm()
-    return render(request, 'index.html', {'login_form': login_form, 'register_form': register_form})
+    # login_form = LoginForm()
+    # register_form = RegisterForm()
+    return render(request, 'index.html')
 
 
 def set_jwt_cookies(response, access_token, refresh_token):

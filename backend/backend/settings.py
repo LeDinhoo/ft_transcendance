@@ -188,10 +188,6 @@ CSRF_COOKIE_SAMESITE = 'Strict'
 CSRF_COOKIE_HTTPONLY = True  
 
 
-# FORTYTWO_CLIENT_ID='u-s4t2ud-b1a5ece0fe08f8b2d1855de9824f719221dc07ba3f3815b6591ee841972b28b8'
-# FORTYTWO_CLIENT_SECRET='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'
-# FORTYTWO_REDIRECT_URI='https://localhost:4430/api/callback-42/'
-
 FORTYTWO_CLIENT_ID = os.getenv('FORTYTWO_CLIENT_ID')
 FORTYTWO_CLIENT_SECRET = os.getenv('FORTYTWO_CLIENT_SECRET')
 FORTYTWO_REDIRECT_URI = os.getenv('FORTYTWO_REDIRECT_URI', 'https://localhost:4430/api/callback-42/')
@@ -211,7 +207,8 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             os.path.join(BASE_DIR, 'frontend', 'templates'),
-            os.path.join(BASE_DIR, 'accounts', 'templates'),  
+            os.path.join(BASE_DIR, 'backend', 'templates'),  
+            os.path.join(BASE_DIR, 'accounts', 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -225,6 +222,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 

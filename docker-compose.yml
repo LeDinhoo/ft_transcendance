@@ -30,6 +30,7 @@ services:
       - ./backend:/app
       - ./backend/certs:/app/certs
       - ./backend/templates:/app/templates
+      - ./frontend/templates:/app/frontend/templates
       - media:/app/media
     expose:
       - "8443"

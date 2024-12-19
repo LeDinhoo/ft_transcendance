@@ -68,6 +68,7 @@ class JWTAuthMiddleware(MiddlewareMixin):
             )
         return response
 
+
 from django.http import JsonResponse
 import re
 
