@@ -190,165 +190,323 @@ function initializeTournamentPage() {
         });
     }
 
-    startGame() {
-      this.isSimulationInProgress = false;
+    // startGame() {
+    //   let languageOption = "en";
+    //   language = getLanguageFromAPI();
+    //   language.then((value) => {
+    //     setPreferredLanguage(value);
+    //     languageOption = value;
+    //   });
+    //   this.isSimulationInProgress = false;
 
-      // Réinitialiser les scores pour la nouvelle partie
-      this.currentGameScores = {
-        player1: 0,
-        player2: 0,
-      };
+    //   // Réinitialiser les scores pour la nouvelle partie
+    //   this.currentGameScores = {
+    //     player1: 0,
+    //     player2: 0,
+    //   };
 
-      const currentMatch =
-        this.tournamentState.matches[this.tournamentState.currentMatch];
+    //   const currentMatch =
+    //     this.tournamentState.matches[this.tournamentState.currentMatch];
 
-      if (
-        !currentMatch ||
-        this.tournamentState.currentMatch >= this.tournamentState.matches.length
-      ) {
-        console.log("No more matches to play");
-        return;
-      }
+    //   if (
+    //     !currentMatch ||
+    //     this.tournamentState.currentMatch >= this.tournamentState.matches.length
+    //   ) {
+    //     console.log("No more matches to play");
+    //     return;
+    //   }
 
-      console.log(
-        "Starting game for match:",
-        this.tournamentState.currentMatch
-      );
-      console.log("Current match data:", currentMatch);
+    //   console.log(
+    //     "Starting game for match:",
+    //     this.tournamentState.currentMatch
+    //   );
+    //   console.log("Current match data:", currentMatch);
 
-      // Vérifier si chaque joueur est un bot
-      const player1IsBot = this.isBot(currentMatch.player1);
-      const player2IsBot = this.isBot(currentMatch.player2);
+    //   // Vérifier si chaque joueur est un bot
+    //   const player1IsBot = this.isBot(currentMatch.player1);
+    //   const player2IsBot = this.isBot(currentMatch.player2);
 
-      // Afficher si les joueurs sont des bots
-      console.log(
-        `Player 1 (${currentMatch.player1.name}) isBot:`,
-        player1IsBot
-      );
-      console.log(
-        `Player 2 (${currentMatch.player2.name}) isBot:`,
-        player2IsBot
-      );
+    //   // Afficher si les joueurs sont des bots
+    //   console.log(
+    //     `Player 1 (${currentMatch.player1.name}) isBot:`,
+    //     player1IsBot
+    //   );
+    //   console.log(
+    //     `Player 2 (${currentMatch.player2.name}) isBot:`,
+    //     player2IsBot
+    //   );
 
-      // Charger les options de jeu depuis localStorage
-      // const gameOptions = this.getGameOptions();
-      if (!this.options) {
-        console.error("Game options not found in localStorage!");
-        return;
-      }
-      console.log("Game options retrieved:", this.options);
+    //   // Charger les options de jeu depuis localStorage
+    //   // const gameOptions = this.getGameOptions();
+    //   if (!this.options) {
+    //     console.error("Game options not found in localStorage!");
+    //     return;
+    //   }
+    //   console.log("Game options retrieved:", this.options);
 
-      // Simulation si les deux joueurs sont des bots
-      if (player1IsBot && player2IsBot) {
-        console.log("Simulating match between two bots...");
+    //   // Simulation si les deux joueurs sont des bots
+    //   if (player1IsBot && player2IsBot) {
+    //     console.log("Simulating match between two bots...");
 
-        this.isSimulationInProgress = true;
-        this.blockSpacebar(true); // Bloquer la barre d'espace
+    //     this.isSimulationInProgress = true;
+    //     this.blockSpacebar(true); // Bloquer la barre d'espace
 
-        // Fonction pour simuler des scores avec la règle des 2 points d'écart
-        const simulateScores = () => {
-          let score1 = 0;
-          let score2 = 0;
+    //     // Fonction pour simuler des scores avec la règle des 2 points d'écart
+    //     const simulateScores = () => {
+    //       let score1 = 0;
+    //       let score2 = 0;
 
-          while (true) {
-            score1 = Math.floor(Math.random() * 6); // Génère un score entre 0 et 5
-            score2 = Math.floor(Math.random() * 6);
+    //       while (true) {
+    //         score1 = Math.floor(Math.random() * 6); // Génère un score entre 0 et 5
+    //         score2 = Math.floor(Math.random() * 6);
 
-            // Vérifier si la partie respecte les règles :
-            // - Score maximal de 5
-            // - 2 points d'écart si le score atteint 4-4
-            if (
-              Math.max(score1, score2) === 5 &&
-              Math.abs(score1 - score2) >= 2
-            ) {
-              break;
-            }
-          }
-          return { score1, score2 };
+    //         // Vérifier si la partie respecte les règles :
+    //         // - Score maximal de 5
+    //         // - 2 points d'écart si le score atteint 4-4
+    //         if (
+    //           Math.max(score1, score2) === 5 &&
+    //           Math.abs(score1 - score2) >= 2
+    //         ) {
+    //           break;
+    //         }
+    //       }
+    //       return { score1, score2 };
+    //     };
+
+    //     // Simuler les scores
+    //     const { score1: simulatedScore1, score2: simulatedScore2 } =
+    //       simulateScores();
+
+    //     // Déterminer le gagnant basé sur les scores
+    //     const simulatedWinner =
+    //       simulatedScore1 > simulatedScore2
+    //         ? currentMatch.player1
+    //         : currentMatch.player2;
+
+    //     console.log(
+    //       "Simulation complete. Winner:",
+    //       simulatedWinner,
+    //       "Scores:",
+    //       {
+    //         player1: simulatedScore1,
+    //         player2: simulatedScore2,
+    //       }
+    //     );
+
+    //     // Passer les résultats simulés à progressTournament
+    //     progressTournament(
+    //       null, // winnerIndex n'est pas utilisé ici
+    //       { player1: simulatedScore1, player2: simulatedScore2 },
+    //       this
+    //     );
+
+    //     // Après la simulation, on réactive la gestion de la barre d'espace
+    //     this.isSimulationInProgress = false;
+    //     this.blockSpacebar(false); // Réactiver la barre d'espace
+    //     return; // Sortir de la fonction pour éviter de charger le conteneur de jeu
+    //   }
+
+    //   // Charger le conteneur de jeu uniquement si ce n'est pas une simulation
+    //   this.gameContainer.style.display = "block";
+    //   this.gameContainer.src = "/static/spa/game3D/three.html";
+
+    //   this.gameContainer.onload = () => {
+    //     console.log(
+    //       "Game loaded, sending players:",
+    //       currentMatch.player1,
+    //       currentMatch.player2
+    //     );
+
+    //     this.gameContainer.contentWindow.postMessage(
+    //       {
+    //         type: "startGame",
+    //         data: {
+    //           player1: currentMatch.player1,
+    //           player2: currentMatch.player2,
+    //         },
+    //       },
+    //       "*"
+    //     );
+
+    //     if (!player1IsBot && player2IsBot) {
+    //       const options = this.options;
+    //       const isAI = true;
+    //       const power = true;
+    //       this.gameContainer.contentWindow.postMessage(
+    //         {
+    //           type: "setOptions",
+    //           data: { options, isAI, power, languageOption },
+    //         },
+    //         "*"
+    //       );
+    //     } else if (!player1IsBot && !player2IsBot) {
+    //       const options = this.options;
+    //       const isAI = false;
+    //       const power = true;
+    //       this.gameContainer.contentWindow.postMessage(
+    //         {
+    //           type: "setOptions",
+    //           data: { options, isAI, power, languageOption },
+    //         },
+    //         "*"
+    //       );
+    //     }
+
+    //     this.gameContainer.focus();
+    //   };
+    // }
+
+    async startGame() {
+      try {
+        // Initialisation par défaut
+        let languageOption = "en";
+
+        // Attendre la réponse de l'API pour récupérer la langue
+        const language = await getLanguageFromAPI();
+        setPreferredLanguage(language);
+        languageOption = language;
+
+        this.isSimulationInProgress = false;
+
+        // Réinitialiser les scores pour la nouvelle partie
+        this.currentGameScores = {
+          player1: 0,
+          player2: 0,
         };
 
-        // Simuler les scores
-        const { score1: simulatedScore1, score2: simulatedScore2 } =
-          simulateScores();
+        const currentMatch =
+          this.tournamentState.matches[this.tournamentState.currentMatch];
 
-        // Déterminer le gagnant basé sur les scores
-        const simulatedWinner =
-          simulatedScore1 > simulatedScore2
-            ? currentMatch.player1
-            : currentMatch.player2;
-
-        console.log(
-          "Simulation complete. Winner:",
-          simulatedWinner,
-          "Scores:",
-          {
-            player1: simulatedScore1,
-            player2: simulatedScore2,
-          }
-        );
-
-        // Passer les résultats simulés à progressTournament
-        progressTournament(
-          null, // winnerIndex n'est pas utilisé ici
-          { player1: simulatedScore1, player2: simulatedScore2 },
-          this
-        );
-
-        // Après la simulation, on réactive la gestion de la barre d'espace
-        this.isSimulationInProgress = false;
-        this.blockSpacebar(false); // Réactiver la barre d'espace
-        return; // Sortir de la fonction pour éviter de charger le conteneur de jeu
-      }
-
-      // Charger le conteneur de jeu uniquement si ce n'est pas une simulation
-      this.gameContainer.style.display = "block";
-      this.gameContainer.src = "/static/spa/game3D/three.html";
-
-      this.gameContainer.onload = () => {
-        console.log(
-          "Game loaded, sending players:",
-          currentMatch.player1,
-          currentMatch.player2
-        );
-
-        this.gameContainer.contentWindow.postMessage(
-          {
-            type: "startGame",
-            data: {
-              player1: currentMatch.player1,
-              player2: currentMatch.player2,
-            },
-          },
-          "*"
-        );
-
-        if (!player1IsBot && player2IsBot) {
-          const options = this.options;
-          console.log("options : ", options);
-          const isAI = true;
-          const power = true;
-          this.gameContainer.contentWindow.postMessage(
-            {
-              type: "setOptions",
-              data: { options, isAI, power },
-            },
-            "*"
-          );
-        } else if (!player1IsBot && !player2IsBot) {
-          const options = this.options;
-          const isAI = false;
-          const power = true;
-          this.gameContainer.contentWindow.postMessage(
-            {
-              type: "setOptions",
-              data: { options, isAI, power },
-            },
-            "*"
-          );
+        if (
+          !currentMatch ||
+          this.tournamentState.currentMatch >=
+            this.tournamentState.matches.length
+        ) {
+          console.log("No more matches to play");
+          return;
         }
 
-        this.gameContainer.focus();
-      };
+        console.log(
+          "Starting game for match:",
+          this.tournamentState.currentMatch
+        );
+        console.log("Current match data:", currentMatch);
+
+        // Vérifier si chaque joueur est un bot
+        const player1IsBot = this.isBot(currentMatch.player1);
+        const player2IsBot = this.isBot(currentMatch.player2);
+
+        // Afficher si les joueurs sont des bots
+        console.log(
+          `Player 1 (${currentMatch.player1.name}) isBot:`,
+          player1IsBot
+        );
+        console.log(
+          `Player 2 (${currentMatch.player2.name}) isBot:`,
+          player2IsBot
+        );
+
+        // Charger les options de jeu depuis localStorage
+        if (!this.options) {
+          console.error("Game options not found in localStorage!");
+          return;
+        }
+        console.log("Game options retrieved:", this.options);
+
+        // Simulation si les deux joueurs sont des bots
+        if (player1IsBot && player2IsBot) {
+          console.log("Simulating match between two bots...");
+
+          this.isSimulationInProgress = true;
+          this.blockSpacebar(true); // Bloquer la barre d'espace
+
+          const simulateScores = () => {
+            let score1 = 0;
+            let score2 = 0;
+
+            while (true) {
+              score1 = Math.floor(Math.random() * 6); // Génère un score entre 0 et 5
+              score2 = Math.floor(Math.random() * 6);
+
+              if (
+                Math.max(score1, score2) === 5 &&
+                Math.abs(score1 - score2) >= 2
+              ) {
+                break;
+              }
+            }
+            return { score1, score2 };
+          };
+
+          // Simuler les scores
+          const { score1: simulatedScore1, score2: simulatedScore2 } =
+            simulateScores();
+
+          const simulatedWinner =
+            simulatedScore1 > simulatedScore2
+              ? currentMatch.player1
+              : currentMatch.player2;
+
+          console.log(
+            "Simulation complete. Winner:",
+            simulatedWinner,
+            "Scores:",
+            {
+              player1: simulatedScore1,
+              player2: simulatedScore2,
+            }
+          );
+
+          progressTournament(
+            null,
+            { player1: simulatedScore1, player2: simulatedScore2 },
+            this
+          );
+
+          this.isSimulationInProgress = false;
+          this.blockSpacebar(false);
+          return;
+        }
+
+        // Charger le conteneur de jeu uniquement si ce n'est pas une simulation
+        this.gameContainer.style.display = "block";
+        this.gameContainer.src = "/static/spa/game3D/three.html";
+
+        this.gameContainer.onload = () => {
+          console.log(
+            "Game loaded, sending players:",
+            currentMatch.player1,
+            currentMatch.player2
+          );
+
+          this.gameContainer.contentWindow.postMessage(
+            {
+              type: "startGame",
+              data: {
+                player1: currentMatch.player1,
+                player2: currentMatch.player2,
+              },
+            },
+            "*"
+          );
+
+          const options = this.options;
+          const isAI = player2IsBot;
+          const power = true;
+
+          this.gameContainer.contentWindow.postMessage(
+            {
+              type: "setOptions",
+              data: { options, isAI, power, languageOption },
+            },
+            "*"
+          );
+
+          this.gameContainer.focus();
+        };
+      } catch (error) {
+        console.error("An error occurred while starting the game:", error);
+      }
     }
 
     // Fonction pour bloquer ou autoriser l'appui sur la barre d'espace

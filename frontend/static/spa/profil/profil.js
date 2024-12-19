@@ -1,5 +1,5 @@
-function updateProfilOnProfil() {
-  console.log("fonction updateprofilonProfil appelee...")
+async function updateProfilOnProfil() {
+  console.log("fonction updateprofilonProfil appelee...");
   fetch("/api/profil/", {
     method: "GET",
     credentials: "include",
@@ -15,7 +15,6 @@ function updateProfilOnProfil() {
     })
     .then((data) => {
       if (data.username && data.email) {
-
         const win_ratio = data.win_ratio ?? 0;
         const totalGames = data.total_games ?? 0;
         console.log("total games : ", totalGames);
@@ -24,10 +23,16 @@ function updateProfilOnProfil() {
           document.getElementById("rankImage").src =
             "static/assets/icons/bronze.png";
           document.getElementById("rankText").innerText = "Bronze";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.bronze");
         } else if (win_ratio < 66 && win_ratio >= 33) {
           document.getElementById("rankImage").src =
             "static/assets/icons/silver.png";
           document.getElementById("rankText").innerText = "Silver";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.silver");
         } else if (
           (win_ratio < 80 && win_ratio >= 66) ||
           (win_ratio >= 66 && totalGames < 5)
@@ -35,12 +40,21 @@ function updateProfilOnProfil() {
           document.getElementById("rankImage").src =
             "static/assets/icons/gold.png";
           document.getElementById("rankText").innerText = "Gold";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.gold");
         } else if (win_ratio >= 80 && totalGames >= 5) {
           document.getElementById("rankImage").src =
             "static/assets/icons/platinium.png";
-          document.getElementById("rankText").innerText = "Platinium";
+          document.getElementById("rankText").innerText = "Platine";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.platine");
         }
-
+        language = getLanguageFromAPI();
+        language.then((value) => {
+          setPreferredLanguage(value);
+        });
       }
     })
     .catch((error) => {
@@ -116,12 +130,15 @@ function loadMatchHistory() {
 function updateMatchHistoryUI(history) {
   const matchHistoryDiv = document.querySelector(".matchHistory");
   matchHistoryDiv.innerHTML = `
-    <div class="settingsHistory">Match History</div>
+    <div class="settingsHistory" data-translate="profil.matchHistory">Match History</div>
     <div class="matches-container"></div>
   `;
 
   const matchesContainer = matchHistoryDiv.querySelector(".matches-container");
   const recentMatches = history.slice(0, 5);
+
+  //Afficher ce que contient recentMatches
+  console.log("recentMatches", recentMatches);
 
   recentMatches.forEach((match) => {
     const matchResume = document.createElement("div");
@@ -156,20 +173,27 @@ function updateMatchHistoryUI(history) {
     const resultLabel = document.createElement("div");
     resultLabel.className = "resultLabel";
     resultLabel.textContent = match.result;
-
     if (match.result === "DEFEAT") {
       resultLabel.style.color = "#878787";
+      resultLabel.setAttribute("data-translate", "profil.defeat");
+    } else {
+      resultLabel.setAttribute("data-translate", "profil.victory");
     }
 
-    matchResume.appendChild(gameDate);   
+    matchResume.appendChild(gameDate);
     matchResume.appendChild(userAvatar);
     matchResume.appendChild(userScore);
     matchResume.appendChild(separator);
     matchResume.appendChild(opponentScore);
     matchResume.appendChild(opponentAvatar);
     matchResume.appendChild(resultLabel);
-
     matchHistoryDiv.appendChild(matchResume);
+  });
+
+  // Mettre a jour les traductions
+  language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
   });
 }
 
@@ -186,8 +210,10 @@ function loadUserStatistics() {
       console.log("Statistiques de l'utilisateur :", data);
 
       document.getElementById("total_games").innerText = data.total_games;
-      document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
-      document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
+      document.getElementById("win_ratio").innerText =
+        data.win_ratio.toFixed(2) + "%";
+      document.getElementById("max_ball_speed").innerText =
+        data.max_ball_speed.toFixed(2);
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
@@ -198,6 +224,8 @@ function loadUserStatistics() {
 function initializeProfilePage() {
   initializeAvatarFeature();
   resetPasswordFields();
+
+  language = getLanguageFromAPI();
 
   const userInput = document.getElementById("username");
   const emailInput = document.getElementById("registerEmail");
@@ -355,17 +383,19 @@ function initializeProfilePage() {
         document.getElementById("playerFrame").innerText = data.username;
         document.getElementById("username").value = data.username;
         document.getElementById("registerEmail").value = data.email;
-  
+
         if ("is_2fa_enabled" in data) {
           updateUI2FAStatus(data.is_2fa_enabled);
         }
-  
+
         // Mise à jour du rank
         if (data.rank) {
-          document.getElementById("profileRankIcon").src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
+          document.getElementById(
+            "profileRankIcon"
+          ).src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
           document.getElementById("profileRankText").textContent = data.rank;
         }
-  
+
         avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
       }
     })
@@ -376,6 +406,9 @@ function initializeProfilePage() {
   loadMatchHistory();
   loadUserStatistics();
   updateProfilOnProfil();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
 }
 
 function showTwoFactorPopup() {
@@ -389,24 +422,32 @@ function showTwoFactorPopup() {
   const popup = document.createElement("div");
   popup.className = "popup-overlay";
   popup.innerHTML = `
-      <div class="popup-content">
-          <h3>Vérification en deux étapes</h3>
-          <p>Un code a été envoyé à votre adresse email</p>
-          <div class="code-input-container">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-          </div>
-          <div class="timer">Code valide pendant: <span id="countdown">10:00</span></div>
-          <button class="verify-button" id="verifyButton" disabled>Vérifier</button>
-          <p class="error-message" style="display: none;"></p>
-      </div>
+    <div class="popup-content">
+        <h3 data-translate="twoStepVerification.title">Vérification en deux étapes</h3>
+        <p data-translate="twoStepVerification.codeSent">Un code a été envoyé à votre adresse email</p>
+        <div class="code-input-container">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+        </div>
+        <div class="timer" data-translate="twoStepVerification.timer">
+            Code valide pendant: <span id="countdown">10:00</span>
+        </div>
+        <button class="verify-button" id="verifyButton" disabled data-translate="twoStepVerification.verifyButton">Vérifier</button>
+        <p class="error-message" style="display: none;" data-translate="twoStepVerification.errorMessage"></p>
+    </div>
   `;
 
   document.body.appendChild(popup);
+
+  //mettre à jour les traductions
+  language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
 
   setupCodeInputsForProfile();
   startCountdown(10 * 60);
@@ -524,7 +565,9 @@ https: function updateUI2FAStatus(enabled) {
 
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
- <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
+ <img src="/static/assets/icons/${
+   enabled ? "check" : "close"
+ }.svg" class="popuplogo" />
   ${enabled ? "2FA On" : "2FA Off"}
 `;
 
@@ -774,18 +817,21 @@ function initializeAvatarFeature() {
 }
 
 function loadFriendRequests() {
-    fetch('/api/friends/pending/', {
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        const requestsList = document.getElementById('friendRequestsList');
-        if (!data.pending_requests.length) {
-            requestsList.innerHTML = '<div class="no-requests">No pending friend requests</div>';
-            return;
-        }
+  fetch("/api/friends/pending/", {
+    credentials: "include",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      const requestsList = document.getElementById("friendRequestsList");
+      if (!data.pending_requests.length) {
+        requestsList.innerHTML =
+          '<div class="no-requests">No pending friend requests</div>';
+        return;
+      }
 
-        requestsList.innerHTML = data.pending_requests.map(request => `
+      requestsList.innerHTML = data.pending_requests
+        .map(
+          (request) => `
             <div class="friendRequest">
                 <img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
                 <div class="requestInfo">
@@ -800,9 +846,11 @@ function loadFriendRequests() {
                     </button>
                 </div>
             </div>
-        `).join('');
+        `
+        )
+        .join("");
     })
-    .catch(error => console.error('Error loading friend requests:', error));
+    .catch((error) => console.error("Error loading friend requests:", error));
 }
 
 // function handleFriendRequest(requestId, action) {
@@ -825,7 +873,7 @@ function loadFriendRequests() {
 //                 composed: true
 //             });
 //             document.dispatchEvent(event);
-            
+
 //             // Forcer une mise à jour immédiate si wsManager est disponible
 //             if (window.wsManager && window.wsManager.onlinePlayers) {
 //                 console.log("Mise à jour de la liste des joueurs en ligne après acceptation d'ami");
@@ -837,29 +885,31 @@ function loadFriendRequests() {
 // }
 
 async function handleFriendRequest(requestId, action) {
-    try {
-        const response = await fetch('/api/friends/handle-request/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ request_id: requestId, action })
-        });
+  try {
+    const response = await fetch("/api/friends/handle-request/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ request_id: requestId, action }),
+    });
 
-        if (response.ok) {
-            // Mettre à jour la liste des demandes d'ami
-            loadFriendRequests();
-            
-            // Utiliser la méthode correcte de wsManager
-            if (window.wsManager && window.wsManager.onlinePlayers) {
-                await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
-            }
+    if (response.ok) {
+      // Mettre à jour la liste des demandes d'ami
+      loadFriendRequests();
 
-            // Afficher un message de confirmation
-            showConfirmationMessage(`Friend request ${action}ed successfully`);
-        }
-    } catch (error) {
-        console.error('Error handling friend request:', error);
+      // Utiliser la méthode correcte de wsManager
+      if (window.wsManager && window.wsManager.onlinePlayers) {
+        await window.wsManager.updateOnlinePlayersList([
+          ...window.wsManager.onlinePlayers,
+        ]);
+      }
+
+      // Afficher un message de confirmation
+      showConfirmationMessage(`Friend request ${action}ed successfully`);
     }
+  } catch (error) {
+    console.error("Error handling friend request:", error);
+  }
 }

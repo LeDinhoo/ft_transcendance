@@ -425,39 +425,44 @@ export let launchPower1 = "e";
 export let launchPower2 = "arrowleft";
 
 function handleMessage(event) {
-	console.log(launchPower1);
-	console.log(launchPower2);
-	if (event.data.type === "setOptions") {
-		console.log("Received options from parent :", event.data.data);
-		const {options, isAI, power} = event.data.data;
-		console.log("Game Options :", options);
-		console.log("AI :", isAI);
-		console.log("Power :", power);
-		INITIAL_BALL_SPEED = options.ballSpeedStart;
-		SPEED_INCREMENT = options.ballSpeedIncrease;
-		MAX_BALL_SPEED = options.ballSpeedMax;
-		scoreSystem.setScoreToWin(options.scoreToWin);
-		gameAI.setDifficulty(options.difficulty);
-		powerManager.setActivePowers(options.powerups);
-		launchPower1 = options.keyboardSettings.player1.launchPower;
-		launchPower2 = options.keyboardSettings.player2.launchPower;
-		paddle1Controller.changeControlsUp(options.keyboardSettings.player1.moveUp);
-		paddle1Controller.changeControlsDown(options.keyboardSettings.player1.moveDown);
-		paddle2Controller.changeControlsUp(options.keyboardSettings.player2.moveUp);
-		paddle2Controller.changeControlsDown(options.keyboardSettings.player2.moveDown);
+  console.log(launchPower1);
+  console.log(launchPower2);
+  if (event.data.type === "setOptions") {
+    console.log("Received options from parent :", event.data.data);
+    const { options, isAI, power, languageOption } = event.data.data;
+    console.log("Game Options :", options);
+    console.log("AI :", isAI);
+    console.log("Power :", power);
+    console.log("Language :", languageOption);
+    scoreSystem.setLanguage(languageOption);
+    INITIAL_BALL_SPEED = options.ballSpeedStart;
+    SPEED_INCREMENT = options.ballSpeedIncrease;
+    MAX_BALL_SPEED = options.ballSpeedMax;
+    scoreSystem.setScoreToWin(options.scoreToWin);
+    gameAI.setDifficulty(options.difficulty);
+    powerManager.setActivePowers(options.powerups);
+    launchPower1 = options.keyboardSettings.player1.launchPower;
+    launchPower2 = options.keyboardSettings.player2.launchPower;
+    paddle1Controller.changeControlsUp(options.keyboardSettings.player1.moveUp);
+    paddle1Controller.changeControlsDown(
+      options.keyboardSettings.player1.moveDown
+    );
+    paddle2Controller.changeControlsUp(options.keyboardSettings.player2.moveUp);
+    paddle2Controller.changeControlsDown(
+      options.keyboardSettings.player2.moveDown
+    );
 
-		aiIsActive = !!isAI;
+    aiIsActive = !!isAI;
 
+    if (!power) {
+      isPowerActivated = false;
+      powerManager.deactivatePowers();
+    } else {
+      isPowerActivated = true;
+      powerManager.activatePowers();
+    }
 
-		if (!power) {
-			isPowerActivated = false;
-			powerManager.deactivatePowers();
-		} else {
-			isPowerActivated = true;
-			powerManager.activatePowers();
-		}
-
-		scoreSystem.setKeyTextForTutorial(options.keyboardSettings, aiIsActive);
+    scoreSystem.setKeyTextForTutorial(options.keyboardSettings, aiIsActive);
 
     window.removeEventListener("message", handleMessage);
   }
