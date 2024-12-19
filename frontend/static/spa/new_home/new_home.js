@@ -595,6 +595,11 @@ function initializeHome() {
 			const message = DOM.chat.input.value.trim();
 			if (!message) return;
 
+			if (message.length > 250) {
+				ChatHandler.showNotification("Message too long (max 250 characters)");
+				return;
+			}
+			
 			const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
 			if (pmMatch) {
 				// Bloquer les messages privés vers System

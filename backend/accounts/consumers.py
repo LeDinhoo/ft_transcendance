@@ -64,6 +64,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         print("Debug - Received message type:", data.get('type'))
+
+        if data.get('type') in ['chat_message', 'private_message']:
+            if len(data.get('message', '')) > 250:
+                await self.send(text_data=json.dumps({
+                    "type": "error",
+                    "message": "Message too long (max 250 characters)"
+                }))
+                return
         
         if data.get('type') == 'game_invitation':
             # Traitement spécial pour les invitations de jeu

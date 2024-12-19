@@ -93,6 +93,12 @@ const wsManager = {
 				case "user_list_update":
 					this.handleUserListUpdate(data);
 					break;
+				
+				case "error":  // Ajouter ce cas
+					if (window.ChatHandler?.showNotification) {
+						window.ChatHandler.showNotification(data.message);
+					}
+					break;
 
 				default:
 					console.log("Unhandled message type:", data.type);
