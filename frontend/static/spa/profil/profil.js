@@ -243,24 +243,24 @@ function initializeProfilePage() {
         credentials: "include",
         body: formData,
       })
-        .then((response) => {
+      .then(async (response) => {
+          const data = await response.json();
           if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
+              // On récupère le message d'erreur du backend
+              throw new Error(data.error);
           }
-          return response.json();
-        })
-        .then((data) => {
+          return data;
+      })
+      .then((data) => {
           if (data.avatar) {
-            avatarDisplay.src = data.avatar;
+              avatarDisplay.src = data.avatar;
           }
-        })
-        .catch((error) => {
+      })
+      .catch((error) => {
           console.error("Erreur lors de la mise à jour de l'avatar :", error);
-          showErrorPopup(
-            "Erreur lors de la mise à jour de l'avatar, veuillez réessayer.<br> Only JPG / JPEG / PNG format accepted"
-          );
-        });
-    }
+          showErrorPopup(error.message || "Une erreur est survenue lors de la mise à jour");
+      });
+      }
   });
 
   saveButton.addEventListener("click", function () {
@@ -307,33 +307,33 @@ function initializeProfilePage() {
         credentials: "include",
         body: formData,
       })
-        .then((response) => {
+      .then(async (response) => {
+          const data = await response.json();
+          
           if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
+              throw new Error(data.error);
           }
-          return response.json();
-        })
-        .then((data) => {
+          
+          return data;
+      })
+      .then((data) => {
           document.getElementById("playerFrame").innerText = data.username;
           document.getElementById("username").value = data.username;
           document.getElementById("registerEmail").value = data.email;
-
+      
           if (data.avatar) {
-            avatarDisplay.src = data.avatar;
+              avatarDisplay.src = data.avatar;
           }
-
+      
           userInput.disabled = true;
           emailInput.disabled = true;
           cloneModifyButton.style.backgroundColor = "";
           resetPasswordFields();
-        })
-        .catch((error) => {
-          console.error(
-            "Erreur lors de la mise à jour des informations :",
-            error
-          );
-          showErrorPopup("Erreur lors de la mise à jour, veuillez réessayer.");
-        });
+      })
+      .catch((error) => {
+          console.error("Erreur lors de la mise à jour des informations :", error);
+          showErrorPopup(error.message || "Une erreur est survenue lors de la mise à jour");
+      });
     }
   });
 
@@ -699,37 +699,40 @@ function initializeAvatarFeature() {
 
         fetch("/api/profil/update/", {
           method: "PATCH",
-
           credentials: "include",
           body: formData,
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`Erreur HTTP: ${response.status}`);
-            }
-            return response.json();
+          })
+          .then(async (response) => {
+              const data = await response.json();
+              console.log("Réponse brute du serveur:", data);
+              
+              if (!response.ok) {
+                  throw new Error(data.error || `Erreur HTTP: ${response.status}`);
+              }
+              
+              return data;
           })
           .then((data) => {
-            console.log("Réponse reçue:", data);
-
-            const avatarElements = document.querySelectorAll(".avatarImg");
-            avatarElements.forEach((element) => {
-              element.src = data.avatar;
-            });
-
-            const avatarDisplay = document.getElementById("avatarDisplay");
-            if (avatarDisplay) {
-              avatarDisplay.src = data.avatar;
-            }
-
-            closeModal();
-            console.log("Avatar mis à jour avec succès");
+              console.log("Réponse reçue:", data);
+          
+              const avatarElements = document.querySelectorAll(".avatarImg");
+              avatarElements.forEach((element) => {
+                  element.src = data.avatar;
+              });
+          
+              const avatarDisplay = document.getElementById("avatarDisplay");
+              if (avatarDisplay) {
+                  avatarDisplay.src = data.avatar;
+              }
+          
+              closeModal();
+              console.log("Avatar mis à jour avec succès");
           })
           .catch((error) => {
-            console.error("Erreur:", error);
-            alert("Erreur lors de la mise à jour de l'avatar");
+              console.error("Erreur détaillée:", error);
+              showErrorPopup(error.message || "Erreur lors de la mise à jour de l'avatar");
           });
-      }
+          }
     });
   }
 

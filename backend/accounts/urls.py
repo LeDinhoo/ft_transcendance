@@ -5,8 +5,9 @@ from .views import Toggle2FAView, Verify2FAView, TestEmailView
 
 urlpatterns = [
     path('', views.index_view, name='index'),
-    path('register/', views.register_view, name='register'),
-    path('login/', views.login_view, name='login'),
+    path('api/', views.index_view, name='index'),
+    path('register/', views.register_view, name='register'),  
+    path('login/', views.login_view, name='login'),  
     path('profil/', views.profile_view, name='profile_view'),
     path('profil/update/', views.update_profile_view, name='update_profile'),
     path('logout/', views.logout_view, name='logout'),

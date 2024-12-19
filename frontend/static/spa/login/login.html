@@ -1,4 +1,4 @@
-    <div id="gameSection" class="gameSection">
+<div id="gameSection" class="gameSection">
     <div id="topPaddle" class="paddle"></div>
     <div id="bottomPaddle" class="paddle"></div>
     <div id="ball"></div>
@@ -15,7 +15,7 @@
 </div>
 
 <div class="loginSection">
-    <form id="loginWidget" class="loginWidget" action="#" method="POST">
+    <form id="loginWidget" class="loginWidget" action="#" method="POST" autocomplete="off" novalidate>
         <h2 id="loginTitle" data-translate="login.title">Join the Battle</h2>
         <div class="formInputFrame">
             <input
@@ -26,6 +26,9 @@
                 placeholder=" "
                 required
                 autocomplete="email"
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                minlength="5"
+                maxlength="50"
             />
             <label for="email" class="inputLabel" data-translate="login.emailLabel">E-mail</label>
             <div id="emailError" class="error-message" style="display:none; color: red;" data-translate="login.emailError"></div>
@@ -38,6 +41,10 @@
                 class="inputFrame"
                 placeholder=" "
                 required
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                minlength="8"
+                maxlength="128"
+                autocomplete="current-password"
             />
             <label for="password" class="inputLabel" data-translate="login.passwordLabel">Password</label>
             <img
@@ -48,19 +55,20 @@
             />
             <div id="passwordError" class="error-message" style="display:none; color: red;" data-translate="login.passwordError"></div>
         </div>
-        <button id="submitLoginBtn" class="loginWidgetButton" data-translate="login.submitButton">Log In</button>
+        <button type="submit" id="submitLoginBtn" class="loginWidgetButton" data-translate="login.submitButton">Log In</button>
         <hr />
         <div class="otherChoiceFrame">
-            <button id="42" class="fortyTwoWidgetButton">
+            <button type="button" id="42" class="fortyTwoWidgetButton">
                 <svg>
                     <use href="/static/assets/icons/sprite.svg#42logo"></use>
                 </svg>
             </button>
-            <button id="registerButton" class="registerWidgetButton" data-translate="login.registerButton">Register</button>
+            <button type="button" id="registerButton" class="registerWidgetButton" data-translate="login.registerButton">Register</button>
         </div>
     </form>
 
-    <form id="registerWidget" class="loginWidget" action="#" method="POST">
+    <!-- Section Register -->
+    <form id="registerWidget" class="loginWidget" action="#" method="POST" autocomplete="off" novalidate>
         <h2 id="registerTitle" data-translate="register.title">Create Account</h2>
         <div class="formInputFrame">
             <input
@@ -70,8 +78,13 @@
                 class="inputFrame"
                 placeholder=" "
                 required
+                pattern="^[a-zA-Z0-9_-]{3,16}$"
+                minlength="3"
+                maxlength="16"
+                autocomplete="username"
             />
             <label for="username" class="inputLabel" data-translate="register.usernameLabel">Username</label>
+            <div id="usernameError" class="error-message" style="display:none; color: red;"></div>
         </div>
         <div class="formInputFrame">
             <input
@@ -81,8 +94,13 @@
                 class="inputFrame"
                 placeholder=" "
                 required
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                minlength="5"
+                maxlength="50"
+                autocomplete="email"
             />
             <label for="registerEmail" class="inputLabel" data-translate="register.emailLabel">E-mail</label>
+            <div id="registerEmailError" class="error-message" style="display:none; color: red;"></div>
         </div>
         <div class="formInputFrame">
             <input
@@ -92,6 +110,10 @@
                 class="inputFrame"
                 placeholder=" "
                 required
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                minlength="8"
+                maxlength="128"
+                autocomplete="new-password"
             />
             <label for="registerPassword" class="inputLabel" data-translate="register.passwordLabel">Password</label>
             <img
@@ -100,6 +122,7 @@
                 alt="visibility"
                 class="eyeIcon"
             />
+            <div id="registerPasswordError" class="error-message" style="display:none; color: red;"></div>
         </div>
         <div class="formInputFrame">
             <input
@@ -109,6 +132,10 @@
                 class="inputFrame"
                 placeholder=" "
                 required
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                minlength="8"
+                maxlength="128"
+                autocomplete="new-password"
             />
             <label for="confirmPassword" class="inputLabel" data-translate="register.confirmPasswordLabel">Confirm Password</label>
             <img
@@ -117,16 +144,17 @@
                 alt="visibility"
                 class="eyeIcon"
             />
+            <div id="confirmPasswordError" class="error-message" style="display:none; color: red;"></div>
         </div>
-        <button id="submitRegisterBtn" class="loginWidgetButton" data-translate="register.submitButton">Register</button>
+        <button type="submit" id="submitRegisterBtn" class="loginWidgetButton" data-translate="register.submitButton">Register</button>
         <hr />
         <div class="otherChoiceFrame">
-            <button class="fortyTwoWidgetButton">
+            <button type="button" class="fortyTwoWidgetButton">
                 <svg>
                     <use href="/static/assets/icons/sprite.svg#42logo"></use>
                 </svg>
             </button>
-            <button id="signUpButton" class="registerWidgetButton" data-translate="register.signUpButton">Sign Up</button>
+            <button type="button" id="signUpButton" class="registerWidgetButton" data-translate="register.signUpButton">Sign Up</button>
         </div>
     </form>
 </div>

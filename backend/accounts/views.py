@@ -82,9 +82,9 @@ logger = logging.getLogger(__name__)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def index_view(request):
-    login_form = LoginForm()
-    register_form = RegisterForm()
-    return render(request, 'index.html', {'login_form': login_form, 'register_form': register_form})
+    # login_form = LoginForm()
+    # register_form = RegisterForm()
+    return render(request, 'index.html')
 
 
 def set_jwt_cookies(response, access_token, refresh_token):
@@ -104,27 +104,59 @@ def set_jwt_cookies(response, access_token, refresh_token):
         samesite='Strict'
     )
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
     try:
-        data = json.loads(request.body)
-        email = data.get('email')
-        password = data.get('password')
+        logger.info("Requête de connexion reçue")
 
+        # Charger et vérifier les données JSON
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.error("Erreur de parsing JSON")
+            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+
+        # Liste des champs autorisés
+        allowed_fields = {'email', 'password'}
+
+        # Vérifier les champs supplémentaires
+        extra_fields = set(data.keys()) - allowed_fields
+        if extra_fields:
+            logger.warning(f"Champs non autorisés détectés : {extra_fields}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid fields in request',
+                'invalid_fields': list(extra_fields)
+            }, status=400)
+
+        # Vérifier que les champs contiennent uniquement des chaînes de caractères
+        for field, value in data.items():
+            if not isinstance(value, str):
+                logger.warning(f"Le champ '{field}' contient une valeur non textuelle : {type(value).__name__}")
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Le champ '{field}' doit être une chaîne de caractères."
+                }, status=400)
+
+        # Récupérer les valeurs
+        email = data.get('email', '').strip()
+        password = data.get('password', '').strip()
+
+        # Vérifier si les champs sont vides
+        if not email or not password:
+            logger.warning("Email ou mot de passe manquant")
+            return JsonResponse({'success': False, 'message': 'Email and password are required'}, status=400)
+
+        # Authentifier l'utilisateur
         user = authenticate(request, email=email, password=password)
         if user is not None:
-
-            if user.is_2fa_enabled:
-
+            if user.is_2fa_enabled:  
                 code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-
 
                 user.two_factor_code = code
                 user.two_factor_code_timestamp = timezone.now()
                 user.save()
-
 
                 if send_2fa_email(user, code):
                     return JsonResponse({
@@ -134,56 +166,97 @@ def login_view(request):
                         'message': 'Code 2FA envoyé'
                     })
                 else:
+                    logger.error(f"Échec de l'envoi de l'email 2FA pour l'utilisateur {user.email}")
                     return JsonResponse({
                         'success': False,
                         'message': 'Erreur lors de l\'envoi du code 2FA'
                     }, status=500)
             else:
-
+                # Générer les tokens JWT
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
                 refresh_token = str(refresh)
+
+                # Configurer la réponse avec les cookies JWT
                 response = JsonResponse({
                     'success': True,
                     'message': 'Login successful',
-
                 }, status=200)
                 set_jwt_cookies(response, access_token, refresh_token)
                 return response
         else:
+            logger.warning(f"Tentative de connexion échouée pour l'email : {email}")
             return JsonResponse({
                 'success': False,
                 'message': 'Invalid credentials'
             }, status=401)
 
     except Exception as e:
-        logger.error(f"Erreur de connexion : {str(e)}")
+        logger.exception(f"Erreur inattendue lors de la connexion : {str(e)}")
         return JsonResponse({
             'success': False,
-            'message': str(e)
+            'message': 'An unexpected error occurred'
         }, status=500)
 
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.http import JsonResponse
+from django.db import IntegrityError
+from rest_framework_simplejwt.tokens import RefreshToken
+from .forms import RegisterForm
+import logging
+import json
+
+logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
     try:
         logger.info("Requête d'inscription reçue")
-        data = json.loads(request.body)
 
+        # Charger et vérifier les données JSON
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.error("Erreur de parsing JSON")
+            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+
+        # Liste des champs autorisés
+        allowed_fields = {'username', 'email', 'password1', 'password2'}
+
+        # Vérifier les champs supplémentaires
+        extra_fields = set(data.keys()) - allowed_fields
+        if extra_fields:
+            logger.warning(f"Champs non autorisés détectés : {extra_fields}")
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid fields in request',
+                'invalid_fields': list(extra_fields)
+            }, status=400)
+
+        # Vérifier que les champs contiennent uniquement du texte
+        for field, value in data.items():
+            if not isinstance(value, str):
+                logger.warning(f"Le champ '{field}' contient une valeur non textuelle : {type(value).__name__}")
+                return JsonResponse({
+                    'success': False,
+                    'message': f"Le champ '{field}' doit être une chaîne de caractères."
+                }, status=400)
+
+        # Validation des données avec le formulaire
         register_form = RegisterForm(data)
         if register_form.is_valid():
             user = register_form.save()
             logger.info(f"Utilisateur créé : {user.username}")
 
-
+            # Générer les tokens JWT pour l'utilisateur
             refresh = RefreshToken.for_user(user)
             return JsonResponse({
                 'success': True,
                 'message': 'User registered successfully',
-
-
             }, status=201)
         else:
             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
@@ -193,9 +266,6 @@ def register_view(request):
                 'errors': register_form.errors.get_json_data()
             }, status=400)
 
-    except json.JSONDecodeError:
-        logger.error("Erreur de parsing JSON")
-        return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
     except IntegrityError as e:
         logger.error(f"Erreur d'intégrité : {str(e)}")
         return JsonResponse({
@@ -246,91 +316,240 @@ def profile_view(request):
 
     return JsonResponse(response_data, status=200)
 
+from django.http import JsonResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
+from django.core.files.storage import default_storage
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+import os
+import magic
+from datetime import datetime
+import re
+
+import imghdr
+import magic
+from PIL import Image
+from io import BytesIO
+
+from PIL import Image
+from django.core.exceptions import ValidationError
+import io
+
+def validate_image_thoroughly(image_file):
+    try:
+        # Copie du fichier en mémoire pour éviter les problèmes de buffer
+        image_copy = io.BytesIO(image_file.read())
+        image_file.seek(0)  # Remettre le pointeur au début pour usage ultérieur
+        
+        with Image.open(image_copy) as img:
+            # Force le chargement complet de l'image
+            img.load()
+            
+            # Essayer de convertir l'image
+            img.convert('RGB')
+            
+            # Vérifier que l'image peut être parcourue
+            list(img.getdata())  # Force l'accès aux données de l'image
+            
+            # Vérifier les métadonnées basiques
+            if not hasattr(img, 'format') or img.format not in ['JPEG', 'PNG']:
+                raise ValidationError("Format d'image non supporté (JPEG ou PNG uniquement)")
+                
+            # Essayer de créer une miniature pour vérifier que l'image est manipulable
+            thumbnail = img.copy()
+            thumbnail.thumbnail((100, 100))
+            
+            return True
+    except Exception as e:
+        raise ValidationError(f"Image corrompue ou invalide: {str(e)}")
+
+
+logger = logging.getLogger('profile_api')
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_profile_view(request):
-    user = request.user
-    data = request.data
-
-
-    if 'username' in data:
-        new_username = data['username']
-        if new_username.strip():
-            user.username = new_username
-        else:
-            return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
-
-
-    if 'email' in data:
-        new_email = data['email']
-        try:
-            validate_email(new_email)
-            user.email = new_email
-        except ValidationError:
-            return JsonResponse({'error': 'L\'adresse email est invalide.'}, status=400)
-
-
-    if 'old_password' in data and 'new_password' in data:
-        old_password = data['old_password']
-        new_password = data['new_password']
-
-
-        if not check_password(old_password, user.password):
-            return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
-
-
-        password_validator = ComplexPasswordValidator()
-        try:
-            password_validator.validate(new_password)
-        except ValidationError as e:
-            return JsonResponse({'error': e.messages[0]}, status=400)
-
-
-        user.password = make_password(new_password)
-
-
-    if 'avatar' in request.FILES:
-        avatar = request.FILES['avatar']
-        valid_image_extensions = ['png', 'jpg', 'jpeg']
-        ext = avatar.name.split('.')[-1].lower()
-        if ext not in valid_image_extensions:
-            return JsonResponse({'error': 'Seuls les fichiers PNG, JPG ou JPEG sont acceptés.'}, status=400)
-        user.avatar = avatar
-
-    elif 'selected_avatar' in data:
-        selected_avatar = data['selected_avatar']
-        print("Avatar sélectionné:", selected_avatar)
-
-        expected_prefix = 'assets/avatars/'
-        if selected_avatar.startswith(expected_prefix):
-            user.avatar = selected_avatar
-
-        else:
-
-            return JsonResponse({
-                'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
-            }, status=400)
+    logger.debug("====== Début update_profile_view ======")
+    logger.debug(f"Utilisateur: ID={request.user.id} | Username={request.user.username}")
+    logger.debug(f"Données reçues: {request.data}")
 
     try:
-        user.save()
+        user = request.user
+        data = request.data.copy()
+
+        # Traitement username
+        if 'username' in data:
+            new_username = data['username'].strip()
+            logger.debug(f"Tentative mise à jour username: '{new_username}'")
+            
+            if not new_username:
+                logger.warning("Username vide reçu")
+                return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+            
+            if len(new_username) > 30:
+                logger.warning(f"Username trop long: {len(new_username)} caractères")
+                return JsonResponse({'error': 'Le nom d\'utilisateur est trop long.'}, status=400)
+
+            if user.__class__.objects.filter(username=new_username).exclude(id=user.id).exists():
+                logger.warning(f"Username déjà existant: {new_username}")
+                return JsonResponse({'error': 'Ce nom d\'utilisateur est déjà pris.'}, status=400)
+
+            user.username = new_username
+            logger.debug(f"Username mis à jour: {new_username}")
+
+        # Traitement email
+        if 'email' in data:
+            new_email = data['email'].lower().strip()
+            
+            # Vérification de la longueur
+            if len(new_email) > 70:
+                return JsonResponse({
+                    'error': 'L\'adresse email ne peut pas dépasser 70 caractères.'
+                }, status=400)
+            
+            try:
+                validate_email(new_email)
+                if user.__class__.objects.filter(email=new_email).exclude(id=user.id).exists():
+                    return JsonResponse({
+                        'error': 'Cette adresse email est déjà utilisée.'
+                    }, status=400)
+                
+                user.email = new_email
+            except ValidationError:
+                return JsonResponse({
+                    'error': 'L\'adresse email est invalide.'
+                }, status=400)
+
+        # Traitement mot de passe
+        # Traitement mot de passe
+            if data.get('old_password') and data.get('new_password'):
+                logger.debug("Tentative changement mot de passe")
+                old_password = data.get('old_password')
+                new_password = data.get('new_password')
+                
+                if not check_password(old_password, user.password):
+                    logger.warning("Ancien mot de passe incorrect")
+                    return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
+
+                password_validator = ComplexPasswordValidator()
+                try:
+                    password_validator.validate(new_password)
+                    user.password = make_password(new_password)
+                    logger.debug("Mot de passe mis à jour avec succès")
+                except ValidationError as e:
+                    return JsonResponse({'error': str(e)}, status=400)
+
+
+        # Traitement avatar
+        if 'avatar' in request.FILES:
+            avatar = request.FILES['avatar']
+            logger.debug(f"Upload avatar: nom={avatar.name}, taille={avatar.size} bytes")
+            
+            try:
+                # Vérifier la taille
+                if avatar.size > 2 * 1024 * 1024:  # 2MB
+                    logger.warning(f"Avatar trop volumineux: {avatar.size} bytes")
+                    return JsonResponse({'error': 'L\'image est trop volumineuse (max 2MB).'}, status=400)
+
+                # Vérifier le type MIME
+                mime = magic.Magic(mime=True)
+                file_type = mime.from_buffer(avatar.read())
+                avatar.seek(0)
+                
+                allowed_types = ['image/jpeg', 'image/png']
+                logger.debug(f"Type de fichier détecté: {file_type}")
+                
+                if file_type not in allowed_types:
+                    logger.warning(f"Type de fichier non autorisé: {file_type}")
+                    return JsonResponse({'error': 'Format de fichier non autorisé. Utilisez JPG ou PNG.'}, status=400)
+
+                # Vérifier que c'est une vraie image
+                try:
+                    avatar.seek(0)
+                    validate_image_thoroughly(avatar)
+                    avatar.seek(0)
+                    
+                    # Vérifier les dimensions
+                    img = Image.open(avatar)
+                    if img.height > 2000 or img.width > 2000:
+                        logger.warning(f"Image trop grande: {img.width}x{img.height}")
+                        return JsonResponse({'error': 'Dimensions de l\'image trop grandes (max 2000x2000)'}, status=400)
+                    
+                    if img.height < 100 or img.width < 100:
+                        logger.warning(f"Image trop petite: {img.width}x{img.height}")
+                        return JsonResponse({'error': 'Dimensions de l\'image trop petites (min 100x100)'}, status=400)
+
+                except Exception as e:
+                    logger.error(f"Erreur de validation d'image: {str(e)}")
+                    return JsonResponse({'error': 'Fichier image corrompu ou invalide'}, status=400)
+
+                avatar.seek(0)
+                
+                # Sauvegarder le fichier validé
+                file_path = os.path.join('avatars', f"avatar_{user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+                user.avatar = default_storage.save(file_path, avatar)
+                logger.debug(f"Avatar sauvegardé: {file_path}")
+
+            except Exception as e:
+                logger.error(f"Erreur lors du traitement de l'avatar: {str(e)}")
+                return JsonResponse({'error': 'Erreur lors du traitement de l\'image'}, status=500)
+
+        elif 'selected_avatar' in data:
+            selected_avatar = data['selected_avatar']
+            print("Avatar sélectionné:", selected_avatar) 
+            
+            expected_prefix = 'assets/avatars/'
+            if selected_avatar.startswith(expected_prefix):
+                user.avatar = selected_avatar
+                
+            else:
+                
+                return JsonResponse({
+                    'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
+                }, status=400)
+
+        try:
+            user.save()  
+        except Exception as e:
+            return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+
+        # Sauvegarde des modifications
+        try:
+            user.save()
+            logger.debug("Sauvegarde utilisateur réussie")
+        except Exception as e:
+            logger.error(f"Erreur lors de la sauvegarde: {str(e)}", exc_info=True)
+            return JsonResponse({'error': 'Erreur lors de la sauvegarde des modifications.'}, status=500)
+
+        # Préparation réponse
+        avatar_url = None
+        if user.avatar:
+            if str(user.avatar).startswith('assets/avatars/'):
+                avatar_url = f"/static/{user.avatar}"
+            else:
+                avatar_url = f"/media/{user.avatar}"
+            logger.debug(f"URL avatar générée: {avatar_url}")
+
+        response_data = {
+            'username': user.username,
+            'email': user.email,
+            'avatar': avatar_url
+        }
+        
+        logger.debug(f"Réponse finale: {response_data}")
+        logger.debug("====== Fin update_profile_view - Succès ======")
+        return JsonResponse(response_data, status=200)
+
     except Exception as e:
+        logger.error("====== Erreur Critique ======")
+        logger.error(f"Type d'erreur: {type(e).__name__}")
+        logger.error(f"Message d'erreur: {str(e)}")
+        logger.error("Détails:", exc_info=True)
+        logger.error("====== Fin Erreur Critique ======")
         return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
-
-    avatar_url = None
-    if user.avatar:
-        if str(user.avatar).startswith('assets/avatars/'):
-            avatar_url = f"/static/{user.avatar}"
-        else:
-            avatar_url = f"/media/{user.avatar}"
-
-    print("URL de l'avatar renvoyée:", avatar_url)
-
-    return JsonResponse({
-        'username': user.username,
-        'email': user.email,
-        'avatar': avatar_url
-    }, status=200)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1050,57 +1269,117 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def record_game(request):
+#     data = request.data
+#     score_user = data.get('score_user')
+#     score_opponent = data.get('score_opponent')
+#     result = data.get('result')
+#     longest_rally = data.get('longest_rally', 0)  
+#     opponent_id = data.get('opponent_id')
+#     opponent_name = data.get('opponent_name', 'IA')
+#     max_ball_speed = data.get('max_ball_speed', 0)
+
+#     if max_ball_speed is None:
+#         return JsonResponse({'error': 'Données incorrectes : max_ball_speed manquant'}, status=400)
+
+
+#     if not all([score_user is not None, score_opponent is not None, result is not None]):
+#         return JsonResponse({'error': 'Données manquantes'}, status=400)
+
+#     opponent_user = None
+#     if opponent_id:
+#         try:
+#             opponent_user = CustomUser.objects.get(id=opponent_id)
+#         except CustomUser.DoesNotExist:
+#             return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
+
+    
+#     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
+#         Max('longest_rally')
+#     )['longest_rally__max'] or 0
+
+#     if longest_rally > user_longest_rally:
+#         print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
+
+#     user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
+
+#     if max_ball_speed > user_max_ball_speed:
+#         print(f"Mise à jour du max ball speed : {max_ball_speed} (ancien : {user_max_ball_speed})")
+
+#     game = GameHistory.objects.create(
+#         user=request.user,
+#         score_user=score_user,
+#         score_opponent=score_opponent,
+#         result=result,
+#         longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
+#         opponent_user=opponent_user,
+#         opponent_name=opponent_name if not opponent_user else None,
+#         max_ball_speed = max_ball_speed if max_ball_speed > user_max_ball_speed else user_max_ball_speed,
+#     )
+
+#     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def record_game(request):
     data = request.data
-    score_user = data.get('score_user')
-    score_opponent = data.get('score_opponent')
-    result = data.get('result')
-    longest_rally = data.get('longest_rally', 0)
+
+    # Validation des champs nécessaires
+    try:
+        score_user = int(data.get('score_user', None))
+        score_opponent = int(data.get('score_opponent', None))
+        result = bool(data.get('result', None))
+        longest_rally = int(data.get('longest_rally', 0))
+        max_ball_speed = int(data.get('max_ball_speed', 0))
+    except (ValueError, TypeError):
+        return JsonResponse({
+            'error': 'Les champs score_user, score_opponent, result, longest_rally, et max_ball_speed doivent contenir des valeurs valides.'
+        }, status=400)
+
+    # Vérification des données obligatoires
+    if score_user is None or score_opponent is None or result is None:
+        return JsonResponse({'error': 'Les champs score_user, score_opponent et result sont obligatoires.'}, status=400)
+
+    # Récupération de l'adversaire si fourni
+    opponent_user = None
     opponent_id = data.get('opponent_id')
     opponent_name = data.get('opponent_name', 'IA')
-    max_ball_speed = data.get('max_ball_speed', 0)
-
-    if max_ball_speed is None:
-        return JsonResponse({'error': 'Données incorrectes : max_ball_speed manquant'}, status=400)
-
-
-    if not all([score_user is not None, score_opponent is not None, result is not None]):
-        return JsonResponse({'error': 'Données manquantes'}, status=400)
-
-    opponent_user = None
     if opponent_id:
         try:
             opponent_user = CustomUser.objects.get(id=opponent_id)
         except CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
+            return JsonResponse({'error': 'Adversaire introuvable.'}, status=404)
 
-
+    # Calcul des statistiques utilisateur
     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
         Max('longest_rally')
     )['longest_rally__max'] or 0
 
-    if longest_rally > user_longest_rally:
-        print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
+    user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(
+        Max('max_ball_speed')
+    )['max_ball_speed__max'] or 0
 
-    user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
-
-    if max_ball_speed > user_max_ball_speed:
-        print(f"Mise à jour du max ball speed : {max_ball_speed} (ancien : {user_max_ball_speed})")
-
-    game = GameHistory.objects.create(
-        user=request.user,
-        score_user=score_user,
-        score_opponent=score_opponent,
-        result=result,
-        longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
-        opponent_user=opponent_user,
-        opponent_name=opponent_name if not opponent_user else None,
-        max_ball_speed = max_ball_speed if max_ball_speed > user_max_ball_speed else user_max_ball_speed,
-    )
+    # Création de la partie
+    try:
+        game = GameHistory.objects.create(
+            user=request.user,
+            score_user=score_user,
+            score_opponent=score_opponent,
+            result=result,
+            longest_rally=max(longest_rally, user_longest_rally),
+            max_ball_speed=max(max_ball_speed, user_max_ball_speed),
+            opponent_user=opponent_user,
+            opponent_name=opponent_name if not opponent_user else None,
+        )
+    except Exception as e:
+        logger.error(f"Erreur lors de la création du jeu : {str(e)}")
+        return JsonResponse({'error': 'Une erreur est survenue lors de l\'enregistrement de la partie.'}, status=500)
 
     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
 
 
 from django.http import JsonResponse
@@ -1195,25 +1474,89 @@ def get_user_statistics(request):
 
 from .models import FriendShip
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def send_friend_request(request):
+#     receiver_id = request.data.get('receiver_id')
+
+
+#     if not receiver_id:
+#         return JsonResponse({
+#             'message': 'Receiver ID is required'
+#         }, status=400)
+
+#     try:
+#         if str(request.user.id) == str(receiver_id):
+#             return JsonResponse({
+#                 'message': 'You cannot send a friend request to yourself'
+#             }, status=400)
+
+#         receiver = CustomUser.objects.get(id=receiver_id)
+
+#         existing_request = FriendShip.objects.filter(
+#             from_user=request.user,
+#             to_user=receiver
+#         ).first()
+
+#         if existing_request:
+#             if existing_request.status == 'pending':
+#                 return JsonResponse({
+#                     'message': 'A friend request is already pending'
+#                 }, status=400)
+#             elif existing_request.status == 'accepted':
+#                 return JsonResponse({
+#                     'message': 'You are already friends'
+#                 }, status=400)
+
+#         FriendShip.objects.create(
+#             from_user=request.user,
+#             to_user=receiver,
+#             status='pending'
+#         )
+
+#         return JsonResponse({
+#             'message': 'Friend request sent successfully'
+#         }, status=200)
+
+#     except CustomUser.DoesNotExist:
+#         return JsonResponse({
+#             'message': 'User not found'
+#         }, status=404)
+#     except Exception as e:
+#         print(f"Error in send_friend_request: {str(e)}")
+#         return JsonResponse({
+#             'message': 'An error occurred while processing the request'
+#         }, status=500)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
-    receiver_id = request.data.get('receiver_id')
-
-
-    if not receiver_id:
-        return JsonResponse({
-            'message': 'Receiver ID is required'
-        }, status=400)
-
     try:
-        if str(request.user.id) == str(receiver_id):
+        # Récupérer et valider le receiver_id
+        receiver_id = request.data.get('receiver_id')
+
+        if not receiver_id:
+            return JsonResponse({'message': 'Receiver ID is required'}, status=400)
+
+        # Vérifier que le receiver_id est un entier valide
+        try:
+            receiver_id = int(receiver_id)
+        except ValueError:
+            return JsonResponse({'message': 'Invalid Receiver ID'}, status=400)
+
+        if request.user.id == receiver_id:
             return JsonResponse({
                 'message': 'You cannot send a friend request to yourself'
             }, status=400)
 
-        receiver = CustomUser.objects.get(id=receiver_id)
+        # Vérifier si l'utilisateur existe
+        try:
+            receiver = CustomUser.objects.get(id=receiver_id)
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'message': 'User not found'}, status=404)
 
+        # Vérifier les demandes existantes
         existing_request = FriendShip.objects.filter(
             from_user=request.user,
             to_user=receiver
@@ -1221,33 +1564,24 @@ def send_friend_request(request):
 
         if existing_request:
             if existing_request.status == 'pending':
-                return JsonResponse({
-                    'message': 'A friend request is already pending'
-                }, status=400)
+                return JsonResponse({'message': 'A friend request is already pending'}, status=400)
             elif existing_request.status == 'accepted':
-                return JsonResponse({
-                    'message': 'You are already friends'
-                }, status=400)
+                return JsonResponse({'message': 'You are already friends'}, status=400)
 
+        # Créer la demande d'ami
         FriendShip.objects.create(
             from_user=request.user,
             to_user=receiver,
             status='pending'
         )
 
-        return JsonResponse({
-            'message': 'Friend request sent successfully'
-        }, status=200)
+        return JsonResponse({'message': 'Friend request sent successfully'}, status=200)
 
-    except CustomUser.DoesNotExist:
-        return JsonResponse({
-            'message': 'User not found'
-        }, status=404)
     except Exception as e:
-        print(f"Error in send_friend_request: {str(e)}")
-        return JsonResponse({
-            'message': 'An error occurred while processing the request'
-        }, status=500)
+        # Loguer l'erreur et répondre avec un message générique
+        logger.error(f"Error in send_friend_request: {str(e)}")
+        return JsonResponse({'message': 'An error occurred while processing the request'}, status=500)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1382,6 +1716,7 @@ def get_game_settings(request):
         return JsonResponse(data, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
 
 
 from rest_framework.decorators import api_view, permission_classes

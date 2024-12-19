@@ -244,14 +244,6 @@ document.addEventListener("DOMContentLoaded", function () {
         ],
         true
       );
-    } else if (path === "/home") {
-      loadComponent(
-        "/static/spa/new_home/new_home.html",
-        "/static/spa/new_home/new_home.css",
-        ["/static/spa/new_home/new_home.js"]
-      ).then(() => {
-        initializeHome();
-      });
     } else if (path === "/profil") {
       loadComponent(
         "/static/spa/profil/profil.html",
@@ -285,8 +277,16 @@ document.addEventListener("DOMContentLoaded", function () {
       ).then(() => {
         initializeSettingsPage();
       });
-    } else {
-      appDiv.innerHTML = "<p>Page non trouvée.</p>";
+    } else 
+      {
+        navigateTo("/home");
+        loadComponent(
+          "/static/spa/new_home/new_home.html",
+          "/static/spa/new_home/new_home.css",
+          ["/static/spa/new_home/new_home.js"]
+        ).then(() => {
+          initializeHome();
+        });
     }
   };
 

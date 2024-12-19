@@ -69,6 +69,63 @@ class JWTAuthMiddleware(MiddlewareMixin):
         return response
 
 
+from django.http import JsonResponse
+import re
+
+class AntiInjectionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Intercepter seulement les requêtes POST
+        if request.method == 'POST' and request.path in ["/register/", "/login/"]:
+            # Valider les données POST
+            validation_error = self.validate_input(request.POST)
+            if validation_error:
+                # Retourner une erreur si des injections sont détectées
+                return JsonResponse({
+                    "success": False,
+                    "message": f"Entrée invalide détectée : {validation_error}"
+                }, status=400)
+
+        # Continuer le traitement normal si tout est OK
+        return self.get_response(request)
+
+    def validate_input(self, data):
+        """
+        Valide les champs pour détecter des motifs d'injection.
+        """
+        for field, value in data.items():
+            if not isinstance(value, str):  # Ignorer les champs non textuels
+                continue
+
+            # Vérifier si l'entrée contient des caractères ou motifs suspects
+            if self.contains_injection(value):
+                return f"Le champ '{field}' contient une valeur invalide."
+
+        return None
+
+    def contains_injection(self, value):
+        """
+        Vérifie si une valeur contient des motifs communs d'injection.
+        """
+        # Motifs suspects : SQL, XSS ou shell injections
+        patterns = [
+            r"(?i)select\s.*from",       # Requêtes SQL
+            r"(?i)union\s.*select",     # UNION SQL injection
+            r"(?i)drop\s.*table",       # DROP TABLE
+            r"<script.*?>.*?</script>", # XSS
+            r"(on\w+\s*=\s*['\"].*?['\"])", # Attributs d'événements XSS
+            r"['\";`]|--",              # Caractères communs pour SQL injection
+        ]
+
+        for pattern in patterns:
+            if re.search(pattern, value):
+                return True
+
+        return False
+
+
 
 # class JWTAuthFromCookieMiddleware(MiddlewareMixin):
 #     def process_request(self, request):
