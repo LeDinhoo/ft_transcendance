@@ -56,7 +56,7 @@ A ete fait sur cette branche en + :
 
 
 
+MERGE CLEM ET HENRIK FIX 
 
-HENRIK 
-
-- rajouter la fonction pour update online players lors du premier appelle a new_home js
+- CSS POP UP INVITE GAME GENERAL
+- PARSING PM USER -> USER2..
