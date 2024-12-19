@@ -165,8 +165,8 @@
       "2": "2",
       "3": "3"
     },
-    "saveButton": "Save",
-    "saveKeyboardButton": "Save keyboard",
+    "saveButton": "SAVE",
+    "saveKeyboardButton": "SAVE",
     "playerTitle": {
       "player1": "Player 1",
       "player2": "Player 2"
@@ -187,8 +187,8 @@
     "score": "Score",
     "players4": "4 Players",
     "players8": "8 Players",
-    "playButton": "Play",
-    "resetButton": "Reset Tournament",
+    "playButton": "PLAY",
+    "resetButton": "RESET TOURNAMENT",
     "config": {
       "title": "Tournament Configuration"
     },
@@ -199,21 +199,27 @@
       "label": "Bot",
       "name": "Bot Player {0}"
     },
-    "startButton": "Start",
+    "startButton": "START",
+    "complete": "Tournament Complete",
+    "winAnnouncement": "WON THE GAME",
     "winner": {
       "name": "Winner's Name"
     },
     "victory": {
       "score": "Victory Score"
     },
-    "nextMatch": "Next Match",
+    "launchMatch": "LAUNCH MATCH",
+    "launchFinal": "LAUNCH FINAL",
+    "launchSemiFinal": "LAUNCH SEMI-FINAL",
+    "nextMatch": "NEXT MATCH",
+    "botMatch": "SIMULATE BOT MATCH",
     "champion": {
-      "title": "Tournament Champion",
+      "title": "TOURNAMENT CHAMPION",
       "name": "Champion's Name"
     },
     "final": {
       "score": "Final Score"
     },
-    "finishTournament": "Finish Tournament"
+    "finishTournament": "FINISH TOURNAMENT"
   }
 }

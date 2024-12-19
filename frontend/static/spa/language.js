@@ -33,6 +33,7 @@ async function getLanguageFromAPI() {
 // Fonction pour sauvegarder la langue via l'API
 async function setLanguageInAPI(language) {
   try {
+    console.log("Saving language preference:", language);
     const response = await fetch("/api/language/set/", {
       method: "POST",
       credentials: "include",
@@ -51,12 +52,12 @@ async function setLanguageInAPI(language) {
 
 async function loadTranslations(language) {
   console.log("Loading translations for:", language);
-  if (loadedTranslations[language]) {
-    // Si les traductions sont déjà chargées, les appliquer directement
-    console.log("Translations already loaded");
-    applyTranslations(loadedTranslations[language]);
-    return;
-  }
+  // if (loadedTranslations[language]) {
+  //   // Si les traductions sont déjà chargées, les appliquer directement
+  //   console.log("Translations already loaded");
+  //   applyTranslations(loadedTranslations[language]);
+  //   return;
+  // }
 
   try {
     console.log("Fetching translations from server");
@@ -70,6 +71,7 @@ async function loadTranslations(language) {
 
     // Sauvegarder la langue selon le contexte
     if (isLoginPage()) {
+      console.log("Saving language preference to localStorage :", language);
       localStorage.setItem("preferredLanguage", language);
     } else {
       await setLanguageInAPI(language);
@@ -103,6 +105,36 @@ async function loadTranslations(language) {
 //     });
 // }
 
+// function applyTranslations(translations) {
+//   document.querySelectorAll("[data-translate]").forEach((element) => {
+//     const translationKey = element.getAttribute("data-translate");
+//     const params = element.getAttribute("data-translate-params")?.split(",");
+//     let translatedText = getNestedTranslation(translationKey, translations);
+
+//     if (params && translatedText) {
+//       params.forEach((param, index) => {
+//         translatedText = translatedText.replace(`{${index}}`, param);
+//       });
+//     }
+
+//     if (translatedText) {
+//       // Vérifier si l'élément est un input avec un placeholder
+//       if (element.tagName === "INPUT" && element.hasAttribute("placeholder")) {
+//         element.setAttribute("placeholder", translatedText);
+//       }
+//       if (element.tagName === "INPUT") {
+//         // Pour les autres inputs : valeur
+//         element.value = translatedText;
+//       } else {
+//         // Pour les autres éléments : texte brut
+//         element.textContent = translatedText;
+//       }
+//     } else {
+//       console.warn(`No translation found for key: ${translationKey}`);
+//     }
+//   });
+// }
+
 function applyTranslations(translations) {
   document.querySelectorAll("[data-translate]").forEach((element) => {
     const translationKey = element.getAttribute("data-translate");
@@ -116,16 +148,29 @@ function applyTranslations(translations) {
     }
 
     if (translatedText) {
-      // Vérifier si l'élément est un input avec un placeholder
-      if (element.tagName === "INPUT" && element.hasAttribute("placeholder")) {
-        element.setAttribute("placeholder", translatedText);
-      }
+      // Gérer les inputs avec placeholder
       if (element.tagName === "INPUT") {
-        // Pour les autres inputs : valeur
+        if (element.hasAttribute("placeholder")) {
+          element.setAttribute("placeholder", translatedText);
+        }
         element.value = translatedText;
       } else {
-        // Pour les autres éléments : texte brut
-        element.textContent = translatedText;
+        // Pour les autres éléments
+        const svgElement = element.querySelector("svg");
+
+        // Supprimer les anciens nœuds texte
+        element.childNodes.forEach((node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            node.remove();
+          }
+        });
+
+        // Insérer le texte après le dernier enfant
+        if (svgElement) {
+          svgElement.insertAdjacentText("afterend", ` ${translatedText}`);
+        } else {
+          element.insertAdjacentText("beforeend", translatedText);
+        }
       }
     } else {
       console.warn(`No translation found for key: ${translationKey}`);

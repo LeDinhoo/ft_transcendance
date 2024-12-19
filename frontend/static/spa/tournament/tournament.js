@@ -668,11 +668,6 @@ function initializeTournamentPage() {
 
     // Tronquer les pseudos déjà affichés
     truncateNicknames();
-
-    language = getLanguageFromAPI();
-    language.then((value) => {
-      setPreferredLanguage(value);
-    });
   }
 
   // function setupBotCheckboxListeners() {
@@ -714,6 +709,21 @@ function initializeTournamentPage() {
 
       // Fonction pour mettre à jour l'état du bot
       const updateBotState = (isBot) => {
+        language.then((value) => {
+          fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to load translations");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              translations = data;
+            })
+            .catch((error) => {
+              console.error("Error loading translations:", error);
+            });
+        });
         if (isBot) {
           input.classList.add("bot-active");
           input.readOnly = true;
@@ -730,8 +740,8 @@ function initializeTournamentPage() {
           input.value = "";
           input.placeholder = placeholder;
         }
-        console.log("name:",translations.tournament.bot.name);
-        console.log("place",translations.tournament.input.placeholder);
+        console.log("name:", translations.tournament.bot.name);
+        console.log("place", translations.tournament.input.placeholder);
       };
 
       // Initialiser l'état de la case à cocher
@@ -739,14 +749,29 @@ function initializeTournamentPage() {
 
       // Écouteur pour le changement d'état
       checkbox.addEventListener("change", (e) => {
+        language.then((value) => {
+          fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to load translations");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              translations = data;
+            })
+            .catch((error) => {
+              console.error("Error loading translations:", error);
+            });
+        });
         updateBotState(e.target.checked);
       });
     });
 
-    language = getLanguageFromAPI();
-    language.then((value) => {
-      setPreferredLanguage(value);
-    });
+    // language = getLanguageFromAPI();
+    // language.then((value) => {
+    //   setPreferredLanguage(value);
+    // });
   }
 
   function truncateNicknames() {
@@ -1150,6 +1175,24 @@ function initializeTournamentPage() {
     // Bloquer la barre d'espace pendant l'exécution de la fonction
     gameManager.blockSpacebar(true);
 
+    //recuperer la langue
+    language = getLanguageFromAPI();
+    language.then((value) => {
+      fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to load translations");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          translations = data;
+        })
+        .catch((error) => {
+          console.error("Error loading translations:", error);
+        });
+    });
+
     const playerCount = getSelectedPlayerCount();
     const lastMatchIndex = playerCount === 4 ? 3 : 7;
     const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
@@ -1161,7 +1204,7 @@ function initializeTournamentPage() {
     if (isLastMatch) {
       // remove the button
       playButton.innerHTML = `
-        <span class="button-text">Tournament Complete!</span>
+        <span class="button-text" data-translate="tournament.complete">Tournament Complete!</span>
       `;
       playButton.classList.add("tournament-complete");
       playButton.disabled = true;
@@ -1195,7 +1238,7 @@ function initializeTournamentPage() {
               <svg>
           <use href="/static/assets/icons/sprite.svg#play"></use>
       </svg>
-      SIMULATE BOTS MATCH
+      ${translations.tournament.botMatch}
       `;
       playButton.disabled = false;
 
@@ -1204,11 +1247,11 @@ function initializeTournamentPage() {
       return;
     }
 
-    let matchText = "LAUNCH MATCH";
+    let matchText = translations.tournament.launchMatch;
     if (tournamentState.currentMatch === lastMatchIndex - 1) {
-      matchText = "LAUNCH FINAL";
+      matchText = translations.tournament.launchFinal;
     } else if (playerCount === 8 && tournamentState.currentMatch >= 4) {
-      matchText = "LAUNCH SEMI-FINAL";
+      matchText = translations.tournament.launchSemiFinal;
     }
 
     playButton.innerHTML = `
@@ -1301,6 +1344,11 @@ function initializeTournamentPage() {
   // const playButton = document.querySelector(".buttonPlay");
   if (playButton) {
     playButton.addEventListener("click", () => {
+      language = getLanguageFromAPI();
+      console.log("language:", language);
+      language.then((value) => {
+        setPreferredLanguage(value);
+      });
       if (!tournamentState.isStarted) {
         const playerCount = getSelectedPlayerCount();
         openTournamentConfig(playerCount);
@@ -1391,6 +1439,25 @@ function initializeTournamentPage() {
 
   function showMatchVictory(winner, score1, score2) {
     // Bloquer la barre d'espace lorsqu'on affiche l'écran de victoire
+
+    // Récupérer la langue
+    language = getLanguageFromAPI();
+    language.then((value) => {
+      fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to load translations");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          translations = data;
+        })
+        .catch((error) => {
+          console.error("Error loading translations:", error);
+        });
+    });
+
     gameManager.blockSpacebar(true);
 
     const overlay = document.querySelector(".victory-overlay");
@@ -1399,7 +1466,7 @@ function initializeTournamentPage() {
     const continueBtn = overlay.querySelector(".continue-btn");
 
     winnerNameElement.textContent = winner.name;
-    scoreElement.innerHTML = `WON THE GAME`;
+    scoreElement.innerHTML = `${translations.tournament.winAnnouncement}`;
 
     overlay.classList.add("show");
 

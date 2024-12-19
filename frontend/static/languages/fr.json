@@ -1,6 +1,6 @@
 {
   "login": {
-    "title": "Rejoindre la Bataille",
+    "title": "Rejoignez la Bataille",
     "emailLabel": "E-mail",
     "passwordLabel": "Mot de passe",
     "submitButton": "Se connecter",
@@ -24,11 +24,11 @@
     },
     "game": {
       "classic": "PONG CLASSIQUE",
-      "power": "PONG PUISSANT"
+      "power": "POWER PONG"
     },
     "mode": {
       "versus": "1 CONTRE 1",
-      "ai": "CONTRE IA",
+      "ai": "CONTRE L'IA",
       "online": "EN LIGNE",
       "tournament": "TOURNOI"
     },
@@ -54,7 +54,7 @@
     },
     "tooltips": {
       "profil": {
-        "title": "Profil",
+        "title": "profil",
         "info": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations"
       },
       "ranking": {
@@ -69,8 +69,8 @@
       "addFriend": "Ajouter une demande d'ami"
     },
     "errors": {
-      "templateNotFound": "Modèle d'invitation au jeu introuvable",
-      "selectGameAndMode": "Veuillez sélectionner à la fois un type de jeu et un mode !"
+      "templateNotFound": "Modèle d'invitation de jeu introuvable",
+      "selectGameAndMode": "Veuillez sélectionner un type de jeu et un mode !"
     },
     "status": {
       "loading": "Chargement du jeu...",
@@ -80,7 +80,7 @@
     }
   },
   "profil": {
-    "nickname": "Surnom",
+    "nickname": "Pseudonyme",
     "rank_bronze": "Bronze",
     "rank_silver": "Argent",
     "rank_gold": "Or",
@@ -91,24 +91,24 @@
     "defeat": "Défaite",
     "no_friend_requests": "Aucune demande d'ami en attente",
     "accept": "Accepter",
-    "reject": "Rejeter",
+    "reject": "Refuser",
     "account_settings": "Paramètres du compte",
     "username": "Nom d'utilisateur",
     "email": "E-mail",
     "password": "Mot de passe",
     "new_password": "Nouveau mot de passe",
     "confirm_new_password": "Confirmer le nouveau mot de passe",
-    "save_changes": "Enregistrer les modifications",
-    "friend_requests": "Demandes d'amis",
+    "save_changes": "Sauvegarder les modifications",
+    "friend_requests": "Demandes d'ami",
     "gamesPlayed": "Parties jouées",
-    "winRatio": "Taux de victoire",
+    "winRatio": "Ratio de victoires",
     "longestRally": "Plus long échange",
     "topSpeed": "Vitesse maximale",
-    "enable_2fa": "Activer la 2FA",
+    "enable_2fa": "Activer l'A2F",
     "confirm": "Confirmer",
     "verification_code": "Code de vérification",
     "avatar_upload": "Télécharger",
-    "avatar_select": "Sélectionner un avatar",
+    "avatar_select": "Sélectionner l'avatar",
     "avatar_apply": "Appliquer",
     "avatar_cancel": "Annuler"
   },
@@ -119,14 +119,14 @@
     },
     "label": {
       "scoreToWin": "Score pour gagner",
-      "aiDifficulty": "Difficulté IA",
-      "powerEnabled": "Pouvoir activé",
-      "ballSpeedStart": "Vitesse de balle initiale",
-      "ballSpeedMax": "Vitesse de balle maximale",
-      "speedIncrease": "Augmentation de vitesse",
+      "aiDifficulty": "Difficulté de l'IA",
+      "powerEnabled": "Power-ups activés",
+      "ballSpeedStart": "Vitesse initiale de la balle",
+      "ballSpeedMax": "Vitesse maximale de la balle",
+      "speedIncrease": "Augmentation de la vitesse",
       "moveUp": "Monter",
       "moveDown": "Descendre",
-      "launchPower": "Lancer le pouvoir"
+      "launchPower": "Lancer le power-up"
     },
     "scoreOption": {
       "2": "2",
@@ -165,8 +165,8 @@
       "2": "2",
       "3": "3"
     },
-    "saveButton": "Enregistrer",
-    "saveKeyboardButton": "Enregistrer",
+    "saveButton": "SAUVEGARDER",
+    "saveKeyboardButton": "SAUVEGARDER",
     "playerTitle": {
       "player1": "Joueur 1",
       "player2": "Joueur 2"
@@ -174,46 +174,52 @@
     "key": {
       "moveUp": "Monter",
       "moveDown": "Descendre",
-      "launchPower": "Lancer le pouvoir"
+      "launchPower": "Lancer le power-up"
     }
   },
   "tournament": {
     "match": {
-      "number": "Match Numéro"
+      "number": "Numéro du match"
     },
     "player": {
-      "nickname": "Surnom"
+      "nickname": "Pseudonyme"
     },
     "score": "Score",
     "players4": "4 Joueurs",
     "players8": "8 Joueurs",
-    "playButton": "Jouer",
-    "resetButton": "Réinitialiser le Tournoi",
+    "playButton": "JOUER",
+    "resetButton": "RÉINITIALISER LE TOURNOI",
     "config": {
       "title": "Configuration du tournoi"
     },
     "input": {
-      "placeholder": "Entrez un pseudo"
+      "placeholder": "Entrez un pseudonyme"
     },
     "bot": {
-      "label": "Robot",
-	  "name": "Joueur Robot {0}"
+      "label": "Bot",
+      "name": "Bot Joueur {0}"
     },
-    "startButton": "Démarrer",
+    "startButton": "COMMENCER",
+    "complete": "Tournoi Terminé",
+    "winAnnouncement": "A GAGNÉ LA PARTIE",
     "winner": {
       "name": "Nom du gagnant"
     },
     "victory": {
       "score": "Score de victoire"
     },
-    "nextMatch": "Prochain match",
+    "launchMatch": "LANCER LE MATCH",
+    "launchFinal": "LANCER LA FINALE",
+    "launchSemiFinal": "LANCER LA DEMI-FINALE",
+    "nextMatch": "MATCH SUIVANT",
+    "botMatch": "SIMULER LE MATCH DE BOT",
     "champion": {
-      "title": "Champion du Tournoi",
-      "name": "Nom du Champion"
+      "title": "CHAMPION DU TOURNOI",
+      "name": "Nom du champion"
     },
     "final": {
       "score": "Score final"
     },
-    "finishTournament": "Terminer le Tournoi"
+    "finishTournament": "TERMINER LE TOURNOI"
   }
 }
