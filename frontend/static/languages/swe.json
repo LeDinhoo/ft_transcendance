@@ -3,114 +3,94 @@
     "title": "Gå med i Striden",
     "emailLabel": "E-post",
     "passwordLabel": "Lösenord",
-    "submitButton": "Logga in",
+    "submitButton": "Logga In",
     "registerButton": "Registrera",
     "emailError": "Ogiltig e-postadress.",
-    "passwordError": "Lösenordet får inte vara tomt."
+    "passwordError": "Lösenord får inte vara tomt."
   },
   "register": {
     "title": "Skapa Konto",
     "usernameLabel": "Användarnamn",
     "emailLabel": "E-post",
     "passwordLabel": "Lösenord",
-    "confirmPasswordLabel": "Bekräfta Lösenord",
+    "confirmPasswordLabel": "Bekräfta lösenord",
     "submitButton": "Registrera",
-    "signUpButton": "Registrera dig"
+    "signUpButton": "Registrera"
   },
-  "home": {
-    "titles": {
-      "game": "SPEL",
-      "mode": "LÄGE"
-    },
-    "game": {
-      "classic": "KLASSISK PONG",
-      "power": "POWER PONG"
-    },
-    "mode": {
-      "versus": "1 MOT 1",
-      "ai": "MOT AI",
-      "online": "ONLINE",
-      "tournament": "TURNERING"
-    },
-    "online": {
-      "players": "Spelare online"
-    },
-    "chat": {
-      "blockedMessage": "Meddelande blockerat",
-      "clickForOptions": "Klicka för alternativ",
-      "userTyping": "{username} skriver...",
-      "title": "Live-chatt"
-    },
-    "notifications": {
-      "friendRequest": {
-        "noUser": "Kan inte skicka vänförfrågan: Användar-ID hittades inte",
-        "selfRequest": "Du kan inte skicka en vänförfrågan till dig själv",
-        "success": "Vänförfrågan skickades framgångsrikt",
-        "error": "Fel vid skickande av vänförfrågan"
-      }
-    },
-    "buttons": {
-      "play": "SPELA"
-    },
-    "tooltips": {
-      "profil": {
-        "title": "profil",
-        "info": "Du kan klicka på profilsektionen i navigeringsfältet för att uppdatera din information"
-      },
-      "ranking": {
-        "title": "Rankingsystem",
-        "bronze": "Brons: 0 - 5 segrar",
-        "silver": "Silver: 5 - 10 segrar",
-        "gold": "Guld: minst 10 segrar"
-      }
-    },
-    "context": {
-      "profil": "Se profil",
-      "addFriend": "Lägg till vänförfrågan"
-    },
-    "errors": {
-      "templateNotFound": "Spelintitationsmall hittades inte",
-      "selectGameAndMode": "Välj både speltyp och läge!"
-    },
-    "status": {
-      "loading": "Laddar spel...",
-      "focus": "Ställer in fokus på spel",
-      "initialized": "Spelet är redan initierat",
-      "winner": "Vinnaren är: {winner}"
-    }
+  "newhome": {
+    "nickname": "Smeknamn",
+    "rankText": "Rang",
+    "onlinePlayers": "Spelare Online",
+    "gameTitle": "SPEL",
+    "classicPong": "KLASSISK PONG",
+    "powerPong": "ANPASSAD PONG",
+    "modeTitle": "LÄGE",
+    "1vs1": "1 MOT 1",
+    "againstAI": "MOT AI",
+    "tournament": "TURNERING",
+    "chatTitle": "Livechatt",
+    "messagePlaceholder": "Meddelande",
+    "play": "SPELA",
+    "close": "Stäng",
+    "profileNickname": "Profilens Smeknamn",
+    "profileRankText": "Profilens Rang",
+    "gamesPlayed": "Spelade Matcher",
+    "winRate": "Vinstprocent",
+    "longestRally": "Längsta Rally",
+    "topSpeed": "Högsta Hastighet",
+    "recentGames": "Senaste Matcher",
+    "bronze": "Brons",
+    "silver": "Silver",
+    "gold": "Guld",
+    "platine": "Platina",
+    "avatarTooltip": "Avatar Tipsruta",
+    "tooltipTitle": "Profil",
+    "tooltipContent": "Du kan klicka på profilsektionen i navigationsfältet för att uppdatera din information",
+    "rankTooltip": "Rankning Tipsruta",
+    "rankTooltipTitle": "Rankningssystem",
+    "rankBronze": "Brons: 0-33% Vinstprocent",
+    "rankSilver": "Silver: 33-66% Vinstprocent",
+    "rankGold": "Guld: 66-100% Vinstprocent"
+  },
+  "twoStepVerification": {
+    "title": "Tvåstegsverifiering",
+    "codeSent": "En kod har skickats till din e-postadress",
+    "timer": "Koden gäller i:",
+    "verifyButton": "Verifiera",
+    "errorMessage": "Ett fel uppstod. Försök igen."
   },
   "profil": {
     "nickname": "Smeknamn",
-    "rank_bronze": "Brons",
-    "rank_silver": "Silver",
-    "rank_gold": "Guld",
-    "rank_Platinum": "Platina",
-    "modify": "Ändra",
+    "rank": "Rang",
+    "upload": "Ladda Upp",
+    "avatar": "Avatar",
+    "chooseAvatar": "Välj din avatar",
     "cancel": "Avbryt",
-    "match_history": "Matchhistorik",
-    "defeat": "Förlust",
-    "no_friend_requests": "Inga väntande vänförfrågningar",
-    "accept": "Acceptera",
-    "reject": "Avvisa",
-    "account_settings": "Kontoinställningar",
+    "apply": "Tillämpa",
+    "enable2FA": "Aktivera 2FA",
+    "verificationCode": "Verifieringskod",
+    "confirm": "Bekräfta",
+    "accountSettings": "Kontoinställningar",
     "username": "Användarnamn",
     "email": "E-post",
     "password": "Lösenord",
-    "new_password": "Nytt lösenord",
-    "confirm_new_password": "Bekräfta nytt lösenord",
-    "save_changes": "Spara ändringar",
-    "friend_requests": "Vänförfrågningar",
-    "gamesPlayed": "Spelade matcher",
+    "newPassword": "Nytt lösenord",
+    "confirmNewPassword": "Bekräfta nytt lösenord",
+    "modify": "Ändra",
+    "modifyButton": "Ändra",
+    "saveButton": "Spara Ändringar",
+    "friendRequests": "Vänförfrågningar",
+    "matchHistory": "Matchhistorik",
+    "gamesPlayed": "Spelade Matcher",
     "winRatio": "Vinstförhållande",
-    "longestRally": "Längsta rally",
-    "topSpeed": "Tophastighet",
-    "enable_2fa": "Aktivera 2FA",
-    "confirm": "Bekräfta",
-    "verification_code": "Verifieringskod",
-    "avatar_upload": "Ladda upp",
-    "avatar_select": "Välj avatar",
-    "avatar_apply": "Tillämpa",
-    "avatar_cancel": "Avbryt"
+    "longestRally": "Längsta Rally",
+    "topSpeed": "Högsta Hastighet",
+    "victory": "SEGER",
+    "defeat": "FÖRLUST",
+    "bronze": "Brons",
+    "silver": "Silver",
+    "gold": "Guld",
+    "platine": "Platina"
   },
   "settings": {
     "title": {
@@ -118,15 +98,15 @@
       "shortcut": "Genväg"
     },
     "label": {
-      "scoreToWin": "Poäng för vinst",
-      "aiDifficulty": "AI-svårighet",
-      "powerEnabled": "Power-ups aktiverade",
-      "ballSpeedStart": "Initial bollhastighet",
-      "ballSpeedMax": "Maximal bollhastighet",
+      "scoreToWin": "Poäng för att vinna",
+      "aiDifficulty": "AI Svårighetsgrad",
+      "powerEnabled": "Förmåga aktiverad",
+      "ballSpeedStart": "Startfart för boll",
+      "ballSpeedMax": "Maxfart för boll",
       "speedIncrease": "Hastighetsökning",
       "moveUp": "Flytta upp",
       "moveDown": "Flytta ner",
-      "launchPower": "Använd power-up"
+      "launchPower": "Aktivera förmåga"
     },
     "scoreOption": {
       "2": "2",
@@ -137,12 +117,12 @@
     },
     "difficulty": {
       "easy": "LÄTT",
-      "medium": "MEDEL",
-      "hard": "SVÅR"
+      "medium": "MEDELSVÅRT",
+      "hard": "SVÅRT"
     },
     "powerup": {
       "flash": "BLIXT",
-      "inverse": "INVERTERA",
+      "inverse": "OMVÄND",
       "tornado": "TORNADO"
     },
     "ballSpeedStart": {
@@ -174,7 +154,7 @@
     "key": {
       "moveUp": "Flytta upp",
       "moveDown": "Flytta ner",
-      "launchPower": "Använd power-up"
+      "launchPower": "Aktivera förmåga"
     }
   },
   "tournament": {
@@ -190,7 +170,7 @@
     "playButton": "SPELA",
     "resetButton": "ÅTERSTÄLL TURNERING",
     "config": {
-      "title": "Turneringskonfiguration"
+      "title": "Turneringsinställningar"
     },
     "input": {
       "placeholder": "Ange ett smeknamn"
@@ -200,25 +180,25 @@
       "name": "Bot Spelare {0}"
     },
     "startButton": "STARTA",
-    "complete": "Turnering Avslutad",
-    "winAnnouncement": "VANN SPELET",
+    "complete": "Turnering Slutförd",
+    "winAnnouncement": "VANN MATCHEN",
     "winner": {
-      "name": "Vinnarens namn"
+      "name": "Vinnarens Namn"
     },
     "victory": {
-      "score": "Vinnarpoäng"
+      "score": "Segerscore"
     },
     "launchMatch": "STARTA MATCH",
     "launchFinal": "STARTA FINAL",
     "launchSemiFinal": "STARTA SEMIFINAL",
     "nextMatch": "NÄSTA MATCH",
-    "botMatch": "SIMULERA BOT-MATCH",
+    "botMatch": "SIMULERA BOT MATCH",
     "champion": {
-      "title": "TURNERINGSMÄSTARE",
-      "name": "Mästarens namn"
+      "title": "TURNERINGSVINNARE",
+      "name": "Vinnarens Namn"
     },
     "final": {
-      "score": "Slutpoäng"
+      "score": "Finalscore"
     },
     "finishTournament": "AVSLUTA TURNERING"
   }

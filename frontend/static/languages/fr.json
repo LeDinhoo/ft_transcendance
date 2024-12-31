@@ -3,115 +3,88 @@
     "title": "Rejoignez la Bataille",
     "emailLabel": "E-mail",
     "passwordLabel": "Mot de passe",
-    "submitButton": "Se connecter",
+    "submitButton": "Se Connecter",
     "registerButton": "S'inscrire",
     "emailError": "Adresse e-mail invalide.",
     "passwordError": "Le mot de passe ne peut pas être vide."
   },
   "register": {
-    "title": "Créer un compte",
+    "title": "Créer un Compte",
     "usernameLabel": "Nom d'utilisateur",
     "emailLabel": "E-mail",
     "passwordLabel": "Mot de passe",
     "confirmPasswordLabel": "Confirmer le mot de passe",
     "submitButton": "S'inscrire",
-    "signUpButton": "S'enregistrer"
+    "signUpButton": "Créer un Compte"
   },
-  "home": {
-    "titles": {
-      "game": "JEU",
-      "mode": "MODE"
-    },
-    "game": {
-      "classic": "PONG CLASSIQUE",
-      "power": "POWER PONG"
-    },
-    "mode": {
-      "versus": "1 CONTRE 1",
-      "ai": "CONTRE L'IA",
-      "online": "EN LIGNE",
-      "tournament": "TOURNOI"
-    },
-    "online": {
-      "players": "Joueurs en ligne"
-    },
-    "chat": {
-      "blockedMessage": "Message bloqué",
-      "clickForOptions": "Cliquez pour les options",
-      "userTyping": "{username} est en train d'écrire...",
-      "title": "Chat en direct"
-    },
-    "notifications": {
-      "friendRequest": {
-        "noUser": "Impossible d'envoyer la demande d'ami : ID utilisateur introuvable",
-        "selfRequest": "Vous ne pouvez pas vous envoyer une demande d'ami",
-        "success": "Demande d'ami envoyée avec succès",
-        "error": "Erreur lors de l'envoi de la demande d'ami"
-      }
-    },
-    "buttons": {
-      "play": "JOUER"
-    },
-    "tooltips": {
-      "profil": {
-        "title": "profil",
-        "info": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations"
-      },
-      "ranking": {
-        "title": "Système de classement",
-        "bronze": "Bronze : 0 - 5 victoires",
-        "silver": "Argent : 5 - 10 victoires",
-        "gold": "Or : au moins 10 victoires"
-      }
-    },
-    "context": {
-      "profil": "Voir le profil",
-      "addFriend": "Ajouter une demande d'ami"
-    },
-    "errors": {
-      "templateNotFound": "Modèle d'invitation de jeu introuvable",
-      "selectGameAndMode": "Veuillez sélectionner un type de jeu et un mode !"
-    },
-    "status": {
-      "loading": "Chargement du jeu...",
-      "focus": "Mise au point sur le jeu",
-      "initialized": "Le jeu est déjà initialisé",
-      "winner": "Le gagnant est : {winner}"
-    }
+  "newhome": {
+    "nickname": "Pseudo",
+    "rankText": "Rang",
+    "onlinePlayers": "Joueurs en ligne",
+    "gameTitle": "JEU",
+    "classicPong": "PONG CLASSIQUE",
+    "powerPong": "PONG PERSONNALISÉ",
+    "modeTitle": "MODE",
+    "1vs1": "1 CONTRE 1",
+    "againstAI": "CONTRE L'IA",
+    "tournament": "TOURNOI",
+    "chatTitle": "Chat en Direct",
+    "messagePlaceholder": "Message",
+    "play": "JOUER",
+    "close": "Fermer",
+    "profileNickname": "Pseudo du Profil",
+    "profileRankText": "Rang du Profil",
+    "gamesPlayed": "Parties Jouées",
+    "winRate": "Taux de Victoire",
+    "longestRally": "Plus Long Rallié",
+    "topSpeed": "Vitesse Maximale",
+    "recentGames": "Parties Récentes",
+    "bronze": "Bronze",
+    "silver": "Argent",
+    "gold": "Or",
+    "platine": "Platine",
+    "avatarTooltip": "Info-bulle de l'Avatar",
+    "tooltipTitle": "Profil",
+    "tooltipContent": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations",
+    "rankTooltip": "Info-bulle de Rang",
+    "rankTooltipTitle": "Système de Classement",
+    "rankBronze": "Bronze : 0-33% de ratio de victoire",
+    "rankSilver": "Argent : 33-66% de ratio de victoire",
+    "rankGold": "Or : 66-100% de ratio de victoire"
   },
   "twoStepVerification": {
-    "title": "Vérification en deux étapes",
-    "codeSent": "Un code a été envoyé à votre adresse email",
-    "timer": "Code valide pendant:",
+    "title": "Vérification en Deux Étapes",
+    "codeSent": "Un code a été envoyé à votre adresse e-mail",
+    "timer": "Code valide pour :",
     "verifyButton": "Vérifier",
     "errorMessage": "Une erreur s'est produite. Veuillez réessayer."
   },
   "profil": {
     "nickname": "Pseudo",
-    "rank": "Classement",
-    "upload": "Télécharger",
+    "rank": "Rang",
+    "upload": "Téléverser",
     "avatar": "Avatar",
     "chooseAvatar": "Choisissez votre avatar",
     "cancel": "Annuler",
     "apply": "Appliquer",
-    "enable2FA": "Activer l'A2F",
-    "verificationCode": "Code de vérification",
+    "enable2FA": "Activer 2FA",
+    "verificationCode": "Code de Vérification",
     "confirm": "Confirmer",
-    "accountSettings": "Paramètres du compte",
+    "accountSettings": "Paramètres du Compte",
     "username": "Nom d'utilisateur",
-    "email": "Adresse e-mail",
+    "email": "E-mail",
     "password": "Mot de passe",
     "newPassword": "Nouveau mot de passe",
-    "confirmNewPassword": "Confirmer mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
     "modify": "Modifier",
     "modifyButton": "Modifier",
-    "saveButton": "Enregistrer",
-    "friendRequests": "Demandes d'ami",
-    "matchHistory": "Historique des matchs",
-    "gamesPlayed": "Parties jouées",
-    "winRatio": "Ratio de victoires",
-    "longestRally": "Plus long échange",
-    "topSpeed": "Vitesse maximale",
+    "saveButton": "Sauvegarder les Changements",
+    "friendRequests": "Demandes d'Amitié",
+    "matchHistory": "Historique des Matches",
+    "gamesPlayed": "Parties Jouées",
+    "winRatio": "Ratio de Victoire",
+    "longestRally": "Plus Long Rallié",
+    "topSpeed": "Vitesse Maximale",
     "victory": "VICTOIRE",
     "defeat": "DÉFAITE",
     "bronze": "Bronze",
@@ -127,13 +100,13 @@
     "label": {
       "scoreToWin": "Score pour gagner",
       "aiDifficulty": "Difficulté de l'IA",
-      "powerEnabled": "Power-ups activés",
+      "powerEnabled": "Pouvoir activé",
       "ballSpeedStart": "Vitesse initiale de la balle",
       "ballSpeedMax": "Vitesse maximale de la balle",
-      "speedIncrease": "Augmentation de la vitesse",
+      "speedIncrease": "Augmentation de vitesse",
       "moveUp": "Monter",
       "moveDown": "Descendre",
-      "launchPower": "Lancer le power-up"
+      "launchPower": "Lancer un pouvoir"
     },
     "scoreOption": {
       "2": "2",
@@ -150,7 +123,7 @@
     "powerup": {
       "flash": "FLASH",
       "inverse": "INVERSE",
-      "tornado": "TORNADE"
+      "tornado": "TORNADO"
     },
     "ballSpeedStart": {
       "1": "1",
@@ -181,15 +154,15 @@
     "key": {
       "moveUp": "Monter",
       "moveDown": "Descendre",
-      "launchPower": "Lancer le power-up"
+      "launchPower": "Lancer un pouvoir"
     }
   },
   "tournament": {
     "match": {
-      "number": "Numéro du match"
+      "number": "Numéro de Match"
     },
     "player": {
-      "nickname": "Pseudonyme"
+      "nickname": "Pseudo"
     },
     "score": "Score",
     "players4": "4 Joueurs",
@@ -197,35 +170,35 @@
     "playButton": "JOUER",
     "resetButton": "RÉINITIALISER LE TOURNOI",
     "config": {
-      "title": "Configuration du tournoi"
+      "title": "Configuration du Tournoi"
     },
     "input": {
-      "placeholder": "Entrez un pseudonyme"
+      "placeholder": "Entrez un pseudo"
     },
     "bot": {
       "label": "Bot",
-      "name": "Bot Joueur {0}"
+      "name": "Joueur Bot {0}"
     },
     "startButton": "COMMENCER",
     "complete": "Tournoi Terminé",
-    "winAnnouncement": "A GAGNÉ LA PARTIE",
+    "winAnnouncement": "A GAGNÉ LE MATCH",
     "winner": {
-      "name": "Nom du gagnant"
+      "name": "Nom du Gagnant"
     },
     "victory": {
-      "score": "Score de victoire"
+      "score": "Score de la Victoire"
     },
-    "launchMatch": "LANCER LE MATCH",
+    "launchMatch": "LANCER MATCH",
     "launchFinal": "LANCER LA FINALE",
     "launchSemiFinal": "LANCER LA DEMI-FINALE",
     "nextMatch": "MATCH SUIVANT",
-    "botMatch": "SIMULER LE MATCH DE BOT",
+    "botMatch": "SIMULER MATCH DE BOT",
     "champion": {
       "title": "CHAMPION DU TOURNOI",
-      "name": "Nom du champion"
+      "name": "Nom du Champion"
     },
     "final": {
-      "score": "Score final"
+      "score": "Score de la Finale"
     },
     "finishTournament": "TERMINER LE TOURNOI"
   }

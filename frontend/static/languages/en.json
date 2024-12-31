@@ -17,67 +17,40 @@
     "submitButton": "Register",
     "signUpButton": "Sign Up"
   },
-  "home": {
-    "titles": {
-      "game": "GAME",
-      "mode": "MODE"
-    },
-    "game": {
-      "classic": "CLASSIC PONG",
-      "power": "POWER PONG"
-    },
-    "mode": {
-      "versus": "1 VS 1",
-      "ai": "AGAINST AI",
-      "online": "ONLINE",
-      "tournament": "TOURNAMENT"
-    },
-    "online": {
-      "players": "Online Players"
-    },
-    "chat": {
-      "blockedMessage": "Message blocked",
-      "clickForOptions": "Click for options",
-      "userTyping": "{username} is typing...",
-      "title": "Live chat"
-    },
-    "notifications": {
-      "friendRequest": {
-        "noUser": "Unable to send friend request: User ID not found",
-        "selfRequest": "You cannot send a friend request to yourself",
-        "success": "Friend request sent successfully",
-        "error": "Error sending friend request"
-      }
-    },
-    "buttons": {
-      "play": "PLAY"
-    },
-    "tooltips": {
-      "profil": {
-        "title": "profil",
-        "info": "You can click on the profil section on the navbar to update your infos"
-      },
-      "ranking": {
-        "title": "Ranking system",
-        "bronze": "Bronze: 0 - 5 victories",
-        "silver": "Silver: 5 - 10 victories",
-        "gold": "Gold: at least 10 victories"
-      }
-    },
-    "context": {
-      "profil": "See profil",
-      "addFriend": "Add friend request"
-    },
-    "errors": {
-      "templateNotFound": "Game invitation template not found",
-      "selectGameAndMode": "Please select both a game type and a mode!"
-    },
-    "status": {
-      "loading": "Loading game...",
-      "focus": "Setting focus to game",
-      "initialized": "Game is already initialized",
-      "winner": "The winner is: {winner}"
-    }
+  "newhome": {
+    "nickname": "Nickname",
+    "rankText": "Rank",
+    "onlinePlayers": "Online Players",
+    "gameTitle": "GAME",
+    "classicPong": "CLASSIC PONG",
+    "powerPong": "CUSTOM PONG",
+    "modeTitle": "MODE",
+    "1vs1": "1 VS 1",
+    "againstAI": "AGAINST AI",
+    "tournament": "TOURNAMENT",
+    "chatTitle": "Live Chat",
+    "messagePlaceholder": "Message",
+    "play": "PLAY",
+    "close": "Close",
+    "profileNickname": "Profile Nickname",
+    "profileRankText": "Profile Rank",
+    "gamesPlayed": "Gameplay played",
+    "winRate": "Win Rate",
+    "longestRally": "Longest Rally",
+    "topSpeed": "Top Speed",
+    "recentGames": "Recent Games",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platine": "Platine",
+    "avatarTooltip": "Avatar Tooltip",
+    "tooltipTitle": "Profile",
+    "tooltipContent": "You can click on the profile section on the navbar to update your infos",
+    "rankTooltip": "Rank Tooltip",
+    "rankTooltipTitle": "Ranking system",
+    "rankBronze": "Bronze: 0-33% Win ratio",
+    "rankSilver": "Silver: 33-66% Win ratio",
+    "rankGold": "Gold: 66-100% Win ratio"
   },
   "twoStepVerification": {
     "title": "Two-Step Verification",

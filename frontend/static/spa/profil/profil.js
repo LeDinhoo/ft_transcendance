@@ -53,7 +53,7 @@ async function updateProfilOnProfil() {
         }
         language = getLanguageFromAPI();
         language.then((value) => {
-          setPreferredLanguage(value);
+          setPreferredLanguage(value); 
         });
       }
     })

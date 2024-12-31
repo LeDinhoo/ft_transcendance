@@ -25,10 +25,16 @@ function updateProfilOnHome() {
           document.getElementById("rankImage").src =
             "static/assets/icons/bronze.png";
           document.getElementById("rankText").innerText = "Bronze";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "newhome.bronze");
         } else if (win_ratio < 66 && win_ratio >= 33) {
           document.getElementById("rankImage").src =
             "static/assets/icons/silver.png";
           document.getElementById("rankText").innerText = "Silver";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "newhome.silver");
         } else if (
           (win_ratio < 80 && win_ratio >= 66) ||
           (win_ratio >= 66 && totalGames < 5)
@@ -36,11 +42,22 @@ function updateProfilOnHome() {
           document.getElementById("rankImage").src =
             "static/assets/icons/gold.png";
           document.getElementById("rankText").innerText = "Gold";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "newhome.gold");
         } else if (win_ratio >= 80 && totalGames >= 5) {
           document.getElementById("rankImage").src =
             "static/assets/icons/platinium.png";
-          document.getElementById("rankText").innerText = "Platinium";
+          document.getElementById("rankText").innerText = "Platine";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "newhome.platine");
         }
+
+        language = getLanguageFromAPI();
+        language.then((value) => {
+          setPreferredLanguage(value);
+        });
 
         const avatarUrl =
           data.avatar && data.avatar.trim()
@@ -310,36 +327,36 @@ function initializeHome() {
 
     //     // Option "See profile" toujours présente
     //     menuOptions += `
-		// 			<div class="chat-menu-option" data-action="profile">
-		// 				See profile
-		// 			</div>
-		// 		`;
+    // 			<div class="chat-menu-option" data-action="profile">
+    // 				See profile
+    // 			</div>
+    // 		`;
 
     //     // Si c'est un message d'un autre utilisateur
     //     if (!isOwnMessage) {
     //       if (isBlocked) {
     //         // Si l'utilisateur est bloqué, on montre uniquement l'option de déblocage
     //         menuOptions += `
-		// 					<div class="chat-menu-option" data-action="block">
-		// 						Unblock user
-		// 					</div>
-		// 				`;
+    // 					<div class="chat-menu-option" data-action="block">
+    // 						Unblock user
+    // 					</div>
+    // 				`;
     //       } else {
     //         // Si l'utilisateur n'est pas bloqué et ce n'est pas notre propre message
     //         menuOptions += `
-		// 					<div class="chat-menu-option" data-action="add-friend">
-		// 						Add friend
-		// 					</div>
-		// 					<div class="chat-menu-option" data-action="send-invitation">
-		// 						Send online invitation
-		// 					</div>
-		// 					<div class="chat-menu-option" data-action="block">
-		// 						Block user
-		// 					</div>
-		// 					<div class="chat-menu-option" data-action="private-message">
-		// 						Private message
-		// 					</div>
-		// 				`;
+    // 					<div class="chat-menu-option" data-action="add-friend">
+    // 						Add friend
+    // 					</div>
+    // 					<div class="chat-menu-option" data-action="send-invitation">
+    // 						Send online invitation
+    // 					</div>
+    // 					<div class="chat-menu-option" data-action="block">
+    // 						Block user
+    // 					</div>
+    // 					<div class="chat-menu-option" data-action="private-message">
+    // 						Private message
+    // 					</div>
+    // 				`;
     //       }
     //     }
 
@@ -374,10 +391,10 @@ function initializeHome() {
         const isBlocked = ChatHandler.blockedUsers.has(userId);
         const isOwnMessage = userId === String(window.currentUser.id);
 
-            // Bloquer toute interaction avec System
-    if (username === "System" || userId === "system") {
-      return;
-    }
+        // Bloquer toute interaction avec System
+        if (username === "System" || userId === "system") {
+          return;
+        }
 
         const menu = document.createElement("div");
         menu.className = "chat-context-menu";
@@ -395,14 +412,12 @@ function initializeHome() {
         // Si ce n'est pas notre propre message
         if (!isOwnMessage) {
           if (isBlocked) {
-
             menuOptions += `
 							<div class="chat-menu-option" data-action="block">
 								Unblock user
 							</div>
 						`;
           } else {
-
             menuOptions += `
 							<div class="chat-menu-option" data-action="add-friend">
 								Add friend
@@ -543,33 +558,35 @@ function initializeHome() {
     }
 
     static handleMessage(data) {
-		if (!DOM.chat.messages) return;
-	
-		// Vérifier si le message est bloqué
-		const isBlocked = ChatHandler.blockedUsers.has(String(data.userId));
-		if (isBlocked) {
-			data.originalMessage = data.message;
-			data.message = "Message bloqué";
-		}
-	
-		const isCurrentUser = window.currentUser && data.username === window.currentUser.username;
-		const messageElement = document.createElement("div");
-	
-		let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
-		if (data.type === "private_message") {
-			messageClasses.push("private-message");
-		}
-	
-		messageElement.className = messageClasses.join(" ");
-		if (isBlocked) {
-			messageElement.style.opacity = "0.5";
-		}
-	
-		const messageHeader = data.type === "private_message" 
-			? `${data.username} → ${data.recipient}`
-			: data.username;
-	
-		messageElement.innerHTML = `
+      if (!DOM.chat.messages) return;
+
+      // Vérifier si le message est bloqué
+      const isBlocked = ChatHandler.blockedUsers.has(String(data.userId));
+      if (isBlocked) {
+        data.originalMessage = data.message;
+        data.message = "Message bloqué";
+      }
+
+      const isCurrentUser =
+        window.currentUser && data.username === window.currentUser.username;
+      const messageElement = document.createElement("div");
+
+      let messageClasses = [`message`, isCurrentUser ? "sent" : "received"];
+      if (data.type === "private_message") {
+        messageClasses.push("private-message");
+      }
+
+      messageElement.className = messageClasses.join(" ");
+      if (isBlocked) {
+        messageElement.style.opacity = "0.5";
+      }
+
+      const messageHeader =
+        data.type === "private_message"
+          ? `${data.username} → ${data.recipient}`
+          : data.username;
+
+      messageElement.innerHTML = `
 			<img src="${data.avatar}"
 				alt="${data.username}"
 				class="messageAvatar"
@@ -580,51 +597,59 @@ function initializeHome() {
 					 data-username="${data.username}">
 					${messageHeader}
 				</div>
-				<div class="messageText" ${isBlocked ? 'data-original-text="' + data.originalMessage + '"' : ""}>
+				<div class="messageText" ${
+          isBlocked ? 'data-original-text="' + data.originalMessage + '"' : ""
+        }>
 					${data.message}
 				</div>
 			</div>
 		`;
-	
-		DOM.chat.messages.appendChild(messageElement);
-		DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
-	}
+
+      DOM.chat.messages.appendChild(messageElement);
+      DOM.chat.messages.scrollTop = DOM.chat.messages.scrollHeight;
+    }
 
     static sendMessage() {
-		if (!DOM.chat.input || !window.currentUser) return;
-	
-		const message = DOM.chat.input.value.trim();
-		if (!message) return;
-	
-		const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
-		if (pmMatch) {
-			// Bloquer les messages privés vers System
-			if (pmMatch[1].toLowerCase() === "system") {
-				ChatHandler.showNotification("Cannot send private messages to System");
-				return;
-			}
-	
-			const [, recipient, privateMessage] = pmMatch;
-			window.wsManager.chatSocket.send(JSON.stringify({
-				type: "private_message",
-				message: privateMessage,
-				username: window.currentUser.username,
-				userId: window.currentUser.id,
-				avatar: window.currentUser.avatar,
-				recipient: recipient
-			}));
-		} else {
-			window.wsManager.chatSocket.send(JSON.stringify({
-				type: "chat_message",
-				message: message,
-				username: window.currentUser.username,
-				userId: window.currentUser.id,
-				avatar: window.currentUser.avatar
-			}));
-		}
-	
-		DOM.chat.input.value = "";
-	}
+      if (!DOM.chat.input || !window.currentUser) return;
+
+      const message = DOM.chat.input.value.trim();
+      if (!message) return;
+
+      const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
+      if (pmMatch) {
+        // Bloquer les messages privés vers System
+        if (pmMatch[1].toLowerCase() === "system") {
+          ChatHandler.showNotification(
+            "Cannot send private messages to System"
+          );
+          return;
+        }
+
+        const [, recipient, privateMessage] = pmMatch;
+        window.wsManager.chatSocket.send(
+          JSON.stringify({
+            type: "private_message",
+            message: privateMessage,
+            username: window.currentUser.username,
+            userId: window.currentUser.id,
+            avatar: window.currentUser.avatar,
+            recipient: recipient,
+          })
+        );
+      } else {
+        window.wsManager.chatSocket.send(
+          JSON.stringify({
+            type: "chat_message",
+            message: message,
+            username: window.currentUser.username,
+            userId: window.currentUser.id,
+            avatar: window.currentUser.avatar,
+          })
+        );
+      }
+
+      DOM.chat.input.value = "";
+    }
 
     static positionMenuWithinViewport(menu, rect) {
       const viewportHeight = window.innerHeight;
@@ -1195,7 +1220,15 @@ function initializeHome() {
     }
   }
 
-  function startMatch(options, isAI, power) {
+  async function startMatch(options, isAI, power) {
+    // Initialisation par défaut
+    let languageOption = "en";
+
+    // Attendre la réponse de l'API pour récupérer la langue
+    const language = await getLanguageFromAPI();
+    setPreferredLanguage(language);
+    languageOption = language;
+
     if (!isGameInitialized) {
       console.log("startMatch() appelée.");
       isGameInitialized = true;
@@ -1241,7 +1274,7 @@ function initializeHome() {
         iframe.contentWindow.postMessage(
           {
             type: "setOptions",
-            data: { options, isAI, power },
+            data: { options, isAI, power, languageOption },
           },
           "*"
         );
