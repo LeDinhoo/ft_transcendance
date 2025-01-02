@@ -213,16 +213,12 @@ function initializeHome() {
 
 			if (!userId) {
 				console.error("No user ID found");
-				ChatHandler.showNotification(
-					"Unable to send friend request: User ID not found"
-				);
+				showInfoPopup("Unable to send friend request: User ID not found");
 				return;
 			}
 
 			if (userId === String(window.currentUser?.id)) {
-				ChatHandler.showNotification(
-					"You cannot send a friend request to yourself"
-				);
+				showInfoPopup("You cannot send a friend request to yourself");
 				return;
 			}
 
@@ -245,16 +241,14 @@ function initializeHome() {
 					const jsonData = JSON.parse(data);
 					// Ajout de l'événement ici, après une réponse réussie
 					document.dispatchEvent(new Event("friendRequestSent"));
-					ChatHandler.showNotification(
-						jsonData.message || "Friend request sent successfully"
-					);
+					showInfoPopup(jsonData.message || "Friend request sent successfully");
 				} catch (e) {
 					console.error("Error parsing response:", e);
-					ChatHandler.showNotification("Error processing server response");
+					showInfoPopup("Error processing server response");
 				}
 			} catch (error) {
 				console.error("Error:", error);
-				ChatHandler.showNotification("Error sending friend request");
+				showInfoPopup("Error sending friend request");
 			}
 		}
 
@@ -525,9 +519,7 @@ function initializeHome() {
 					"Erreur lors de la modification du statut de blocage:",
 					error
 				);
-				ChatHandler.showNotification(
-					"Erreur lors de la mise à jour du statut de blocage"
-				);
+				showInfoPopup("Erreur lors de la mise à jour du statut de blocage");
 			}
 		}
 
@@ -608,25 +600,25 @@ function initializeHome() {
 
 		static sendMessage() {
 			if (!DOM.chat.input || !window.currentUser) return;
-		
+
 			const message = DOM.chat.input.value.trim();
 			if (!message) return;
-		
+
 			function sanitizeInput(input) {
 				const element = document.createElement('div');
 				element.innerText = input;
 				return element.innerHTML;
 			}
-		
+
 			const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
 			if (pmMatch) {
 				if (pmMatch[1].toLowerCase() === "system") {
-					ChatHandler.showNotification("Cannot send private messages to System");
+					showInfoPopup("Cannot send private messages to System");
 					return;
 				}
-		
+
 				const [, recipient, privateMessage] = pmMatch;
-		
+
 				console.log("Sending private message:", {
 					type: "private_message",
 					message: privateMessage,
@@ -634,7 +626,7 @@ function initializeHome() {
 					username: window.currentUser.username,
 					userId: window.currentUser.id
 				});
-				
+
 				window.wsManager.chatSocket.send(JSON.stringify({
 					type: "private_message",
 					message: sanitizeInput(privateMessage),
@@ -1270,18 +1262,18 @@ function initializeHome() {
 				document.body.removeChild(loadingIndicator);
 				console.log("Jeu chargé.");
 
-        iframe.contentWindow.postMessage(
-          {
-            type: "setOptions",
-            data: { options, isAI, power, languageOption },
-          },
-          "*"
-        );
-        setTimeout(() => {
-          iframe.contentWindow.focus();
-          console.log("Focus défini sur l'iframe.");
-        }, 100);
-      };
+				iframe.contentWindow.postMessage(
+					{
+						type: "setOptions",
+						data: { options, isAI, power, languageOption },
+					},
+					"*"
+				);
+				setTimeout(() => {
+					iframe.contentWindow.focus();
+					console.log("Focus défini sur l'iframe.");
+				}, 100);
+			};
 
 			modal.appendChild(iframe);
 			document.body.appendChild(modal);
@@ -1424,24 +1416,24 @@ const GameInvitationManager = {
 	template: null,
 
 	initialize() {
-        console.log("Initializing GameInvitationManager");
-        this.template = document.getElementById("gameInvitationTemplate");
-        
-        if (!this.template) {
-            console.error("Game invitation template not found");
-            return;
-        }
-        
-        // Nettoyer toutes les invitations actives au démarrage
-        this.activeInvitations.clear();
-        
-        window.wsManager.addMessageListener((data) => {
-            if (data.type === "game_invitation" && 
-                data.receiverId === window.currentUser?.id) {
-                this.handleInvitation(data);
-            }
-        });
-    },
+		console.log("Initializing GameInvitationManager");
+		this.template = document.getElementById("gameInvitationTemplate");
+
+		if (!this.template) {
+			console.error("Game invitation template not found");
+			return;
+		}
+
+		// Nettoyer toutes les invitations actives au démarrage
+		this.activeInvitations.clear();
+
+		window.wsManager.addMessageListener((data) => {
+			if (data.type === "game_invitation" &&
+				data.receiverId === window.currentUser?.id) {
+				this.handleInvitation(data);
+			}
+		});
+	},
 
 	sendInvitation(username, userId) {
 		console.log("Sending invitation to:", username, "with ID:", userId);
@@ -1513,90 +1505,90 @@ const GameInvitationManager = {
 	},
 
 	handleInvitation(data) {
-        console.log("Handling invitation:", data);
-        
-        // Vérifier si l'invitation existe déjà
-        if (this.activeInvitations.has(data.invitationId)) {
-            console.log("Invitation already exists, ignoring duplicate");
-            return;
-        }
-        
-        // Stocker l'invitation active
-        this.activeInvitations.set(data.invitationId, data);
-        
-        // Supprimer tout ancien modal
-        const existingModal = document.querySelector(".game-invitation-modal");
-        if (existingModal) {
-            existingModal.remove();
-        }
-        
-        // Créer le nouveau modal
-        const modalElement = this.template.content.cloneNode(true);
-        const invitationModal = modalElement.querySelector(".game-invitation-modal");
-        
-        if (!invitationModal) {
-            console.error("Failed to clone the invitation modal!");
-            return;
-        }
-        
-        // Remplir les détails
-        invitationModal.querySelector(".inviter-avatar").src = 
-            data.sender.avatar || "/static/assets/avatars/default.png";
-        invitationModal.querySelector(".inviter-name").textContent = 
-            data.sender.username;
-        invitationModal.querySelector(".game-type").textContent = 
-            data.gameType;
-        
-        // Gestionnaires d'événements
-        const cleanup = () => {
-            this.activeInvitations.delete(data.invitationId);
-            invitationModal.remove();
-        };
-        
-        invitationModal.querySelector(".accept-btn").addEventListener("click", () => {
-            this.respondToInvitation(data, "accept");
-            cleanup();
-        });
-        
-        invitationModal.querySelector(".decline-btn").addEventListener("click", () => {
-            this.respondToInvitation(data, "decline");
-            cleanup();
-        });
-        
-        invitationModal.querySelector(".close-invitation")
-            .addEventListener("click", cleanup);
-            
-        // Ajouter au DOM et afficher
-        document.body.appendChild(invitationModal);
-        invitationModal.style.display = "block";
-        
-        // Auto-cleanup après 30 secondes
-        setTimeout(cleanup, 30000);
-    },
-    
-    respondToInvitation(invitation, response) {
-        const payload = {
-            type: "game_invitation_response",
-            invitationId: invitation.invitationId,
-            response: response,
-            sender: invitation.sender,
-            receiver: window.currentUser.username,
-            receiverId: window.currentUser.id
-        };
-        
-        if (window.wsManager?.chatSocket?.readyState === WebSocket.OPEN) {
-            window.wsManager.chatSocket.send(JSON.stringify(payload));
-            
-            // En cas d'acceptation, montrer immédiatement la notification
-            if (response === "accept") {
-                this.showNotification(
-                    "Remote play feature is not implemented yet. You can play 1v1 locally!"
-                );
-            }
-        } else {
-            console.error("WebSocket not connected. Unable to send response.");
-        }
-    },
+		console.log("Handling invitation:", data);
+
+		// Vérifier si l'invitation existe déjà
+		if (this.activeInvitations.has(data.invitationId)) {
+			console.log("Invitation already exists, ignoring duplicate");
+			return;
+		}
+
+		// Stocker l'invitation active
+		this.activeInvitations.set(data.invitationId, data);
+
+		// Supprimer tout ancien modal
+		const existingModal = document.querySelector(".game-invitation-modal");
+		if (existingModal) {
+			existingModal.remove();
+		}
+
+		// Créer le nouveau modal
+		const modalElement = this.template.content.cloneNode(true);
+		const invitationModal = modalElement.querySelector(".game-invitation-modal");
+
+		if (!invitationModal) {
+			console.error("Failed to clone the invitation modal!");
+			return;
+		}
+
+		// Remplir les détails
+		invitationModal.querySelector(".inviter-avatar").src =
+			data.sender.avatar || "/static/assets/avatars/default.png";
+		invitationModal.querySelector(".inviter-name").textContent =
+			data.sender.username;
+		invitationModal.querySelector(".game-type").textContent =
+			data.gameType;
+
+		// Gestionnaires d'événements
+		const cleanup = () => {
+			this.activeInvitations.delete(data.invitationId);
+			invitationModal.remove();
+		};
+
+		invitationModal.querySelector(".accept-btn").addEventListener("click", () => {
+			this.respondToInvitation(data, "accept");
+			cleanup();
+		});
+
+		invitationModal.querySelector(".decline-btn").addEventListener("click", () => {
+			this.respondToInvitation(data, "decline");
+			cleanup();
+		});
+
+		invitationModal.querySelector(".close-invitation")
+			.addEventListener("click", cleanup);
+
+		// Ajouter au DOM et afficher
+		document.body.appendChild(invitationModal);
+		invitationModal.style.display = "block";
+
+		// Auto-cleanup après 30 secondes
+		setTimeout(cleanup, 30000);
+	},
+
+	respondToInvitation(invitation, response) {
+		const payload = {
+			type: "game_invitation_response",
+			invitationId: invitation.invitationId,
+			response: response,
+			sender: invitation.sender,
+			receiver: window.currentUser.username,
+			receiverId: window.currentUser.id
+		};
+
+		if (window.wsManager?.chatSocket?.readyState === WebSocket.OPEN) {
+			window.wsManager.chatSocket.send(JSON.stringify(payload));
+
+			// En cas d'acceptation, montrer immédiatement la notification
+			if (response === "accept") {
+				this.showNotification(
+					"Remote play feature is not implemented yet. You can play 1v1 locally!"
+				);
+			}
+		} else {
+			console.error("WebSocket not connected. Unable to send response.");
+		}
+	},
 };
 
 window.GameInvitationManager = GameInvitationManager;
