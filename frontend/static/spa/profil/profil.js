@@ -1,5 +1,5 @@
-function updateProfilOnProfil() {
-  console.log("fonction updateprofilonProfil appelee...")
+async function updateProfilOnProfil() {
+  console.log("fonction updateprofilonProfil appelee...");
   fetch("/api/profil/", {
     method: "GET",
     credentials: "include",
@@ -24,10 +24,16 @@ function updateProfilOnProfil() {
           document.getElementById("rankImage").src =
             "static/assets/icons/bronze.png";
           document.getElementById("rankText").innerText = "Bronze";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.bronze");
         } else if (win_ratio < 66 && win_ratio >= 33) {
           document.getElementById("rankImage").src =
             "static/assets/icons/silver.png";
           document.getElementById("rankText").innerText = "Silver";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.silver");
         } else if (
           (win_ratio < 80 && win_ratio >= 66) ||
           (win_ratio >= 66 && totalGames < 5)
@@ -35,12 +41,21 @@ function updateProfilOnProfil() {
           document.getElementById("rankImage").src =
             "static/assets/icons/gold.png";
           document.getElementById("rankText").innerText = "Gold";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.gold");
         } else if (win_ratio >= 80 && totalGames >= 5) {
           document.getElementById("rankImage").src =
             "static/assets/icons/platinium.png";
-          document.getElementById("rankText").innerText = "Platinium";
+          document.getElementById("rankText").innerText = "Platine";
+          document
+            .getElementById("rankText")
+            .setAttribute("data-translate", "profil.platine");
         }
-
+        language = getLanguageFromAPI();
+        language.then((value) => {
+          setPreferredLanguage(value);
+        });
       }
     })
     .catch((error) => {
@@ -116,7 +131,7 @@ function loadMatchHistory() {
 function updateMatchHistoryUI(history) {
   const matchHistoryDiv = document.querySelector(".matchHistory");
   matchHistoryDiv.innerHTML = `
-    <div class="settingsHistory">Match History</div>
+    <div class="settingsHistory" data-translate="profil.matchHistory">Match History</div>
     <div class="matches-container"></div>
   `;
 
@@ -159,6 +174,9 @@ function updateMatchHistoryUI(history) {
 
     if (match.result === "DEFEAT") {
       resultLabel.style.color = "#878787";
+      resultLabel.setAttribute("data-translate", "profil.defeat");
+    } else {
+      resultLabel.setAttribute("data-translate", "profil.victory");
     }
 
     matchResume.appendChild(gameDate);   
@@ -170,6 +188,12 @@ function updateMatchHistoryUI(history) {
     matchResume.appendChild(resultLabel);
 
     matchHistoryDiv.appendChild(matchResume);
+  });
+
+  // Mettre a jour les traductions
+  language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
   });
 }
 
@@ -198,6 +222,8 @@ function loadUserStatistics() {
 function initializeProfilePage() {
   initializeAvatarFeature();
   resetPasswordFields();
+
+  language = getLanguageFromAPI();
 
   const userInput = document.getElementById("username");
   const emailInput = document.getElementById("registerEmail");
@@ -376,6 +402,9 @@ function initializeProfilePage() {
   loadMatchHistory();
   loadUserStatistics();
   updateProfilOnProfil();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
 }
 
 function showTwoFactorPopup() {
@@ -389,24 +418,32 @@ function showTwoFactorPopup() {
   const popup = document.createElement("div");
   popup.className = "popup-overlay";
   popup.innerHTML = `
-      <div class="popup-content">
-          <h3>Vérification en deux étapes</h3>
-          <p>Un code a été envoyé à votre adresse email</p>
-          <div class="code-input-container">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-          </div>
-          <div class="timer">Code valide pendant: <span id="countdown">10:00</span></div>
-          <button class="verify-button" id="verifyButton" disabled>Vérifier</button>
-          <p class="error-message" style="display: none;"></p>
-      </div>
+    <div class="popup-content">
+        <h3 data-translate="twoStepVerification.title">Vérification en deux étapes</h3>
+        <p data-translate="twoStepVerification.codeSent">Un code a été envoyé à votre adresse email</p>
+        <div class="code-input-container">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+        </div>
+        <div class="timer" data-translate="twoStepVerification.timer">
+            Code valide pendant: <span id="countdown">10:00</span>
+        </div>
+        <button class="verify-button" id="verifyButton" disabled data-translate="twoStepVerification.verifyButton">Vérifier</button>
+        <p class="error-message" style="display: none;" data-translate="twoStepVerification.errorMessage"></p>
+    </div>
   `;
 
   document.body.appendChild(popup);
+
+  //mettre à jour les traductions
+  language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
 
   setupCodeInputsForProfile();
   startCountdown(10 * 60);

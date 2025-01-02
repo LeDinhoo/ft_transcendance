@@ -1,20 +1,205 @@
 {
-    "login": {
-        "title": "Rejoindre la bataille",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Mot de passe",
-        "submitButton": "Se connecter",
-        "registerButton": "S'inscrire",
-        "emailError": "Adresse e-mail invalide.",
-        "passwordError": "Le mot de passe ne peut pas être vide."
+  "login": {
+    "title": "Rejoignez la Bataille",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Mot de passe",
+    "submitButton": "Se Connecter",
+    "registerButton": "S'inscrire",
+    "emailError": "Adresse e-mail invalide.",
+    "passwordError": "Le mot de passe ne peut pas être vide."
+  },
+  "register": {
+    "title": "Créer un Compte",
+    "usernameLabel": "Nom d'utilisateur",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Mot de passe",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
+    "submitButton": "S'inscrire",
+    "signUpButton": "Créer un Compte"
+  },
+  "newhome": {
+    "nickname": "Pseudo",
+    "rankText": "Rang",
+    "onlinePlayers": "Joueurs en ligne",
+    "gameTitle": "JEU",
+    "classicPong": "PONG CLASSIQUE",
+    "powerPong": "PONG PERSONNALISÉ",
+    "modeTitle": "MODE",
+    "1vs1": "1 CONTRE 1",
+    "againstAI": "CONTRE L'IA",
+    "tournament": "TOURNOI",
+    "chatTitle": "Chat en Direct",
+    "messagePlaceholder": "Message",
+    "play": "JOUER",
+    "close": "Fermer",
+    "profileNickname": "Pseudo du Profil",
+    "profileRankText": "Rang du Profil",
+    "gamesPlayed": "Parties Jouées",
+    "winRate": "Taux de Victoire",
+    "longestRally": "Plus Long Rallié",
+    "topSpeed": "Vitesse Maximale",
+    "recentGames": "Parties Récentes",
+    "bronze": "Bronze",
+    "silver": "Argent",
+    "gold": "Or",
+    "platine": "Platine",
+    "avatarTooltip": "Info-bulle de l'Avatar",
+    "tooltipTitle": "Profil",
+    "tooltipContent": "Vous pouvez cliquer sur la section profil dans la barre de navigation pour mettre à jour vos informations",
+    "rankTooltip": "Info-bulle de Rang",
+    "rankTooltipTitle": "Système de Classement",
+    "rankBronze": "Bronze : 0-33% de ratio de victoire",
+    "rankSilver": "Argent : 33-66% de ratio de victoire",
+    "rankGold": "Or : 66-100% de ratio de victoire"
+  },
+  "twoStepVerification": {
+    "title": "Vérification en Deux Étapes",
+    "codeSent": "Un code a été envoyé à votre adresse e-mail",
+    "timer": "Code valide pour :",
+    "verifyButton": "Vérifier",
+    "errorMessage": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "profil": {
+    "nickname": "Pseudo",
+    "rank": "Rang",
+    "upload": "Téléverser",
+    "avatar": "Avatar",
+    "chooseAvatar": "Choisissez votre avatar",
+    "cancel": "Annuler",
+    "apply": "Appliquer",
+    "enable2FA": "Activer 2FA",
+    "verificationCode": "Code de Vérification",
+    "confirm": "Confirmer",
+    "accountSettings": "Paramètres du Compte",
+    "username": "Nom d'utilisateur",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "modify": "Modifier",
+    "modifyButton": "Modifier",
+    "saveButton": "Sauvegarder les Changements",
+    "friendRequests": "Demandes d'Amitié",
+    "matchHistory": "Historique des Matches",
+    "gamesPlayed": "Parties Jouées",
+    "winRatio": "Ratio de Victoire",
+    "longestRally": "Plus Long Rallié",
+    "topSpeed": "Vitesse Maximale",
+    "victory": "VICTOIRE",
+    "defeat": "DÉFAITE",
+    "bronze": "Bronze",
+    "silver": "Argent",
+    "gold": "Or",
+    "platine": "Platine"
+  },
+  "settings": {
+    "title": {
+      "game": "Jeu",
+      "shortcut": "Raccourci"
     },
-    "register": {
-        "title": "Créer un compte",
-        "usernameLabel": "Nom d'utilisateur",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Mot de passe",
-        "confirmPasswordLabel": "Confirmer le mot de passe",
-        "submitButton": "S'inscrire",
-        "signUpButton": "Se connecter"
+    "label": {
+      "scoreToWin": "Score pour gagner",
+      "aiDifficulty": "Difficulté de l'IA",
+      "powerEnabled": "Pouvoir activé",
+      "ballSpeedStart": "Vitesse initiale de la balle",
+      "ballSpeedMax": "Vitesse maximale de la balle",
+      "speedIncrease": "Augmentation de vitesse",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "launchPower": "Lancer un pouvoir"
+    },
+    "scoreOption": {
+      "2": "2",
+      "3": "3",
+      "5": "5",
+      "11": "11",
+      "21": "21"
+    },
+    "difficulty": {
+      "easy": "FACILE",
+      "medium": "MOYEN",
+      "hard": "DIFFICILE"
+    },
+    "powerup": {
+      "flash": "FLASH",
+      "inverse": "INVERSE",
+      "tornado": "TORNADO"
+    },
+    "ballSpeedStart": {
+      "1": "1",
+      "3": "3",
+      "5": "5",
+      "10": "10",
+      "20": "20"
+    },
+    "ballSpeedMax": {
+      "5": "5",
+      "10": "10",
+      "15": "15",
+      "25": "25",
+      "30": "30"
+    },
+    "speedIncrease": {
+      "0.5": "0.5",
+      "1": "1",
+      "2": "2",
+      "3": "3"
+    },
+    "saveButton": "SAUVEGARDER",
+    "saveKeyboardButton": "SAUVEGARDER",
+    "playerTitle": {
+      "player1": "Joueur 1",
+      "player2": "Joueur 2"
+    },
+    "key": {
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "launchPower": "Lancer un pouvoir"
     }
+  },
+  "tournament": {
+    "match": {
+      "number": "Numéro de Match"
+    },
+    "player": {
+      "nickname": "Pseudo"
+    },
+    "score": "Score",
+    "players4": "4 Joueurs",
+    "players8": "8 Joueurs",
+    "playButton": "JOUER",
+    "resetButton": "RÉINITIALISER LE TOURNOI",
+    "config": {
+      "title": "Configuration du Tournoi"
+    },
+    "input": {
+      "placeholder": "Entrez un pseudo"
+    },
+    "bot": {
+      "label": "Bot",
+      "name": "Joueur Bot {0}"
+    },
+    "startButton": "COMMENCER",
+    "complete": "Tournoi Terminé",
+    "winAnnouncement": "A GAGNÉ LE MATCH",
+    "winner": {
+      "name": "Nom du Gagnant"
+    },
+    "victory": {
+      "score": "Score de la Victoire"
+    },
+    "launchMatch": "LANCER MATCH",
+    "launchFinal": "LANCER LA FINALE",
+    "launchSemiFinal": "LANCER LA DEMI-FINALE",
+    "nextMatch": "MATCH SUIVANT",
+    "botMatch": "SIMULER MATCH DE BOT",
+    "champion": {
+      "title": "CHAMPION DU TOURNOI",
+      "name": "Nom du Champion"
+    },
+    "final": {
+      "score": "Score de la Finale"
+    },
+    "finishTournament": "TERMINER LE TOURNOI"
+  }
 }

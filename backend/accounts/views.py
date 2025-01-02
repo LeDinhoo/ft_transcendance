@@ -1946,3 +1946,37 @@ def unblock_user(request):
         return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.http import JsonResponse
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_preferred_language(request):
+    """Récupère la langue préférée de l'utilisateur."""
+    return JsonResponse({
+        'language': request.user.preferred_language
+    })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_preferred_language(request):
+    """Définit la langue préférée de l'utilisateur."""
+    language = request.data.get('language')
+
+    # Vérifier si la langue est valide
+    valid_languages = dict(request.user.LANGUAGE_CHOICES).keys()
+    if language not in valid_languages:
+        return JsonResponse({
+            'error': 'Invalid language choice'
+        }, status=400)
+
+    # Mettre à jour la langue préférée
+    request.user.preferred_language = language
+    request.user.save()
+
+    return JsonResponse({
+        'message': 'Language preference updated successfully',
+        'language': language
+    })

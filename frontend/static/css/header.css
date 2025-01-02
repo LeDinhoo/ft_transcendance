@@ -88,3 +88,27 @@
     height: var(--24px);
   }
 }
+
+/* Styles pour le sélecteur de langue */
+.language-selector {
+    position: fixed;
+    top: 2vw;
+    right: 200px;
+    display: flex;
+    gap: 10px;
+}
+
+.language-flags {
+    display: flex;
+    gap: 10px;
+}
+
+.language-flag {
+    width: 30px;
+    height: auto;
+    cursor: pointer;
+}
+
+.language-flag:hover {
+    opacity: 0.8;
+}

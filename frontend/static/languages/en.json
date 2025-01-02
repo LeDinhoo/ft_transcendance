@@ -1,20 +1,205 @@
 {
-    "login": {
-        "title": "Join the Battle",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Password",
-        "submitButton": "Log In",
-        "registerButton": "Register",
-        "emailError": "Invalid email address.",
-        "passwordError": "Password cannot be empty."
+  "login": {
+    "title": "Join the Battle",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Password",
+    "submitButton": "Log In",
+    "registerButton": "Register",
+    "emailError": "Invalid email address.",
+    "passwordError": "Password cannot be empty."
+  },
+  "register": {
+    "title": "Create Account",
+    "usernameLabel": "Username",
+    "emailLabel": "E-mail",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "submitButton": "Register",
+    "signUpButton": "Sign Up"
+  },
+  "newhome": {
+    "nickname": "Nickname",
+    "rankText": "Rank",
+    "onlinePlayers": "Online Players",
+    "gameTitle": "GAME",
+    "classicPong": "CLASSIC PONG",
+    "powerPong": "CUSTOM PONG",
+    "modeTitle": "MODE",
+    "1vs1": "1 VS 1",
+    "againstAI": "AGAINST AI",
+    "tournament": "TOURNAMENT",
+    "chatTitle": "Live Chat",
+    "messagePlaceholder": "Message",
+    "play": "PLAY",
+    "close": "Close",
+    "profileNickname": "Profile Nickname",
+    "profileRankText": "Profile Rank",
+    "gamesPlayed": "Gameplay played",
+    "winRate": "Win Rate",
+    "longestRally": "Longest Rally",
+    "topSpeed": "Top Speed",
+    "recentGames": "Recent Games",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platine": "Platine",
+    "avatarTooltip": "Avatar Tooltip",
+    "tooltipTitle": "Profile",
+    "tooltipContent": "You can click on the profile section on the navbar to update your infos",
+    "rankTooltip": "Rank Tooltip",
+    "rankTooltipTitle": "Ranking system",
+    "rankBronze": "Bronze: 0-33% Win ratio",
+    "rankSilver": "Silver: 33-66% Win ratio",
+    "rankGold": "Gold: 66-100% Win ratio"
+  },
+  "twoStepVerification": {
+    "title": "Two-Step Verification",
+    "codeSent": "A code has been sent to your email address",
+    "timer": "Code valid for:",
+    "verifyButton": "Verify",
+    "errorMessage": "An error occurred. Please try again."
+  },
+  "profil": {
+    "nickname": "Nickname",
+    "rank": "Rank",
+    "upload": "Upload",
+    "avatar": "Avatar",
+    "chooseAvatar": "Choose your avatar",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "enable2FA": "Enable 2FA",
+    "verificationCode": "Verification Code",
+    "confirm": "Confirm",
+    "accountSettings": "Account Settings",
+    "username": "Username",
+    "email": "E-mail",
+    "password": "Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "modify": "Modify",
+    "modifyButton": "Modify",
+    "saveButton": "Save Changes",
+    "friendRequests": "Friend Requests",
+    "matchHistory": "Match History",
+    "gamesPlayed": "Gameplay played",
+    "winRatio": "Win ratio",
+    "longestRally": "Longest Rally",
+    "topSpeed": "Top Speed",
+    "victory": "VICTORY",
+    "defeat": "DEFEAT",
+    "bronze": "Bronze",
+    "silver": "Silver",
+    "gold": "Gold",
+    "platine": "Platine"
+  },
+  "settings": {
+    "title": {
+      "game": "Game",
+      "shortcut": "Shortcut"
     },
-    "register": {
-        "title": "Create Account",
-        "usernameLabel": "Username",
-        "emailLabel": "E-mail",
-        "passwordLabel": "Password",
-        "confirmPasswordLabel": "Confirm Password",
-        "submitButton": "Register",
-        "signUpButton": "Sign Up"
+    "label": {
+      "scoreToWin": "Score to win",
+      "aiDifficulty": "AI Difficulty",
+      "powerEnabled": "Power enabled",
+      "ballSpeedStart": "Initial ball speed",
+      "ballSpeedMax": "Maximum ball speed",
+      "speedIncrease": "Speed increase",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "launchPower": "Launch power"
+    },
+    "scoreOption": {
+      "2": "2",
+      "3": "3",
+      "5": "5",
+      "11": "11",
+      "21": "21"
+    },
+    "difficulty": {
+      "easy": "EASY",
+      "medium": "MEDIUM",
+      "hard": "HARD"
+    },
+    "powerup": {
+      "flash": "FLASH",
+      "inverse": "INVERSE",
+      "tornado": "TORNADO"
+    },
+    "ballSpeedStart": {
+      "1": "1",
+      "3": "3",
+      "5": "5",
+      "10": "10",
+      "20": "20"
+    },
+    "ballSpeedMax": {
+      "5": "5",
+      "10": "10",
+      "15": "15",
+      "25": "25",
+      "30": "30"
+    },
+    "speedIncrease": {
+      "0.5": "0.5",
+      "1": "1",
+      "2": "2",
+      "3": "3"
+    },
+    "saveButton": "SAVE",
+    "saveKeyboardButton": "SAVE",
+    "playerTitle": {
+      "player1": "Player 1",
+      "player2": "Player 2"
+    },
+    "key": {
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "launchPower": "Launch power"
     }
+  },
+  "tournament": {
+    "match": {
+      "number": "Match Number"
+    },
+    "player": {
+      "nickname": "Nickname"
+    },
+    "score": "Score",
+    "players4": "4 Players",
+    "players8": "8 Players",
+    "playButton": "PLAY",
+    "resetButton": "RESET TOURNAMENT",
+    "config": {
+      "title": "Tournament Configuration"
+    },
+    "input": {
+      "placeholder": "Enter a nickname"
+    },
+    "bot": {
+      "label": "Bot",
+      "name": "Bot Player {0}"
+    },
+    "startButton": "START",
+    "complete": "Tournament Complete",
+    "winAnnouncement": "WON THE GAME",
+    "winner": {
+      "name": "Winner's Name"
+    },
+    "victory": {
+      "score": "Victory Score"
+    },
+    "launchMatch": "LAUNCH MATCH",
+    "launchFinal": "LAUNCH FINAL",
+    "launchSemiFinal": "LAUNCH SEMI-FINAL",
+    "nextMatch": "NEXT MATCH",
+    "botMatch": "SIMULATE BOT MATCH",
+    "champion": {
+      "title": "TOURNAMENT CHAMPION",
+      "name": "Champion's Name"
+    },
+    "final": {
+      "score": "Final Score"
+    },
+    "finishTournament": "FINISH TOURNAMENT"
+  }
 }

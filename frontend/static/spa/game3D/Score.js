@@ -40,6 +40,20 @@ export class Score3D {
     this.tutorialP2text3 = null;
     this.isAIisActive = false;
 
+    // Texts defined in constructor
+    this.texts = {
+      pressSpace: "PRESS SPACE",
+      player1Move: `${this.player1UpKey} and ${this.player1DownKey} to move`,
+      player1Power: `${this.player1LaunchKey} to use power`,
+      player1Label: "Player 1 :",
+      player2Move: `${this.player2UpKey} and ${this.player2DownKey} to move`,
+      player2Power: `${this.player2LaunchKey} to use power`,
+      player2Label: "Player 2 :",
+      orange: "Orange",
+      blue: "Blue",
+      victoryMessage: (winner) => `${winner} Wins!`,
+    };
+
     this.textMaterialLeft = new THREE.MeshStandardMaterial({
       color: 0xff5500,
       metalness: 0.7,
@@ -107,6 +121,62 @@ export class Score3D {
     });
   }
 
+  setLanguage(language) {
+    if (language === "fr") {
+      this.texts = {
+        pressSpace: "APPUYEZ SUR ESPACE",
+        player1Move: `${this.player1UpKey} et ${this.player1DownKey} pour bouger`,
+        player1Power: `${this.player1LaunchKey} pour utiliser le pouvoir`,
+        player1Label: "Joueur 1 :",
+        player2Move: `${this.player2UpKey} et ${this.player2DownKey} pour bouger`,
+        player2Power: `${this.player2LaunchKey} pour utiliser le pouvoir`,
+        player2Label: "Joueur 2 :",
+        orange: "Orange",
+        blue: "Bleu",
+        victoryMessage: (winner) => `${winner} Gagne !`,
+      };
+    } else if (language === "es") {
+      this.texts = {
+        pressSpace: "PRESIONE ESPACIO",
+        player1Move: `${this.player1UpKey} y ${this.player1DownKey} para mover`,
+        player1Power: `${this.player1LaunchKey} para usar el poder`,
+        player1Label: "Jugador 1 :",
+        player2Move: `${this.player2UpKey} y ${this.player2DownKey} para mover`,
+        player2Power: `${this.player2LaunchKey} para usar el poder`,
+        player2Label: "Jugador 2 :",
+        orange: "Naranja",
+        blue: "Azul",
+        victoryMessage: (winner) => `¡${winner} Gana!`,
+      };
+    } else if (language === "swe") {
+      this.texts = {
+        pressSpace: "TRYCK PÅ MELLANSLAG",
+        player1Move: `${this.player1UpKey} och ${this.player1DownKey} för att flytta`,
+        player1Power: `${this.player1LaunchKey} för att använda kraften`,
+        player1Label: "Spelare 1 :",
+        player2Move: `${this.player2UpKey} och ${this.player2DownKey} för att flytta`,
+        player2Power: `${this.player2LaunchKey} för att använda kraften`,
+        player2Label: "Spelare 2 :",
+        orange: "Orange",
+        blue: "Blå",
+        victoryMessage: (winner) => `${winner} Vinner!`,
+      };
+    } else {
+      this.texts = {
+        pressSpace: "PRESS SPACE",
+        player1Move: `${this.player1UpKey} and ${this.player1DownKey} to move`,
+        player1Power: `${this.player1LaunchKey} to use power`,
+        player1Label: "Player 1 :",
+        player2Move: `${this.player2UpKey} and ${this.player2DownKey} to move`,
+        player2Power: `${this.player2LaunchKey} to use power`,
+        player2Label: "Player 2 :",
+        orange: "Orange",
+        blue: "Blue",
+        victoryMessage: (winner) => `${winner} Wins!`,
+      };
+    }
+  }
+
   setKeyTextForTutorial(options, isAIisActive) {
     this.player1UpKey = options.player1.moveUp;
     this.player1DownKey = options.player1.moveDown;
@@ -122,7 +192,7 @@ export class Score3D {
 
     const options = { ...this.textOptions, font: this.font };
 
-    const geometry = new TextGeometry("PRESS SPACE", options);
+    const geometry = new TextGeometry(this.texts.pressSpace, options);
     geometry.computeBoundingBox();
     geometry.center();
 
@@ -139,10 +209,7 @@ export class Score3D {
     const options = { ...this.TutorialTextOptions, font: this.font };
 
     // Tutorial for Player 1
-    const moveString = `${this.player1UpKey} and ${this.player1DownKey} to move`;
-    const powerString = `${this.player1LaunchKey} to use power`;
-
-    const geometry1 = new TextGeometry(moveString, options);
+    const geometry1 = new TextGeometry(this.texts.player1Move, options);
     geometry1.computeBoundingBox();
     geometry1.center();
 
@@ -150,7 +217,7 @@ export class Score3D {
     this.tutorialP1Text1.rotation.x = -Math.PI / 2;
     this.tutorialP1Text1.position.set(0, 5, -130);
 
-    const geometry2 = new TextGeometry(powerString, options);
+    const geometry2 = new TextGeometry(this.texts.player1Power, options);
     geometry2.computeBoundingBox();
     geometry2.center();
 
@@ -158,7 +225,7 @@ export class Score3D {
     this.tutorialP1Text2.rotation.x = -Math.PI / 2;
     this.tutorialP1Text2.position.set(0, 5, -100);
 
-    const geometry3 = new TextGeometry("Player 1 :", options);
+    const geometry3 = new TextGeometry(this.texts.player1Label, options);
     geometry3.computeBoundingBox();
     geometry3.center();
 
@@ -172,10 +239,7 @@ export class Score3D {
 
     // Tutorial for Player 2
     if (!this.isAIisActive) {
-      const moveString2 = `${this.player2UpKey} and ${this.player2DownKey} to move`;
-      const powerString2 = `${this.player2LaunchKey} to use power`;
-
-      const geometry4 = new TextGeometry(moveString2, options);
+      const geometry4 = new TextGeometry(this.texts.player2Move, options);
       geometry4.computeBoundingBox();
       geometry4.center();
 
@@ -183,7 +247,7 @@ export class Score3D {
       this.tutorialP2Text1.rotation.x = -Math.PI / 2;
       this.tutorialP2Text1.position.set(0, 5, 140);
 
-      const geometry5 = new TextGeometry(powerString2, options);
+      const geometry5 = new TextGeometry(this.texts.player2Power, options);
       geometry5.computeBoundingBox();
       geometry5.center();
 
@@ -191,7 +255,7 @@ export class Score3D {
       this.tutorialP2Text2.rotation.x = -Math.PI / 2;
       this.tutorialP2Text2.position.set(0, 5, 170);
 
-      const geometry6 = new TextGeometry("Player 2 :", options);
+      const geometry6 = new TextGeometry(this.texts.player2Label, options);
       geometry6.computeBoundingBox();
       geometry6.center();
 
@@ -290,7 +354,9 @@ export class Score3D {
 
       if (scoreDifference >= this.POINT_DIFFERENCE_REQUIRED) {
         const winner =
-          this.score.player1 > this.score.player2 ? "Orange" : "Blue";
+          this.score.player1 > this.score.player2
+            ? this.texts.orange
+            : this.texts.blue;
         this.gameOver = true;
         this.createVictoryText(winner);
         return true;
@@ -403,7 +469,7 @@ export class Score3D {
       this.removeVictoryText();
     }
 
-    const victoryMessage = `${winner} Wins!`;
+    const victoryMessage = this.texts.victoryMessage(winner);
     const geometry = new TextGeometry(victoryMessage, {
       ...this.victoryTextOptions,
       font: this.font,
@@ -414,9 +480,6 @@ export class Score3D {
 
     this.victoryText = new THREE.Mesh(geometry, this.victoryMaterial);
     this.victoryText.rotation.x = -Math.PI / 2;
-
-    const fov = (this.camera.fov * Math.PI) / 180;
-    const heightAtZero = 2 * Math.tan(fov / 2) * this.camera.position.y;
 
     this.victoryText.position.set(0, 5, 0);
     this.scene.add(this.victoryText);

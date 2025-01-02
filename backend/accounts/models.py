@@ -31,7 +31,13 @@ class UserSettings(models.Model):
 
 
 class CustomUser(AbstractUser):
-
+	LANGUAGE_CHOICES = [
+        ('en', 'English'),
+        ('fr', 'Français'),
+        ('es', 'Español'),
+        ('swe', 'Svenska')
+    ]
+	# Vos champs existants
 	is_2fa_enabled = models.BooleanField(default=False)
 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
@@ -41,9 +47,12 @@ class CustomUser(AbstractUser):
 	intra_42_id = models.IntegerField(null=True, blank=True, unique=True)
 	is_42_user = models.BooleanField(default=False)
 
-# 	is_2fa_enabled = models.BooleanField(default=False)
-# 	two_factor_code = models.CharField(max_length=6, null=True, blank=True)
-# 	two_factor_code_timestamp = models.DateTimeField(null=True, blank=True)
+	preferred_language = models.CharField(
+        max_length=3,
+        choices=LANGUAGE_CHOICES,
+        default='en',
+        verbose_name='Preferred Language'
+    )
 
 	groups = models.ManyToManyField(
 		'auth.Group',

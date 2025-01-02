@@ -33,6 +33,29 @@ function ensureHumanFirst(player1, player2, gameManager) {
 function initializeTournamentPage() {
   console.log("fonction initializetournament game appele ...");
 
+  let translations = {};
+
+  language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
+
+  language.then((value) => {
+    fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load translations");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        translations = data;
+      })
+      .catch((error) => {
+        console.error("Error loading translations:", error);
+      });
+  });
+
   const DEFAULT_AVATAR = "/static/assets/icons/pending.svg";
 
   // État global du tournoi
@@ -175,165 +198,157 @@ function initializeTournamentPage() {
         });
     }
 
-    startGame() {
-      this.isSimulationInProgress = false;
+    async startGame() {
+      try {
+        // Initialisation par défaut
+        let languageOption = "en";
 
-      // Réinitialiser les scores pour la nouvelle partie
-      this.currentGameScores = {
-        player1: 0,
-        player2: 0,
-      };
+        // Attendre la réponse de l'API pour récupérer la langue
+        const language = await getLanguageFromAPI();
+        setPreferredLanguage(language);
+        languageOption = language;
 
-      const currentMatch =
-        this.tournamentState.matches[this.tournamentState.currentMatch];
+        this.isSimulationInProgress = false;
 
-      if (
-        !currentMatch ||
-        this.tournamentState.currentMatch >= this.tournamentState.matches.length
-      ) {
-        console.log("No more matches to play");
-        return;
-      }
-
-      console.log(
-        "Starting game for match:",
-        this.tournamentState.currentMatch
-      );
-      console.log("Current match data:", currentMatch);
-
-      // Vérifier si chaque joueur est un bot
-      const player1IsBot = this.isBot(currentMatch.player1);
-      const player2IsBot = this.isBot(currentMatch.player2);
-
-      // Afficher si les joueurs sont des bots
-      console.log(
-        `Player 1 (${currentMatch.player1.name}) isBot:`,
-        player1IsBot
-      );
-      console.log(
-        `Player 2 (${currentMatch.player2.name}) isBot:`,
-        player2IsBot
-      );
-
-      // Charger les options de jeu depuis localStorage
-      // const gameOptions = this.getGameOptions();
-      if (!this.options) {
-        console.error("Game options not found in localStorage!");
-        return;
-      }
-      console.log("Game options retrieved:", this.options);
-
-      // Simulation si les deux joueurs sont des bots
-      if (player1IsBot && player2IsBot) {
-        console.log("Simulating match between two bots...");
-
-        this.isSimulationInProgress = true;
-        this.blockSpacebar(true); // Bloquer la barre d'espace
-
-        // Fonction pour simuler des scores avec la règle des 2 points d'écart
-        const simulateScores = () => {
-          let score1 = 0;
-          let score2 = 0;
-
-          while (true) {
-            score1 = Math.floor(Math.random() * 6); // Génère un score entre 0 et 5
-            score2 = Math.floor(Math.random() * 6);
-
-            // Vérifier si la partie respecte les règles :
-            // - Score maximal de 5
-            // - 2 points d'écart si le score atteint 4-4
-            if (
-              Math.max(score1, score2) === 5 &&
-              Math.abs(score1 - score2) >= 2
-            ) {
-              break;
-            }
-          }
-          return { score1, score2 };
+        // Réinitialiser les scores pour la nouvelle partie
+        this.currentGameScores = {
+          player1: 0,
+          player2: 0,
         };
 
-        // Simuler les scores
-        const { score1: simulatedScore1, score2: simulatedScore2 } =
-          simulateScores();
+        const currentMatch =
+            this.tournamentState.matches[this.tournamentState.currentMatch];
 
-        // Déterminer le gagnant basé sur les scores
-        const simulatedWinner =
-          simulatedScore1 > simulatedScore2
-            ? currentMatch.player1
-            : currentMatch.player2;
-
-        console.log(
-          "Simulation complete. Winner:",
-          simulatedWinner,
-          "Scores:",
-          {
-            player1: simulatedScore1,
-            player2: simulatedScore2,
-          }
-        );
-
-        // Passer les résultats simulés à progressTournament
-        progressTournament(
-          null, // winnerIndex n'est pas utilisé ici
-          { player1: simulatedScore1, player2: simulatedScore2 },
-          this
-        );
-
-        // Après la simulation, on réactive la gestion de la barre d'espace
-        this.isSimulationInProgress = false;
-        this.blockSpacebar(false); // Réactiver la barre d'espace
-        return; // Sortir de la fonction pour éviter de charger le conteneur de jeu
-      }
-
-      // Charger le conteneur de jeu uniquement si ce n'est pas une simulation
-      this.gameContainer.style.display = "block";
-      this.gameContainer.src = "/static/spa/game3D/three.html";
-
-      this.gameContainer.onload = () => {
-        console.log(
-          "Game loaded, sending players:",
-          currentMatch.player1,
-          currentMatch.player2
-        );
-
-        this.gameContainer.contentWindow.postMessage(
-          {
-            type: "startGame",
-            data: {
-              player1: currentMatch.player1,
-              player2: currentMatch.player2,
-            },
-          },
-          "*"
-        );
-
-        if (!player1IsBot && player2IsBot) {
-          const options = this.options;
-          console.log("options : ", options);
-          const isAI = true;
-          const power = true;
-          this.gameContainer.contentWindow.postMessage(
-            {
-              type: "setOptions",
-              data: { options, isAI, power },
-            },
-            "*"
-          );
-        } else if (!player1IsBot && !player2IsBot) {
-          const options = this.options;
-          const isAI = false;
-          const power = true;
-          this.gameContainer.contentWindow.postMessage(
-            {
-              type: "setOptions",
-              data: { options, isAI, power },
-            },
-            "*"
-          );
+        if (
+            !currentMatch ||
+            this.tournamentState.currentMatch >=
+            this.tournamentState.matches.length
+        ) {
+          console.log("No more matches to play");
+          return;
         }
 
-        this.gameContainer.focus();
-      };
+        console.log(
+            "Starting game for match:",
+            this.tournamentState.currentMatch
+        );
+        console.log("Current match data:", currentMatch);
+
+        // Vérifier si chaque joueur est un bot
+        const player1IsBot = this.isBot(currentMatch.player1);
+        const player2IsBot = this.isBot(currentMatch.player2);
+
+        // Afficher si les joueurs sont des bots
+        console.log(
+            `Player 1 (${currentMatch.player1.name}) isBot:`,
+            player1IsBot
+        );
+        console.log(
+            `Player 2 (${currentMatch.player2.name}) isBot:`,
+            player2IsBot
+        );
+
+        // Charger les options de jeu depuis localStorage
+        if (!this.options) {
+          console.error("Game options not found in localStorage!");
+          return;
+        }
+        console.log("Game options retrieved:", this.options);
+
+        // Simulation si les deux joueurs sont des bots
+        if (player1IsBot && player2IsBot) {
+          console.log("Simulating match between two bots...");
+
+          this.isSimulationInProgress = true;
+          this.blockSpacebar(true); // Bloquer la barre d'espace
+
+          const simulateScores = () => {
+            let score1 = 0;
+            let score2 = 0;
+
+            while (true) {
+              score1 = Math.floor(Math.random() * 6); // Génère un score entre 0 et 5
+              score2 = Math.floor(Math.random() * 6);
+
+              if (
+                  Math.max(score1, score2) === 5 &&
+                  Math.abs(score1 - score2) >= 2
+              ) {
+                break;
+              }
+            }
+            return { score1, score2 };
+          };
+
+          // Simuler les scores
+          const { score1: simulatedScore1, score2: simulatedScore2 } =
+              simulateScores();
+
+          const simulatedWinner =
+              simulatedScore1 > simulatedScore2
+                  ? currentMatch.player1
+                  : currentMatch.player2;
+
+          console.log(
+              "Simulation complete. Winner:",
+              simulatedWinner,
+              "Scores:",
+              {
+                player1: simulatedScore1,
+                player2: simulatedScore2,
+              }
+          );
+
+          progressTournament(
+              null,
+              { player1: simulatedScore1, player2: simulatedScore2 },
+              this
+          );
+
+          this.isSimulationInProgress = false;
+          this.blockSpacebar(false);
+          return;
+        }
+
+        // Charger le conteneur de jeu uniquement si ce n'est pas une simulation
+        this.gameContainer.style.display = "block";
+        this.gameContainer.src = "/static/spa/game3D/three.html";
+
+        this.gameContainer.onload = () => {
+          console.log(
+              "Game loaded, sending players:",
+              currentMatch.player1,
+              currentMatch.player2
+          );
+
+          this.gameContainer.contentWindow.postMessage(
+              {
+                type: "startGame",
+                data: {
+                  player1: currentMatch.player1,
+                  player2: currentMatch.player2,
+                },
+              },
+              "*"
+          );
+
+          const options = this.options;
+          const isAI = player2IsBot;
+          const power = true;
+
+          this.gameContainer.contentWindow.postMessage(
+              {
+                type: "setOptions",
+                data: { options, isAI, power, languageOption },
+              },
+              "*"
+          );
+
+          this.gameContainer.focus();
+        };
+      } catch (error) {
+        console.error("An error occurred while starting the game:", error);
+      }
     }
 
     // Fonction pour bloquer ou autoriser l'appui sur la barre d'espace
@@ -536,13 +551,24 @@ function initializeTournamentPage() {
             <div class="player-entry">
                 <img class="player-avatar" src="/static/assets/avatars/${randomAvatar}" />
                 <div class="player-controls">
-                    <input type="text" class="player-input" value="Bot Player ${i}" maxlenght="15"/>
+                    <input 
+                        type="text" 
+                        class="player-input" 
+                        value="Bot Player ${i}" 
+                        maxlength="15" 
+                        data-translate="tournament.bot.name" 
+                        data-translate-params="${i}" 
+                    />
                     <div class="bot-toggle">
                         <label class="switch">
                             <input type="checkbox" class="bot-checkbox" checked>
                             <span class="slider round"></span>
                         </label>
-                        <span class="bot-label">Bot</span>
+                        <span 
+                            class="bot-label" 
+                            data-translate="tournament.bot.label">
+                            Bot
+                        </span>
                     </div>
                 </div>
             </div>
@@ -556,25 +582,32 @@ function initializeTournamentPage() {
         .closest(".player-entry")
         .querySelector(".player-input");
 
-      // État initial
-      if (checkbox.checked) {
-        input.classList.add("bot-active");
-        input.readOnly = true;
-        input.value = `Bot Player ${index + 1}`;
-      }
-
-      // Event listener pour le changement
-      checkbox.addEventListener("change", (e) => {
-        if (e.target.checked) {
+      // Fonction pour mettre à jour l'état du bot
+      const updateBotState = (isBot) => {
+        if (isBot) {
           input.classList.add("bot-active");
           input.readOnly = true;
-          input.value = `Bot Player ${index + 1}`;
+
+          // Accès direct à la traduction "Bot Player {0}"
+          const botName = translations.tournament.bot.name;
+          input.value = botName.replace("{0}", index + 1);
         } else {
           input.classList.remove("bot-active");
           input.readOnly = false;
+
+          // Accès direct à la traduction pour "Enter your nickname"
+          const placeholder = translations.tournament.input.placeholder;
           input.value = "";
-          input.placeholder = "Entrez un pseudo";
+          input.placeholder = placeholder;
         }
+      };
+
+      // État initial
+      updateBotState(checkbox.checked);
+
+      // Event listener pour le changement
+      checkbox.addEventListener("change", (e) => {
+        updateBotState(e.target.checked);
       });
     });
 
@@ -595,27 +628,71 @@ function initializeTournamentPage() {
         .closest(".player-entry")
         .querySelector(".player-input");
 
-      // Initialiser l'état de la case à cocher
-      if (checkbox.checked) {
-        input.classList.add("bot-active");
-        input.readOnly = true;
-        input.value = `Bot Player ${index + 1}`;
-      }
-
-      // Écouteur pour le changement d'état
-      checkbox.addEventListener("change", (e) => {
-        if (e.target.checked) {
+      // Fonction pour mettre à jour l'état du bot
+      const updateBotState = (isBot) => {
+        language.then((value) => {
+          fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to load translations");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              translations = data;
+            })
+            .catch((error) => {
+              console.error("Error loading translations:", error);
+            });
+        });
+        if (isBot) {
           input.classList.add("bot-active");
           input.readOnly = true;
-          input.value = `Bot Player ${index + 1}`;
+
+          // Accès direct à la traduction "Bot Player {0}"
+          const botName = translations.tournament.bot.name;
+          input.value = botName.replace("{0}", index + 1);
         } else {
           input.classList.remove("bot-active");
           input.readOnly = false;
+
+          // Accès direct à la traduction pour "Enter your nickname"
+          const placeholder = translations.tournament.input.placeholder;
           input.value = "";
-          input.placeholder = "Entrez un pseudo";
+          input.placeholder = placeholder;
         }
+        console.log("name:", translations.tournament.bot.name);
+        console.log("place", translations.tournament.input.placeholder);
+      };
+
+      // Initialiser l'état de la case à cocher
+      updateBotState(checkbox.checked);
+
+      // Écouteur pour le changement d'état
+      checkbox.addEventListener("change", (e) => {
+        language.then((value) => {
+          fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Failed to load translations");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              translations = data;
+            })
+            .catch((error) => {
+              console.error("Error loading translations:", error);
+            });
+        });
+        updateBotState(e.target.checked);
       });
     });
+
+    // language = getLanguageFromAPI();
+    // language.then((value) => {
+    //   setPreferredLanguage(value);
+    // });
   }
 
   function truncateNicknames() {
@@ -1140,6 +1217,24 @@ function initializeTournamentPage() {
     // Bloquer la barre d'espace pendant l'exécution de la fonction
     gameManager.blockSpacebar(true);
 
+    //recuperer la langue
+    language = getLanguageFromAPI();
+    language.then((value) => {
+      fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to load translations");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          translations = data;
+        })
+        .catch((error) => {
+          console.error("Error loading translations:", error);
+        });
+    });
+
     const playerCount = getSelectedPlayerCount();
     const lastMatchIndex = playerCount === 4 ? 3 : 7;
     const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
@@ -1151,7 +1246,7 @@ function initializeTournamentPage() {
     if (isLastMatch) {
       // remove the button
       playButton.innerHTML = `
-        <span class="button-text">Tournament Complete!</span>
+        <span class="button-text" data-translate="tournament.complete">Tournament Complete!</span>
       `;
       playButton.classList.add("tournament-complete");
       playButton.disabled = true;
@@ -1185,7 +1280,7 @@ function initializeTournamentPage() {
               <svg>
           <use href="/static/assets/icons/sprite.svg#play"></use>
       </svg>
-      SIMULATE BOTS MATCH
+      ${translations.tournament.botMatch}
       `;
       playButton.disabled = false;
 
@@ -1194,11 +1289,11 @@ function initializeTournamentPage() {
       return;
     }
 
-    let matchText = "LAUNCH MATCH";
+    let matchText = translations.tournament.launchMatch;
     if (tournamentState.currentMatch === lastMatchIndex - 1) {
-      matchText = "LAUNCH FINAL";
+      matchText = translations.tournament.launchFinal;
     } else if (playerCount === 8 && tournamentState.currentMatch >= 4) {
-      matchText = "LAUNCH SEMI-FINAL";
+      matchText = translations.tournament.launchSemiFinal;
     }
 
     playButton.innerHTML = `
@@ -1291,6 +1386,11 @@ function initializeTournamentPage() {
   // const playButton = document.querySelector(".buttonPlay");
   if (playButton) {
     playButton.addEventListener("click", () => {
+      language = getLanguageFromAPI();
+      console.log("language:", language);
+      language.then((value) => {
+        setPreferredLanguage(value);
+      });
       if (!tournamentState.isStarted) {
         const playerCount = getSelectedPlayerCount();
         openTournamentConfig(playerCount);
@@ -1464,6 +1564,25 @@ function initializeTournamentPage() {
 
   function showMatchVictory(winner, score1, score2) {
     // Bloquer la barre d'espace lorsqu'on affiche l'écran de victoire
+
+    // Récupérer la langue
+    language = getLanguageFromAPI();
+    language.then((value) => {
+      fetch(`/static/languages/${value}.json`) // Utilisation correcte des backticks
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to load translations");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          translations = data;
+        })
+        .catch((error) => {
+          console.error("Error loading translations:", error);
+        });
+    });
+
     gameManager.blockSpacebar(true);
 
     const overlay = document.querySelector(".victory-overlay");
@@ -1472,7 +1591,7 @@ function initializeTournamentPage() {
     const continueBtn = overlay.querySelector(".continue-btn");
 
     winnerNameElement.textContent = winner.name;
-    scoreElement.innerHTML = `WON THE GAME`;
+    scoreElement.innerHTML = `${translations.tournament.winAnnouncement}`;
 
     overlay.classList.add("show");
 
