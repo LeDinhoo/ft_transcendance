@@ -1,8 +1,0 @@
-invitation game : la personne qui est cible par l'invite ne recoit rien !
-blocker : db
-notification add friend
-
-Done but to check :
-
-add friend : rajouter bonhomme vert online players
-see profil : history de match

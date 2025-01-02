@@ -50,13 +50,8 @@ A ete fait sur cette branche en + :
 - platinium en + au niveau du badge.
 
 
-
-
-
-
-
-
 MERGE CLEM ET HENRIK FIX 
 
 - CSS POP UP INVITE GAME GENERAL
 - PARSING PM USER -> USER2..
+- RENDRE LE CHAT SCRIPT PROOF

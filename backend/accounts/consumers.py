@@ -1,5 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from html import escape
 
 class ChatConsumer(AsyncWebsocketConsumer):
     connected_users = {}
@@ -146,6 +147,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             # Pour les messages publics
             if message_data['type'] == 'chat_message':
+                # Désinfection du message
+                sanitized_message = escape(message_data['message'])
+                message_data['message'] = sanitized_message
+
                 current_user = self.scope["user"]
                 sender_blocked_me = await self.is_user_blocked(sender_id, current_user.id)
                 i_blocked_sender = await self.is_user_blocked(current_user.id, sender_id)
@@ -155,6 +160,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             # Pour les messages privés
             elif message_data['type'] == 'private_message':
+                # Désinfection du message
+                sanitized_message = escape(message_data['message'])
+                message_data['message'] = sanitized_message
+
                 recipient_name = message_data.get('recipient')
                 if recipient_name:
                     from django.contrib.auth import get_user_model
@@ -164,7 +173,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         if recipient:
                             # Ne diffuser le message que si c'est l'expéditeur ou le destinataire
                             if str(self.scope["user"].id) == str(sender_id) or self.scope["user"].username == recipient_name:
-                                # Vérifier le blocage dans les deux sens
                                 sender_blocked_recipient = await self.is_user_blocked(sender_id, recipient.id)
                                 recipient_blocked_sender = await self.is_user_blocked(recipient.id, sender_id)
 

@@ -608,27 +608,36 @@ function initializeHome() {
 
 		static sendMessage() {
 			if (!DOM.chat.input || !window.currentUser) return;
-
+		
 			const message = DOM.chat.input.value.trim();
 			if (!message) return;
-
-			if (message.length > 250) {
-				ChatHandler.showNotification("Message too long (max 250 characters)");
-				return;
+		
+			function sanitizeInput(input) {
+				const element = document.createElement('div');
+				element.innerText = input;
+				return element.innerHTML;
 			}
-			
+		
 			const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
 			if (pmMatch) {
-				// Bloquer les messages privés vers System
 				if (pmMatch[1].toLowerCase() === "system") {
 					ChatHandler.showNotification("Cannot send private messages to System");
 					return;
 				}
-
+		
 				const [, recipient, privateMessage] = pmMatch;
-				window.wsManager.chatSocket.send(JSON.stringify({
+		
+				console.log("Sending private message:", {
 					type: "private_message",
 					message: privateMessage,
+					recipient: recipient,
+					username: window.currentUser.username,
+					userId: window.currentUser.id
+				});
+				
+				window.wsManager.chatSocket.send(JSON.stringify({
+					type: "private_message",
+					message: sanitizeInput(privateMessage),
 					username: window.currentUser.username,
 					userId: window.currentUser.id,
 					avatar: window.currentUser.avatar,
@@ -637,13 +646,12 @@ function initializeHome() {
 			} else {
 				window.wsManager.chatSocket.send(JSON.stringify({
 					type: "chat_message",
-					message: message,
+					message: sanitizeInput(message),
 					username: window.currentUser.username,
 					userId: window.currentUser.id,
 					avatar: window.currentUser.avatar
 				}));
 			}
-
 			DOM.chat.input.value = "";
 		}
 
@@ -1485,9 +1493,8 @@ const GameInvitationManager = {
 		setTimeout(() => {
 			if (this.activeInvitations.has(invitationId)) {
 				this.activeInvitations.delete(invitationId);
-				this.showNotification(`Game invitation to ${username} has expired`);
 			}
-		}, 10000);
+		}, 20000);
 	},
 
 	showNotification(message) {
