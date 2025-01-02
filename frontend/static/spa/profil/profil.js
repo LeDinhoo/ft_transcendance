@@ -504,11 +504,14 @@ async function verifyTwoFactorCodeForProfile(code) {
     const data = await response.json();
 
     if (data.success) {
-      console.log("2FA activé avec succès.");
       const popup = document.querySelector(".popup-overlay");
       if (popup) popup.remove();
       updateUI2FAStatus(true);
       showConfirmationMessage(data.message);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500); // 2 secondes pour voir le message de confirmation
+
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
