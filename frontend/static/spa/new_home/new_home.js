@@ -25,10 +25,16 @@ function updateProfilOnHome() {
 					document.getElementById("rankImage").src =
 						"static/assets/icons/bronze.png";
 					document.getElementById("rankText").innerText = "Bronze";
+					document
+						.getElementById("rankText")
+						.setAttribute("data-translate", "newhome.bronze");
 				} else if (win_ratio < 66 && win_ratio >= 33) {
 					document.getElementById("rankImage").src =
 						"static/assets/icons/silver.png";
 					document.getElementById("rankText").innerText = "Silver";
+					document
+						.getElementById("rankText")
+						.setAttribute("data-translate", "newhome.silver");
 				} else if (
 					(win_ratio < 80 && win_ratio >= 66) ||
 					(win_ratio >= 66 && totalGames < 5)
@@ -36,11 +42,22 @@ function updateProfilOnHome() {
 					document.getElementById("rankImage").src =
 						"static/assets/icons/gold.png";
 					document.getElementById("rankText").innerText = "Gold";
+					document
+						.getElementById("rankText")
+						.setAttribute("data-translate", "newhome.gold");
 				} else if (win_ratio >= 80 && totalGames >= 5) {
 					document.getElementById("rankImage").src =
 						"static/assets/icons/platinium.png";
-					document.getElementById("rankText").innerText = "Platinium";
+					document.getElementById("rankText").innerText = "Platine";
+					document
+						.getElementById("rankText")
+						.setAttribute("data-translate", "newhome.platine");
 				}
+
+				language = getLanguageFromAPI();
+				language.then((value) => {
+					setPreferredLanguage(value);
+				});
 
 				const avatarUrl =
 					data.avatar && data.avatar.trim()
@@ -1195,7 +1212,14 @@ function initializeHome() {
 		}
 	}
 
-	function startMatch(options, isAI, power) {
+	async function startMatch(options, isAI, power) {
+		// Initialisation par défaut
+		let languageOption = "en";
+
+		// Attendre la réponse de l'API pour récupérer la langue
+		const language = await getLanguageFromAPI();
+		setPreferredLanguage(language);
+		languageOption = language;
 		if (!isGameInitialized) {
 			console.log("startMatch() appelée.");
 			isGameInitialized = true;
@@ -1238,18 +1262,18 @@ function initializeHome() {
 				document.body.removeChild(loadingIndicator);
 				console.log("Jeu chargé.");
 
-				iframe.contentWindow.postMessage(
-					{
-						type: "setOptions",
-						data: { options, isAI, power },
-					},
-					"*"
-				);
-				setTimeout(() => {
-					iframe.contentWindow.focus();
-					console.log("Focus défini sur l'iframe.");
-				}, 100);
-			};
+        iframe.contentWindow.postMessage(
+          {
+            type: "setOptions",
+            data: { options, isAI, power, languageOption },
+          },
+          "*"
+        );
+        setTimeout(() => {
+          iframe.contentWindow.focus();
+          console.log("Focus défini sur l'iframe.");
+        }, 100);
+      };
 
 			modal.appendChild(iframe);
 			document.body.appendChild(modal);
