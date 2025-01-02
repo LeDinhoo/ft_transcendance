@@ -19,3 +19,16 @@ function closePopup() {
 
 document.getElementById("popupCloseBtn").addEventListener("click", closePopup);
 document.getElementById("popupOverlay").addEventListener("click", closePopup);
+
+
+function showConfirmPopup(message)
+{
+  const popupModal = document.getElementById("popupModal");
+  const popupOverlay = document.getElementById("popupOverlay");
+  const popupTexte = document.querySelector(".popupTexte");
+
+  popupTexte.innerHTML = message; 
+
+  popupOverlay.style.display = "block";
+  popupModal.classList.add("active");
+}

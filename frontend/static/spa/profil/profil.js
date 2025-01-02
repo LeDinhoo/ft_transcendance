@@ -15,7 +15,6 @@ async function updateProfilOnProfil() {
     })
     .then((data) => {
       if (data.username && data.email) {
-
         const win_ratio = data.win_ratio ?? 0;
         const totalGames = data.total_games ?? 0;
         console.log("total games : ", totalGames);
@@ -179,7 +178,7 @@ function updateMatchHistoryUI(history) {
       resultLabel.setAttribute("data-translate", "profil.victory");
     }
 
-    matchResume.appendChild(gameDate);   
+    matchResume.appendChild(gameDate);
     matchResume.appendChild(userAvatar);
     matchResume.appendChild(userScore);
     matchResume.appendChild(separator);
@@ -210,8 +209,10 @@ function loadUserStatistics() {
       console.log("Statistiques de l'utilisateur :", data);
 
       document.getElementById("total_games").innerText = data.total_games;
-      document.getElementById("win_ratio").innerText = data.win_ratio.toFixed(2) + "%";
-      document.getElementById("max_ball_speed").innerText = data.max_ball_speed.toFixed(2);
+      document.getElementById("win_ratio").innerText =
+        data.win_ratio.toFixed(2) + "%";
+      document.getElementById("max_ball_speed").innerText =
+        data.max_ball_speed.toFixed(2);
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
@@ -269,24 +270,26 @@ function initializeProfilePage() {
         credentials: "include",
         body: formData,
       })
-      .then(async (response) => {
+        .then(async (response) => {
           const data = await response.json();
           if (!response.ok) {
-              // On récupère le message d'erreur du backend
-              throw new Error(data.error);
+            // On récupère le message d'erreur du backend
+            throw new Error(data.error);
           }
           return data;
-      })
-      .then((data) => {
+        })
+        .then((data) => {
           if (data.avatar) {
-              avatarDisplay.src = data.avatar;
+            avatarDisplay.src = data.avatar;
           }
-      })
-      .catch((error) => {
+        })
+        .catch((error) => {
           console.error("Erreur lors de la mise à jour de l'avatar :", error);
-          showErrorPopup(error.message || "Une erreur est survenue lors de la mise à jour");
-      });
-      }
+          showErrorPopup(
+            error.message || "Une erreur est survenue lors de la mise à jour"
+          );
+        });
+    }
   });
 
   saveButton.addEventListener("click", function () {
@@ -333,33 +336,38 @@ function initializeProfilePage() {
         credentials: "include",
         body: formData,
       })
-      .then(async (response) => {
+        .then(async (response) => {
           const data = await response.json();
-          
+
           if (!response.ok) {
-              throw new Error(data.error);
+            throw new Error(data.error);
           }
-          
+
           return data;
-      })
-      .then((data) => {
+        })
+        .then((data) => {
           document.getElementById("playerFrame").innerText = data.username;
           document.getElementById("username").value = data.username;
           document.getElementById("registerEmail").value = data.email;
-      
+
           if (data.avatar) {
-              avatarDisplay.src = data.avatar;
+            avatarDisplay.src = data.avatar;
           }
-      
+
           userInput.disabled = true;
           emailInput.disabled = true;
           cloneModifyButton.style.backgroundColor = "";
           resetPasswordFields();
-      })
-      .catch((error) => {
-          console.error("Erreur lors de la mise à jour des informations :", error);
-          showErrorPopup(error.message || "Une erreur est survenue lors de la mise à jour");
-      });
+        })
+        .catch((error) => {
+          console.error(
+            "Erreur lors de la mise à jour des informations :",
+            error
+          );
+          showErrorPopup(
+            error.message || "Une erreur est survenue lors de la mise à jour"
+          );
+        });
     }
   });
 
@@ -381,17 +389,19 @@ function initializeProfilePage() {
         document.getElementById("playerFrame").innerText = data.username;
         document.getElementById("username").value = data.username;
         document.getElementById("registerEmail").value = data.email;
-  
+
         if ("is_2fa_enabled" in data) {
           updateUI2FAStatus(data.is_2fa_enabled);
         }
-  
+
         // Mise à jour du rank
         if (data.rank) {
-          document.getElementById("profileRankIcon").src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
+          document.getElementById(
+            "profileRankIcon"
+          ).src = `/static/assets/icons/${data.rank.toLowerCase()}.png`;
           document.getElementById("profileRankText").textContent = data.rank;
         }
-  
+
         avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
       }
     })
@@ -507,11 +517,11 @@ async function verifyTwoFactorCodeForProfile(code) {
       const popup = document.querySelector(".popup-overlay");
       if (popup) popup.remove();
       updateUI2FAStatus(true);
-      showConfirmationMessage(data.message);
+      // showConfirmationMessage(data.message);
+      showConfirmPopup(data.message);
       setTimeout(() => {
         window.location.reload();
       }, 1500); // 2 secondes pour voir le message de confirmation
-
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
@@ -564,7 +574,9 @@ https: function updateUI2FAStatus(enabled) {
 
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
- <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
+ <img src="/static/assets/icons/${
+   enabled ? "check" : "close"
+ }.svg" class="popuplogo" />
   ${enabled ? "2FA On" : "2FA Off"}
 `;
 
@@ -638,7 +650,8 @@ function initialize2FA() {
         } else {
           is2FAEnabled = false;
           updateUI2FAStatus(is2FAEnabled);
-          showConfirmationMessage("2FA désactivé avec succès.");
+          // showConfirmationMessage("2FA désactivé avec succès.");
+          showConfirmPopup("2FA désactivé avec succès.");
         }
       })
       .catch((error) => {
@@ -741,38 +754,40 @@ function initializeAvatarFeature() {
           method: "PATCH",
           credentials: "include",
           body: formData,
-          })
+        })
           .then(async (response) => {
-              const data = await response.json();
-              console.log("Réponse brute du serveur:", data);
-              
-              if (!response.ok) {
-                  throw new Error(data.error || `Erreur HTTP: ${response.status}`);
-              }
-              
-              return data;
+            const data = await response.json();
+            console.log("Réponse brute du serveur:", data);
+
+            if (!response.ok) {
+              throw new Error(data.error || `Erreur HTTP: ${response.status}`);
+            }
+
+            return data;
           })
           .then((data) => {
-              console.log("Réponse reçue:", data);
-          
-              const avatarElements = document.querySelectorAll(".avatarImg");
-              avatarElements.forEach((element) => {
-                  element.src = data.avatar;
-              });
-          
-              const avatarDisplay = document.getElementById("avatarDisplay");
-              if (avatarDisplay) {
-                  avatarDisplay.src = data.avatar;
-              }
-          
-              closeModal();
-              console.log("Avatar mis à jour avec succès");
+            console.log("Réponse reçue:", data);
+
+            const avatarElements = document.querySelectorAll(".avatarImg");
+            avatarElements.forEach((element) => {
+              element.src = data.avatar;
+            });
+
+            const avatarDisplay = document.getElementById("avatarDisplay");
+            if (avatarDisplay) {
+              avatarDisplay.src = data.avatar;
+            }
+
+            closeModal();
+            console.log("Avatar mis à jour avec succès");
           })
           .catch((error) => {
-              console.error("Erreur détaillée:", error);
-              showErrorPopup(error.message || "Erreur lors de la mise à jour de l'avatar");
+            console.error("Erreur détaillée:", error);
+            showErrorPopup(
+              error.message || "Erreur lors de la mise à jour de l'avatar"
+            );
           });
-          }
+      }
     });
   }
 
@@ -817,18 +832,21 @@ function initializeAvatarFeature() {
 }
 
 function loadFriendRequests() {
-    fetch('/api/friends/pending/', {
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        const requestsList = document.getElementById('friendRequestsList');
-        if (!data.pending_requests.length) {
-            requestsList.innerHTML = '<div class="no-requests">No pending friend requests</div>';
-            return;
-        }
+  fetch("/api/friends/pending/", {
+    credentials: "include",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      const requestsList = document.getElementById("friendRequestsList");
+      if (!data.pending_requests.length) {
+        requestsList.innerHTML =
+          '<div class="no-requests">No pending friend requests</div>';
+        return;
+      }
 
-        requestsList.innerHTML = data.pending_requests.map(request => `
+      requestsList.innerHTML = data.pending_requests
+        .map(
+          (request) => `
             <div class="friendRequest">
                 <img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
                 <div class="requestInfo">
@@ -843,9 +861,11 @@ function loadFriendRequests() {
                     </button>
                 </div>
             </div>
-        `).join('');
+        `
+        )
+        .join("");
     })
-    .catch(error => console.error('Error loading friend requests:', error));
+    .catch((error) => console.error("Error loading friend requests:", error));
 }
 
 // function handleFriendRequest(requestId, action) {
@@ -868,7 +888,7 @@ function loadFriendRequests() {
 //                 composed: true
 //             });
 //             document.dispatchEvent(event);
-            
+
 //             // Forcer une mise à jour immédiate si wsManager est disponible
 //             if (window.wsManager && window.wsManager.onlinePlayers) {
 //                 console.log("Mise à jour de la liste des joueurs en ligne après acceptation d'ami");
@@ -880,29 +900,32 @@ function loadFriendRequests() {
 // }
 
 async function handleFriendRequest(requestId, action) {
-    try {
-        const response = await fetch('/api/friends/handle-request/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({ request_id: requestId, action })
-        });
+  try {
+    const response = await fetch("/api/friends/handle-request/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ request_id: requestId, action }),
+    });
 
-        if (response.ok) {
-            // Mettre à jour la liste des demandes d'ami
-            loadFriendRequests();
-            
-            // Utiliser la méthode correcte de wsManager
-            if (window.wsManager && window.wsManager.onlinePlayers) {
-                await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
-            }
+    if (response.ok) {
+      // Mettre à jour la liste des demandes d'ami
+      loadFriendRequests();
 
-            // Afficher un message de confirmation
-            showConfirmationMessage(`Friend request ${action}ed successfully`);
-        }
-    } catch (error) {
-        console.error('Error handling friend request:', error);
+      // Utiliser la méthode correcte de wsManager
+      if (window.wsManager && window.wsManager.onlinePlayers) {
+        await window.wsManager.updateOnlinePlayersList([
+          ...window.wsManager.onlinePlayers,
+        ]);
+      }
+
+      // Afficher un message de confirmation
+      // showConfirmationMessage(`Friend request ${action}ed successfully`);
+      showErrorPopup(`Friend request ${action}ed successfully`);
     }
+  } catch (error) {
+    console.error("Error handling friend request:", error);
+  }
 }
