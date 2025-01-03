@@ -423,49 +423,49 @@ body {
 	}
 }
 
-/* Info Popup Styles */
+/* Info Popup */
 #infoPopup {
-    display: none;
+    display: none; /* Initially hidden */
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    background-color: var(--light-blue); /* Light blue background */
-    padding: 20px;
-    border-radius: var(--popup-radius, 10px);
-    box-shadow: var(--popup-shadow, 0 0 10px rgba(0, 0, 0, 0.5));
-    border: 3px solid var(--blue); /* Blue border */
+    background-color: var(--dark-grey); /* Solid background */
+    padding: 1.5vw 1vw; /* Same padding as error popup */
+    border-radius: var(--8px); /* Same border-radius */
+    border: 3px solid var(--liquid-lava); /* Orange border */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for effect */
 }
 
-/* Active state to make the popup visible */
-#infoPopup.active {
-    display: block;
-}
-
-/* Title for the Info Popup */
-#infoPopup .popupContent {
+/* Info Popup Text */
+#infoPopup .popupTexte {
+    color: var(--snow); /* White text */
+    font-size: var(--12px); /* Match the font size */
+    font-weight: 600; /* Bold for visibility */
+    font-family: "Inter", sans-serif;
     text-align: center;
+    margin-bottom: 1vw;
 }
 
+/* Info Popup Close Button */
 #infoPopup .popupClose {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: var(--blue); /* Blue for the close button */
-    color: var(--white); /* White text */
-    border: none;
-    padding: 5px 10px;
-    border-radius: var(--popup-btn-radius, 5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--liquid-lava); /* Orange button */
+    width: 2.5vw;
+    height: 1.5vw;
+    border-radius: var(--radius-sm); /* Rounded corners */
+    color: var(--snow); /* White text */
+    font-size: var(--12px);
+    font-weight: 600;
+    font-family: "Inter", sans-serif;
     cursor: pointer;
+    margin: 0 auto; /* Centered button */
 }
 
 #infoPopup .popupClose:hover {
-    background-color: var(--dark-blue); /* Darker blue for hover */
-}
-
-#infoPopup .popupTexte {
-    color: var(--blue); /* Blue text */
-    font-size: var(--popup-text-size, 16px);
-    margin-top: 20px;
+    background-color: var(--snow); /* Change color on hover */
+    color: var(--liquid-lava); /* Invert text and background */
 }
