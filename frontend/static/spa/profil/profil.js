@@ -871,9 +871,9 @@ async function handleFriendRequest(requestId, action) {
                 if (window.wsManager && window.wsManager.onlinePlayers) {
                     await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
                 }
-				showInfoPopup("Friend request accepted successfully");
+                showConfirmationMessage("Friend request accepted successfully");
             } else {
-				showInfoPopup("Friend request declined");
+                showConfirmationMessage("Friend request declined");
             }
 
             // Vérifier s'il reste des demandes d'ami
@@ -884,6 +884,6 @@ async function handleFriendRequest(requestId, action) {
         }
     } catch (error) {
         console.error('Error handling friend request:', error);
-		showInfoPopup("An error occurred while processing the request");
+        showConfirmationMessage("An error occurred while processing the request");
     }
 }

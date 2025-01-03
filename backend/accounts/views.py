@@ -1586,19 +1586,46 @@ def send_friend_request(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def handle_friend_request(request):
-    request_id = request.data.get('request_id')
-    action = request.data.get('action')
-
+    """
+    Gère l'acceptation ou le refus des demandes d'ami.
+    Attend request_id et action ('accept' ou 'decline') dans le corps de la requête.
+    """
     try:
-        # Retrieve the FriendShip object
-        friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
+        # Récupérer et valider les données
+        request_id = request.data.get('request_id')
+        action = request.data.get('action')
+
+        if not request_id or not action:
+            return JsonResponse({
+                'success': False,
+                'message': 'request_id and action are required'
+            }, status=400)
+
+        if action not in ['accept', 'decline']:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid action. Must be either "accept" or "decline"'
+            }, status=400)
+
+        try:
+            # Récupérer la demande d'ami
+            friendship = FriendShip.objects.get(
+                id=request_id,
+                to_user=request.user,
+                status='pending'  # Vérifie que la demande est en attente
+            )
+        except FriendShip.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Friend request not found or already processed'
+            }, status=404)
 
         if action == 'accept':
-            # Update the current friendship status
+            # Mettre à jour le statut de la demande actuelle
             friendship.status = 'accepted'
             friendship.save()
 
-            # Ensure the friendship is bidirectional
+            # Créer ou mettre à jour la relation inverse
             reverse_friendship, created = FriendShip.objects.get_or_create(
                 from_user=friendship.to_user,
                 to_user=friendship.from_user,
@@ -1608,15 +1635,25 @@ def handle_friend_request(request):
                 reverse_friendship.status = 'accepted'
                 reverse_friendship.save()
 
+            return JsonResponse({
+                'success': True,
+                'message': 'Friend request accepted successfully'
+            })
+
         elif action == 'decline':
-            # Decline the friendship
-            friendship.status = 'rejected'
-            friendship.save()
+            # Supprimer la demande d'ami
+            friendship.delete()
+            return JsonResponse({
+                'success': True,
+                'message': 'Friend request declined successfully'
+            })
 
-        return JsonResponse({'message': f'Request {action}ed successfully'})
-
-    except FriendShip.DoesNotExist:
-        return JsonResponse({'message': 'Friend request not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error in handle_friend_request: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': 'An error occurred while processing the request'
+        }, status=500)
 
 
 import logging
