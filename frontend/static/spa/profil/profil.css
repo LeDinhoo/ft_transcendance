@@ -419,6 +419,7 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
   align-items: center;
   justify-content: center;
+  z-index: 99;
 }
 
 .modal-content {
@@ -922,6 +923,9 @@ body {
 }
 
 .timer {
+  display: flex;
+  justify-content: center;
+  gap: 4px;  /* pour un petit espacement entre le texte et le compteur */
   color: var(--snow);
   margin-top: var(--16px);
   font-size: var(--14px);
@@ -947,8 +951,13 @@ body {
 .close-2fa-popup img {
   width: 24px;
   height: 24px;
+  filter: brightness(0) invert(1);
 }
 
 .close-2fa-popup:hover {
   transform: scale(1.1);
+}
+
+#countdown {
+  order: 1;
 }
