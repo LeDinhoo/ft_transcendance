@@ -1,4 +1,11 @@
 {
+  "navBar": {
+    "home": "Inicio",
+    "logout": "Cerrar sesión",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "tournament": "Torneo"
+  },
   "login": {
     "title": "Únete a la Batalla",
     "emailLabel": "Correo electrónico",
@@ -50,7 +57,13 @@
     "rankTooltipTitle": "Sistema de Clasificación",
     "rankBronze": "Bronce: 0-33% Tasa de victoria",
     "rankSilver": "Plata: 33-66% Tasa de victoria",
-    "rankGold": "Oro: 66-100% Tasa de victoria"
+    "rankGold": "Oro: 66-100% Tasa de victoria",
+    "menuProfile": "Ver perfil",
+    "unblockUser": "Desbloquear usuario",
+    "blockUser": "Bloquear usuario",
+    "addFriend": "Agregar amigo",
+    "sendInvitation": "Enviar invitación en línea",
+    "privateMessage": "Mensaje privado"
   },
   "twoStepVerification": {
     "title": "Verificación en Dos Pasos",

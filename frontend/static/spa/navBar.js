@@ -1,5 +1,5 @@
 function addLanguageSelector() {
-    const navbar = document.querySelector('.headerNavBar');
+    const navbar = document.querySelector('.headerMenuSection');
     if (!navbar) return;
 
     const existingSelector = document.querySelector('.language-selector, .languageSwitcher');
