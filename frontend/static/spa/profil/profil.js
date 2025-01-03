@@ -507,7 +507,7 @@ async function verifyTwoFactorCodeForProfile(code) {
       const popup = document.querySelector(".popup-overlay");
       if (popup) popup.remove();
       updateUI2FAStatus(true);
-      showConfirmationMessage(data.message);
+	  showInfoPopup(data.message);
       setTimeout(() => {
         window.location.reload();
       }, 1500); // 2 secondes pour voir le message de confirmation
@@ -634,16 +634,16 @@ function initialize2FA() {
           if (!document.querySelector(".popup-overlay")) {
             showTwoFactorPopup();
           }
-          showConfirmationMessage("Code de vérification envoyé par email.");
+		  showInfoPopup("Code de vérification envoyé par email.");
         } else {
           is2FAEnabled = false;
           updateUI2FAStatus(is2FAEnabled);
-          showConfirmationMessage("2FA désactivé avec succès.");
+		  showInfoPopup("2FA désactivé avec succès.");
         }
       })
       .catch((error) => {
         console.error("Erreur lors du basculement de la 2FA :", error);
-        showConfirmationMessage("Une erreur est survenue.");
+		showInfoPopup("Une erreur est survenue.");
       });
   });
 }
@@ -871,9 +871,9 @@ async function handleFriendRequest(requestId, action) {
                 if (window.wsManager && window.wsManager.onlinePlayers) {
                     await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
                 }
-                showConfirmationMessage("Friend request accepted successfully");
+				showInfoPopup("Friend request accepted successfully");
             } else {
-                showConfirmationMessage("Friend request declined");
+				showInfoPopup("Friend request declined");
             }
 
             // Vérifier s'il reste des demandes d'ami
@@ -884,6 +884,6 @@ async function handleFriendRequest(requestId, action) {
         }
     } catch (error) {
         console.error('Error handling friend request:', error);
-        showConfirmationMessage("An error occurred while processing the request");
+		showInfoPopup("An error occurred while processing the request");
     }
 }

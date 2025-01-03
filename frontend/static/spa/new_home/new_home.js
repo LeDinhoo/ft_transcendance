@@ -1393,7 +1393,7 @@ async function handleFriendRequest(requestId, action) {
 				action === "accept"
 					? "Friend request accepted"
 					: "Friend request rejected";
-			showConfirmationMessage(message);
+			showInfoPopup(message);
 		}
 	} catch (error) {
 		console.error("Error handling friend request:", error);
