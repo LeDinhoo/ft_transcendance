@@ -100,6 +100,11 @@ function initializeNavBar() {
       console.error("Logout icon not found in the DOM.");
     }
   });
+
+  let language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
 }
 
 

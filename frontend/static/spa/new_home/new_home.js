@@ -812,7 +812,7 @@ function initializeHome() {
 				const recentGamesList = document.getElementById("recentGamesList");
 				if (playerData.matchHistory.length === 0) {
 					recentGamesList.innerHTML =
-						'<div class="no-games">No recent games</div>';
+						'<div class="no-games" data-translate="profil.noRecentGames">No recent games</div>';
 				} else {
 					recentGamesList.innerHTML = playerData.matchHistory
 						.map(
@@ -1377,8 +1377,8 @@ function displayPendingRequests(requests) {
                 <div class="requestUsername">${request.sender.username}</div>
             </div>
             <div class="requestActions">
-                <button class="acceptButton" onclick="handleFriendRequest(${request.request_id}, 'accept')">Accept</button>
-                <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')">Reject</button>
+                <button class="acceptButton" onclick="handleFriendRequest(${request.request_id}, 'accept')" data-translate="profil.friendAccept">Accept</button>
+                <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')" data-translate="profil.friendReject">Reject</button>
             </div>
         </div>
     `
@@ -1386,7 +1386,12 @@ function displayPendingRequests(requests) {
 		.join("");
 
 	friendRequestsList.innerHTML =
-		requestsHTML || '<div class="no-requests">No pending friend requests</div>';
+		requestsHTML || '<div class="no-requests" data-translate="profil.noFriendRequest">No pending friend requests</div>';
+
+	let language = getLanguageFromAPI();
+	language.then((value) => {
+		setPreferredLanguage(value);
+	});
 }
 
 async function handleFriendRequest(requestId, action) {

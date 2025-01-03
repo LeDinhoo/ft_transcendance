@@ -1,6 +1,5 @@
 let loadedTranslations = {}; // Store loaded translations
 
-// Fonction pour vérifier si on est sur la page login
 function isLoginPage() {
   return (
     window.location.pathname === "/login-register" ||
@@ -10,6 +9,10 @@ function isLoginPage() {
 
 // Fonction pour charger la langue depuis l'API
 async function getLanguageFromAPI() {
+  // Verifier si l'utilisateur est sur la page de login
+  if (isLoginPage()) {
+    return null;
+  }
   try {
     const response = await fetch("/api/language/get/", {
       method: "GET",

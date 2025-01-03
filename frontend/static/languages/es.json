@@ -103,7 +103,11 @@
     "bronze": "Bronce",
     "silver": "Plata",
     "gold": "Oro",
-    "platine": "Platino"
+    "platine": "Platino",
+    "noFriendRequest": "No hay solicitudes de amistad",
+    "friendAccept": "Aceptar",
+    "friendReject": "Rechazar",
+    "noRecentGames": "No hay juegos recientes"
   },
   "settings": {
     "title": {

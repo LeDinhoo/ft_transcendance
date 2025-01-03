@@ -103,7 +103,11 @@
     "bronze": "Brons",
     "silver": "Silver",
     "gold": "Guld",
-    "platine": "Platina"
+    "platine": "Platina",
+    "noFriendRequest": "Inga vänförfrågningar",
+    "friendAccept": "Acceptera",
+    "friendReject": "Avböja",
+    "noRecentGames": "Inga senaste spel"
   },
   "settings": {
     "title": {

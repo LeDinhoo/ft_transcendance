@@ -28,7 +28,6 @@ document
       } else if (loginData.success) {
         handleSuccessfulLogin(loginData);
       } else {
-        // showErrorPopup(loginData.message || "Identifiants invalides");
         showErrorPopup("Identifiants invalides");
       }
     } catch (error) {
@@ -334,7 +333,6 @@ document
     });
 
     if (validationError) {
-      // Affiche une popup pour la première erreur trouvée
       showErrorPopup(validationError);
       return;
     }
@@ -396,60 +394,6 @@ document
       .finally(() => {
         document.getElementById("submitRegisterBtn").disabled = false;
       });
-    
-    
-
-    // fetch("/api/register/", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     username: username,
-    //     email: email,
-    //     password1: password1,
-    //     password2: password2,
-    //   }),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     if (data.success) {
-
-    //       fetch("/api/login/", {
-    //         method: "POST",
-    //         headers: { "Content-Type": "application/json" },
-    //         credentials: "include",
-    //         body: JSON.stringify({ email: email, password: password1 }),
-    //       })
-    //         .then((loginResponse) => loginResponse.json())
-    //         .then((loginData) => {
-    //           if (loginData.success) {
-    //             window.location.href = "/home";
-    //           } else {
-    //             showErrorPopup("Erreur lors de la connexion automatique");
-
-    //           }
-    //         })
-    //         .catch((error) => {
-    //           console.error("Erreur lors de la connexion automatique :", error);
-    //           showErrorPopup("Erreur lors de la connexion automatique.");
-
-    //         });
-    //     } else {
-    //       showErrorPopup(
-    //         "Votre mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial <br>- au minimum 8 caractères. "
-    //       );
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error("Erreur lors de l'inscription :", error);
-    //     showErrorPopup(
-    //       "Une erreur est survenue, veuillez réessayer plus tard."
-    //     );
-
-    //   })
-    //   .finally(() => {
-
-    //     document.getElementById("submitRegisterBtn").disabled = false;
-    //   });
   });
 
 /**
@@ -509,27 +453,6 @@ function isValidPassword(password) {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!.%*?&])[A-Za-z\d@$!%.*?&]{8,}$/;
   return passwordRegex.test(password);
 }
-
-// /**
-//  * Affiche une popup d'erreur.
-//  * @param {string} message - Message d'erreur à afficher.
-//  */
-// function showErrorPopup(message) {
-//   const popup = document.createElement("div");
-//   popup.className = "error-popup";
-//   popup.innerHTML = `
-//     <div class="popup-content">
-//       <p>${message}</p>
-//       <button id="closePopup">OK</button>
-//     </div>
-//   `;
-//   document.body.appendChild(popup);
-
-//   // Ajouter un événement pour fermer la popup
-//   document.getElementById("closePopup").addEventListener("click", () => {
-//     popup.remove();
-//   });
-// }
 
 function displayError(field, message) {
   const errorElement = document.getElementById(`${field}Error`);

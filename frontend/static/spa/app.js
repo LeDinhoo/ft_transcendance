@@ -2,11 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const appDiv = document.getElementById("app");
   const navbar = document.getElementById("navbarContainer");
 
-  let language = getLanguageFromAPI();
-  language.then((value) => {
-    setPreferredLanguage(value);
-  });
-
   let isLoading = false;
 
   async function isAuthenticated() {
@@ -62,54 +57,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     return false;
   }
-
-  //   async function loadComponent(
-  //     htmlUrl,
-  //     cssUrl,
-  //     jsUrls,
-  //     shouldInitGame = false
-  //   ) {
-  //     if (isLoading) return;
-  //     isLoading = true;
-
-  //     try {
-  //       const response = await fetch(htmlUrl);
-  //       if (!response.ok) {
-  //         throw new Error("Erreur lors du chargement de la page");
-  //       }
-  //       const html = await response.text();
-
-  //       if (appDiv.innerHTML !== html) {
-  //         appDiv.innerHTML = html;
-  //       }
-
-  //       if (cssUrl) {
-  //         loadCSS(cssUrl);
-  //       }
-
-  //       removePreviousComponentScripts();
-
-  //       if (jsUrls && jsUrls.length > 0) {
-  //         await loadScriptsInOrder(jsUrls);
-  //       }
-
-  //       if (typeof initializePage === "function") {
-  //         initializePage();
-  //       }
-
-  //       if (shouldInitGame && typeof initGame === "function") {
-  //         initGame();
-  //       }
-
-  //       initializeNavBar();
-  //     } catch (err) {
-  //       console.error("Erreur lors du chargement de la page:", err);
-  //       appDiv.innerHTML =
-  //         "<p>Une erreur est survenue lors du chargement de la page.</p>";
-  //     } finally {
-  //       isLoading = false;
-  //     }
-  //   }
 
   async function loadComponent(
     htmlUrl,

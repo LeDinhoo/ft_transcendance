@@ -1,20 +1,3 @@
-// Affiche la popup d'erreur
-// function showErrorPopup(message) {
-//     const popupModal = document.getElementById("errorPopup");
-//
-//     if (popupModal) {
-//         const messageContainer = popupModal.querySelector(".popupTexte");
-//         if (messageContainer) {
-//             messageContainer.textContent = message;
-//         }
-//
-//         popupModal.style.display = "flex"; // Rend la popup visible
-//         popupModal.classList.add("active");
-//
-//         setTimeout(() => hideErrorPopup(), 3000); // Fermeture automatique après 3 secondes
-//     }
-// }
-
 function showErrorPopup(message) {
     const popupModal = document.getElementById("popupModal");
     const popupOverlay = document.getElementById("popupOverlay");
