@@ -1322,63 +1322,138 @@ logger = logging.getLogger(__name__)
 #     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def record_game(request):
+#     data = request.data
+
+#     # Validation des champs nécessaires
+#     try:
+#         score_user = int(data.get('score_user', None))
+#         score_opponent = int(data.get('score_opponent', None))
+#         result = bool(data.get('result', None))
+#         longest_rally = int(data.get('longest_rally', 0))
+#         max_ball_speed = int(data.get('max_ball_speed', 0))
+#     except (ValueError, TypeError):
+#         return JsonResponse({
+#             'error': 'Les champs score_user, score_opponent, result, longest_rally, et max_ball_speed doivent contenir des valeurs valides.'
+#         }, status=400)
+
+#     # Vérification des données obligatoires
+#     if score_user is None or score_opponent is None or result is None:
+#         return JsonResponse({'error': 'Les champs score_user, score_opponent et result sont obligatoires.'}, status=400)
+
+#     # Récupération de l'adversaire si fourni
+#     opponent_user = None
+#     opponent_id = data.get('opponent_id')
+#     opponent_name = data.get('opponent_name', 'IA')
+#     if opponent_id:
+#         try:
+#             opponent_user = CustomUser.objects.get(id=opponent_id)
+#         except CustomUser.DoesNotExist:
+#             return JsonResponse({'error': 'Adversaire introuvable.'}, status=404)
+
+#     # Calcul des statistiques utilisateur
+#     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
+#         Max('longest_rally')
+#     )['longest_rally__max'] or 0
+
+#     user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(
+#         Max('max_ball_speed')
+#     )['max_ball_speed__max'] or 0
+
+#     # Création de la partie
+#     try:
+#         game = GameHistory.objects.create(
+#             user=request.user,
+#             score_user=score_user,
+#             score_opponent=score_opponent,
+#             result=result,
+#             longest_rally=max(longest_rally, user_longest_rally),
+#             max_ball_speed=max(max_ball_speed, user_max_ball_speed),
+#             opponent_user=opponent_user,
+#             opponent_name=opponent_name if not opponent_user else None,
+#         )
+#     except Exception as e:
+#         logger.error(f"Erreur lors de la création du jeu : {str(e)}")
+#         return JsonResponse({'error': 'Une erreur est survenue lors de l\'enregistrement de la partie.'}, status=500)
+
+#     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
+from json.decoder import JSONDecodeError
+import json
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def record_game(request):
-    data = request.data
-
-    # Validation des champs nécessaires
     try:
-        score_user = int(data.get('score_user', None))
-        score_opponent = int(data.get('score_opponent', None))
-        result = bool(data.get('result', None))
-        longest_rally = int(data.get('longest_rally', 0))
-        max_ball_speed = int(data.get('max_ball_speed', 0))
-    except (ValueError, TypeError):
-        return JsonResponse({
-            'error': 'Les champs score_user, score_opponent, result, longest_rally, et max_ball_speed doivent contenir des valeurs valides.'
-        }, status=400)
-
-    # Vérification des données obligatoires
-    if score_user is None or score_opponent is None or result is None:
-        return JsonResponse({'error': 'Les champs score_user, score_opponent et result sont obligatoires.'}, status=400)
-
-    # Récupération de l'adversaire si fourni
-    opponent_user = None
-    opponent_id = data.get('opponent_id')
-    opponent_name = data.get('opponent_name', 'IA')
-    if opponent_id:
+        # Tenter de lire le body JSON
         try:
-            opponent_user = CustomUser.objects.get(id=opponent_id)
-        except CustomUser.DoesNotExist:
-            return JsonResponse({'error': 'Adversaire introuvable.'}, status=404)
+            data = json.loads(request.body.decode('utf-8'))
+        except JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
-    # Calcul des statistiques utilisateur
-    user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
-        Max('longest_rally')
-    )['longest_rally__max'] or 0
+        # Validation des champs nécessaires
+        try:
+            score_user = int(data.get('score_user', None))
+            score_opponent = int(data.get('score_opponent', None))
+            result = bool(data.get('result', None))
+            longest_rally = int(data.get('longest_rally', 0))
+            max_ball_speed = int(data.get('max_ball_speed', 0))
+        except (ValueError, TypeError):
+            return JsonResponse({
+                'error': 'Les champs score_user, score_opponent, result, longest_rally, et max_ball_speed doivent contenir des valeurs valides.'
+            }, status=400)
 
-    user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(
-        Max('max_ball_speed')
-    )['max_ball_speed__max'] or 0
+        # Vérification des données obligatoires
+        if score_user is None or score_opponent is None or result is None:
+            return JsonResponse({'error': 'Les champs score_user, score_opponent et result sont obligatoires.'}, status=400)
 
-    # Création de la partie
-    try:
-        game = GameHistory.objects.create(
-            user=request.user,
-            score_user=score_user,
-            score_opponent=score_opponent,
-            result=result,
-            longest_rally=max(longest_rally, user_longest_rally),
-            max_ball_speed=max(max_ball_speed, user_max_ball_speed),
-            opponent_user=opponent_user,
-            opponent_name=opponent_name if not opponent_user else None,
-        )
+        # Récupération de l'adversaire si fourni
+        opponent_user = None
+        opponent_id = data.get('opponent_id')
+        opponent_name = data.get('opponent_name', 'IA')
+        if opponent_id:
+            try:
+                opponent_user = CustomUser.objects.get(id=opponent_id)
+            except CustomUser.DoesNotExist:
+                return JsonResponse({'error': 'Adversaire introuvable.'}, status=404)
+
+        # Calcul des statistiques utilisateur
+        user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
+            Max('longest_rally')
+        )['longest_rally__max'] or 0
+
+        user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(
+            Max('max_ball_speed')
+        )['max_ball_speed__max'] or 0
+
+        # Création de la partie
+        try:
+            game = GameHistory.objects.create(
+                user=request.user,
+                score_user=score_user,
+                score_opponent=score_opponent,
+                result=result,
+                longest_rally=max(longest_rally, user_longest_rally),
+                max_ball_speed=max(max_ball_speed, user_max_ball_speed),
+                opponent_user=opponent_user,
+                opponent_name=opponent_name if not opponent_user else None,
+            )
+        except Exception as e:
+            logger.error(f"Erreur lors de la création du jeu : {str(e)}")
+            return JsonResponse({'error': 'Une erreur est survenue lors de l\'enregistrement de la partie.'}, status=500)
+
+        return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
+
     except Exception as e:
-        logger.error(f"Erreur lors de la création du jeu : {str(e)}")
-        return JsonResponse({'error': 'Une erreur est survenue lors de l\'enregistrement de la partie.'}, status=500)
+        # Loguer l'erreur pour déboguer si nécessaire
+        logger.error(f"Unhandled exception in record_game: {e}")
+        return JsonResponse({'error': 'An error occurred while processing the request'}, status=500)
 
-    return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
 
 
 
@@ -1529,12 +1604,124 @@ from .models import FriendShip
 #         }, status=500)
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def send_friend_request(request):
+#     try:
+#         # Récupérer et valider le receiver_id
+#         receiver_id = request.data.get('receiver_id')
+
+#         if not receiver_id:
+#             return JsonResponse({'message': 'Receiver ID is required'}, status=400)
+
+#         # Vérifier que le receiver_id est un entier valide
+#         try:
+#             receiver_id = int(receiver_id)
+#         except ValueError:
+#             return JsonResponse({'message': 'Invalid Receiver ID'}, status=400)
+
+#         if request.user.id == receiver_id:
+#             return JsonResponse({
+#                 'message': 'You cannot send a friend request to yourself'
+#             }, status=400)
+
+#         # Vérifier si l'utilisateur existe
+#         try:
+#             receiver = CustomUser.objects.get(id=receiver_id)
+#         except CustomUser.DoesNotExist:
+#             return JsonResponse({'message': 'User not found'}, status=404)
+
+#         # Vérifier les demandes existantes
+#         existing_request = FriendShip.objects.filter(
+#             from_user=request.user,
+#             to_user=receiver
+#         ).first()
+
+#         if existing_request:
+#             if existing_request.status == 'pending':
+#                 return JsonResponse({'message': 'A friend request is already pending'}, status=400)
+#             elif existing_request.status == 'accepted':
+#                 return JsonResponse({'message': 'You are already friends'}, status=400)
+
+#         # Créer la demande d'ami
+#         FriendShip.objects.create(
+#             from_user=request.user,
+#             to_user=receiver,
+#             status='pending'
+#         )
+
+#         return JsonResponse({'message': 'Friend request sent successfully'}, status=200)
+
+#     except Exception as e:
+#         # Loguer l'erreur et répondre avec un message générique
+#         logger.error(f"Error in send_friend_request: {str(e)}")
+#         return JsonResponse({'message': 'An error occurred while processing the request'}, status=500)
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def send_friend_request(request):
+#     try:
+#         # Récupérer et valider le receiver_id
+#         receiver_id = request.data.get('receiver_id')
+
+#         if not receiver_id:
+#             return JsonResponse({'message': 'Receiver ID is required'}, status=400)
+
+#         # Vérifier que le receiver_id est un entier valide
+#         try:
+#             receiver_id = int(receiver_id)
+#         except ValueError:
+#             return JsonResponse({'message': 'Invalid Receiver ID'}, status=400)
+
+#         if request.user.id == receiver_id:
+#             return JsonResponse({
+#                 'message': 'You cannot send a friend request to yourself'
+#             }, status=400)
+
+#         # Vérifier si l'utilisateur existe
+#         try:
+#             receiver = CustomUser.objects.get(id=receiver_id)
+#         except CustomUser.DoesNotExist:
+#             return JsonResponse({'message': 'User not found'}, status=404)
+
+#         # Vérifier les demandes existantes
+#         existing_request = FriendShip.objects.filter(
+#             from_user=request.user,
+#             to_user=receiver
+#         ).first()
+
+#         if existing_request:
+#             if existing_request.status == 'pending':
+#                 return JsonResponse({'message': 'A friend request is already pending'}, status=400)
+#             elif existing_request.status == 'accepted':
+#                 return JsonResponse({'message': 'You are already friends'}, status=400)
+
+#         # Créer la demande d'ami
+#         FriendShip.objects.create(
+#             from_user=request.user,
+#             to_user=receiver,
+#             status='pending'
+#         )
+
+#         return JsonResponse({'message': 'Friend request sent successfully'}, status=200)
+
+#     except Exception as e:
+#         # Loguer l'erreur et répondre avec un message générique
+#         logger.error(f"Error in send_friend_request: {str(e)}")
+#         return JsonResponse({'message': 'An error occurred while processing the request'}, status=500)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
     try:
+        # Tenter de lire le body JSON
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON format'}, status=400)
+
         # Récupérer et valider le receiver_id
-        receiver_id = request.data.get('receiver_id')
+        receiver_id = body.get('receiver_id')
 
         if not receiver_id:
             return JsonResponse({'message': 'Receiver ID is required'}, status=400)
@@ -1542,7 +1729,7 @@ def send_friend_request(request):
         # Vérifier que le receiver_id est un entier valide
         try:
             receiver_id = int(receiver_id)
-        except ValueError:
+        except (ValueError, TypeError):
             return JsonResponse({'message': 'Invalid Receiver ID'}, status=400)
 
         if request.user.id == receiver_id:
@@ -1583,22 +1770,122 @@ def send_friend_request(request):
         return JsonResponse({'message': 'An error occurred while processing the request'}, status=500)
 
 
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def handle_friend_request(request):
+#     request_id = request.data.get('request_id')
+#     action = request.data.get('action')
+
+#     try:
+#         # Retrieve the FriendShip object
+#         friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
+
+#         if action == 'accept':
+#             # Update the current friendship status
+#             friendship.status = 'accepted'
+#             friendship.save()
+
+#             # Ensure the friendship is bidirectional
+#             reverse_friendship, created = FriendShip.objects.get_or_create(
+#                 from_user=friendship.to_user,
+#                 to_user=friendship.from_user,
+#                 defaults={'status': 'accepted'}
+#             )
+#             if not created and reverse_friendship.status != 'accepted':
+#                 reverse_friendship.status = 'accepted'
+#                 reverse_friendship.save()
+
+#         elif action == 'decline':
+#             # Decline the friendship
+#             friendship.status = 'rejected'
+#             friendship.save()
+
+#         return JsonResponse({'message': f'Request {action}ed successfully'})
+
+#     except FriendShip.DoesNotExist:
+#         return JsonResponse({'message': 'Friend request not found'}, status=404)
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def handle_friend_request(request):
+#     request_id = request.data.get('request_id')
+#     action = request.data.get('action')
+
+#     try:
+#         # Retrieve the FriendShip object
+#         friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
+
+#         if action == 'accept':
+#             # Update the current friendship status
+#             friendship.status = 'accepted'
+#             friendship.save()
+
+#             # Ensure the friendship is bidirectional
+#             reverse_friendship, created = FriendShip.objects.get_or_create(
+#                 from_user=friendship.to_user,
+#                 to_user=friendship.from_user,
+#                 defaults={'status': 'accepted'}
+#             )
+#             if not created and reverse_friendship.status != 'accepted':
+#                 reverse_friendship.status = 'accepted'
+#                 reverse_friendship.save()
+
+#         elif action == 'decline':
+#             # Decline the friendship
+#             friendship.status = 'rejected'
+#             friendship.save()
+
+#         return JsonResponse({'message': f'Request {action}ed successfully'})
+
+#     except FriendShip.DoesNotExist:
+#         return JsonResponse({'message': 'Friend request not found'}, status=404)
+
+
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+import json
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def handle_friend_request(request):
-    request_id = request.data.get('request_id')
-    action = request.data.get('action')
-
     try:
-        # Retrieve the FriendShip object
-        friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
+        # Tenter de lire le body JSON
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Invalid JSON format'}, status=400)
 
+        # Récupérer les données depuis le JSON
+        request_id = body.get('request_id')
+        action = body.get('action')
+
+        # Validation de `request_id`
+        if not request_id:
+            return JsonResponse({'message': 'Request ID is required'}, status=400)
+
+        try:
+            request_id = int(request_id)
+        except (ValueError, TypeError):
+            return JsonResponse({'message': 'Request ID must be a valid integer'}, status=400)
+
+        # Validation de `action`
+        if action not in ['accept', 'decline']:
+            return JsonResponse({'message': 'Invalid action. Use "accept" or "decline"'}, status=400)
+
+        # Récupérer l'objet FriendShip
+        try:
+            friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
+        except FriendShip.DoesNotExist:
+            return JsonResponse({'message': 'Friend request not found'}, status=404)
+
+        # Traiter l'action
         if action == 'accept':
-            # Update the current friendship status
+            # Accepter la demande d'ami
             friendship.status = 'accepted'
             friendship.save()
 
-            # Ensure the friendship is bidirectional
+            # Assurer la réciprocité de l'amitié
             reverse_friendship, created = FriendShip.objects.get_or_create(
                 from_user=friendship.to_user,
                 to_user=friendship.from_user,
@@ -1609,14 +1896,23 @@ def handle_friend_request(request):
                 reverse_friendship.save()
 
         elif action == 'decline':
-            # Decline the friendship
+            # Refuser la demande d'ami
             friendship.status = 'rejected'
             friendship.save()
 
-        return JsonResponse({'message': f'Request {action}ed successfully'})
+        return JsonResponse({'message': f'Request {action}ed successfully'}, status=200)
 
-    except FriendShip.DoesNotExist:
-        return JsonResponse({'message': 'Friend request not found'}, status=404)
+    except Exception as e:
+        # Log l'erreur pour déboguer si nécessaire
+        print(f"Unhandled exception in handle_friend_request: {e}")
+        return JsonResponse({'message': 'An error occurred while processing the request'}, status=500)
+
+
+
+import logging
+logger = logging.getLogger(__name__)
+
+from django.db.models import Q
 
 
 import logging
@@ -1662,34 +1958,94 @@ def get_friends(request):
         logger.exception("Erreur dans la vue get_friends")
         return JsonResponse({'error': 'Internal Server Error'}, status=500)
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_pending_requests(request):
+#     pending = request.user.friend_requests.filter(status='pending')
+#     pending_requests = []
+
+#     for req in pending:
+
+#         if req.from_user.avatar:
+#             if str(req.from_user.avatar).startswith('assets/avatars/'):
+#                 sender_avatar = f"/static/{req.from_user.avatar}"
+#             else:
+#                 sender_avatar = req.from_user.avatar.url
+#         else:
+#             sender_avatar = '/static/assets/avatars/ladybug.png'
+
+#         pending_requests.append({
+#             'request_id': req.id,
+#             'sender': {
+#                 'id': req.from_user.id,
+#                 'username': req.from_user.username,
+#                 'avatar': sender_avatar
+#             }
+#         })
+
+#     return JsonResponse({
+#         'pending_requests': pending_requests
+#     })
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_pending_requests(request):
-    pending = request.user.friend_requests.filter(status='pending')
-    pending_requests = []
+    try:
+        # Vérifier si l'utilisateur est actif
+        if not request.user.is_active:
+            return JsonResponse({'error': 'User account is disabled'}, status=403)
 
-    for req in pending:
+        try:
+            # Optimiser la requête avec select_related
+            pending = request.user.friend_requests.filter(status='pending').select_related('from_user')
+        except Exception as db_error:
+            logger.error(f"Erreur d'accès à la base de données: {db_error}")
+            return JsonResponse({'error': 'Database error'}, status=500)
 
-        if req.from_user.avatar:
-            if str(req.from_user.avatar).startswith('assets/avatars/'):
-                sender_avatar = f"/static/{req.from_user.avatar}"
-            else:
-                sender_avatar = req.from_user.avatar.url
-        else:
-            sender_avatar = '/static/assets/avatars/ladybug.png'
+        pending_requests = []
 
-        pending_requests.append({
-            'request_id': req.id,
-            'sender': {
-                'id': req.from_user.id,
-                'username': req.from_user.username,
-                'avatar': sender_avatar
-            }
-        })
+        for req in pending:
+            try:
+                # Vérifier si l'utilisateur expéditeur existe toujours
+                if not req.from_user:
+                    logger.warning(f"Demande d'ami {req.id} sans expéditeur valide")
+                    continue
 
-    return JsonResponse({
-        'pending_requests': pending_requests
-    })
+                # Gestion sécurisée de l'avatar
+                try:
+                    sender_avatar = '/static/assets/avatars/ladybug.png'  # Avatar par défaut
+                    if req.from_user.avatar:
+                        if str(req.from_user.avatar).startswith('assets/avatars/'):
+                            sender_avatar = f"/static/{req.from_user.avatar}"
+                        else:
+                            sender_avatar = req.from_user.avatar.url
+                except Exception as avatar_error:
+                    logger.warning(f"Erreur lors de la récupération de l'avatar pour l'utilisateur {req.from_user.id}: {avatar_error}")
+                    # Continuer avec l'avatar par défaut
+
+                # Création sécurisée du dictionnaire
+                request_data = {
+                    'request_id': req.id,
+                    'sender': {
+                        'id': req.from_user.id,
+                        'username': str(req.from_user.username)[:150],  # Limiter la taille
+                        'avatar': sender_avatar
+                    }
+                }
+                pending_requests.append(request_data)
+
+            except Exception as request_error:
+                logger.error(f"Erreur lors du traitement de la demande {req.id}: {request_error}")
+                continue
+
+        return JsonResponse({
+            'pending_requests': pending_requests
+        }, status=200)
+
+    except Exception as e:
+        logger.exception("Erreur critique dans la vue get_pending_requests")
+        return JsonResponse({'error': 'Internal Server Error'}, status=500)
+
 
 
 from .models import GameHostOptions
@@ -1719,44 +2075,171 @@ def get_game_settings(request):
 
 
 
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.permissions import IsAuthenticated
+# from django.http import JsonResponse
+# from rest_framework.parsers import JSONParser
+
+# from rest_framework.parsers import JSONParser
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def set_game_settings(request):
+#     try:
+#         # Récupérer ou créer les paramètres de l'utilisateur
+#         settings, created = UserSettings.objects.get_or_create(user=request.user)
+
+#         # Parser les données envoyées
+#         data = JSONParser().parse(request)
+
+#         # Mettre à jour uniquement les champs envoyés
+#         if 'scoreToWin' in data:
+#             settings.score_to_win = data['scoreToWin']
+#         if 'difficulty' in data:
+#             settings.difficulty = data['difficulty']
+#         if 'ballSpeedStart' in data:
+#             settings.ball_speed_start = data['ballSpeedStart']
+#         if 'ballSpeedMax' in data:
+#             settings.ball_speed_max = data['ballSpeedMax']
+#         if 'ballSpeedIncrease' in data:
+#             settings.ball_speed_increase = data['ballSpeedIncrease']
+#         if 'powerups' in data:
+#             settings.powerups = data['powerups']
+#         if 'keyboardSettings' in data:
+#             settings.keyboard_settings = data['keyboardSettings']
+
+#         # Sauvegarder les modifications
+#         settings.save()
+#         return JsonResponse({'message': 'Settings updated successfully'}, status=200)
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+
+
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.permissions import IsAuthenticated
+# from django.http import JsonResponse
+# from rest_framework.parsers import JSONParser
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def set_game_settings(request):
+#     try:
+#         # Récupérer ou créer les paramètres de l'utilisateur
+#         settings, created = UserSettings.objects.get_or_create(user=request.user)
+
+#         # Parser les données envoyées
+#         data = JSONParser().parse(request)
+
+#         # Mettre à jour uniquement les champs envoyés
+#         if 'scoreToWin' in data:
+#             settings.score_to_win = int(data['scoreToWin'])
+#         if 'difficulty' in data:
+#             settings.difficulty = data['difficulty']
+#         if 'ballSpeedStart' in data:
+#             settings.ball_speed_start = float(data['ballSpeedStart'])
+#         if 'ballSpeedMax' in data:
+#             settings.ball_speed_max = float(data['ballSpeedMax'])
+#         if 'ballSpeedIncrease' in data:
+#             settings.ball_speed_increase = float(data['ballSpeedIncrease'])
+#         if 'powerups' in data:
+#             # Validation : vérifier que `powerups` est une liste
+#             if isinstance(data['powerups'], list):
+#                 # Vérifiez que chaque élément de la liste est une chaîne
+#                 if all(isinstance(item, str) for item in data['powerups']):
+#                     settings.powerups = data['powerups']
+#                 else:
+#                     return JsonResponse({'error': 'All powerups must be strings'}, status=400)
+#             else:
+#                 return JsonResponse({'error': 'powerups must be a list'}, status=400)
+#         if 'keyboardSettings' in data:
+#             settings.keyboard_settings = data['keyboardSettings']
+
+#         # Sauvegarder les modifications
+#         settings.save()
+#         return JsonResponse({'message': 'Settings updated successfully'}, status=200)
+
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from rest_framework.parsers import JSONParser
-
-from rest_framework.parsers import JSONParser
+import json
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_game_settings(request):
     try:
+        # Tenter de parser le JSON envoyé
+        try:
+            data = JSONParser().parse(request)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+        except Exception as e:
+            # Gestion de toute autre erreur liée au parsing
+            return JsonResponse({'error': f'Unexpected error parsing JSON: {str(e)}'}, status=400)
+
         # Récupérer ou créer les paramètres de l'utilisateur
         settings, created = UserSettings.objects.get_or_create(user=request.user)
 
-        # Parser les données envoyées
-        data = JSONParser().parse(request)
-
         # Mettre à jour uniquement les champs envoyés
         if 'scoreToWin' in data:
-            settings.score_to_win = data['scoreToWin']
+            try:
+                settings.score_to_win = int(data['scoreToWin'])
+            except (ValueError, TypeError):
+                return JsonResponse({'error': 'scoreToWin must be an integer'}, status=400)
+
         if 'difficulty' in data:
-            settings.difficulty = data['difficulty']
+            if isinstance(data['difficulty'], str):
+                settings.difficulty = data['difficulty']
+            else:
+                return JsonResponse({'error': 'difficulty must be a string'}, status=400)
+
         if 'ballSpeedStart' in data:
-            settings.ball_speed_start = data['ballSpeedStart']
+            try:
+                settings.ball_speed_start = float(data['ballSpeedStart'])
+            except (ValueError, TypeError):
+                return JsonResponse({'error': 'ballSpeedStart must be a number'}, status=400)
+
         if 'ballSpeedMax' in data:
-            settings.ball_speed_max = data['ballSpeedMax']
+            try:
+                settings.ball_speed_max = float(data['ballSpeedMax'])
+            except (ValueError, TypeError):
+                return JsonResponse({'error': 'ballSpeedMax must be a number'}, status=400)
+
         if 'ballSpeedIncrease' in data:
-            settings.ball_speed_increase = data['ballSpeedIncrease']
+            try:
+                settings.ball_speed_increase = float(data['ballSpeedIncrease'])
+            except (ValueError, TypeError):
+                return JsonResponse({'error': 'ballSpeedIncrease must be a number'}, status=400)
+
         if 'powerups' in data:
-            settings.powerups = data['powerups']
+            # Validation : vérifier que `powerups` est une liste
+            if isinstance(data['powerups'], list):
+                # Vérifiez que chaque élément de la liste est une chaîne
+                if all(isinstance(item, str) for item in data['powerups']):
+                    settings.powerups = data['powerups']
+                else:
+                    return JsonResponse({'error': 'All powerups must be strings'}, status=400)
+            else:
+                return JsonResponse({'error': 'powerups must be a list'}, status=400)
+
         if 'keyboardSettings' in data:
-            settings.keyboard_settings = data['keyboardSettings']
+            if isinstance(data['keyboardSettings'], dict):
+                settings.keyboard_settings = data['keyboardSettings']
+            else:
+                return JsonResponse({'error': 'keyboardSettings must be a dictionary'}, status=400)
 
         # Sauvegarder les modifications
         settings.save()
         return JsonResponse({'message': 'Settings updated successfully'}, status=200)
+
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        # Logger l'erreur pour le débogage
+        print(f"Unhandled exception in set_game_settings: {e}")
+        return JsonResponse({'error': 'An error occurred while processing the request'}, status=500)
+
 
 from django.http import JsonResponse
 from django.db import models
@@ -1889,94 +2372,238 @@ def get_user_profile_stats(request, user_id):
             'error': str(e)
         }, status=500)
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_blocked_users(request):
+#     blocked_users = request.user.blocked_users.all()
+#     blocked_list = [{
+#         'id': user.id,
+#         'username': user.username,
+#         'avatar': f"/static/{user.avatar}" if str(user.avatar).startswith('assets/avatars/')
+#                  else user.avatar.url if user.avatar else '/static/assets/avatars/ladybug.png',
+#     } for user in blocked_users]
+
+#     return JsonResponse({'blocked_users': blocked_list})
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_blocked_users(request):
-    blocked_users = request.user.blocked_users.all()
-    blocked_list = [{
-        'id': user.id,
-        'username': user.username,
-        'avatar': f"/static/{user.avatar}" if str(user.avatar).startswith('assets/avatars/')
-                 else user.avatar.url if user.avatar else '/static/assets/avatars/ladybug.png',
-    } for user in blocked_users]
+    try:
+        blocked_users = request.user.blocked_users.all()
+        blocked_list = [{
+            'id': user.id,
+            'username': user.username,
+            'avatar': f"/static/{user.avatar}" if str(user.avatar).startswith('assets/avatars/')
+                     else user.avatar.url if user.avatar else '/static/assets/avatars/ladybug.png',
+        } for user in blocked_users]
 
-    return JsonResponse({'blocked_users': blocked_list})
+        return JsonResponse({'blocked_users': blocked_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'error': 'Unable to fetch blocked users'}, status=500)
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def block_user(request):
+#     try:
+#         user_id = request.data.get('user_id')
+
+#         if not user_id:
+#             return JsonResponse({'error': 'User ID is required'}, status=400)
+
+#         if str(user_id) == str(request.user.id):
+#             return JsonResponse({'error': 'Cannot block yourself'}, status=400)
+
+#         user_to_block = CustomUser.objects.get(id=user_id)
+#         request.user.blocked_users.add(user_to_block)
+
+#         return JsonResponse({
+#             'message': f'User {user_to_block.username} has been blocked'
+#         })
+
+#     except CustomUser.DoesNotExist:
+#         return JsonResponse({'error': 'User not found'}, status=404)
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=400)
+
+
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+import json
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def block_user(request):
     try:
-        user_id = request.data.get('user_id')
+        # Tenter de lire le body JSON
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
+        # Récupérer le user_id
+        user_id = body.get('user_id')
+
+        # Vérifier si le user_id est fourni ou non vide
         if not user_id:
-            return JsonResponse({'error': 'User ID is required'}, status=400)
+            return JsonResponse({'error': 'User ID is required and cannot be empty'}, status=400)
 
-        if str(user_id) == str(request.user.id):
+        # Vérifier si le user_id est un entier
+        try:
+            user_id = int(user_id)
+        except (ValueError, TypeError) as e:
+            return JsonResponse({'error': 'User ID must be a valid integer'}, status=400)
+
+        # Vérifier si l'utilisateur essaie de se bloquer lui-même
+        if user_id == request.user.id:
             return JsonResponse({'error': 'Cannot block yourself'}, status=400)
 
-        user_to_block = CustomUser.objects.get(id=user_id)
+        # Rechercher l'utilisateur à bloquer
+        user_to_block = CustomUser.objects.filter(id=user_id).first()
+        if not user_to_block:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        # Bloquer l'utilisateur
         request.user.blocked_users.add(user_to_block)
 
-        return JsonResponse({
-            'message': f'User {user_to_block.username} has been blocked'
-        })
+        return JsonResponse({'message': f'User {user_to_block.username} has been blocked'}, status=200)
 
-    except CustomUser.DoesNotExist:
-        return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        print(f"Unhandled exception: {e}")  # Debug log
+        return JsonResponse({'error': 'Unable to process the request'}, status=500)
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def unblock_user(request):
+#     try:
+#         user_id = request.data.get('user_id')
+
+#         if not user_id:
+#             return JsonResponse({'error': 'User ID is required'}, status=400)
+
+#         user_to_unblock = CustomUser.objects.get(id=user_id)
+#         request.user.blocked_users.remove(user_to_unblock)
+
+#         return JsonResponse({
+#             'message': f'User {user_to_unblock.username} has been unblocked'
+#         })
+
+#     except CustomUser.DoesNotExist:
+#         return JsonResponse({'error': 'User not found'}, status=404)
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def unblock_user(request):
     try:
-        user_id = request.data.get('user_id')
+        # Tenter de lire le body JSON
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError as e:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
-        if not user_id:
-            return JsonResponse({'error': 'User ID is required'}, status=400)
+        # Récupérer le user_id
+        user_id = body.get('user_id')
 
-        user_to_unblock = CustomUser.objects.get(id=user_id)
+        # Vérifier si le user_id est fourni ou non vide
+        if not user_id or str(user_id).strip() == "":
+            return JsonResponse({'error': 'User ID is required and cannot be empty'}, status=400)
+
+        # Vérifier si le user_id est un entier
+        try:
+            user_id = int(user_id)
+        except (ValueError, TypeError):
+            return JsonResponse({'error': 'User ID must be a valid integer'}, status=400)
+
+        # Rechercher l'utilisateur à débloquer
+        user_to_unblock = CustomUser.objects.filter(id=user_id).first()
+        if not user_to_unblock:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        # Débloquer l'utilisateur
         request.user.blocked_users.remove(user_to_unblock)
 
-        return JsonResponse({
-            'message': f'User {user_to_unblock.username} has been unblocked'
-        })
+        return JsonResponse({'message': f'User {user_to_unblock.username} has been unblocked'}, status=200)
 
-    except CustomUser.DoesNotExist:
-        return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        print(f"Unhandled exception: {e}")  # Debug log
+        return JsonResponse({'error': 'Unable to process the request'}, status=500)
+
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_preferred_language(request):
+#     """Récupère la langue préférée de l'utilisateur."""
+#     return JsonResponse({
+#         'language': request.user.preferred_language
+#     })
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_preferred_language(request):
-    """Récupère la langue préférée de l'utilisateur."""
-    return JsonResponse({
-        'language': request.user.preferred_language
-    })
+    try:
+        language = request.user.preferred_language or 'Not set'
+        return JsonResponse({'language': language}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'error': 'Unable to fetch preferred language'}, status=500)
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# def set_preferred_language(request):
+#     """Définit la langue préférée de l'utilisateur."""
+#     language = request.data.get('language')
+
+#     # Vérifier si la langue est valide
+#     valid_languages = dict(request.user.LANGUAGE_CHOICES).keys()
+#     if language not in valid_languages:
+#         return JsonResponse({
+#             'error': 'Invalid language choice'
+#         }, status=400)
+
+#     # Mettre à jour la langue préférée
+#     request.user.preferred_language = language
+#     request.user.save()
+
+#     return JsonResponse({
+#         'message': 'Language preference updated successfully',
+#         'language': language
+#     })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_preferred_language(request):
-    """Définit la langue préférée de l'utilisateur."""
-    language = request.data.get('language')
+    try:
+        # Tenter de lire le body JSON
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
-    # Vérifier si la langue est valide
-    valid_languages = dict(request.user.LANGUAGE_CHOICES).keys()
-    if language not in valid_languages:
+        # Récupérer la langue
+        language = body.get('language')
+
+        # Validation de la langue
+        valid_languages = dict(request.user.LANGUAGE_CHOICES).keys()
+        if not language or language not in valid_languages:
+            return JsonResponse({'error': 'Invalid language choice'}, status=400)
+
+        # Mise à jour de la langue
+        request.user.preferred_language = language
+        request.user.save()
+
         return JsonResponse({
-            'error': 'Invalid language choice'
-        }, status=400)
+            'message': 'Language preference updated successfully',
+            'language': language
+        }, status=200)
 
-    # Mettre à jour la langue préférée
-    request.user.preferred_language = language
-    request.user.save()
-
-    return JsonResponse({
-        'message': 'Language preference updated successfully',
-        'language': language
-    })
+    except Exception as e:
+        print(f"Unhandled exception: {e}")
+        return JsonResponse({'error': 'Unable to set preferred language'}, status=500)
