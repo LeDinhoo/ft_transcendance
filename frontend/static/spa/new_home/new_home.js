@@ -573,9 +573,7 @@ function initializeHome() {
 				messageElement.style.opacity = "0.5";
 			}
 
-			const messageHeader = data.type === "private_message"
-				? `${data.username} → ${data.recipient}`
-				: data.username;
+			const messageHeader = data.username;
 
 			messageElement.innerHTML = `
 			<img src="${data.avatar}"
