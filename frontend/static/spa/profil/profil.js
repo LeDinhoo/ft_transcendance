@@ -829,7 +829,7 @@ function loadFriendRequests() {
         }
 
         requestsList.innerHTML = data.pending_requests.map(request => `
-            <div class="friendRequest">
+            <div class="friendRequest" data-request-id="${request.request_id}">
                 <img class="requestAvatar" src="${request.sender.avatar}" alt="${request.sender.username}">
                 <div class="requestInfo">
                     <div class="requestUsername">${request.sender.username}</div>
@@ -838,7 +838,7 @@ function loadFriendRequests() {
                     <button class="acceptButton" onclick="handleFriendRequest(${request.request_id}, 'accept')">
                         Accept
                     </button>
-                    <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'reject')">
+                    <button class="rejectButton" onclick="handleFriendRequest(${request.request_id}, 'decline')">
                         Reject
                     </button>
                 </div>
@@ -847,37 +847,6 @@ function loadFriendRequests() {
     })
     .catch(error => console.error('Error loading friend requests:', error));
 }
-
-// function handleFriendRequest(requestId, action) {
-//     fetch('/api/friends/handle-request/', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         credentials: 'include',
-//         body: JSON.stringify({ request_id: requestId, action })
-//     })
-//     .then(response => response.json())
-//     .then(() => {
-//         loadFriendRequests();
-//         if (action === 'accept') {
-//             // Créer un événement personnalisé avec des détails
-//             const event = new CustomEvent('friendRequestAccepted', {
-//                 detail: { requestId, action },
-//                 bubbles: true,
-//                 composed: true
-//             });
-//             document.dispatchEvent(event);
-            
-//             // Forcer une mise à jour immédiate si wsManager est disponible
-//             if (window.wsManager && window.wsManager.onlinePlayers) {
-//                 console.log("Mise à jour de la liste des joueurs en ligne après acceptation d'ami");
-//                 window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
-//             }
-//         }
-//     })
-//     .catch(error => console.error('Error handling friend request:', error));
-// }
 
 async function handleFriendRequest(requestId, action) {
     try {
@@ -891,18 +860,30 @@ async function handleFriendRequest(requestId, action) {
         });
 
         if (response.ok) {
-            // Mettre à jour la liste des demandes d'ami
-            loadFriendRequests();
-            
-            // Utiliser la méthode correcte de wsManager
-            if (window.wsManager && window.wsManager.onlinePlayers) {
-                await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
+            // Trouver et supprimer l'élément de la demande d'ami
+            const requestElement = document.querySelector(`.friendRequest[data-request-id="${requestId}"]`);
+            if (requestElement) {
+                requestElement.remove();
             }
 
-            // Afficher un message de confirmation
-            showConfirmationMessage(`Friend request ${action}ed successfully`);
+            // Si c'est une acceptation, mettre à jour la liste des joueurs en ligne
+            if (action === 'accept') {
+                if (window.wsManager && window.wsManager.onlinePlayers) {
+                    await window.wsManager.updateOnlinePlayersList([...window.wsManager.onlinePlayers]);
+                }
+                showConfirmationMessage("Friend request accepted successfully");
+            } else {
+                showConfirmationMessage("Friend request declined");
+            }
+
+            // Vérifier s'il reste des demandes d'ami
+            const requestsList = document.getElementById('friendRequestsList');
+            if (requestsList && !requestsList.children.length) {
+                requestsList.innerHTML = '<div class="no-requests">No pending friend requests</div>';
+            }
         }
     } catch (error) {
         console.error('Error handling friend request:', error);
+        showConfirmationMessage("An error occurred while processing the request");
     }
 }
