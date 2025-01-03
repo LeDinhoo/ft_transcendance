@@ -419,6 +419,9 @@ function showTwoFactorPopup() {
   popup.className = "popup-overlay";
   popup.innerHTML = `
     <div class="popup-content">
+        <button class="close-2fa-popup">
+            <img src="/static/assets/icons/close.svg" alt="Close">
+        </button>
         <h3 data-translate="twoStepVerification.title">Vérification en deux étapes</h3>
         <p data-translate="twoStepVerification.codeSent">Un code a été envoyé à votre adresse email</p>
         <div class="code-input-container">
@@ -438,6 +441,13 @@ function showTwoFactorPopup() {
   `;
 
   document.body.appendChild(popup);
+
+  // Ajouter l'événement de fermeture
+  const closeButton = popup.querySelector('.close-2fa-popup');
+  closeButton.addEventListener('click', () => {
+    popup.remove();
+  });
+
 
   //mettre à jour les traductions
   language = getLanguageFromAPI();
