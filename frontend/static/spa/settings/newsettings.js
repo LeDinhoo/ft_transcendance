@@ -295,6 +295,11 @@ function initializeSettingsPage() {
     function onKeyPress(e) {
       const newKey = e.key.toUpperCase();
 
+      if (newKey === " " || newKey === "SPACE") {
+        showErrorPopup("La touche Espace ne peut pas être assignée.");
+        return;
+      }
+
       const existingButton = Array.from(
         document.querySelectorAll(".change-key")
       ).find((otherButton) => otherButton.textContent === newKey);
