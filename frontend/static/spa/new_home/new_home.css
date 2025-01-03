@@ -1300,7 +1300,7 @@ body {
     display: none;
   }
 }
-
+/* 
 .game-invitation-modal {
   display: none;
   position: fixed;
@@ -1368,7 +1368,7 @@ body {
   color: var(--snow);
   font-size: var(--20px);
   font-weight: 600;
-}
+} */
 
 .game-settings {
   background-color: var(--gluon-grey);
