@@ -2,6 +2,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const appDiv = document.getElementById("app");
   const navbar = document.getElementById("navbarContainer");
 
+  let language = getLanguageFromAPI();
+  language.then((value) => {
+    setPreferredLanguage(value);
+  });
+
   let isLoading = false;
 
   async function isAuthenticated() {

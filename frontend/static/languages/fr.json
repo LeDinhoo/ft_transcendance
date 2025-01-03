@@ -1,4 +1,11 @@
 {
+  "navBar": {
+    "home": "Accueil",
+    "logout": "Se déconnecter",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "tournament": "Tournoi"
+  },
   "login": {
     "title": "Rejoignez la Bataille",
     "emailLabel": "E-mail",
@@ -50,7 +57,13 @@
     "rankTooltipTitle": "Système de Classement",
     "rankBronze": "Bronze : 0-33% de ratio de victoire",
     "rankSilver": "Argent : 33-66% de ratio de victoire",
-    "rankGold": "Or : 66-100% de ratio de victoire"
+    "rankGold": "Or : 66-100% de ratio de victoire",
+    "menuProfile": "Voir le profil",
+    "unblockUser": "Débloquer l'utilisateur",
+    "blockUser": "Bloquer l'utilisateur",
+    "addFriend": "Ajouter un ami",
+    "sendInvitation": "Envoyer une invitation en ligne",
+    "privateMessage": "Message privé"
   },
   "twoStepVerification": {
     "title": "Vérification en Deux Étapes",

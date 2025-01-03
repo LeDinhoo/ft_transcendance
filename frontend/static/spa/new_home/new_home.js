@@ -398,7 +398,7 @@ function initializeHome() {
 
 				// Option "See profile" toujours présente
 				menuOptions += `
-					<div class="chat-menu-option" data-action="profile">
+					<div class="chat-menu-option" data-action="profile" data-translate="newhome.menuProfile">
 						See profile
 					</div>
 				`;
@@ -408,23 +408,23 @@ function initializeHome() {
 					if (isBlocked) {
 
 						menuOptions += `
-							<div class="chat-menu-option" data-action="block">
+							<div class="chat-menu-option" data-action="block" data-translate="newhome.unblockUser">
 								Unblock user
 							</div>
 						`;
 					} else {
 
 						menuOptions += `
-							<div class="chat-menu-option" data-action="add-friend">
+							<div class="chat-menu-option" data-action="add-friend" data-translate="newhome.addFriend">
 								Add friend
 							</div>
-							<div class="chat-menu-option" data-action="send-invitation">
+							<div class="chat-menu-option" data-action="send-invitation" data-translate="newhome.sendInvitation">
 								Send online invitation
 							</div>
-							<div class="chat-menu-option" data-action="block">
+							<div class="chat-menu-option" data-action="block" data-translate="newhome.blockUser">
 								Block user
 							</div>
-							<div class="chat-menu-option" data-action="private-message">
+							<div class="chat-menu-option" data-action="private-message" data-translate="newhome.privateMessage">
 								Private message
 							</div>
 						`;
@@ -463,6 +463,11 @@ function initializeHome() {
 					menu.remove();
 					activeMenu = null;
 				});
+
+				let language = getLanguageFromAPI();
+				language.then((value) => {
+					setPreferredLanguage(value);
+				});
 			});
 
 			// Le reste du code pour gérer la fermeture du menu reste inchangé
@@ -482,6 +487,11 @@ function initializeHome() {
 					activeMenu.remove();
 					activeMenu = null;
 				}
+			});
+
+			let language = getLanguageFromAPI();
+			language.then((value) => {
+				setPreferredLanguage(value);
 			});
 		}
 
@@ -787,7 +797,7 @@ function initializeHome() {
 				DOM.profile.nickname.textContent = playerData.nickname;
 				DOM.profile.rankIcon.src = `/static/assets/icons/${playerData.rank.toLowerCase()}.png`;
 				DOM.profile.rankText.textContent = playerData.rank;
-
+				document.getElementById("profileRankText").setAttribute("data-translate", `newhome.${playerData.rank.toLowerCase()}`);
 				// Update statistics
 				document.getElementById("totalGames").textContent =
 					playerData.stats.totalGames;
@@ -807,23 +817,31 @@ function initializeHome() {
 					recentGamesList.innerHTML = playerData.matchHistory
 						.map(
 							(match) => `
-						<div class="match-resume">
-							<div class="game-date">${match.game_date}</div>
-							<img src="${match.user_avatar}" alt="User" class="avatar-history">
-							<div class="score-player">${match.score_user}</div>
-							<div class="separator-match">-</div>
-							<div class="score-player">${match.score_opponent}</div>
-							<img src="${match.opponent_avatar}" alt="Opponent" class="avatar-history">
-							<div class="result-label" style="color: ${match.result === "VICTORY" ? "#ff710d" : "#878787"
-								}">${match.result}</div>
-						</div>
-					`
+                <div class="match-resume">
+                    <div class="game-date">${match.game_date}</div>
+                    <img src="${match.user_avatar}" alt="User" class="avatar-history">
+                    <div class="score-player">${match.score_user}</div>
+                    <div class="separator-match">-</div>
+                    <div class="score-player">${match.score_opponent}</div>
+                    <img src="${match.opponent_avatar}" alt="Opponent" class="avatar-history">
+                    <div class="result-label" 
+                        style="color: ${match.result === "VICTORY" ? "#ff710d" : "#878787"}"
+                        data-translate="profil.${match.result === "VICTORY" ? "victory" : "defeat"}">
+                        ${match.result}
+                    </div>
+                </div>
+            `
+
 						)
 						.join("");
 				}
 
 				DOM.profile.modal.style.display = "block";
 				document.body.style.overflow = "hidden";
+				let language = getLanguageFromAPI();
+				language.then((value) => {
+					setPreferredLanguage(value);
+				});
 			} catch (error) {
 				console.error("Error fetching profile data:", error);
 			}
@@ -865,7 +883,7 @@ function initializeHome() {
 
 				// Option "See profile" toujours présente
 				menuOptions += `
-          <div class="chat-menu-option" data-action="profile">
+          <div class="chat-menu-option" data-action="profile" data-translate="newhome.menuProfile">
             See profile
           </div>
         `;
@@ -875,23 +893,23 @@ function initializeHome() {
 					if (isBlocked) {
 						// Si l'utilisateur est bloqué, montrer uniquement l'option de déblocage
 						menuOptions += `
-              <div class="chat-menu-option" data-action="block">
+              <div class="chat-menu-option" data-action="block" data-translate="newhome.unblockUser">
                 Unblock user
               </div>
             `;
 					} else {
 						// Si l'utilisateur n'est pas bloqué, montrer toutes les options incluant le blocage
 						menuOptions += `
-              <div class="chat-menu-option" data-action="add-friend">
+              <div class="chat-menu-option" data-action="add-friend" data-translate="newhome.addFriend">
                 Add friend
               </div>
-              <div class="chat-menu-option" data-action="send-invitation">
+              <div class="chat-menu-option" data-action="send-invitation" data-translate="newhome.sendInvitation">
                 Send online invitation
               </div>
-              <div class="chat-menu-option" data-action="block">
+              <div class="chat-menu-option" data-action="block" data-translate="newhome.blockUser">
                 Block user
               </div>
-              <div class="chat-menu-option" data-action="private-message">
+              <div class="chat-menu-option" data-action="private-message" data-translate="newhome.privateMessage">
                 Private message
               </div>
             `;
@@ -1001,6 +1019,10 @@ function initializeHome() {
 						menu.remove();
 						document.removeEventListener("click", closeMenu);
 					}
+				});
+				let language = getLanguageFromAPI();
+				language.then((value) => {
+					setPreferredLanguage(value);
 				});
 			});
 		}
@@ -1260,18 +1282,18 @@ function initializeHome() {
 				document.body.removeChild(loadingIndicator);
 				console.log("Jeu chargé.");
 
-				iframe.contentWindow.postMessage(
-					{
-						type: "setOptions",
-						data: { options, isAI, power, languageOption },
-					},
-					"*"
-				);
-				setTimeout(() => {
-					iframe.contentWindow.focus();
-					console.log("Focus défini sur l'iframe.");
-				}, 100);
-			};
+        iframe.contentWindow.postMessage(
+          {
+            type: "setOptions",
+            data: { options, isAI, power, languageOption },
+          },
+          "*"
+        );
+        setTimeout(() => {
+          iframe.contentWindow.focus();
+          console.log("Focus défini sur l'iframe.");
+        }, 100);
+      };
 
 			modal.appendChild(iframe);
 			document.body.appendChild(modal);

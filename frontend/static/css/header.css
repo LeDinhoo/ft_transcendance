@@ -91,11 +91,13 @@
 
 /* Styles pour le sélecteur de langue */
 .language-selector {
-    position: fixed;
-    top: 2vw;
-    right: 200px;
-    display: flex;
-    gap: 10px;
+  display: flex;
+  position: absolute;
+  right: 7.813vw;
+  top: 2vw;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.25rem;
 }
 
 .language-flags {

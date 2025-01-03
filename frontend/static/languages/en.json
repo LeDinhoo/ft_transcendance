@@ -1,4 +1,11 @@
 {
+  "navBar": {
+    "home": "home",
+    "logout": "Log out",
+    "profile": "profile",
+    "settings": "settings",
+    "tournament": "clash"
+  },
   "login": {
     "title": "Join the Battle",
     "emailLabel": "E-mail",
@@ -50,7 +57,13 @@
     "rankTooltipTitle": "Ranking system",
     "rankBronze": "Bronze: 0-33% Win ratio",
     "rankSilver": "Silver: 33-66% Win ratio",
-    "rankGold": "Gold: 66-100% Win ratio"
+    "rankGold": "Gold: 66-100% Win ratio",
+    "menuProfile": "See Profile",
+    "unblockUser": "Unblock User",
+    "blockUser": "Block User",
+    "addFriend": "Add Friend",
+    "sendInvitation": "Send Online Invitation",
+    "privateMessage": "Private Message"
   },
   "twoStepVerification": {
     "title": "Two-Step Verification",

@@ -81,60 +81,6 @@ async function loadTranslations(language) {
   }
 }
 
-// function applyTranslations(translations) {
-//     document.querySelectorAll('[data-translate]').forEach((element) => {
-//         const translationKey = element.getAttribute('data-translate');
-//         const params = element.getAttribute('data-translate-params')?.split(',');
-//         let translatedText = getNestedTranslation(translationKey, translations);
-
-//         if (params && translatedText) {
-//             params.forEach((param, index) => {
-//                 translatedText = translatedText.replace(`{${index}}`, param);
-//             });
-//         }
-
-//         if (translatedText) {
-//             if (element.tagName === "INPUT") {
-//                 element.value = translatedText;
-//             } else {
-//                 element.textContent = translatedText;
-//             }
-//         } else {
-//             console.warn(`No translation found for key: ${translationKey}`);
-//         }
-//     });
-// }
-
-// function applyTranslations(translations) {
-//   document.querySelectorAll("[data-translate]").forEach((element) => {
-//     const translationKey = element.getAttribute("data-translate");
-//     const params = element.getAttribute("data-translate-params")?.split(",");
-//     let translatedText = getNestedTranslation(translationKey, translations);
-
-//     if (params && translatedText) {
-//       params.forEach((param, index) => {
-//         translatedText = translatedText.replace(`{${index}}`, param);
-//       });
-//     }
-
-//     if (translatedText) {
-//       // Vérifier si l'élément est un input avec un placeholder
-//       if (element.tagName === "INPUT" && element.hasAttribute("placeholder")) {
-//         element.setAttribute("placeholder", translatedText);
-//       }
-//       if (element.tagName === "INPUT") {
-//         // Pour les autres inputs : valeur
-//         element.value = translatedText;
-//       } else {
-//         // Pour les autres éléments : texte brut
-//         element.textContent = translatedText;
-//       }
-//     } else {
-//       console.warn(`No translation found for key: ${translationKey}`);
-//     }
-//   });
-// }
-
 function applyTranslations(translations) {
   document.querySelectorAll("[data-translate]").forEach((element) => {
     const translationKey = element.getAttribute("data-translate");
@@ -153,7 +99,7 @@ function applyTranslations(translations) {
         if (element.hasAttribute("placeholder")) {
           element.setAttribute("placeholder", translatedText);
         }
-        element.value = translatedText;
+        // element.value = translatedText;
       } else {
         // Pour les autres éléments
         const svgElement = element.querySelector("svg");

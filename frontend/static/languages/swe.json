@@ -1,4 +1,11 @@
 {
+  "navBar": {
+    "home": "Hem",
+    "logout": "Logga ut",
+    "profile": "Profil",
+    "settings": "Inställningar",
+    "tournament": "Turnering"
+  },
   "login": {
     "title": "Gå med i Striden",
     "emailLabel": "E-post",
@@ -50,7 +57,13 @@
     "rankTooltipTitle": "Rankningssystem",
     "rankBronze": "Brons: 0-33% Vinstprocent",
     "rankSilver": "Silver: 33-66% Vinstprocent",
-    "rankGold": "Guld: 66-100% Vinstprocent"
+    "rankGold": "Guld: 66-100% Vinstprocent",
+    "menuProfile": "Visa profil",
+    "unblockUser": "Avblockera användare",
+    "blockUser": "Blockera användare",
+    "addFriend": "Lägg till vän",
+    "sendInvitation": "Skicka onlineinbjudan",
+    "privateMessage": "Privat meddelande"
   },
   "twoStepVerification": {
     "title": "Tvåstegsverifiering",
