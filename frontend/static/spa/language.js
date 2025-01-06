@@ -55,12 +55,6 @@ async function setLanguageInAPI(language) {
 
 async function loadTranslations(language) {
   console.log("Loading translations for:", language);
-  // if (loadedTranslations[language]) {
-  //   // Si les traductions sont déjà chargées, les appliquer directement
-  //   console.log("Translations already loaded");
-  //   applyTranslations(loadedTranslations[language]);
-  //   return;
-  // }
 
   try {
     console.log("Fetching translations from server");
@@ -77,6 +71,7 @@ async function loadTranslations(language) {
       console.log("Saving language preference to localStorage :", language);
       localStorage.setItem("preferredLanguage", language);
     } else {
+      localStorage.setItem("preferredLanguage", language);
       await setLanguageInAPI(language);
     }
   } catch (error) {

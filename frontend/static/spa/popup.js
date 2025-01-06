@@ -9,6 +9,13 @@
 //     popupModal.classList.add("active");
 // }
 
+function isLoginPage() {
+  return (
+    window.location.pathname === "/login-register" ||
+    window.location.pathname === "/"
+  );
+}
+
 async function showErrorPopup(message, isAuthenticated) {
   let translations = {};
   let language = "en"; // Par défaut, utiliser l'anglais
@@ -19,7 +26,7 @@ async function showErrorPopup(message, isAuthenticated) {
 
   try {
     // Si l'utilisateur est authentifié, récupérer la langue via l'API
-    if (isAuthenticated) {
+    if (!isLoginPage()){
       language = await getLanguageFromAPI();
       await setPreferredLanguage(language);
     }

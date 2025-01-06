@@ -22,7 +22,8 @@
     "errorBlock": "Error al actualizar el estado de bloqueo.",
     "errorNotSys": "No se pueden enviar mensajes privados al Sistema.",
     "error2FA": "Error al cambiar la autenticación 2FA.",
-    "handleFriendRequest": "Ocurrió un error al procesar la solicitud."
+    "handleFriendRequest": "Ocurrió un error al procesar la solicitud.",
+    "L'ancien mot de passe est incorrect.": "La antigua contraseña es incorrecta."
   },
   "info": {
     "friendAccept": "Solicitud de amistad aceptada.",

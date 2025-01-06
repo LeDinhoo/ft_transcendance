@@ -22,7 +22,8 @@
     "errorBlock": "Fel vid uppdatering av blockstatus.",
     "errorNotSys": "Det går inte att skicka privata meddelanden till System.",
     "error2FA": "Fel vid växling av 2FA.",
-    "handleFriendRequest": "Ett fel inträffade vid hantering av förfrågan."
+    "handleFriendRequest": "Ett fel inträffade vid hantering av förfrågan.",
+    "L'ancien mot de passe est incorrect.": "Det gamla lösenordet är felaktigt."
   },
   "info": {
     "friendAccept": "Vänförfrågan accepterad.",

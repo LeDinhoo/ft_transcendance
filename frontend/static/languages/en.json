@@ -22,7 +22,8 @@
     "errorBlock": "Erreur lors de la mise à jour du statut de blocage",
     "errorNotSys": "Cannot send private messages to System",
     "error2FA": "Error when switching 2FA",
-    "handleFriendRequest": "An error occurred while processing the request"
+    "handleFriendRequest": "An error occurred while processing the request",
+    "L'ancien mot de passe est incorrect.": "The old password is incorrect."
   },
   "info": {
 	"friendAccept": "Friend request accepted",
