@@ -1,4 +1,38 @@
 {
+  "error": {
+    "passwordsMissmatch": "Lösenorden matchar inte.",
+    "typeOldPassword": "Ange ditt gamla lösenord.",
+    "spaceBarError": "Mellanslag är inte tillåtet i inställningarna.",
+    "invalidLogin": "Ogiltiga inloggningsuppgifter.",
+    "errorTryAgainLater": "Ett fel inträffade. Försök igen senare.",
+    "automaticLoginFailed": "Automatisk inloggning misslyckades. Logga in manuellt.",
+    "errorOccurred": "Ett fel inträffade. Försök igen.",
+    "missingUpperCase": "Lösenordet måste innehålla minst en versal.",
+    "missingLowerCase": "Lösenordet måste innehålla minst en gemen.",
+    "missingDigit": "Lösenordet måste innehålla minst en siffra.",
+    "missingSpecial": "Lösenordet måste innehålla minst ett specialtecken.",
+    "helpText": "Lösenordet måste innehålla minst: <br>- en versal <br>- en gemen <br>- en siffra <br>- ett specialtecken: @$!%*?& <br>- minst 8 tecken.",
+    "invalidMail": "Ogiltig e-postadress.",
+    "usernameTooLong": "Användarnamnet är över 15 tecken.",
+    "usernameRequired": "Användarnamn är obligatoriskt.",
+    "idNotFound": "Det går inte att skicka vänförfrågan: Användar-ID hittades inte.",
+    "notYourself": "Du kan inte skicka en vänförfrågan till dig själv.",
+    "errorServ": "Fel vid bearbetning av serverresponsen.",
+    "errorFriendRequest": "Fel vid skickande av vänförfrågan.",
+    "errorBlock": "Fel vid uppdatering av blockstatus.",
+    "errorNotSys": "Det går inte att skicka privata meddelanden till System.",
+    "error2FA": "Fel vid växling av 2FA.",
+    "handleFriendRequest": "Ett fel inträffade vid hantering av förfrågan."
+  },
+  "info": {
+    "friendAccept": "Vänförfrågan accepterad.",
+    "friendReject": "Vänförfrågan avvisad.",
+    "friendPending": "En vänförfrågan väntar redan.",
+    "friendRequestsSuccess": "Vänförfrågan skickades framgångsrikt.",
+    "active2FA": "2FA är aktiverad.",
+    "codeEmail": "Bekräftelsekod skickades till din e-post.",
+    "disabled2FA": "2FA är inaktiverad."
+  },
   "navBar": {
     "home": "Hem",
     "logout": "Logga ut",

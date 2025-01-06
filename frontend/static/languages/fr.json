@@ -1,9 +1,9 @@
 {
   "error": {
     "passwordsMissmatch": "Les mots de passe ne correspondent pas.",
-    "typeOldPassword": "Veuillez taper votre ancien mot de passe.",
-    "spaceBarError": "L'espace n'est pas autorisé dans les paramètres.",
-    "invalidLogin": "Informations de connexion invalide.",
+    "typeOldPassword": "Veuillez saisir votre ancien mot de passe.",
+    "spaceBarError": "La barre d'espace n'est pas autorisée dans les paramètres.",
+    "invalidLogin": "Identifiants de connexion invalides.",
     "errorTryAgainLater": "Une erreur s'est produite. Veuillez réessayer plus tard.",
     "automaticLoginFailed": "La connexion automatique a échoué. Veuillez vous connecter manuellement.",
     "errorOccurred": "Une erreur s'est produite. Veuillez réessayer.",
@@ -11,17 +11,27 @@
     "missingLowerCase": "Le mot de passe doit contenir au moins une lettre minuscule.",
     "missingDigit": "Le mot de passe doit contenir au moins un chiffre.",
     "missingSpecial": "Le mot de passe doit contenir au moins un caractère spécial.",
-    "helpText": "Le mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial :  @$!%*?& <br>- 8 caractères minimum.",
+    "helpText": "Le mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial : @$!%*?& <br>- 8 caractères minimum.",
     "invalidMail": "Adresse e-mail invalide.",
     "usernameTooLong": "Le nom d'utilisateur dépasse 15 caractères.",
-    "usernameRequired": "Le nom d'utilisateur est requis."
+    "usernameRequired": "Le nom d'utilisateur est requis.",
+    "idNotFound": "Impossible d'envoyer une demande d'ami : ID utilisateur introuvable.",
+    "notYourself": "Vous ne pouvez pas vous envoyer une demande d'ami.",
+    "errorServ": "Erreur lors du traitement de la réponse du serveur.",
+    "errorFriendRequest": "Erreur lors de l'envoi de la demande d'ami.",
+    "errorBlock": "Erreur lors de la mise à jour du statut de blocage.",
+    "errorNotSys": "Impossible d'envoyer des messages privés au Système.",
+    "error2FA": "Erreur lors de la modification de l'authentification 2FA.",
+    "handleFriendRequest": "Une erreur s'est produite lors du traitement de la demande."
   },
-  "navBar": {
-    "home": "Accueil",
-    "logout": "Se déconnecter",
-    "profile": "Profil",
-    "settings": "Paramètres",
-    "tournament": "Tournoi"
+  "info": {
+    "friendAccept": "Demande d'ami acceptée.",
+    "friendReject": "Demande d'ami refusée.",
+    "friendPending": "Une demande d'ami est déjà en attente.",
+    "friendRequestsSuccess": "Demande d'ami envoyée avec succès.",
+    "active2FA": "L'authentification 2FA est activée.",
+    "codeEmail": "Code de confirmation envoyé à votre e-mail.",
+    "disabled2FA": "L'authentification 2FA est désactivée."
   },
   "login": {
     "title": "Rejoignez la Bataille",
