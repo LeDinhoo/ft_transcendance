@@ -90,10 +90,27 @@ export class AI {
     this.updateDifficultySettings();
   }
 
+  // pause(duration) {
+  //   this.enabled = false;
+  //   setTimeout(() => {
+  //     this.enabled = true;
+  //   }, duration);
+  // }
+
+  // pause(duration) {
+  //   this.enabled = false;
+  //   setTimeout(() => {
+  //     this.enabled = true;
+  //     this.resetLastUpdate(); // Réinitialise le temps pour éviter des mouvements excessifs
+  //   }, duration);
+  // }
+
   pause(duration) {
     this.enabled = false;
     setTimeout(() => {
       this.enabled = true;
+      this.resetLastUpdate();
+      this.isMoving = false; // Réinitialise également le drapeau de mouvement
     }, duration);
   }
 
@@ -285,11 +302,92 @@ export class AI {
     }
   }
 
+  // move(paddle, ball, ballVelocity, impactPoint, boundaries) {
+  //   if (!this.enabled || !paddle) return;
+
+  //   const currentTime = performance.now();
+  //   this.updateBallData(ball, ballVelocity);
+
+  //   if (
+  //     Math.sign(this.lastBallVelocity.x) !==
+  //     Math.sign(this.previousBallDirectionX)
+  //   ) {
+  //     if (this.lastBallVelocity.x < 0) {
+  //       this.lastDirectionChangeTime = currentTime;
+  //     }
+  //     this.previousBallDirectionX = this.lastBallVelocity.x;
+  //   }
+
+  //   if (this.lastBallVelocity.x > 0) {
+  //     this.handleInterceptionMode(currentTime, ball, impactPoint, paddle);
+  //   } else {
+  //     if (this.Power1NearBottom) {
+  //       this.movePaddleDown(paddle, boundaries);
+  //     } else if (this.Power1NearTop) {
+  //       this.movePaddleUp(paddle, boundaries);
+  //     } else if (this.Power2NearBottom) {
+  //       this.movePaddleDown(paddle, boundaries);
+  //     } else if (this.Power2NearTop) {
+  //       this.movePaddleUp(paddle, boundaries);
+  //     } else {
+  //       this.handleFollowMode(currentTime);
+  //     }
+  //   }
+
+  //   this.applyPaddleMovement(paddle, currentTime, boundaries);
+  // }
+
+  // move(paddle, ball, ballVelocity, impactPoint, boundaries) {
+  //   if (!this.enabled || !paddle) return;
+
+  //   const currentTime = performance.now();
+  //   this.updateBallData(ball, ballVelocity);
+
+  //   let hasMoved = false; // Nouveau drapeau pour vérifier les mouvements
+
+  //   if (
+  //     Math.sign(this.lastBallVelocity.x) !==
+  //     Math.sign(this.previousBallDirectionX)
+  //   ) {
+  //     if (this.lastBallVelocity.x < 0) {
+  //       this.lastDirectionChangeTime = currentTime;
+  //     }
+  //     this.previousBallDirectionX = this.lastBallVelocity.x;
+  //   }
+
+  //   if (this.lastBallVelocity.x > 0) {
+  //     this.handleInterceptionMode(currentTime, ball, impactPoint, paddle);
+  //   } else {
+  //     if (this.Power1NearBottom && !hasMoved) {
+  //       this.movePaddleDown(paddle, boundaries);
+  //       hasMoved = true; // Le mouvement a été appliqué
+  //     } else if (this.Power1NearTop && !hasMoved) {
+  //       this.movePaddleUp(paddle, boundaries);
+  //       hasMoved = true;
+  //     } else if (this.Power2NearBottom && !hasMoved) {
+  //       this.movePaddleDown(paddle, boundaries);
+  //       hasMoved = true;
+  //     } else if (this.Power2NearTop && !hasMoved) {
+  //       this.movePaddleUp(paddle, boundaries);
+  //       hasMoved = true;
+  //     } else if (!hasMoved) {
+  //       this.handleFollowMode(currentTime);
+  //     }
+  //   }
+
+  //   this.applyPaddleMovement(paddle, currentTime, boundaries);
+  // }
+
   move(paddle, ball, ballVelocity, impactPoint, boundaries) {
     if (!this.enabled || !paddle) return;
 
     const currentTime = performance.now();
+    if (this.isMoving) return; // Empêche plusieurs mouvements dans un même cycle
+    this.isMoving = true;
+
     this.updateBallData(ball, ballVelocity);
+
+    let hasMoved = false;
 
     if (
       Math.sign(this.lastBallVelocity.x) !==
@@ -304,36 +402,62 @@ export class AI {
     if (this.lastBallVelocity.x > 0) {
       this.handleInterceptionMode(currentTime, ball, impactPoint, paddle);
     } else {
-      if (this.Power1NearBottom) {
+      if (this.Power1NearBottom && !hasMoved) {
         this.movePaddleDown(paddle, boundaries);
-      } else if (this.Power1NearTop) {
+        hasMoved = true;
+      } else if (this.Power1NearTop && !hasMoved) {
         this.movePaddleUp(paddle, boundaries);
-      } else if (this.Power2NearBottom) {
+        hasMoved = true;
+      } else if (this.Power2NearBottom && !hasMoved) {
         this.movePaddleDown(paddle, boundaries);
-      } else if (this.Power2NearTop) {
+        hasMoved = true;
+      } else if (this.Power2NearTop && !hasMoved) {
         this.movePaddleUp(paddle, boundaries);
-      } else {
+        hasMoved = true;
+      } else if (!hasMoved) {
         this.handleFollowMode(currentTime);
       }
     }
 
     this.applyPaddleMovement(paddle, currentTime, boundaries);
+
+    this.isMoving = false; // Réinitialise le drapeau après le mouvement
   }
 
-  movePaddleUp(paddle, boundaries) {
-    if (!paddle) return;
+  // movePaddleUp(paddle, boundaries) {
+  //   if (!paddle) return;
 
+  //   if (paddle.position.z > boundaries.minZ + this.PADDLE_HEIGHT / 2) {
+  //     paddle.position.z -= this.PADDLE_SPEED;
+  //   }
+  // }
+
+  // movePaddleDown(paddle, boundaries) {
+  //   if (!paddle) return;
+
+  //   if (paddle.position.z < boundaries.maxZ - this.PADDLE_HEIGHT / 2) {
+  //     paddle.position.z += this.PADDLE_SPEED;
+  //   }
+  // }
+
+  movePaddleUp(paddle, boundaries) {
+    if (!paddle || this.isMovingUp) return;
+
+    this.isMovingUp = true; // Bloque les mouvements supplémentaires
     if (paddle.position.z > boundaries.minZ + this.PADDLE_HEIGHT / 2) {
       paddle.position.z -= this.PADDLE_SPEED;
     }
+    this.isMovingUp = false;
   }
 
   movePaddleDown(paddle, boundaries) {
-    if (!paddle) return;
+    if (!paddle || this.isMovingDown) return;
 
+    this.isMovingDown = true; // Bloque les mouvements supplémentaires
     if (paddle.position.z < boundaries.maxZ - this.PADDLE_HEIGHT / 2) {
       paddle.position.z += this.PADDLE_SPEED;
     }
+    this.isMovingDown = false;
   }
 
   resetLastUpdate() {
@@ -397,6 +521,82 @@ export class AI {
     }
   }
 
+  // applyPaddleMovement(paddle, currentTime, boundaries) {
+  //   const paddleZ = paddle.position.z;
+  //   const distanceToTarget = this.lastTargetZ - paddleZ;
+
+  //   if (Math.abs(distanceToTarget) > 5) {
+  //     let direction = Math.sign(distanceToTarget);
+  //     let shouldMove = true;
+
+  //     if (this.lastBallVelocity.x <= 0) {
+  //       const canFollow =
+  //         currentTime - this.lastDirectionChangeTime >= this.FOLLOW_MODE_DELAY;
+  //       shouldMove = canFollow && this.isFollowing;
+  //     }
+
+  //     if (this.isInError) {
+  //       if (currentTime - this.errorStartTime < this.ERROR_DURATION) {
+  //         direction = -this.correctDirection;
+  //       } else {
+  //         this.isInError = false;
+  //       }
+  //     }
+
+  //     if (shouldMove) {
+  //       paddle.position.z += direction * this.PADDLE_SPEED;
+  //       const paddleLimit = boundaries.maxZ - this.PADDLE_HEIGHT / 2;
+  //       paddle.position.z = Math.max(
+  //         -paddleLimit,
+  //         Math.min(paddleLimit, paddle.position.z)
+  //       );
+  //     }
+  //   }
+  // }
+
+  resetLastUpdate() {
+    this.lastUpdate = performance.now(); // Réinitialiser à l'heure actuelle
+    this.lastResetTime = performance.now();
+  }
+
+  // applyPaddleMovement(paddle, currentTime, boundaries) {
+  //   const paddleZ = paddle.position.z;
+  //   const distanceToTarget = this.lastTargetZ - paddleZ;
+
+  //   if (Math.abs(distanceToTarget) > 5) {
+  //     let direction = Math.sign(distanceToTarget);
+  //     let shouldMove = true;
+
+  //     if (this.lastBallVelocity.x <= 0) {
+  //       const canFollow =
+  //         currentTime - this.lastDirectionChangeTime >= this.FOLLOW_MODE_DELAY;
+  //       shouldMove = canFollow && this.isFollowing;
+  //     }
+
+  //     if (this.isInError) {
+  //       if (currentTime - this.errorStartTime < this.ERROR_DURATION) {
+  //         direction = -this.correctDirection;
+  //       } else {
+  //         this.isInError = false;
+  //       }
+  //     }
+
+  //     if (shouldMove) {
+  //       const maxMovement = this.PADDLE_SPEED; // Vitesse maximale par cycle
+  //       const movement =
+  //         Math.min(Math.abs(distanceToTarget), maxMovement) * direction;
+
+  //       paddle.position.z += movement;
+
+  //       const paddleLimit = boundaries.maxZ - this.PADDLE_HEIGHT / 2;
+  //       paddle.position.z = Math.max(
+  //         -paddleLimit,
+  //         Math.min(paddleLimit, paddle.position.z)
+  //       );
+  //     }
+  //   }
+  // }
+
   applyPaddleMovement(paddle, currentTime, boundaries) {
     const paddleZ = paddle.position.z;
     const distanceToTarget = this.lastTargetZ - paddleZ;
@@ -420,7 +620,12 @@ export class AI {
       }
 
       if (shouldMove) {
-        paddle.position.z += direction * this.PADDLE_SPEED;
+        const maxMovement = this.PADDLE_SPEED;
+        const movement =
+          Math.min(Math.abs(distanceToTarget), maxMovement) * direction;
+
+        paddle.position.z += movement;
+
         const paddleLimit = boundaries.maxZ - this.PADDLE_HEIGHT / 2;
         paddle.position.z = Math.max(
           -paddleLimit,
