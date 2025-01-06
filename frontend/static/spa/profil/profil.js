@@ -315,7 +315,7 @@ function initializeProfilePage() {
           return;
         }
         if (newPassword !== confirmNewPassword) {
-          showErrorPopup("Les nouveaux mots de passe ne correspondent pas.");
+          showErrorPopup("passwordsMissmatch");
           return;
         }
       }

@@ -338,7 +338,7 @@ document
     }
 
     if (password1 !== password2) {
-      showErrorPopup("Les mots de passe ne correspondent pas.");
+      showErrorPopup("passwordsMissmatch");
       return;
     }
 

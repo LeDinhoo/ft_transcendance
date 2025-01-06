@@ -1,4 +1,7 @@
 {
+  "error": {
+    "passwordsMissmatch": "Les mots de passe ne correspondent pas."
+  },
   "navBar": {
     "home": "Accueil",
     "logout": "Se déconnecter",

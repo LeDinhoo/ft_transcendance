@@ -1,4 +1,7 @@
 {
+  "error": {
+    "passwordsMissmatch": "Passwords do not match."
+  },
   "navBar": {
     "home": "home",
     "logout": "Log out",
