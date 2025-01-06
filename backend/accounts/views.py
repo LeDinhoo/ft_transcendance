@@ -455,43 +455,7 @@ def update_profile_view(request):
                     return JsonResponse({'error': 'L\'image est trop volumineuse (max 2MB).'}, status=400)
 
                 # Vérifier le type MIME
-                mime = magic.Magic(mime=True)
-                file_type = mime.from_buffer(avatar.read())
-                avatar.seek(0)
-                
-                allowed_types = ['image/jpeg', 'image/png']
-                logger.debug(f"Type de fichier détecté: {file_type}")
-                
-                if file_type not in allowed_types:
-                    logger.warning(f"Type de fichier non autorisé: {file_type}")
-                    return JsonResponse({'error': 'Format de fichier non autorisé. Utilisez JPG ou PNG.'}, status=400)
-
-                # Vérifier que c'est une vraie image
-                try:
-                    avatar.seek(0)
-                    validate_image_thoroughly(avatar)
-                    avatar.seek(0)
-                    
-                    # Vérifier les dimensions
-                    img = Image.open(avatar)
-                    if img.height > 2000 or img.width > 2000:
-                        logger.warning(f"Image trop grande: {img.width}x{img.height}")
-                        return JsonResponse({'error': 'Dimensions de l\'image trop grandes (max 2000x2000)'}, status=400)
-                    
-                    if img.height < 100 or img.width < 100:
-                        logger.warning(f"Image trop petite: {img.width}x{img.height}")
-                        return JsonResponse({'error': 'Dimensions de l\'image trop petites (min 100x100)'}, status=400)
-
-                except Exception as e:
-                    logger.error(f"Erreur de validation d'image: {str(e)}")
-                    return JsonResponse({'error': 'Fichier image corrompu ou invalide'}, status=400)
-
-                avatar.seek(0)
-                
-                # Sauvegarder le fichier validé
-                file_path = os.path.join('avatars', f"avatar_{user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
-                user.avatar = default_storage.save(file_path, avatar)
-                logger.debug(f"Avatar sauvegardé: {file_path}")
+                mime = mCbug(f"Avatar sauvegardé: {file_path}")
 
             except Exception as e:
                 logger.error(f"Erreur lors du traitement de l'avatar: {str(e)}")
@@ -1665,8 +1629,7 @@ def handle_friend_request(request):
 
         elif action == 'decline':
             # Refuser la demande d'ami
-            friendship.status = 'rejected'
-            friendship.save()
+            friendship.delete()
 
         return JsonResponse({'message': f'Request {action}ed successfully'}, status=200)
 
