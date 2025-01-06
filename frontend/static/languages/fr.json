@@ -1,7 +1,24 @@
 {
   "error": {
-    "passwordsMissmatch": "Les mots de passe ne correspondent pas."
+	"passwordsMissmatch": "Les mots de passe ne correspondent pas.",
+	"idNotFound": "Impossible d'envoyer une demande d'ami : ID utilisateur introuvable",
+	"notYourself": "Vous ne pouvez pas vous envoyer une demande d'ami à vous-même",
+	"errorServ": "Erreur lors du traitement de la réponse du serveur",
+	"errorFriendRequest": "Erreur lors de l'envoi de la demande d'ami",
+	"errorBlock": "Erreur lors de la mise à jour du statut de blocage",
+	"errorNotSys": "Impossible d'envoyer des messages privés au Système",
+	"error2FA": "Erreur lors de l'activation ou de la désactivation de l'A2F",
+	"handleFriendRequest": "Une erreur s'est produite lors du traitement de la demande"
   },
+  "info": {
+	"friendAccept": "Demande d'ami acceptée",
+	"friendReject": "Demande d'ami refusée",
+	"Error": "Une demande d'ami est déjà en attente",
+	"friendRequestsSuccess": "Demande d'ami envoyée avec succès",
+	"active2FA": "L'A2F est activée",
+	"codeEmail": "Code de confirmation envoyé à votre e-mail.",
+	"disabled2FA": "L'A2F est désactivée"
+  },	
   "navBar": {
     "home": "Accueil",
     "logout": "Se déconnecter",

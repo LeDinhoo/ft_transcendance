@@ -1,4 +1,24 @@
 {
+  "error": {
+	"passwordsMissmatch": "Lösenorden matchar inte.",
+	"idNotFound": "Kunde inte skicka vänförfrågan: Användar-ID hittades inte",
+	"notYourself": "Du kan inte skicka en vänförfrågan till dig själv",
+	"errorServ": "Fel vid bearbetning av serverns svar",
+	"errorFriendRequest": "Fel vid skickande av vänförfrågan",
+	"errorBlock": "Fel vid uppdatering av blockstatus",
+	"errorNotSys": "Kan inte skicka privata meddelanden till Systemet",
+	"error2FA": "Fel vid aktivering eller inaktivering av 2FA",
+	"handleFriendRequest": "Ett fel inträffade vid bearbetning av förfrågan"
+  },
+  "info": {
+	"friendAccept": "Vänförfrågan accepterad",
+	"friendReject": "Vänförfrågan avvisad",
+	"Error": "En vänförfrågan väntar redan",
+	"friendRequestsSuccess": "Vänförfrågan skickad framgångsrikt",
+	"active2FA": "2FA är aktiverat",
+	"codeEmail": "Bekräftelsekod skickad till din e-post.",
+	"disabled2FA": "2FA är inaktiverat"
+  },
   "navBar": {
     "home": "Hem",
     "logout": "Logga ut",

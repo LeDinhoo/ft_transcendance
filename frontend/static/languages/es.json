@@ -1,4 +1,24 @@
 {
+  "error": {
+	"passwordsMissmatch": "Las contraseñas no coinciden.",
+	"idNotFound": "No se puede enviar la solicitud de amistad: ID de usuario no encontrado",
+	"notYourself": "No puedes enviarte una solicitud de amistad a ti mismo",
+	"errorServ": "Error al procesar la respuesta del servidor",
+	"errorFriendRequest": "Error al enviar la solicitud de amistad",
+	"errorBlock": "Error al actualizar el estado de bloqueo",
+	"errorNotSys": "No se pueden enviar mensajes privados al Sistema",
+	"error2FA": "Error al activar o desactivar el 2FA",
+	"handleFriendRequest": "Ocurrió un error al procesar la solicitud"
+  },
+	"info": {
+	"friendAccept": "Solicitud de amistad aceptada",
+	"friendReject": "Solicitud de amistad rechazada",
+	"Error": "Ya hay una solicitud de amistad pendiente",
+	"friendRequestsSuccess": "Solicitud de amistad enviada con éxito",
+	"active2FA": "El 2FA está activado",
+	"codeEmail": "Código de confirmación enviado a tu correo electrónico.",
+	"disabled2FA": "El 2FA está desactivado"
+  },	
   "navBar": {
     "home": "Inicio",
     "logout": "Cerrar sesión",

@@ -654,16 +654,16 @@ function initialize2FA() {
           if (!document.querySelector(".popup-overlay")) {
             showTwoFactorPopup();
           }
-          showInfoPopup("Code de vérification envoyé par email.");
+          showInfoPopup("codeEmail");
         } else {
           is2FAEnabled = false;
           updateUI2FAStatus(is2FAEnabled);
-          showInfoPopup("2FA désactivé avec succès.");
+          showInfoPopup("disabled2FA");
         }
       })
       .catch((error) => {
         console.error("Erreur lors du basculement de la 2FA :", error);
-        showInfoPopup("Une erreur est survenue.");
+        showErrorPopup("error2FA");
       });
   });
 }
@@ -906,9 +906,9 @@ async function handleFriendRequest(requestId, action) {
             ...window.wsManager.onlinePlayers,
           ]);
         }
-        showInfoPopup("Friend request accepted successfully");
+        showInfoPopup("friendAccept");
       } else {
-        showInfoPopup("Friend request declined");
+        showInfoPopup("friendReject");
       }
 
       // Vérifier s'il reste des demandes d'ami
@@ -925,6 +925,6 @@ async function handleFriendRequest(requestId, action) {
     }
   } catch (error) {
     console.error("Error handling friend request:", error);
-    showInfoPopup("An error occurred while processing the request");
+    showErrorPopup("handleFriendRequest");
   }
 }
