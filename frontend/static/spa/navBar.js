@@ -95,7 +95,6 @@ function initializeNavBar() {
     const logoutButton = document.getElementById("logout-icon");
     if (logoutButton) {
       logoutButton.addEventListener("click", logout); 
-      console.log("Logout button event listener attached"); 
     } else {
       console.error("Logout icon not found in the DOM.");
     }

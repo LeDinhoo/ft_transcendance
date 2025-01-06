@@ -1,4 +1,3 @@
-console.log("gameSript en cours...")
 
 const PADDLE_WIDTH = 100;
 const BALL_SIZE = 20;
@@ -53,9 +52,7 @@ function initializeGameElements() {
     gameElements.scoreDisplay = document.getElementById('scoreDisplay');
 
     
-    console.log("Dimensions gameSection :", gameElements.gameSection.offsetWidth, gameElements.gameSection.offsetHeight);
-    console.log("Dimensions topPaddle :", gameElements.topPaddle.offsetWidth, gameElements.topPaddle.offsetHeight);
-    console.log("Dimensions ball :", gameElements.ball.offsetWidth, gameElements.ball.offsetHeight);
+
     
     
     gameState.gameWidth = gameElements.gameSection.offsetWidth;
@@ -404,7 +401,6 @@ function updateScoreDisplay() {
  */
 function updateColorSensitivity(newSensitivity) {
     gameState.colorSensitivity = newSensitivity;
-    console.log(`Sensibilité de couleur mise à jour : ${gameState.colorSensitivity}`);
 }
 
 /**
@@ -434,6 +430,5 @@ function initGame() {
     gameLoop();
 }
 
-console.log("Appel à initGame");
 
 window.onload = initGame;

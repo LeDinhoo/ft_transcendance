@@ -874,19 +874,14 @@ def callback_42(request):
                     </style>
                     <script>
                         if (window.opener) {{
-                            // Envoyer un message à la fenêtre principale
-                            console.log('Sending success message to main window...');
                             window.opener.postMessage({{
                                 type: 'auth_success'
                             }}, 'https://localhost:4430');
 
-                            // Rediriger la fenêtre principale
-                            console.log('Redirecting main window...');
                             window.opener.location.href = 'https://localhost:4430/home';
 
                             // Fermer cette fenêtre après un court délai
                             setTimeout(() => {{
-                                console.log('Closing popup window...');
                                 window.close();
                             }}, 300);
                         }}

@@ -16,13 +16,11 @@ function ensureHumanFirst(player1, player2, gameManager) {
 
   // Si les deux joueurs sont humains, ne rien changer
   if (!player1IsBot && !player2IsBot) {
-    console.log(`Both players are human. No swapping needed.`);
     return [player1, player2];
   }
 
   // Si player1 est un bot et player2 est humain, on swap pour placer l'humain en premier
   if (player1IsBot && !player2IsBot) {
-    console.log(`Swapping players to make human player1.`);
     return [player2, player1]; // Retourne l'humain en tant que player1
   }
 
@@ -31,8 +29,6 @@ function ensureHumanFirst(player1, player2, gameManager) {
 }
 
 function initializeTournamentPage() {
-  console.log("fonction initializetournament game appele ...");
-
   let translations = {};
 
   language = getLanguageFromAPI();
@@ -101,9 +97,6 @@ function initializeTournamentPage() {
 
       // Le premier joueur est toujours un humain
       if (index === 0) {
-        console.log(
-          `Player ${player.name} is the first user and is always human.`
-        );
         return false;
       }
 
@@ -115,7 +108,6 @@ function initializeTournamentPage() {
       }
 
       // Retourner l'état de la case à cocher
-      console.log(`Player ${player.name} isBot: ${toggle.checked}`);
       return toggle.checked;
     }
 
@@ -143,7 +135,6 @@ function initializeTournamentPage() {
 
       // Écoute des messages du jeu
       window.addEventListener("message", (event) => {
-        console.log("event.data: ", event.data);
         if (event.data.type === "scoreUpdate") {
           // Mise à jour des scores en cours de partie
           this.currentGameScores = {
@@ -153,8 +144,6 @@ function initializeTournamentPage() {
         } else if (event.data.type === "gameComplete") {
           const winner = event.data.data.winner;
           const finalScores = event.data.data.finalScores;
-          console.log("winner : ", winner);
-          console.log("finalScores : ", finalScores);
 
           this.endGame();
           progressTournament(winner, finalScores, gameManager);
@@ -185,9 +174,7 @@ function initializeTournamentPage() {
           return response.json();
         })
         .then((data) => {
-          console.log("Data received:", data);
           this.options = data;
-          console.log("Options:", this.options);
           // localStorage.setItem('gameOptions', JSON.stringify(data));
         })
         .catch((error) => {
@@ -217,48 +204,30 @@ function initializeTournamentPage() {
         };
 
         const currentMatch =
-            this.tournamentState.matches[this.tournamentState.currentMatch];
+          this.tournamentState.matches[this.tournamentState.currentMatch];
 
         if (
-            !currentMatch ||
-            this.tournamentState.currentMatch >=
+          !currentMatch ||
+          this.tournamentState.currentMatch >=
             this.tournamentState.matches.length
         ) {
-          console.log("No more matches to play");
           return;
         }
-
-        console.log(
-            "Starting game for match:",
-            this.tournamentState.currentMatch
-        );
-        console.log("Current match data:", currentMatch);
 
         // Vérifier si chaque joueur est un bot
         const player1IsBot = this.isBot(currentMatch.player1);
         const player2IsBot = this.isBot(currentMatch.player2);
 
         // Afficher si les joueurs sont des bots
-        console.log(
-            `Player 1 (${currentMatch.player1.name}) isBot:`,
-            player1IsBot
-        );
-        console.log(
-            `Player 2 (${currentMatch.player2.name}) isBot:`,
-            player2IsBot
-        );
 
         // Charger les options de jeu depuis localStorage
         if (!this.options) {
           console.error("Game options not found in localStorage!");
           return;
         }
-        console.log("Game options retrieved:", this.options);
 
         // Simulation si les deux joueurs sont des bots
         if (player1IsBot && player2IsBot) {
-          console.log("Simulating match between two bots...");
-
           this.isSimulationInProgress = true;
           this.blockSpacebar(true); // Bloquer la barre d'espace
 
@@ -271,8 +240,8 @@ function initializeTournamentPage() {
               score2 = Math.floor(Math.random() * 6);
 
               if (
-                  Math.max(score1, score2) === 5 &&
-                  Math.abs(score1 - score2) >= 2
+                Math.max(score1, score2) === 5 &&
+                Math.abs(score1 - score2) >= 2
               ) {
                 break;
               }
@@ -282,27 +251,17 @@ function initializeTournamentPage() {
 
           // Simuler les scores
           const { score1: simulatedScore1, score2: simulatedScore2 } =
-              simulateScores();
+            simulateScores();
 
           const simulatedWinner =
-              simulatedScore1 > simulatedScore2
-                  ? currentMatch.player1
-                  : currentMatch.player2;
-
-          console.log(
-              "Simulation complete. Winner:",
-              simulatedWinner,
-              "Scores:",
-              {
-                player1: simulatedScore1,
-                player2: simulatedScore2,
-              }
-          );
+            simulatedScore1 > simulatedScore2
+              ? currentMatch.player1
+              : currentMatch.player2;
 
           progressTournament(
-              null,
-              { player1: simulatedScore1, player2: simulatedScore2 },
-              this
+            null,
+            { player1: simulatedScore1, player2: simulatedScore2 },
+            this
           );
 
           this.isSimulationInProgress = false;
@@ -315,21 +274,15 @@ function initializeTournamentPage() {
         this.gameContainer.src = "/static/spa/game3D/three.html";
 
         this.gameContainer.onload = () => {
-          console.log(
-              "Game loaded, sending players:",
-              currentMatch.player1,
-              currentMatch.player2
-          );
-
           this.gameContainer.contentWindow.postMessage(
-              {
-                type: "startGame",
-                data: {
-                  player1: currentMatch.player1,
-                  player2: currentMatch.player2,
-                },
+            {
+              type: "startGame",
+              data: {
+                player1: currentMatch.player1,
+                player2: currentMatch.player2,
               },
-              "*"
+            },
+            "*"
           );
 
           const options = this.options;
@@ -337,11 +290,11 @@ function initializeTournamentPage() {
           const power = true;
 
           this.gameContainer.contentWindow.postMessage(
-              {
-                type: "setOptions",
-                data: { options, isAI, power, languageOption },
-              },
-              "*"
+            {
+              type: "setOptions",
+              data: { options, isAI, power, languageOption },
+            },
+            "*"
           );
 
           this.gameContainer.focus();
@@ -368,7 +321,6 @@ function initializeTournamentPage() {
     preventSpacebar(event) {
       if (event.code === "Space") {
         event.preventDefault();
-        console.log("Barre d'espace bloquée pendant la simulation");
       }
     }
 
@@ -661,8 +613,6 @@ function initializeTournamentPage() {
           input.value = "";
           input.placeholder = placeholder;
         }
-        console.log("name:", translations.tournament.bot.name);
-        console.log("place", translations.tournament.input.placeholder);
       };
 
       // Initialiser l'état de la case à cocher
@@ -942,11 +892,6 @@ function initializeTournamentPage() {
       return;
     }
 
-    console.log(
-      `Match ${tournamentState.currentMatch} winner:`,
-      currentMatch.winner
-    );
-
     // **2. Mise à jour des scores**
     currentMatch.score1 = finalScores.player1;
     currentMatch.score2 = finalScores.player2;
@@ -984,11 +929,6 @@ function initializeTournamentPage() {
           gameManager
         );
 
-        console.log(
-          `Updating final match ${finalMatchIndex} with players:`,
-          newPlayer1,
-          newPlayer2
-        );
         nextMatch.player1 = newPlayer1;
         nextMatch.player2 = newPlayer2;
       }
@@ -1018,11 +958,6 @@ function initializeTournamentPage() {
           gameManager
         );
 
-        console.log(
-          `Updating semi-final match ${nextRoundMatchIndex} with players:`,
-          newPlayer1,
-          newPlayer2
-        );
         nextMatch.player1 = newPlayer1;
         nextMatch.player2 = newPlayer2;
       } else if (
@@ -1050,11 +985,6 @@ function initializeTournamentPage() {
           gameManager
         );
 
-        console.log(
-          `Updating final match ${finalMatchIndex} with players:`,
-          newPlayer1,
-          newPlayer2
-        );
         nextMatch.player1 = newPlayer1;
         nextMatch.player2 = newPlayer2;
       }
@@ -1069,7 +999,6 @@ function initializeTournamentPage() {
     if (isLastMatch) {
       showTournamentWinner(currentMatch.winner, finalScores);
       setTimeout(() => {
-        console.log("Final match winner:", tournamentState.matches[2]?.winner);
         tournamentState.currentMatch++;
         updateBracketDisplay();
         updateCurrentMatchIndicators();
@@ -1091,127 +1020,6 @@ function initializeTournamentPage() {
     }
     gameManager.blockSpacebar(false);
   }
-
-  // function updatePlayButton() {
-  //   const playerCount = getSelectedPlayerCount();
-  //   const lastMatchIndex = playerCount === 4 ? 3 : 7;
-  //   const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
-  //   const nextMatch = tournamentState.matches[tournamentState.currentMatch];
-  //   const playButton = document.querySelector(".buttonPlay");
-
-  //   console.log("current match :", tournamentState.currentMatch);
-
-  //   if (isLastMatch) {
-  //     playButton.innerHTML = `
-  //           <span class="button-text">Tournament Complete!</span>
-  //       `;
-  //     playButton.classList.add("tournament-complete");
-  //     playButton.disabled = true;
-
-  //     // Ajouter les effets spéciaux au vainqueur final
-  //     highlightFinalWinner();
-  //     return;
-  //   }
-
-  //   if (!nextMatch || !nextMatch.player1 || !nextMatch.player2) {
-  //     playButton.innerHTML = `
-  //           <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //           <span class="button-text">Waiting for next matches</span>
-  //       `;
-  //     playButton.disabled = true;
-  //     return;
-  //   }
-
-  //   // Vérifier si les deux joueurs du prochain match sont des bots
-  //   const player1IsBot = gameManager.isBot(nextMatch.player1);
-  //   const player2IsBot = gameManager.isBot(nextMatch.player2);
-
-  //   if (player1IsBot && player2IsBot) {
-  //     playButton.innerHTML = `
-  //           <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //           <span class="button-text">Simulate Bots Match</span>
-  //       `;
-  //     playButton.disabled = false;
-  //     return;
-  //   }
-
-  //   let matchText = "LAUNCH MATCH";
-  //   if (tournamentState.currentMatch === lastMatchIndex - 1) {
-  //     matchText = "LAUNCH FINAL";
-  //   } else if (playerCount === 8 && tournamentState.currentMatch >= 4) {
-  //     matchText = "LAUNCH SEMI-FINAL";
-  //   }
-
-  //   playButton.innerHTML = `
-  //       <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //       <span class="button-text">${matchText}</span>
-  //   `;
-  //   playButton.disabled = false;
-  // }
-
-  // // Nouvelle fonction pour mettre en évidence le vainqueur final
-  // function highlightFinalWinner() {
-  //   const playerCount = getSelectedPlayerCount();
-  //   const finalMatchIndex = playerCount === 4 ? 3 : 7;
-  //   const activeShape = document.querySelector(".shape.active");
-
-  //   // Trouver le dernier match
-  //   const finalMatch = activeShape.querySelector(
-  //     `.tournamentSection${playerCount === 4 ? "4" : "4"} .doubleMatch`
-  //   );
-
-  //   if (finalMatch) {
-  //     // Mettre en évidence le numéro
-  //     const matchNumber = finalMatch.querySelector(".doubleMatchNumber");
-  //     if (matchNumber) {
-  //       matchNumber.classList.remove("active");
-  //       matchNumber.classList.add("winner-number");
-  //     }
-
-  //     // Mettre en évidence le joueur
-  //     const playerElement = finalMatch.querySelector(".player");
-  //     if (playerElement) {
-  //       playerElement.classList.remove("winner");
-  //       playerElement.classList.add("winner-final");
-  //     }
-  //   }
-  // }
-
-  // function startTournament() {
-  //   const playerInputs = document.querySelectorAll(
-  //     ".player-entry .player-input"
-  //   );
-  //   const playerAvatars = document.querySelectorAll(
-  //     ".player-entry .player-avatar"
-  //   );
-
-  //   // Réinitialiser d'abord tout l'affichage
-  //   initializeTournamentDisplay();
-
-  //   tournamentState.players = Array.from(playerInputs).map((input, i) => ({
-  //     name: input.value,
-  //     avatar: playerAvatars[i].src,
-  //   }));
-
-  //   generateMatches();
-  //   updateBracketDisplay();
-
-  //   tournamentConfig.style.display = "none";
-  //   document.querySelector(".chipSelectorPlayer").style.display = "none";
-
-  //   document.querySelector(".buttonPlay").innerHTML = `
-  //     <img class="playIcon" src="/static/assets/icons/play.svg" />
-  //     <span class="button-text">LAUNCH NEXT MATCH</span>
-  //   `;
-  //   document.querySelector(".reset-btn").style.display = "block";
-
-  //   tournamentState.isStarted = true;
-  //   tournamentState.currentMatch = 0;
-  //   tournamentState.currentRound = 1;
-
-  //   updateCurrentMatchIndicators();
-  //   updatePlayButton();
-  // }
 
   function updatePlayButton() {
     // Bloquer la barre d'espace pendant l'exécution de la fonction
@@ -1240,8 +1048,6 @@ function initializeTournamentPage() {
     const isLastMatch = tournamentState.currentMatch >= lastMatchIndex;
     const nextMatch = tournamentState.matches[tournamentState.currentMatch];
     const playButton = document.getElementById("buttonPlay");
-
-    console.log("current match :", tournamentState.currentMatch);
 
     if (isLastMatch) {
       // remove the button
@@ -1387,7 +1193,6 @@ function initializeTournamentPage() {
   if (playButton) {
     playButton.addEventListener("click", () => {
       language = getLanguageFromAPI();
-      console.log("language:", language);
       language.then((value) => {
         setPreferredLanguage(value);
       });
@@ -1599,7 +1404,6 @@ function initializeTournamentPage() {
     overlay.addEventListener("keydown", (event) => {
       if (event.code === "Space") {
         event.preventDefault(); // Bloque l'événement sur la pop-up
-        console.log("Barre d'espace bloquée dans la pop-up");
       }
     });
 

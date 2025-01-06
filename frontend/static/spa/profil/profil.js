@@ -1,5 +1,4 @@
 async function updateProfilOnProfil() {
-  console.log("fonction updateprofilonProfil appelee...");
   fetch("/api/profil/", {
     method: "GET",
     credentials: "include",
@@ -17,7 +16,6 @@ async function updateProfilOnProfil() {
       if (data.username && data.email) {
         const win_ratio = data.win_ratio ?? 0;
         const totalGames = data.total_games ?? 0;
-        console.log("total games : ", totalGames);
 
         if (win_ratio < 33) {
           document.getElementById("rankImage").src =
@@ -206,7 +204,6 @@ function loadUserStatistics() {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Statistiques de l'utilisateur :", data);
 
       document.getElementById("total_games").innerText = data.total_games;
       document.getElementById("win_ratio").innerText =
@@ -420,11 +417,9 @@ function initializeProfilePage() {
 function showTwoFactorPopup() {
   const existingPopup = document.querySelector(".popup-overlay");
   if (existingPopup) {
-    console.log("Une pop-up 2FA existe déjà, pas besoin de recréer.");
     return;
   }
 
-  console.log("Création d'une nouvelle pop-up 2FA...");
   const popup = document.createElement("div");
   popup.className = "popup-overlay";
   popup.innerHTML = `
@@ -590,13 +585,10 @@ https: function updateUI2FAStatus(enabled) {
 
   verificationFrame.style.display = "none";
 
-  console.log(
-    `2FA ${enabled ? "activé" : "désactivé"} : interface mise à jour.`
-  );
+
 }
 
 function initialize2FA() {
-  console.log("Initialisation de la 2FA");
 
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
@@ -732,7 +724,6 @@ function createAvatarGrid() {
           if (applyButton) {
             applyButton.disabled = false;
           }
-          console.log("Avatar sélectionné:", tempSelectedSrc);
         });
 
         rowDiv.appendChild(avatarOption);
@@ -764,7 +755,6 @@ function initializeAvatarFeature() {
         })
           .then(async (response) => {
             const data = await response.json();
-            console.log("Réponse brute du serveur:", data);
 
             if (!response.ok) {
               throw new Error(data.error || `Erreur HTTP: ${response.status}`);
@@ -773,7 +763,6 @@ function initializeAvatarFeature() {
             return data;
           })
           .then((data) => {
-            console.log("Réponse reçue:", data);
 
             const avatarElements = document.querySelectorAll(".avatarImg");
             avatarElements.forEach((element) => {
@@ -786,7 +775,6 @@ function initializeAvatarFeature() {
             }
 
             closeModal();
-            console.log("Avatar mis à jour avec succès");
           })
           .catch((error) => {
             console.error("Erreur détaillée:", error);

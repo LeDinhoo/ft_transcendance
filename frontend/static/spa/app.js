@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (response.status === 401) {
-        console.log("Token d'accès expiré, tentative de rafraîchissement...");
 
         const refreshResponse = await fetch("/api/token/refresh/", {
           method: "POST",
@@ -28,7 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (refreshResponse.ok) {
-          console.log("Token d'accès rafraîchi avec succès.");
           return true;
         } else {
           console.warn("Impossible de rafraîchir le token.");
@@ -243,7 +241,6 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   window.logout = function () {
-    console.log("log out function called");
 
     fetch("/api/logout/", {
       method: "POST",
@@ -254,7 +251,6 @@ document.addEventListener("DOMContentLoaded", function () {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Logout response data:", data);
         if (data.success) {
           window.location.href = "/login-register";
         } else {

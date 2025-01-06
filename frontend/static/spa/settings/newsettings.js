@@ -8,7 +8,6 @@ function initializeSettingsPage() {
     clickedButton.classList.add("active");
 
     const selectedScore = clickedButton.getAttribute("win-score");
-    console.log("Score sélectionné :", selectedScore);
 
     hasChanges = true;
     toggleSaveButtonVisibility();
@@ -29,7 +28,6 @@ function initializeSettingsPage() {
     clickedButton.classList.add("active");
 
     const selectedDifficulty = clickedButton.getAttribute("ai-difficulty");
-    console.log("Difficulté sélectionnée :", selectedDifficulty);
     hasChanges = true;
     toggleSaveButtonVisibility();
   }
@@ -51,7 +49,6 @@ function initializeSettingsPage() {
       .filter((button) => button.classList.contains("active"))
       .map((button) => button.getAttribute("powerups"));
 
-    console.log("Power-ups activés :", activePowerups);
     hasChanges = true;
     toggleSaveButtonVisibility();
   }
@@ -83,7 +80,6 @@ function initializeSettingsPage() {
     const selectedBallSpeedStart = parseInt(
       clickedButton.getAttribute("data-start")
     );
-    console.log("Vitesse de départ sélectionnée :", selectedBallSpeedStart);
 
     validateBallSpeedStart(selectedBallSpeedStart);
     hasChanges = true;
@@ -99,7 +95,6 @@ function initializeSettingsPage() {
     const selectedBallSpeedMax = parseInt(
       clickedButton.getAttribute("data-max")
     );
-    console.log("Vitesse maximale sélectionnée :", selectedBallSpeedMax);
 
     adjustBallSpeedStart(selectedBallSpeedMax);
     hasChanges = true;
@@ -129,10 +124,6 @@ function initializeSettingsPage() {
       if (validStartButton) {
         validStartButton.classList.add("active");
       }
-
-      console.log(
-        `Vitesse de départ ajustée à ${validStartValue} pour respecter la vitesse maximale de ${maxSpeed}`
-      );
     }
   }
 
@@ -172,10 +163,7 @@ function initializeSettingsPage() {
 
     const selectedBallSpeedIncrease =
       clickedButton.getAttribute("data-increase");
-    console.log(
-      "Augmentation de vitesse sélectionnée :",
-      selectedBallSpeedIncrease
-    );
+
     hasChanges = true;
     toggleSaveButtonVisibility();
   }
@@ -236,8 +224,6 @@ function initializeSettingsPage() {
       ballSpeedIncrease: ballSpeedIncrease,
     };
 
-    console.log("Envoi des paramètres au serveur :", gameSettings);
-
     fetch("/api/set-game-settings/", {
       method: "POST",
       credentials: "include",
@@ -247,20 +233,15 @@ function initializeSettingsPage() {
       body: JSON.stringify(gameSettings),
     })
       .then((response) => {
-        console.log("Statut de la réponse :", response.status);
         hasChanges = false;
         toggleSaveButtonVisibility();
         return response.json();
       })
       .then((data) => {
-        console.log("Données de réponse :", data);
-
         // Vérifiez la réponse correctement
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
         }
-
-        console.log("Paramètres de jeu sauvegardés avec succès :", data);
       })
       .catch((error) => {
         console.error("Erreur lors de la sauvegarde :", error);
@@ -314,9 +295,6 @@ function initializeSettingsPage() {
       ).find((otherButton) => otherButton.textContent === newKey);
 
       if (existingButton) {
-        console.log(
-          `Touche ${newKey} déjà assignée à ${existingButton.id}. Remplacée par null.`
-        );
         existingButton.textContent = "";
       }
 
@@ -359,8 +337,6 @@ function initializeSettingsPage() {
       },
     };
 
-    console.log("Envoi des paramètres clavier :", keySettings);
-
     fetch("/api/set-game-settings/", {
       method: "POST",
       credentials: "include",
@@ -370,18 +346,15 @@ function initializeSettingsPage() {
       body: JSON.stringify(keySettings),
     })
       .then((response) => {
-        console.log("Statut de la réponse :", response.status);
         return response.json();
       })
       .then((data) => {
-        console.log("Données de réponse :", data);
 
         // Vérifiez la réponse correctement
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
         }
 
-        console.log("Paramètres clavier sauvegardés avec succès :", data);
         hasKeyboardChanges = false;
         toggleKeyboardSaveButtonVisibility();
       })
@@ -424,7 +397,6 @@ function initializeSettingsPage() {
   }
 
   function initializeSettingsFromDatabase() {
-    console.log("Initialisation des paramètres depuis la base de données...");
 
     language = getLanguageFromAPI();
     language.then((value) => {
@@ -445,7 +417,6 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((settings) => {
-        console.log("Paramètres récupérés :", settings);
 
         setActiveButton(".scoreOptionLabel", settings.scoreToWin, "win-score");
         setActiveButton(
@@ -476,7 +447,6 @@ function initializeSettingsPage() {
 
         initializeKeyboardSettings(settings.keyboardSettings);
 
-        console.log("Paramètres initialisés avec succès.");
       })
       .catch((error) => {
         console.error(

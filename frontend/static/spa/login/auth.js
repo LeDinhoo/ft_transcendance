@@ -4,7 +4,6 @@ document
   .getElementById("loginWidget")
   .addEventListener("submit", async function (event) {
     event.preventDefault();
-    console.log("Formulaire de connexion intercepté.");
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -21,7 +20,6 @@ document
       });
 
       const loginData = await loginResponse.json();
-      console.log("login Data: ", loginData);
 
       if (loginData.requires_2fa) {
         showTwoFactorPopup(loginData.user_id);
@@ -209,12 +207,10 @@ const authService = new AuthService();
 
 document.getElementById("42").addEventListener("click", async function (e) {
   e.preventDefault();
-  console.log("Starting 42 authentication process...");
 
   try {
     const baseUrl = "https://localhost:4430";
 
-    console.log("Fetching auth URL...");
     const response = await fetch(`${baseUrl}/api/get_auth_url/`, {
       method: "GET",
       headers: {
@@ -230,14 +226,11 @@ document.getElementById("42").addEventListener("click", async function (e) {
     }
 
     const data = await response.json();
-    console.log("Received auth URL:", data.auth_url);
 
     if (data.success && data.auth_url) {
       const messageHandler = function (event) {
-        console.log("Message received:", event);
 
         if (event.origin === baseUrl && event.data.type === "auth_success") {
-          console.log("Authentication successful, storing tokens...");
 
           localStorage.setItem("access_token", event.data.tokens.access);
           localStorage.setItem("refresh_token", event.data.tokens.refresh);
@@ -248,7 +241,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
 
           window.removeEventListener("message", messageHandler);
 
-          console.log("Redirecting to home...");
 
           window.location.replace(`${baseUrl}/home`);
         }
@@ -256,7 +248,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
 
       window.addEventListener("message", messageHandler);
 
-      console.log("Opening auth window...");
       const authWindow = window.open(
         data.auth_url,
         "42 Authentication",
@@ -270,7 +261,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
 
       const checkPopup = setInterval(() => {
         if (authWindow.closed) {
-          console.log("Auth window closed, cleaning up...");
           clearInterval(checkPopup);
           window.removeEventListener("message", messageHandler);
 
@@ -279,9 +269,7 @@ document.getElementById("42").addEventListener("click", async function (e) {
           })
             .then((response) => response.json())
             .then((data) => {
-              console.log("Final auth check:", data);
               if (data.success) {
-                console.log("Confirmed authenticated, redirecting to home...");
                 window.location.replace(`${baseUrl}/home`);
               }
             })
@@ -330,7 +318,6 @@ document
   .getElementById("registerWidget")
   .addEventListener("submit", function (event) {
     event.preventDefault();
-    console.log("Formulaire d'inscription intercepté.");
 
     const username = document.getElementById("username").value;
     const email = document.getElementById("registerEmail").value;

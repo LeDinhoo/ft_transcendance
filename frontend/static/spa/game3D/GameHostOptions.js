@@ -5,7 +5,6 @@ export class GameHostOptions {
 	}
 
 	logConfig() {
-		console.log("Configuration du jeu :", this);
 	}
 
 	getAIStatus() {
@@ -13,7 +12,6 @@ export class GameHostOptions {
 	}
 
 	applyConfig(powerManager) {
-		console.log("Application des options...");
 		if (this.isPowerActivated) {
 			powerManager.activatePowers();
 		} else {

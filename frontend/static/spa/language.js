@@ -36,7 +36,6 @@ async function getLanguageFromAPI() {
 // Fonction pour sauvegarder la langue via l'API
 async function setLanguageInAPI(language) {
   try {
-    console.log("Saving language preference:", language);
     const response = await fetch("/api/language/set/", {
       method: "POST",
       credentials: "include",
@@ -54,10 +53,7 @@ async function setLanguageInAPI(language) {
 }
 
 async function loadTranslations(language) {
-  console.log("Loading translations for:", language);
-
   try {
-    console.log("Fetching translations from server");
     const response = await fetch(`/static/languages/${language}.json`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -68,7 +64,6 @@ async function loadTranslations(language) {
 
     // Sauvegarder la langue selon le contexte
     if (isLoginPage()) {
-      console.log("Saving language preference to localStorage :", language);
       localStorage.setItem("preferredLanguage", language);
     } else {
       localStorage.setItem("preferredLanguage", language);
@@ -117,7 +112,6 @@ function applyTranslations(translations) {
         }
       }
     } else {
-      console.warn(`No translation found for key: ${translationKey}`);
     }
   });
 }
@@ -157,7 +151,6 @@ async function setPreferredLanguage(language) {
 
 // Initialisation au chargement de la page
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("Language module loaded");
   const userLang = await getPreferredLanguage();
   await loadTranslations(userLang);
 

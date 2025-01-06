@@ -47,7 +47,6 @@ async function showErrorPopup(message, isAuthenticated) {
         ? translations.error[message]
         : `Translation missing for: ${message}`;
 
-    console.log("Translated Message:", translateMessage);
 
     // Afficher le popup
     const popupModal = document.getElementById("popupModal");
@@ -113,7 +112,6 @@ async function showInfoPopup(message) {
         ? translations.info[message]
         : `Translation missing for: ${message}`;
 
-    console.log("Translated Message:", translateMessage);
 
 	if (popupModal) {
 	  const messageContainer = popupModal.querySelector(".popupTexte");

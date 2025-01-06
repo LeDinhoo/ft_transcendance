@@ -470,7 +470,6 @@ export class AI {
     this.followStartTime = 0;
 
     if (currentTime - this.lastUpdate >= this.UPDATE_INTERVAL) {
-      console.log("AI is in interception mode...");
       if (ball.x < 0) {
         const positions = Object.values(this.POSITIONS);
         this.currentTarget =

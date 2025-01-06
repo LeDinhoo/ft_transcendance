@@ -36,21 +36,16 @@ const wsManager = {
 
 		this.chatSocket = new WebSocket("wss://localhost:4430/wss/chat/");
 
-		console.log("TEST\n:NEW SOCKET CREATED\n");
 
 		this.chatSocket.onopen = () => {
-			console.log("Chat WebSocket Connected");
 		};
 
 		this.chatSocket.onclose = () => {
-			console.log("Chat WebSocket disconnected");
 			setTimeout(() => this.initializeChatSocket(), 5000);
 		};
 
 		this.chatSocket.onmessage = (e) => {
-			console.log("Raw WebSocket message received:", e.data);
 			const data = JSON.parse(e.data);
-			console.log("Parsed message:", data);
 
 			switch (data.type) {
 				case "chat_message":
@@ -62,9 +57,6 @@ const wsManager = {
 					break;
 
 				case "game_invitation":
-					console.log("Game invitation received:", data);
-					console.log("Types - receiverId:", typeof data.receiverId, "currentUser.id:", typeof window.currentUser?.id);
-					console.log("Values - receiverId:", data.receiverId, "currentUser.id:", window.currentUser?.id);
 					
 					// Assurons-nous que currentUser est défini
 					if (window.currentUser) {
@@ -73,20 +65,16 @@ const wsManager = {
 						const currentUserId = Number(window.currentUser.id);
 						
 						if (receiverId === currentUserId) {
-							console.log("Match found - Showing invitation");
 							if (window.GameInvitationManager?.handleInvitation) {
 								window.GameInvitationManager.handleInvitation(data);
 							}
 						} else {
-							console.log(`No match - receiverId: ${receiverId} currentUser.id: ${currentUserId}`);
 						}
 					} else {
-						console.log("currentUser not initialized");
 					}
 					break;
 
 				case "game_invitation_response":
-					console.log(`Game event received:`, data);
 					this.handleGameInvitationResponse(data);
 					break;
 
@@ -101,7 +89,6 @@ const wsManager = {
 					break;
 
 				default:
-					console.log("Unhandled message type:", data.type);
 			}
 		};
 
@@ -111,7 +98,6 @@ const wsManager = {
 	},
 
 	handleGameInvitationResponse(data) {
-		console.log("Handling game invitation response:", data);
 		
 		if (data.response === "accept") {
 			// Si je suis l'expéditeur ou le destinataire, afficher la notification
@@ -149,7 +135,6 @@ const wsManager = {
 	},
 
 	async updateOnlinePlayersList(users) {
-		console.log("Updating online players list:", users);
 
 		const listContainer = document.getElementById("onlinePlayersList");
 		if (!listContainer) return;

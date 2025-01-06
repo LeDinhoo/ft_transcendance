@@ -269,8 +269,6 @@ function closeWindowGame() {
     player1,
     player2,
   };
-  console.log("Scores finaux envoyés dans closeWindowGame:", finalScores);
-  console.log("Gagnant envoyé dans closeWindowGame:", winner);
   const message = {
     type: "gameComplete",
     data: {
@@ -278,7 +276,6 @@ function closeWindowGame() {
       finalScores,
     },
   };
-  console.log("Message envoyé au parent :", message);
 
   if (window.parent && window.parent !== window) {
     window.parent.postMessage(message, "*");
@@ -299,8 +296,6 @@ keyboard.onSpace(() => {
     // const longestRally = scoreSystem.getLongestRally();
     const longestRally = scoreSystem.getMaxLongestRally();
 
-    console.log("Fin du jeu - longestRally :", longestRally);
-    console.log("Fin du jeu - maxBallSpeed :", maxBallSpeed);
 
     scoreSystem.recordGame(
       scoreUser,
@@ -425,15 +420,8 @@ export let launchPower1 = "e";
 export let launchPower2 = "arrowleft";
 
 function handleMessage(event) {
-  console.log(launchPower1);
-  console.log(launchPower2);
   if (event.data.type === "setOptions") {
-    console.log("Received options from parent :", event.data.data);
     const { options, isAI, power, languageOption } = event.data.data;
-    console.log("Game Options :", options);
-    console.log("AI :", isAI);
-    console.log("Power :", power);
-    console.log("Language :", languageOption);
     scoreSystem.setLanguage(languageOption);
     INITIAL_BALL_SPEED = options.ballSpeedStart;
     SPEED_INCREMENT = options.ballSpeedIncrease;
@@ -491,7 +479,6 @@ function animate() {
   flashEffect.update();
 
   if (keyboard.isPressed(launchPower1)) {
-    console.log("Keys :", launchPower1);
     if (paddle1 && paddlePower1.hasPower("power1")) {
       powerManager.launchGrenade(1);
     } else if (paddle1 && paddlePower1.hasPower("power2")) {
@@ -502,7 +489,6 @@ function animate() {
   }
 
   if (keyboard.isPressed(launchPower2)) {
-    console.log("Keys :", launchPower2);
     if (paddle2 && paddlePower2.hasPower("power1")) {
       powerManager.launchGrenade(2);
     } else if (paddle2 && paddlePower2.hasPower("power2")) {

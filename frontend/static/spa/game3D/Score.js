@@ -456,7 +456,6 @@ export class Score3D {
   setScoreToWin(score) {
     if (typeof score === "number" && score > 0) {
       this.WINNING_SCORE = score;
-      console.log("Score pour gagner mis à jour :", this.WINNING_SCORE);
     } else {
       console.error("Score invalide pour gagner");
     }
@@ -698,7 +697,6 @@ export class Score3D {
   setLongestRally(value) {
     if (typeof value === "number" && value >= 0) {
       this.longestRally = value;
-      console.log("longestRally mis à jour :", this.longestRally);
     } else {
       console.error("Invalid value for longestRally");
     }
@@ -712,7 +710,6 @@ export class Score3D {
     if (typeof value === "number" && value >= 0) {
       if (value > this.maxLongestrally) {
         this.maxLongestrally = value;
-        console.log("Max longest rally mis à jour :", this.maxLongestrally);
       }
     } else {
       console.error("Valeur invalide pour maxLongestRally :", value);
@@ -724,13 +721,6 @@ export class Score3D {
   }
 
   recordGame(scoreUser, scoreOpponent, result, longestRally, maxBallSpeed) {
-    console.log("recordGame appelée avec :", {
-      scoreUser,
-      scoreOpponent,
-      result,
-      longestRally,
-      maxBallSpeed,
-    });
     const data = {
       score_user: scoreUser,
       score_opponent: scoreOpponent,
@@ -739,7 +729,6 @@ export class Score3D {
       max_ball_speed: maxBallSpeed,
     };
 
-    console.log("Données envoyées :", data);
     const csrftoken = getCookie("csrftoken");
 
     fetch("/api/record-game/", {
@@ -754,7 +743,6 @@ export class Score3D {
       .then((response) => response.json())
       .then((data) => {
         if (data.message) {
-          console.log(data.message);
         } else if (data.error) {
           console.error(data.error);
         }
