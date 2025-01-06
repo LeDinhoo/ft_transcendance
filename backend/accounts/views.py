@@ -67,11 +67,11 @@ def auth_check(request):
 
     except TokenError as e:
 
-        return Response({"error": "Token invalide ou expiré.", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "tokenInvalid", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
 
-        return Response({"error": "Erreur inattendue.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "errorOccurred", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -115,7 +115,7 @@ def login_view(request):
             data = json.loads(request.body)
         except json.JSONDecodeError:
             logger.error("Erreur de parsing JSON")
-            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+            return JsonResponse({'success': False, 'message': 'InvalidJSON'}, status=400)
 
         # Liste des champs autorisés
         allowed_fields = {'email', 'password'}
@@ -146,7 +146,7 @@ def login_view(request):
         # Vérifier si les champs sont vides
         if not email or not password:
             logger.warning("Email ou mot de passe manquant")
-            return JsonResponse({'success': False, 'message': 'Email and password are required'}, status=400)
+            return JsonResponse({'success': False, 'message': 'EmailPwdRequired'}, status=400)
 
         # Authentifier l'utilisateur
         user = authenticate(request, email=email, password=password)
@@ -387,15 +387,15 @@ def update_profile_view(request):
             
             if not new_username:
                 logger.warning("Username vide reçu")
-                return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+                return JsonResponse({'error': 'usernameEmpty'}, status=400)
             
             if len(new_username) > 30:
                 logger.warning(f"Username trop long: {len(new_username)} caractères")
-                return JsonResponse({'error': 'Le nom d\'utilisateur est trop long.'}, status=400)
+                return JsonResponse({'error': 'usernameTooLong'}, status=400)
 
             if user.__class__.objects.filter(username=new_username).exclude(id=user.id).exists():
                 logger.warning(f"Username déjà existant: {new_username}")
-                return JsonResponse({'error': 'Ce nom d\'utilisateur est déjà pris.'}, status=400)
+                return JsonResponse({'error': 'usernameTaken'}, status=400)
 
             user.username = new_username
             logger.debug(f"Username mis à jour: {new_username}")
@@ -407,20 +407,20 @@ def update_profile_view(request):
             # Vérification de la longueur
             if len(new_email) > 70:
                 return JsonResponse({
-                    'error': 'L\'adresse email ne peut pas dépasser 70 caractères.'
+                    'error': 'mailTooLong'
                 }, status=400)
             
             try:
                 validate_email(new_email)
                 if user.__class__.objects.filter(email=new_email).exclude(id=user.id).exists():
                     return JsonResponse({
-                        'error': 'Cette adresse email est déjà utilisée.'
+                        'error': 'mailUsed'
                     }, status=400)
                 
                 user.email = new_email
             except ValidationError:
                 return JsonResponse({
-                    'error': 'L\'adresse email est invalide.'
+                    'error': 'invalidMail'
                 }, status=400)
 
         # Traitement mot de passe
@@ -432,7 +432,7 @@ def update_profile_view(request):
                 
                 if not check_password(old_password, user.password):
                     logger.warning("Ancien mot de passe incorrect")
-                    return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
+                    return JsonResponse({'error': 'wrongOldPwd'}, status=400)
 
                 password_validator = ComplexPasswordValidator()
                 try:
@@ -1665,8 +1665,7 @@ def handle_friend_request(request):
 
         elif action == 'decline':
             # Refuser la demande d'ami
-            friendship.status = 'rejected'
-            friendship.save()
+            friendship.delete()
 
         return JsonResponse({'message': f'Request {action}ed successfully'}, status=200)
 
@@ -2188,7 +2187,7 @@ from django.http import JsonResponse
 @permission_classes([IsAuthenticated])
 def get_preferred_language(request):
     try:
-        language = request.user.preferred_language or 'Not set'
+        language = request.user.preferred_language or 'en'
         return JsonResponse({'language': language}, status=200)
 
     except Exception as e:
