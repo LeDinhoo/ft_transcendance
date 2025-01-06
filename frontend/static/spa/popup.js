@@ -82,19 +82,45 @@ function closePopup() {
 }
 
 // Affiche la popup d'information
-function showInfoPopup(message) {
+async function showInfoPopup(message) {
   const popupModal = document.getElementById("infoPopup");
 
-  if (popupModal) {
-    const messageContainer = popupModal.querySelector(".popupTexte");
-    if (messageContainer) {
-      messageContainer.textContent = message;
+  let translations = {};
+
+  try {
+    // Obtenir la langue de l'API
+    const language = await getLanguageFromAPI();
+    await setPreferredLanguage(language);
+
+    // Charger les traductions
+    const response = await fetch(`/static/languages/${language}.json`);
+    if (!response.ok) {
+      throw new Error("Failed to load translations");
     }
 
-    popupModal.style.display = "flex"; // Rend la popup visible
-    popupModal.classList.add("active");
+    translations = await response.json();
 
-    setTimeout(() => hideInfoPopup(), 3000); // Fermeture automatique après 3 secondes
+    // Traduire le message
+    const translateMessage =
+      translations.info && translations.info[message]
+        ? translations.info[message]
+        : `Translation missing for: ${message}`;
+
+    console.log("Translated Message:", translateMessage);
+
+	if (popupModal) {
+	  const messageContainer = popupModal.querySelector(".popupTexte");
+	  if (messageContainer) {
+		messageContainer.textContent = translateMessage;
+	  }
+
+	  popupModal.style.display = "flex"; // Rend la popup visible
+	  popupModal.classList.add("active");
+
+	  setTimeout(() => hideInfoPopup(), 3000); // Fermeture automatique après 3 secondes
+	}
+  } catch (error) {
+    console.error("Error in showInfoPopup:", error);
   }
 }
 

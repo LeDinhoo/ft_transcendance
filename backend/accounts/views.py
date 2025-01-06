@@ -1057,7 +1057,7 @@ class Verify2FAView(APIView):
             user.two_factor_code = None
             user.two_factor_code_timestamp = None
             user.save()
-            return Response({'message': '2FA activé avec succès'})
+            return Response({'message': 'active2FA'})
 
         return Response(
             {'error': 'Code invalide'},
@@ -1564,7 +1564,7 @@ def send_friend_request(request):
 
         if existing_request:
             if existing_request.status == 'pending':
-                return JsonResponse({'message': 'A friend request is already pending'}, status=400)
+                return JsonResponse({'message': 'friendPending'}, status=400)
             elif existing_request.status == 'accepted':
                 return JsonResponse({'message': 'You are already friends'}, status=400)
 
@@ -1575,7 +1575,7 @@ def send_friend_request(request):
             status='pending'
         )
 
-        return JsonResponse({'message': 'Friend request sent successfully'}, status=200)
+        return JsonResponse({'message': 'friendRequestsSuccess'}, status=200)
 
     except Exception as e:
         # Loguer l'erreur et répondre avec un message générique

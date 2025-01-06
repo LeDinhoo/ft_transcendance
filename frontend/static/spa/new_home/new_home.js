@@ -213,12 +213,12 @@ function initializeHome() {
 
 			if (!userId) {
 				console.error("No user ID found");
-				showInfoPopup("Unable to send friend request: User ID not found");
+				showErrorPopup("idNotFound");
 				return;
 			}
 
 			if (userId === String(window.currentUser?.id)) {
-				showInfoPopup("You cannot send a friend request to yourself");
+				showErrorPopup("notYourself");
 				return;
 			}
 
@@ -241,14 +241,14 @@ function initializeHome() {
 					const jsonData = JSON.parse(data);
 					// Ajout de l'événement ici, après une réponse réussie
 					document.dispatchEvent(new Event("friendRequestSent"));
-					showInfoPopup(jsonData.message || "Friend request sent successfully");
+					showInfoPopup(jsonData.message || "friendRequestsSuccess");
 				} catch (e) {
 					console.error("Error parsing response:", e);
-					showInfoPopup("Error processing server response");
+					showErrorPopup("errorServ");
 				}
 			} catch (error) {
 				console.error("Error:", error);
-				showInfoPopup("Error sending friend request");
+				showErrorPopup("errorFriendRequest");
 			}
 		}
 
@@ -529,7 +529,7 @@ function initializeHome() {
 					"Erreur lors de la modification du statut de blocage:",
 					error
 				);
-				showInfoPopup("Erreur lors de la mise à jour du statut de blocage");
+				showErrorPopup("errorBlock");
 			}
 		}
 
@@ -621,7 +621,7 @@ function initializeHome() {
 			const pmMatch = message.match(/^\/pm\s+(\S+)\s+(.+)$/);
 			if (pmMatch) {
 				if (pmMatch[1].toLowerCase() === "system") {
-					showInfoPopup("Cannot send private messages to System");
+					showErrorPopup("errorNotSys");
 					return;
 				}
 
@@ -1418,8 +1418,8 @@ async function handleFriendRequest(requestId, action) {
 			// Afficher un message de confirmation
 			const message =
 				action === "accept"
-					? "Friend request accepted"
-					: "Friend request rejected";
+					? "friendAccept"
+					: "friendReject";
 			showInfoPopup(message);
 		}
 	} catch (error) {
