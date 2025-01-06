@@ -38,8 +38,8 @@ fi
 
 
 echo "Collecting static files..."
-python3 /app/manage.py collectstatic --noinput
+python3 /app/manage.py collectstatic --noinput --verbosity 0
 
 
 echo "Starting Gunicorn server with HTTPS..."
-exec gunicorn backend.asgi:application -k uvicorn.workers.UvicornWorker --certfile /app/certs/gunicorn.crt --keyfile /app/certs/gunicorn.key --bind 0.0.0.0:8443 --log-level debug
+exec gunicorn backend.asgi:application -k uvicorn.workers.UvicornWorker --certfile /app/certs/gunicorn.crt --keyfile /app/certs/gunicorn.key --bind 0.0.0.0:8443 --log-level info

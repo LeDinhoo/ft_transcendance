@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'accounts',
 	'corsheaders',
 	'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
+    # 'rest_framework_simplejwt.token_blacklist',
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"
@@ -172,8 +172,8 @@ JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY")
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=6),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,  
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,  
     'AUTH_HEADER_TYPES': ('Bearer',),
     'ALGORITHM': 'RS256',
     'SIGNING_KEY': JWT_PRIVATE_KEY, 
@@ -279,7 +279,7 @@ STATIC_URL = '/static/'
 
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend", "static"),  
+    # os.path.join(BASE_DIR, "frontend", "static"),  
 ]
 
 
@@ -289,22 +289,46 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG', 
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',  
+#         },
+#     },
+# }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG', 
+            'level': 'INFO',  # Remplacez DEBUG par INFO ou WARNING
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',  
+            'level': 'INFO',  # Changez DEBUG à INFO ou WARNING
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Réduit les logs des erreurs HTTP (ex. 404)
+            'propagate': False,
         },
     },
 }
+
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
