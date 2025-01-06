@@ -67,11 +67,11 @@ def auth_check(request):
 
     except TokenError as e:
 
-        return Response({"error": "Token invalide ou expiré.", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "tokenInvalid", "details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
     except Exception as e:
 
-        return Response({"error": "Erreur inattendue.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": "errorOccurred", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -115,7 +115,7 @@ def login_view(request):
             data = json.loads(request.body)
         except json.JSONDecodeError:
             logger.error("Erreur de parsing JSON")
-            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+            return JsonResponse({'success': False, 'message': 'InvalidJSON'}, status=400)
 
         # Liste des champs autorisés
         allowed_fields = {'email', 'password'}
@@ -146,7 +146,7 @@ def login_view(request):
         # Vérifier si les champs sont vides
         if not email or not password:
             logger.warning("Email ou mot de passe manquant")
-            return JsonResponse({'success': False, 'message': 'Email and password are required'}, status=400)
+            return JsonResponse({'success': False, 'message': 'EmailPwdRequired'}, status=400)
 
         # Authentifier l'utilisateur
         user = authenticate(request, email=email, password=password)
@@ -387,15 +387,15 @@ def update_profile_view(request):
             
             if not new_username:
                 logger.warning("Username vide reçu")
-                return JsonResponse({'error': 'Le nom d\'utilisateur ne peut pas être vide.'}, status=400)
+                return JsonResponse({'error': 'usernameEmpty'}, status=400)
             
             if len(new_username) > 30:
                 logger.warning(f"Username trop long: {len(new_username)} caractères")
-                return JsonResponse({'error': 'Le nom d\'utilisateur est trop long.'}, status=400)
+                return JsonResponse({'error': 'usernameTooLong'}, status=400)
 
             if user.__class__.objects.filter(username=new_username).exclude(id=user.id).exists():
                 logger.warning(f"Username déjà existant: {new_username}")
-                return JsonResponse({'error': 'Ce nom d\'utilisateur est déjà pris.'}, status=400)
+                return JsonResponse({'error': 'usernameTaken'}, status=400)
 
             user.username = new_username
             logger.debug(f"Username mis à jour: {new_username}")
@@ -407,20 +407,20 @@ def update_profile_view(request):
             # Vérification de la longueur
             if len(new_email) > 70:
                 return JsonResponse({
-                    'error': 'L\'adresse email ne peut pas dépasser 70 caractères.'
+                    'error': 'mailTooLong'
                 }, status=400)
             
             try:
                 validate_email(new_email)
                 if user.__class__.objects.filter(email=new_email).exclude(id=user.id).exists():
                     return JsonResponse({
-                        'error': 'Cette adresse email est déjà utilisée.'
+                        'error': 'mailUsed'
                     }, status=400)
                 
                 user.email = new_email
             except ValidationError:
                 return JsonResponse({
-                    'error': 'L\'adresse email est invalide.'
+                    'error': 'invalidMail'
                 }, status=400)
 
         # Traitement mot de passe
@@ -432,7 +432,7 @@ def update_profile_view(request):
                 
                 if not check_password(old_password, user.password):
                     logger.warning("Ancien mot de passe incorrect")
-                    return JsonResponse({'error': 'L\'ancien mot de passe est incorrect.'}, status=400)
+                    return JsonResponse({'error': 'wrongOldPwd'}, status=400)
 
                 password_validator = ComplexPasswordValidator()
                 try:
@@ -455,7 +455,43 @@ def update_profile_view(request):
                     return JsonResponse({'error': 'L\'image est trop volumineuse (max 2MB).'}, status=400)
 
                 # Vérifier le type MIME
-                mime = mCbug(f"Avatar sauvegardé: {file_path}")
+                mime = magic.Magic(mime=True)
+                file_type = mime.from_buffer(avatar.read())
+                avatar.seek(0)
+
+                allowed_types = ['image/jpeg', 'image/png']
+                logger.debug(f"Type de fichier détecté: {file_type}")
+
+                if file_type not in allowed_types:
+                    logger.warning(f"Type de fichier non autorisé: {file_type}")
+                    return JsonResponse({'error': 'Format de fichier non autorisé. Utilisez JPG ou PNG.'}, status=400)
+
+                # Vérifier que c'est une vraie image
+                try:
+                    avatar.seek(0)
+                    validate_image_thoroughly(avatar)
+                    avatar.seek(0)
+
+                    # Vérifier les dimensions
+                    img = Image.open(avatar)
+                    if img.height > 2000 or img.width > 2000:
+                        logger.warning(f"Image trop grande: {img.width}x{img.height}")
+                        return JsonResponse({'error': 'Dimensions de l\'image trop grandes (max 2000x2000)'}, status=400)
+
+                    if img.height < 100 or img.width < 100:
+                        logger.warning(f"Image trop petite: {img.width}x{img.height}")
+                        return JsonResponse({'error': 'Dimensions de l\'image trop petites (min 100x100)'}, status=400)
+
+                except Exception as e:
+                    logger.error(f"Erreur de validation d'image: {str(e)}")
+                    return JsonResponse({'error': 'Fichier image corrompu ou invalide'}, status=400)
+
+                avatar.seek(0)
+
+                # Sauvegarder le fichier validé
+                file_path = os.path.join('avatars', f"avatar_{user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+                user.avatar = default_storage.save(file_path, avatar)
+                logger.debug(f"Avatar sauvegardé: {file_path}")
 
             except Exception as e:
                 logger.error(f"Erreur lors du traitement de l'avatar: {str(e)}")
@@ -1233,59 +1269,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def record_game(request):
-#     data = request.data
-#     score_user = data.get('score_user')
-#     score_opponent = data.get('score_opponent')
-#     result = data.get('result')
-#     longest_rally = data.get('longest_rally', 0)  
-#     opponent_id = data.get('opponent_id')
-#     opponent_name = data.get('opponent_name', 'IA')
-#     max_ball_speed = data.get('max_ball_speed', 0)
-
-#     if max_ball_speed is None:
-#         return JsonResponse({'error': 'Données incorrectes : max_ball_speed manquant'}, status=400)
-
-
-#     if not all([score_user is not None, score_opponent is not None, result is not None]):
-#         return JsonResponse({'error': 'Données manquantes'}, status=400)
-
-#     opponent_user = None
-#     if opponent_id:
-#         try:
-#             opponent_user = CustomUser.objects.get(id=opponent_id)
-#         except CustomUser.DoesNotExist:
-#             return JsonResponse({'error': 'Adversaire introuvable'}, status=404)
-
-    
-#     user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
-#         Max('longest_rally')
-#     )['longest_rally__max'] or 0
-
-#     if longest_rally > user_longest_rally:
-#         print(f"Mise à jour du longest rally : {longest_rally} (ancien : {user_longest_rally})")
-
-#     user_max_ball_speed = GameHistory.objects.filter(user=request.user).aggregate(Max('max_ball_speed'))['max_ball_speed__max'] or 0
-
-#     if max_ball_speed > user_max_ball_speed:
-#         print(f"Mise à jour du max ball speed : {max_ball_speed} (ancien : {user_max_ball_speed})")
-
-#     game = GameHistory.objects.create(
-#         user=request.user,
-#         score_user=score_user,
-#         score_opponent=score_opponent,
-#         result=result,
-#         longest_rally=longest_rally if longest_rally > user_longest_rally else user_longest_rally,
-#         opponent_user=opponent_user,
-#         opponent_name=opponent_name if not opponent_user else None,
-#         max_ball_speed = max_ball_speed if max_ball_speed > user_max_ball_speed else user_max_ball_speed,
-#     )
-
-#     return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
-
-
 from json.decoder import JSONDecodeError
 import json
 from django.http import JsonResponse
@@ -1454,61 +1437,6 @@ def get_user_statistics(request):
     return JsonResponse(statistics, status=200)
 
 from .models import FriendShip
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def send_friend_request(request):
-#     receiver_id = request.data.get('receiver_id')
-
-
-#     if not receiver_id:
-#         return JsonResponse({
-#             'message': 'Receiver ID is required'
-#         }, status=400)
-
-#     try:
-#         if str(request.user.id) == str(receiver_id):
-#             return JsonResponse({
-#                 'message': 'You cannot send a friend request to yourself'
-#             }, status=400)
-
-#         receiver = CustomUser.objects.get(id=receiver_id)
-
-#         existing_request = FriendShip.objects.filter(
-#             from_user=request.user,
-#             to_user=receiver
-#         ).first()
-
-#         if existing_request:
-#             if existing_request.status == 'pending':
-#                 return JsonResponse({
-#                     'message': 'A friend request is already pending'
-#                 }, status=400)
-#             elif existing_request.status == 'accepted':
-#                 return JsonResponse({
-#                     'message': 'You are already friends'
-#                 }, status=400)
-
-#         FriendShip.objects.create(
-#             from_user=request.user,
-#             to_user=receiver,
-#             status='pending'
-#         )
-
-#         return JsonResponse({
-#             'message': 'Friend request sent successfully'
-#         }, status=200)
-
-#     except CustomUser.DoesNotExist:
-#         return JsonResponse({
-#             'message': 'User not found'
-#         }, status=404)
-#     except Exception as e:
-#         print(f"Error in send_friend_request: {str(e)}")
-#         return JsonResponse({
-#             'message': 'An error occurred while processing the request'
-#         }, status=500)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -2076,27 +2004,6 @@ def block_user(request):
         print(f"Unhandled exception: {e}")  # Debug log
         return JsonResponse({'error': 'Unable to process the request'}, status=500)
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def unblock_user(request):
-#     try:
-#         user_id = request.data.get('user_id')
-
-#         if not user_id:
-#             return JsonResponse({'error': 'User ID is required'}, status=400)
-
-#         user_to_unblock = CustomUser.objects.get(id=user_id)
-#         request.user.blocked_users.remove(user_to_unblock)
-
-#         return JsonResponse({
-#             'message': f'User {user_to_unblock.username} has been unblocked'
-#         })
-
-#     except CustomUser.DoesNotExist:
-#         return JsonResponse({'error': 'User not found'}, status=404)
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=400)
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def unblock_user(request):
@@ -2156,29 +2063,6 @@ def get_preferred_language(request):
 
     except Exception as e:
         return JsonResponse({'error': 'Unable to fetch preferred language'}, status=500)
-
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def set_preferred_language(request):
-#     """Définit la langue préférée de l'utilisateur."""
-#     language = request.data.get('language')
-
-#     # Vérifier si la langue est valide
-#     valid_languages = dict(request.user.LANGUAGE_CHOICES).keys()
-#     if language not in valid_languages:
-#         return JsonResponse({
-#             'error': 'Invalid language choice'
-#         }, status=400)
-
-#     # Mettre à jour la langue préférée
-#     request.user.preferred_language = language
-#     request.user.save()
-
-#     return JsonResponse({
-#         'message': 'Language preference updated successfully',
-#         'language': language
-#     })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
