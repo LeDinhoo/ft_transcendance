@@ -13,7 +13,6 @@ export class PaddlePower {
     if (this.hasPower(powerName)) {
       this[powerName] = false;
     } else {
-      console.warn(`Le pouvoir ${powerName} n'existe pas.`);
     }
   }
 
@@ -42,7 +41,6 @@ export class PaddlePower {
     if (this.hasOwnProperty(powerName)) {
       this[powerName] = true;
     } else {
-      console.warn(`Le pouvoir ${powerName} n'existe pas.`);
     }
   }
 

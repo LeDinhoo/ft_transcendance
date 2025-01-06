@@ -367,7 +367,6 @@ export class Score3D {
 
   setScore(score1, score2) {
     if (typeof score1 !== "number" || typeof score2 !== "number") {
-      console.error("Les scores doivent être des nombres");
       return;
     }
 
@@ -457,7 +456,6 @@ export class Score3D {
     if (typeof score === "number" && score > 0) {
       this.WINNING_SCORE = score;
     } else {
-      console.error("Score invalide pour gagner");
     }
   }
 
@@ -698,7 +696,6 @@ export class Score3D {
     if (typeof value === "number" && value >= 0) {
       this.longestRally = value;
     } else {
-      console.error("Invalid value for longestRally");
     }
   }
 
@@ -712,7 +709,6 @@ export class Score3D {
         this.maxLongestrally = value;
       }
     } else {
-      console.error("Valeur invalide pour maxLongestRally :", value);
     }
   }
 
@@ -744,7 +740,6 @@ export class Score3D {
       .then((data) => {
         if (data.message) {
         } else if (data.error) {
-          console.error(data.error);
         }
       })
       .catch((error) => console.error("Erreur :", error));

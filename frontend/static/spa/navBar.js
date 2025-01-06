@@ -96,7 +96,6 @@ function initializeNavBar() {
     if (logoutButton) {
       logoutButton.addEventListener("click", logout); 
     } else {
-      console.error("Logout icon not found in the DOM.");
     }
   });
 

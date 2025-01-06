@@ -161,7 +161,6 @@ async function verifyTwoFactorCode(userId, code) {
       verifyButton.disabled = false;
     }
   } catch (error) {
-    console.error("Erreur lors de la vérification 2FA:", error);
     errorMessage.textContent =
       "Une erreur est survenue lors de la vérification";
     errorMessage.style.display = "block";
@@ -278,7 +277,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
       }, 500);
     }
   } catch (error) {
-    console.error("Authentication error:", error);
     alert("Erreur lors de l'authentification 42: " + error.message);
   }
 });
@@ -309,7 +307,6 @@ async function fetchWithAuth(url, options = {}) {
 
     return response;
   } catch (error) {
-    console.error("Fetch error:", error);
     return null;
   }
 }
@@ -390,7 +387,6 @@ document
         }
       })
       .catch((error) => {
-        console.error("Erreur lors de l'inscription :", error);
         showErrorPopup("errorTryAgainLater");
       })
       .finally(() => {

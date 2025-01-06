@@ -113,7 +113,6 @@ export class ModelLoader {
         paddle2: this.paddle2,
       };
     } catch (error) {
-      console.error("Error loading models:", error);
       throw error;
     }
   }

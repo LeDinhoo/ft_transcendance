@@ -29,14 +29,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (refreshResponse.ok) {
           return true;
         } else {
-          console.warn("Impossible de rafraîchir le token.");
           return false;
         }
       }
 
       return false;
     } catch (error) {
-      console.error("Erreur d'authentification:", error);
       return false;
     }
   }
@@ -46,9 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const authenticated = await isAuthenticated();
 
     if (requiresAuth && !authenticated) {
-      console.warn(
-        "Utilisateur non authentifié. Redirection vers la page de connexion."
-      );
+
       navigateTo("/login-register");
       return true;
     }
@@ -111,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
             appDiv.classList.remove("fade-in");
         }, 500); // Temps de l'animation fade-in
     } catch (err) {
-        console.error("Erreur lors du chargement de la page:", err);
         appDiv.innerHTML =
             "<p>Une erreur est survenue lors du chargement de la page.</p>";
     } finally {
@@ -254,7 +249,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.success) {
           window.location.href = "/login-register";
         } else {
-          console.error(data.message);
         }
       })
       .catch((error) => console.error("Error:", error));

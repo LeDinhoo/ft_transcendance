@@ -28,13 +28,15 @@ async function getLanguageFromAPI() {
     }
     return null;
   } catch (error) {
-    console.error("Error fetching language preference:", error);
     return null;
   }
 }
 
 // Fonction pour sauvegarder la langue via l'API
 async function setLanguageInAPI(language) {
+  if (isLoginPage()) {
+    return;
+  }
   try {
     const response = await fetch("/api/language/set/", {
       method: "POST",
@@ -47,7 +49,6 @@ async function setLanguageInAPI(language) {
 
     return response.ok;
   } catch (error) {
-    console.error("Error saving language preference:", error);
     return false;
   }
 }
@@ -69,9 +70,7 @@ async function loadTranslations(language) {
       localStorage.setItem("preferredLanguage", language);
       await setLanguageInAPI(language);
     }
-  } catch (error) {
-    console.error("Error loading translations:", error);
-  }
+  } catch (error) {}
 }
 
 function applyTranslations(translations) {
@@ -142,7 +141,6 @@ async function getPreferredLanguage() {
 
 async function setPreferredLanguage(language) {
   if (!["en", "fr", "es", "swe"].includes(language)) {
-    console.error("Invalid language code");
     return;
   }
 

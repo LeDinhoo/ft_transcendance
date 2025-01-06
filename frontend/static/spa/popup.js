@@ -57,7 +57,6 @@ async function showErrorPopup(message, isAuthenticated) {
     popupOverlay.style.display = "block";
     popupModal.classList.add("active");
   } catch (error) {
-    console.error("Error in showErrorPopup:", error);
 
     // Afficher un message par défaut en cas d'erreur critique
     const popupModal = document.getElementById("popupModal");
@@ -125,7 +124,6 @@ async function showInfoPopup(message) {
 	  setTimeout(() => hideInfoPopup(), 3000); // Fermeture automatique après 3 secondes
 	}
   } catch (error) {
-    console.error("Error in showInfoPopup:", error);
   }
 }
 

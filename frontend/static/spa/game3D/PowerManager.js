@@ -152,7 +152,6 @@ export class TemporaryCube {
 				this.scene.add(this.cube);
 			})
 			.catch((error) => {
-				console.error("Erreur de chargement du modèle depuis le cache", error);
 			});
 	}
 

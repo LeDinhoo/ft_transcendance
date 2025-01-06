@@ -56,7 +56,6 @@ async function updateProfilOnProfil() {
       }
     })
     .catch((error) => {
-      console.error("Erreur lors de la récupération du profil :", error);
     });
 }
 
@@ -213,7 +212,6 @@ function loadUserStatistics() {
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
     .catch((error) => {
-      console.error("Erreur lors du chargement des statistiques :", error);
     });
 }
 
@@ -281,7 +279,6 @@ function initializeProfilePage() {
           }
         })
         .catch((error) => {
-          console.error("Erreur lors de la mise à jour de l'avatar :", error);
           showErrorPopup(
             error.message || "Une erreur est survenue lors de la mise à jour"
           );
@@ -357,10 +354,7 @@ function initializeProfilePage() {
           resetPasswordFields();
         })
         .catch((error) => {
-          console.error(
-            "Erreur lors de la mise à jour des informations :",
-            error
-          );
+
           showErrorPopup(
             error.message || "Une erreur est survenue lors de la mise à jour"
           );
@@ -403,7 +397,6 @@ function initializeProfilePage() {
       }
     })
     .catch((error) => {
-      console.error("Erreur lors de la récupération du profil:", error);
     });
 
   loadMatchHistory();
@@ -530,7 +523,6 @@ async function verifyTwoFactorCodeForProfile(code) {
       errorMessage.style.display = "block";
     }
   } catch (error) {
-    console.error("Erreur lors de la validation 2FA :", error);
     errorMessage.textContent = "Une erreur est survenue.";
     errorMessage.style.display = "block";
   } finally {
@@ -542,7 +534,6 @@ async function verifyTwoFactorCodeForProfile(code) {
 function startCountdown(duration) {
   const countdownElement = document.getElementById("countdown");
   if (!countdownElement) {
-    console.error("Élément pour le compte à rebours introuvable.");
     return;
   }
 
@@ -595,7 +586,6 @@ function initialize2FA() {
   let is2FAEnabled = false;
 
   if (!toggle2FAButton || !verificationFrame) {
-    console.error("Éléments pour la gestion de la 2FA introuvables.");
     return;
   }
 
@@ -615,7 +605,6 @@ function initialize2FA() {
       }
     })
     .catch((error) => {
-      console.error("Erreur lors de la récupération du statut 2FA :", error);
     });
 
   const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
@@ -654,7 +643,6 @@ function initialize2FA() {
         }
       })
       .catch((error) => {
-        console.error("Erreur lors du basculement de la 2FA :", error);
         showErrorPopup("error2FA");
       });
   });
@@ -777,7 +765,6 @@ function initializeAvatarFeature() {
             closeModal();
           })
           .catch((error) => {
-            console.error("Erreur détaillée:", error);
             showErrorPopup(
               error.message || "Erreur lors de la mise à jour de l'avatar"
             );
@@ -912,7 +899,6 @@ async function handleFriendRequest(requestId, action) {
       });
     }
   } catch (error) {
-    console.error("Error handling friend request:", error);
     showErrorPopup("handleFriendRequest");
   }
 }

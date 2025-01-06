@@ -244,7 +244,6 @@ function initializeSettingsPage() {
         }
       })
       .catch((error) => {
-        console.error("Erreur lors de la sauvegarde :", error);
         alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
       });
   }
@@ -279,7 +278,6 @@ function initializeSettingsPage() {
 
     function onKeyPress(e) {
       if (!isSettingsPage()) {
-        console.warn("onKeyPress ignoré : Non sur la page des paramètres.");
         return;
       }
 
@@ -359,7 +357,6 @@ function initializeSettingsPage() {
         toggleKeyboardSaveButtonVisibility();
       })
       .catch((error) => {
-        console.error("Erreur lors de la sauvegarde :", error);
         alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
       });
   }
@@ -379,7 +376,6 @@ function initializeSettingsPage() {
     if (button) {
       button.classList.add("active");
     } else {
-      console.warn(`Aucun bouton trouvé pour ${attribute}="${value}"`);
     }
   }
 
@@ -390,7 +386,6 @@ function initializeSettingsPage() {
         if (button) {
           button.textContent = key;
         } else {
-          console.warn(`Bouton non trouvé pour ${player} - ${action}`);
         }
       });
     });

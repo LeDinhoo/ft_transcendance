@@ -1,11 +1,6 @@
 function ensureHumanFirst(player1, player2, gameManager) {
   // Vérification si un ou les deux joueurs sont indéfinis
   if (!player1 || !player2) {
-    console.error(
-      "One or both players are undefined in ensureHumanFirst:",
-      player1,
-      player2
-    );
     // Si un joueur est manquant, on retourne les joueurs existants
     return [player1, player2];
   }
@@ -47,9 +42,7 @@ function initializeTournamentPage() {
       .then((data) => {
         translations = data;
       })
-      .catch((error) => {
-        console.error("Error loading translations:", error);
-      });
+      .catch((error) => {});
   });
 
   const DEFAULT_AVATAR = "/static/assets/icons/pending.svg";
@@ -78,7 +71,6 @@ function initializeTournamentPage() {
 
     isBot(player) {
       if (!player) {
-        console.error("Player object is null or undefined.");
         return false;
       }
 
@@ -88,10 +80,6 @@ function initializeTournamentPage() {
       );
 
       if (index === -1) {
-        console.error(
-          "Player not found in tournamentState.players:",
-          player.name
-        );
         return false;
       }
 
@@ -103,7 +91,6 @@ function initializeTournamentPage() {
       // Vérifier l'état de la case à cocher associée
       const toggle = document.querySelectorAll(".bot-checkbox")[index - 1];
       if (!toggle) {
-        console.error("Bot toggle not found for player at index:", index);
         return false;
       }
 
@@ -178,10 +165,7 @@ function initializeTournamentPage() {
           // localStorage.setItem('gameOptions', JSON.stringify(data));
         })
         .catch((error) => {
-          console.error(
-            "Erreur lors de la récupération des paramètres :",
-            error
-          );
+
         });
     }
 
@@ -222,7 +206,6 @@ function initializeTournamentPage() {
 
         // Charger les options de jeu depuis localStorage
         if (!this.options) {
-          console.error("Game options not found in localStorage!");
           return;
         }
 
@@ -300,7 +283,6 @@ function initializeTournamentPage() {
           this.gameContainer.focus();
         };
       } catch (error) {
-        console.error("An error occurred while starting the game:", error);
       }
     }
 
@@ -441,7 +423,6 @@ function initializeTournamentPage() {
   function getSelectedPlayerCount() {
     const activeButton = document.querySelector(".option-btn.active");
     if (!activeButton) {
-      console.error("No active button found. Defaulting to 4 players.");
       return 4; // Valeur par défaut en cas d'absence de bouton actif
     }
     return parseInt(activeButton.id);
@@ -594,7 +575,6 @@ function initializeTournamentPage() {
               translations = data;
             })
             .catch((error) => {
-              console.error("Error loading translations:", error);
             });
         });
         if (isBot) {
@@ -632,7 +612,6 @@ function initializeTournamentPage() {
               translations = data;
             })
             .catch((error) => {
-              console.error("Error loading translations:", error);
             });
         });
         updateBotState(e.target.checked);
@@ -859,14 +838,12 @@ function initializeTournamentPage() {
       !tournamentState.matches ||
       tournamentState.currentMatch >= tournamentState.matches.length
     ) {
-      console.error("No current match or matches array is not valid.");
       gameManager.blockSpacebar(false);
       return;
     }
 
     const currentMatch = tournamentState.matches[tournamentState.currentMatch];
     if (!currentMatch) {
-      console.error("Current match is undefined.");
       gameManager.blockSpacebar(false);
       return;
     }
@@ -879,15 +856,12 @@ function initializeTournamentPage() {
     } else if (finalScores.player2 > finalScores.player1) {
       currentMatch.winner = currentMatch.player2;
     } else {
-      console.warn("Tie detected, randomly selecting a winner.");
       currentMatch.winner =
         Math.random() < 0.5 ? currentMatch.player1 : currentMatch.player2;
     }
 
     if (!currentMatch.winner) {
-      console.error(
-        `No winner defined for match ${tournamentState.currentMatch}`
-      );
+
       gameManager.blockSpacebar(false);
       return;
     }
@@ -911,7 +885,6 @@ function initializeTournamentPage() {
         const finalMatchIndex = 2; // Match 2 est la finale
         const nextMatch = tournamentState.matches[finalMatchIndex];
         if (!nextMatch) {
-          console.error(`Final match (${finalMatchIndex}) is not initialized.`);
           gameManager.blockSpacebar(false); // Réactiver la barre d'espace
           return;
         }
@@ -939,9 +912,7 @@ function initializeTournamentPage() {
           4 + Math.floor(tournamentState.currentMatch / 2);
         const nextMatch = tournamentState.matches[nextRoundMatchIndex];
         if (!nextMatch) {
-          console.error(
-            `Next round match (${nextRoundMatchIndex}) is not initialized.`
-          );
+
           gameManager.blockSpacebar(false); // Réactiver la barre d'espace
           return;
         }
@@ -968,7 +939,6 @@ function initializeTournamentPage() {
         const finalMatchIndex = 6; // Match 6 est la finale
         const nextMatch = tournamentState.matches[finalMatchIndex];
         if (!nextMatch) {
-          console.error(`Final match (${finalMatchIndex}) is not initialized.`);
           gameManager.blockSpacebar(false); // Réactiver la barre d'espace
           return;
         }
@@ -1039,7 +1009,6 @@ function initializeTournamentPage() {
           translations = data;
         })
         .catch((error) => {
-          console.error("Error loading translations:", error);
         });
     });
 
@@ -1384,7 +1353,6 @@ function initializeTournamentPage() {
           translations = data;
         })
         .catch((error) => {
-          console.error("Error loading translations:", error);
         });
     });
 

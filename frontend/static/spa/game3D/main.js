@@ -194,7 +194,6 @@ async function preloadModels() {
     await modelCache.loadModel("/static/spa/game3D/models/Tornado.glb");
     modelsPreloaded = true;
   } catch (error) {
-    console.error("Erreur lors du préchargement des modèles : ", error);
   }
 }
 
@@ -280,9 +279,7 @@ function closeWindowGame() {
   if (window.parent && window.parent !== window) {
     window.parent.postMessage(message, "*");
   } else {
-    console.error(
-      "Impossible d'envoyer un message au parent : window.parent inaccessible."
-    );
+
   }
 }
 

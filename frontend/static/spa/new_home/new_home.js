@@ -65,7 +65,6 @@ function updateProfilOnHome() {
       }
     })
     .catch((error) => {
-      console.error("Erreur lors de la récupération du profil :", error);
     });
 }
 
@@ -77,7 +76,6 @@ async function getFriendsList() {
     const data = await response.json();
     return data.friends || [];
   } catch (error) {
-    console.error("Error fetching friends list:", error);
     return [];
   }
 }
@@ -160,7 +158,6 @@ function initializeHome() {
           );
         }
       } catch (error) {
-        console.error("Erreur lors de l'initialisation du chat:", error);
       }
     }
 
@@ -179,10 +176,7 @@ function initializeHome() {
           ChatHandler.updateBlockedMessagesDisplay();
         }
       } catch (error) {
-        console.error(
-          "Erreur lors de l'initialisation des utilisateurs bloqués:",
-          error
-        );
+
       }
     }
 
@@ -210,7 +204,6 @@ function initializeHome() {
       const userId = headerElement?.dataset?.userId;
 
       if (!userId) {
-        console.error("No user ID found");
         showErrorPopup("idNotFound");
         return;
       }
@@ -240,11 +233,9 @@ function initializeHome() {
           document.dispatchEvent(new Event("friendRequestSent"));
           showInfoPopup(jsonData.message || "friendRequestsSuccess");
         } catch (e) {
-          console.error("Error parsing response:", e);
           showErrorPopup("errorServ");
         }
       } catch (error) {
-        console.error("Error:", error);
         showErrorPopup("errorFriendRequest");
       }
     }
@@ -436,10 +427,7 @@ function initializeHome() {
           }
         }
       } catch (error) {
-        console.error(
-          "Erreur lors de la modification du statut de blocage:",
-          error
-        );
+
         showErrorPopup("errorBlock");
       }
     }
@@ -766,7 +754,6 @@ function initializeHome() {
           setPreferredLanguage(value);
         });
       } catch (error) {
-        console.error("Error fetching profile data:", error);
       }
     }
 
@@ -1045,7 +1032,6 @@ function initializeHome() {
 
     static generatePlayersList() {
       if (!window.wsManager?.onlinePlayers) {
-        console.error("wsManager or onlinePlayers not available");
         return;
       }
 
@@ -1108,10 +1094,7 @@ function initializeHome() {
           // localStorage.setItem('gameOptions', JSON.stringify(data));
         })
         .catch((error) => {
-          console.error(
-            "Erreur lors de la récupération des paramètres :",
-            error
-          );
+
         });
     }
 
@@ -1266,7 +1249,6 @@ async function loadPendingFriendRequests() {
     const data = await response.json();
     displayPendingRequests(data.pending_requests);
   } catch (error) {
-    console.error("Error loading friend requests:", error);
   }
 }
 
@@ -1327,7 +1309,6 @@ async function handleFriendRequest(requestId, action) {
       showInfoPopup(message);
     }
   } catch (error) {
-    console.error("Error handling friend request:", error);
   }
 }
 
@@ -1348,7 +1329,6 @@ const GameInvitationManager = {
     this.template = document.getElementById("gameInvitationTemplate");
 
     if (!this.template) {
-      console.error("Game invitation template not found");
       return;
     }
 
@@ -1453,7 +1433,6 @@ const GameInvitationManager = {
     );
 
     if (!invitationModal) {
-      console.error("Failed to clone the invitation modal!");
       return;
     }
 
@@ -1516,7 +1495,6 @@ const GameInvitationManager = {
         );
       }
     } else {
-      console.error("WebSocket not connected. Unable to send response.");
     }
   },
 };

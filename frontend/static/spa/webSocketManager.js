@@ -6,7 +6,6 @@ async function getFriendsList() {
 		const data = await response.json();
 		return data.friends || [];
 	} catch (error) {
-		console.error("Error fetching friends list:", error);
 		return [];
 	}
 }
@@ -19,7 +18,6 @@ async function getBlockedUsersList() {
 		const data = await response.json();
 		return data.blocked_users || [];
 	} catch (error) {
-		console.error("Error fetching blocked users list:", error);
 		return [];
 	}
 }
@@ -93,7 +91,6 @@ const wsManager = {
 		};
 
 		this.chatSocket.onerror = (error) => {
-			console.error("WebSocket Error:", error);
 		};
 	},
 
@@ -125,12 +122,10 @@ const wsManager = {
 					const user = JSON.parse(userStr);
 					this.onlinePlayers.add(user);
 				} catch (e) {
-					console.error("Error parsing user:", e);
 				}
 			});
 			this.updateOnlinePlayersList([...this.onlinePlayers]);
 		} catch (error) {
-			console.error("Error updating users list:", error);
 		}
 	},
 
