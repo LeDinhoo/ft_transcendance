@@ -683,7 +683,6 @@ function createAvatarGrid() {
   const applyButton = document.getElementById("applyButton");
 
   if (!avatarGrid) return;
-
   avatarGrid.innerHTML = "";
 
   for (let row = 0; row < 4; row++) {
@@ -708,10 +707,7 @@ function createAvatarGrid() {
           avatarOption.classList.add("selected");
           selectedAvatar = avatarOption;
           tempSelectedSrc = img.src;
-
-          if (applyButton) {
-            applyButton.disabled = false;
-          }
+          applyButton.disabled = false;
         });
 
         rowDiv.appendChild(avatarOption);
@@ -719,6 +715,13 @@ function createAvatarGrid() {
     }
     avatarGrid.appendChild(rowDiv);
   }
+
+  // Ajouter l'événement sur le bouton Apply
+  applyButton.addEventListener("click", () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  });
 }
 
 function initializeAvatarFeature() {
