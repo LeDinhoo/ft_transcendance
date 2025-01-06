@@ -1,6 +1,20 @@
 {
   "error": {
-    "passwordsMissmatch": "Passwords do not match."
+    "passwordsMissmatch": "Passwords do not match.",
+    "typeOldPassword": "Please type your old password.",
+    "spaceBarError": "Space is not allowed in settings.",
+    "invalidLogin": "Invalid login credentials.",
+    "errorTryAgainLater": "An error occurred. Please try again later.",
+    "automaticLoginFailed": "Automatic login failed. Please log in manually.",
+    "errorOccurred": "An error occurred. Please try again.",
+    "missingUpperCase": "Password must contain at least one uppercase letter.",
+    "missingLowerCase": "Password must contain at least one lowercase letter.",
+    "missingDigit": "Password must contain at least one digit.",
+    "missingSpecial": "Password must contain at least one special character.",
+    "helpText": "The password must contain at least: <br>- one uppercase letter <br>- one lowercase letter <br>- one digit <br>- one special character: @$!%*?& <br>- a minimum of 8 characters.",
+    "invalidMail": "Invalid email address.",
+    "usernameTooLong": "Username is over 15 characters.",
+    "usernameRequired": "Username is required."
   },
   "navBar": {
     "home": "home",

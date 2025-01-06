@@ -311,7 +311,7 @@ function initializeProfilePage() {
 
       if (newPassword || confirmNewPassword || oldPassword) {
         if (!oldPassword) {
-          showErrorPopup("Veuillez saisir votre ancien mot de passe.");
+          showErrorPopup("typeOldPassword");
           return;
         }
         if (newPassword !== confirmNewPassword) {

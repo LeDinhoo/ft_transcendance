@@ -296,7 +296,7 @@ function initializeSettingsPage() {
       const newKey = e.key.toUpperCase();
 
       if (newKey === " " || newKey === "SPACE") {
-        showErrorPopup("La touche Espace ne peut pas être assignée.");
+        showErrorPopup("spaceBarError");
         return;
       }
 

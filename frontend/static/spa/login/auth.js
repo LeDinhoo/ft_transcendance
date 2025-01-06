@@ -28,11 +28,10 @@ document
       } else if (loginData.success) {
         handleSuccessfulLogin(loginData);
       } else {
-        showErrorPopup("Identifiants invalides");
+        showErrorPopup("invalidLogin");
       }
     } catch (error) {
-      console.error("Erreur lors de la connexion :", error);
-      showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
+      showErrorPopup("errorTryAgainLater");
     } finally {
       submitBtn.disabled = false;
     }
@@ -42,24 +41,40 @@ function showTwoFactorPopup(userId) {
   const popup = document.createElement("div");
   popup.className = "popup-overlay";
   popup.innerHTML = `
-      <div class="popup-content">
-          <h3>Vérification en deux étapes</h3>
-          <p>Un code a été envoyé à votre adresse email</p>
-          <div class="code-input-container">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-              <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
-          </div>
-          <div class="timer">Code valide pendant: <span id="countdown">10:00</span></div>
-          <button class="verify-button" id="verifyButton" disabled>Vérifier</button>
-          <p class="error-message" style="display: none;"></p>
-      </div>
+    <div class="popup-content">
+        <button class="close-2fa-popup">
+            <img src="/static/assets/icons/close.svg" alt="Close">
+        </button>
+        <h3 data-translate="twoStepVerification.title">Vérification en deux étapes</h3>
+        <p data-translate="twoStepVerification.codeSent">Un code a été envoyé à votre adresse email</p>
+        <div class="code-input-container">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+            <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+        </div>
+        <div class="timer" data-translate="twoStepVerification.timer">
+            Code valide pendant: <span id="countdown">10:00</span>
+        </div>
+        <button class="verify-button" id="verifyButton" disabled data-translate="twoStepVerification.verifyButton">Vérifier</button>
+        <p class="error-message" style="display: none;" data-translate="twoStepVerification.errorMessage"></p>
+    </div>
   `;
 
   document.body.appendChild(popup);
+
+  // Ajouter l'événement de fermeture
+  const closeButton = popup.querySelector(".close-2fa-popup");
+  closeButton.addEventListener("click", () => {
+    popup.remove();
+  });
+
+  //mettre à jour les traductions
+  language = localStorage.getItem("preferredLanguage") || "en";
+  loadTranslations(language);
+
   setupCodeInputs(userId);
   startCountdown(10 * 60);
 
@@ -369,7 +384,7 @@ document
               if (loginData.success) {
                 window.location.href = "/home";
               } else {
-                showErrorPopup("Erreur lors de la connexion automatique.");
+                showErrorPopup("automaticLoginFailed");
               }
             });
         } else {
@@ -383,13 +398,13 @@ document
             }
             showErrorPopup(errorMessages.join("<br>"));
           } else {
-            showErrorPopup(data.message || "Une erreur est survenue.");
+            showErrorPopup(data.message || "errorOccurred");
           }
         }
       })
       .catch((error) => {
         console.error("Erreur lors de l'inscription :", error);
-        showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
+        showErrorPopup("errorTryAgainLater");
       })
       .finally(() => {
         document.getElementById("submitRegisterBtn").disabled = false;
@@ -406,27 +421,27 @@ function validateRegistrationForm(formData) {
 
   // Vérifie si le nom d'utilisateur est vide
   if (!username.trim()) {
-    return "Le nom d'utilisateur ne peut pas être vide.";
+    return "usernameRequired";
   }
 
   // Vérifie si le nom d'utilisateur dépasse 15 caractères
   if (username.length > 15) {
-    return "Le nom d'utilisateur ne doit pas dépasser 15 caractères.";
+    return "usernameTooLong";
   }
 
   // Vérifie si l'email est valide
   if (!isValidEmail(email)) {
-    return "L'adresse email est invalide.";
+    return "invalidMail";
   }
 
   // Vérifie si le mot de passe respecte les règles
   if (!isValidPassword(password1)) {
-    return "Le mot de passe doit contenir au moins : <br>- une majuscule <br>- une minuscule <br>- un chiffre <br>- un caractère spécial :  @$!%*?& <br>- 8 caractères minimum.";
+    return "helpText";
   }
 
   // Vérifie si les mots de passe correspondent
   if (password1 !== password2) {
-    return "Les mots de passe ne correspondent pas.";
+    return "passwordsMissmatch";
   }
 
   // Pas d'erreur

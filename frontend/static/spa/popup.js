@@ -9,15 +9,24 @@
 //     popupModal.classList.add("active");
 // }
 
-async function showErrorPopup(message) {
+async function showErrorPopup(message, isAuthenticated) {
   let translations = {};
+  let language = "en"; // Par défaut, utiliser l'anglais
+
+  if (localStorage.getItem("preferredLanguage")) {
+    language = localStorage.getItem("preferredLanguage");
+  }
 
   try {
-    // Obtenir la langue de l'API
-    const language = await getLanguageFromAPI();
-    await setPreferredLanguage(language);
+    // Si l'utilisateur est authentifié, récupérer la langue via l'API
+    if (isAuthenticated) {
+      language = await getLanguageFromAPI();
+      await setPreferredLanguage(language);
+    }
 
-    // Charger les traductions
+    //Afficher la langue stocker dans le local storage du navigateur
+
+    // Charger les traductions pour la langue sélectionnée
     const response = await fetch(`/static/languages/${language}.json`);
     if (!response.ok) {
       throw new Error("Failed to load translations");
@@ -43,6 +52,15 @@ async function showErrorPopup(message) {
     popupModal.classList.add("active");
   } catch (error) {
     console.error("Error in showErrorPopup:", error);
+
+    // Afficher un message par défaut en cas d'erreur critique
+    const popupModal = document.getElementById("popupModal");
+    const popupOverlay = document.getElementById("popupOverlay");
+    const popupTexte = document.querySelector(".popupTexte");
+
+    popupTexte.innerHTML = `An error occurred: ${message}`;
+    popupOverlay.style.display = "block";
+    popupModal.classList.add("active");
   }
 }
 

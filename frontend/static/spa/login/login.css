@@ -256,16 +256,6 @@ hr {
   z-index: 1000;
 }
 
-.popup-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-}
-
 .code-input-container {
   display: flex;
   gap: 8px;
