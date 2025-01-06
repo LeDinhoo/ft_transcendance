@@ -292,7 +292,16 @@ function initializeSettingsPage() {
       }
     });
 
+    function isSettingsPage() {
+      return window.location.pathname === "/settings"; // Modifier selon l'URL de votre page de paramètres
+    }
+
     function onKeyPress(e) {
+      if (!isSettingsPage()) {
+        console.warn("onKeyPress ignoré : Non sur la page des paramètres.");
+        return;
+      }
+
       const newKey = e.key.toUpperCase();
 
       if (newKey === " " || newKey === "SPACE") {

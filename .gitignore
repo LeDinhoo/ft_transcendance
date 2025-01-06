@@ -1,2 +1,4 @@
 # Ignore file in backend/backend/
 /backend/backend/staticfiles
+/.idea/vcs.xml
+/.idea/material_theme_project_new.xml
