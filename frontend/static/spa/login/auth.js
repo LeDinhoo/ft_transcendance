@@ -391,13 +391,13 @@ document
       })
       .catch((error) => {
         console.error("Erreur lors de l'inscription :", error);
-        showErrorPopup("Une erreur est survenue, veuillez réessayer plus tard.");
+        showErrorPopup(
+          "Une erreur est survenue, veuillez réessayer plus tard."
+        );
       })
       .finally(() => {
         document.getElementById("submitRegisterBtn").disabled = false;
       });
-    
-    
 
     // fetch("/api/register/", {
     //   method: "POST",

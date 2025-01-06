@@ -5,7 +5,6 @@ const registerButton = document.getElementById("registerButton");
 const loginTitle = document.getElementById("loginTitle");
 const registerTitle = document.getElementById("registerTitle");
 
-
 function addBounceEffect(element) {
   element.classList.add("bounce");
   setTimeout(() => {

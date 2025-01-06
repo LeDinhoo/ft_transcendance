@@ -16,7 +16,7 @@ document
       const loginResponse = await fetch("/api/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify({ email: email, password: password }),
       });
 
@@ -37,7 +37,6 @@ document
       submitBtn.disabled = false;
     }
   });
-
 
 function showTwoFactorPopup(userId) {
   const popup = document.createElement("div");
@@ -132,11 +131,10 @@ async function verifyTwoFactorCode(userId, code) {
     verifyButton.disabled = true;
     verifyButton.textContent = "Vérification...";
 
-    
-      const response = await fetch("/api/2fa/verify/", {
+    const response = await fetch("/api/2fa/verify/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include", 
+      credentials: "include",
       body: JSON.stringify({ user_id: userId, code: code }),
     });
 
@@ -194,7 +192,6 @@ class AuthService {
 
 const authService = new AuthService();
 
-
 document.getElementById("42").addEventListener("click", async function (e) {
   e.preventDefault();
   console.log("Starting 42 authentication process...");
@@ -221,32 +218,27 @@ document.getElementById("42").addEventListener("click", async function (e) {
     console.log("Received auth URL:", data.auth_url);
 
     if (data.success && data.auth_url) {
-      
       const messageHandler = function (event) {
         console.log("Message received:", event);
 
         if (event.origin === baseUrl && event.data.type === "auth_success") {
           console.log("Authentication successful, storing tokens...");
 
-          
           localStorage.setItem("access_token", event.data.tokens.access);
           localStorage.setItem("refresh_token", event.data.tokens.refresh);
 
-          
           if (event.data.user) {
             localStorage.setItem("user_data", JSON.stringify(event.data.user));
           }
 
-          
           window.removeEventListener("message", messageHandler);
 
           console.log("Redirecting to home...");
-          
+
           window.location.replace(`${baseUrl}/home`);
         }
       };
 
-      
       window.addEventListener("message", messageHandler);
 
       console.log("Opening auth window...");
@@ -261,14 +253,12 @@ document.getElementById("42").addEventListener("click", async function (e) {
         throw new Error("Popup window was blocked");
       }
 
-     
       const checkPopup = setInterval(() => {
         if (authWindow.closed) {
           console.log("Auth window closed, cleaning up...");
           clearInterval(checkPopup);
           window.removeEventListener("message", messageHandler);
 
-          
           fetch(`${baseUrl}/api/check-auth/`, {
             credentials: "include",
           })
@@ -290,7 +280,6 @@ document.getElementById("42").addEventListener("click", async function (e) {
   }
 });
 
-
 async function fetchWithAuth(url, options = {}) {
   const token = localStorage.getItem("access_token");
   if (!token) {
@@ -310,7 +299,6 @@ async function fetchWithAuth(url, options = {}) {
     });
 
     if (response.status === 401) {
-      
       authService.clearAuth();
       window.location.href = "/login-register/";
       return null;
@@ -323,11 +311,10 @@ async function fetchWithAuth(url, options = {}) {
   }
 }
 
-
 document
   .getElementById("registerWidget")
   .addEventListener("submit", function (event) {
-    event.preventDefault(); 
+    event.preventDefault();
     console.log("Formulaire d'inscription intercepté.");
 
     const username = document.getElementById("username").value;
@@ -335,16 +322,13 @@ document
     const password1 = document.getElementById("registerPassword").value;
     const password2 = document.getElementById("confirmPassword").value;
 
-    
     clearErrors();
 
-    
     if (password1 !== password2) {
       showErrorPopup("Les mots de passe ne correspondent pas.");
       return;
     }
 
-    
     document.getElementById("submitRegisterBtn").disabled = true;
 
     fetch("/api/register/", {
@@ -360,7 +344,6 @@ document
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          
           fetch("/api/login/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -373,13 +356,11 @@ document
                 window.location.href = "/home";
               } else {
                 showErrorPopup("Erreur lors de la connexion automatique");
-                
               }
             })
             .catch((error) => {
               console.error("Erreur lors de la connexion automatique :", error);
               showErrorPopup("Erreur lors de la connexion automatique.");
-             
             });
         } else {
           showErrorPopup(
@@ -392,14 +373,11 @@ document
         showErrorPopup(
           "Une erreur est survenue, veuillez réessayer plus tard."
         );
-        
       })
       .finally(() => {
-        
         document.getElementById("submitRegisterBtn").disabled = false;
       });
   });
-
 
 function displayError(field, message) {
   const errorElement = document.getElementById(`${field}Error`);
@@ -407,11 +385,9 @@ function displayError(field, message) {
     errorElement.innerText = message;
     errorElement.style.display = "block";
   } else {
-    
     alert(`Erreur dans ${field}: ${message}`);
   }
 }
-
 
 function clearErrors() {
   const errorElements = document.querySelectorAll(".error-message");
@@ -421,8 +397,7 @@ function clearErrors() {
   });
 }
 
-
 function navigateTo(path) {
-  history.pushState(null, "", path); 
-  loadPageFromURL(); 
+  history.pushState(null, "", path);
+  loadPageFromURL();
 }

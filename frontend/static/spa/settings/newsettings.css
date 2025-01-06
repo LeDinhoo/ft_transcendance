@@ -1,157 +1,155 @@
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html,
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: var(--dark-void);
-    font-family: "Inter", sans-serif;
-    color: var(--snow);
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: var(--dark-void);
+  font-family: "Inter", sans-serif;
+  color: var(--snow);
 }
 
 .app {
-    height: 100vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .main {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: var(--dark-void);
-    padding: var(--24px);
-    gap: var(--16px);
-    overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--dark-void);
+  padding: var(--24px);
+  gap: var(--16px);
+  overflow: hidden;
 }
 
 .settingsSection {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    flex-grow: 1;
-    background-color: var(--gluon-grey);
-    border-radius: var(--24px);
-    gap: var(--16px);
-    padding: var(--16px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-grow: 1;
+  background-color: var(--gluon-grey);
+  border-radius: var(--24px);
+  gap: var(--16px);
+  padding: var(--16px);
 }
 
 .settingsPanel {
-    flex-grow: 1;
-    height: 100%;
-    border-radius: var(--24px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: var(--dark-grey);
-    gap: var(--16px);
-    padding: var(--24px);
+  flex-grow: 1;
+  height: 100%;
+  border-radius: var(--24px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: var(--dark-grey);
+  gap: var(--16px);
+  padding: var(--24px);
 }
 
 .titleFrame {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: var(--radius-lg);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-lg);
 }
 
 .saveButtonFrame {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: var(--radius-lg);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--radius-lg);
 }
 
 .titleSettings {
-    font-size: var(--36px);
-    font-weight: 600;
-    color: var(--snow);
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  font-size: var(--36px);
+  font-weight: 600;
+  color: var(--snow);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-
-
-
 .gameSettingsPanel {
-    width: 100%;
-    display: flex;
-    flex-grow: 1;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: var(--dark-grey);
-    padding: var(--16px);
-    border-radius: var(--radius-lg);
+  width: 100%;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: var(--dark-grey);
+  padding: var(--16px);
+  border-radius: var(--radius-lg);
 }
 
 .selectorSettingsFrame,
 .selectorShortcutFrame {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    gap: 6.521vw;
-    border-radius: var(--radius-lg);
-    padding: var(--16px);
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  gap: 6.521vw;
+  border-radius: var(--radius-lg);
+  padding: var(--16px);
 }
 
 .selectorShortcutFrame {
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.521vw;
-    padding-left: var(--16px);
-    padding-right: var(--16px);
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.521vw;
+  padding-left: var(--16px);
+  padding-right: var(--16px);
 }
 
 .settingsLabel,
 .playerTitle {
-    font-size: var(--20px);
-    font-weight: 600;
-    color: var(--snow);
-    width: 10vw;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+  font-size: var(--20px);
+  font-weight: 600;
+  color: var(--snow);
+  width: 10vw;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .playerTitle {
-    width: 100%;
-    font-size: var(--24px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  width: 100%;
+  font-size: var(--24px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.selectorFrame, .selectorGameFrame {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: row;
-    gap: 2vw;
-    border-radius: var(--radius-lg);
-    padding: 0.521vw;
+.selectorFrame,
+.selectorGameFrame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 2vw;
+  border-radius: var(--radius-lg);
+  padding: 0.521vw;
 }
 
 .selectorGameFrame {
-    width: 100%;
-    justify-content: space-between;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .optionLabel,
@@ -163,24 +161,24 @@ body {
 .ballSpeedIncreaseOptionLabel,
 .change-key,
 .optionTextLabel {
-    font-size: var(--16px);
-    font-weight: 600;
-    color: var(--snow);
-    width: 4.5vw;
-    height: 1.875vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: var(--dusty-grey) solid var(--4px);
-    border-radius: var(--16px);
-    cursor: pointer;
+  font-size: var(--16px);
+  font-weight: 600;
+  color: var(--snow);
+  width: 4.5vw;
+  height: 1.875vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: var(--dusty-grey) solid var(--4px);
+  border-radius: var(--16px);
+  cursor: pointer;
 }
 
 .optionTextLabel,
 .powerupOptionLabel,
 .change-key,
 .difficultyOptionLabel {
-    width: 7.292vw;
+  width: 7.292vw;
 }
 
 .optionLabel:hover,
@@ -191,7 +189,7 @@ body {
 .ballSpeedIncreaseOptionLabel:hover,
 .change-key:hover,
 .scoreOptionLabel:hover {
-    border-color: var(--liquid-lava);
+  border-color: var(--liquid-lava);
 }
 
 .optionLabel.active,
@@ -202,25 +200,25 @@ body {
 .ballSpeedIncreaseOptionLabel.active,
 .change-key.active,
 .scoreOptionLabel.active {
-    background: var(--liquid-lava);
-    color: var(--snow);
-    border-color: transparent;
+  background: var(--liquid-lava);
+  color: var(--snow);
+  border-color: transparent;
 }
 
 .change-key:disabled {
-    background-color: #ccc;
-    color: #666;
-    cursor: not-allowed;
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
 }
 
 #save-settings {
-    opacity: 0;
-    pointer-events: none; /* Empêche les clics */
-    transition: opacity 0.3s ease; /* Transition pour un effet fluide */
+  opacity: 0;
+  pointer-events: none; /* Empêche les clics */
+  transition: opacity 0.3s ease; /* Transition pour un effet fluide */
 }
 
 #save-keyboard-settings {
-    opacity: 0;
-    pointer-events: none; /* Empêche les clics */
-    transition: opacity 0.3s ease; /* Transition pour un effet fluide */
+  opacity: 0;
+  pointer-events: none; /* Empêche les clics */
+  transition: opacity 0.3s ease; /* Transition pour un effet fluide */
 }

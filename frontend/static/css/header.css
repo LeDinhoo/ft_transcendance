@@ -52,7 +52,7 @@
 }
 
 .logout-icon {
-  width: var(--32px); 
+  width: var(--32px);
   height: var(--32px);
   transition: transform 0.3s ease;
 }
@@ -91,24 +91,24 @@
 
 /* Styles pour le sélecteur de langue */
 .language-selector {
-    position: fixed;
-    top: 2vw;
-    right: 200px;
-    display: flex;
-    gap: 10px;
+  position: fixed;
+  top: 2vw;
+  right: 200px;
+  display: flex;
+  gap: 10px;
 }
 
 .language-flags {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 .language-flag {
-    width: 30px;
-    height: auto;
-    cursor: pointer;
+  width: 30px;
+  height: auto;
+  cursor: pointer;
 }
 
 .language-flag:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }

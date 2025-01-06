@@ -217,11 +217,11 @@ function initializeTournamentPage() {
         };
 
         const currentMatch =
-            this.tournamentState.matches[this.tournamentState.currentMatch];
+          this.tournamentState.matches[this.tournamentState.currentMatch];
 
         if (
-            !currentMatch ||
-            this.tournamentState.currentMatch >=
+          !currentMatch ||
+          this.tournamentState.currentMatch >=
             this.tournamentState.matches.length
         ) {
           console.log("No more matches to play");
@@ -229,8 +229,8 @@ function initializeTournamentPage() {
         }
 
         console.log(
-            "Starting game for match:",
-            this.tournamentState.currentMatch
+          "Starting game for match:",
+          this.tournamentState.currentMatch
         );
         console.log("Current match data:", currentMatch);
 
@@ -240,12 +240,12 @@ function initializeTournamentPage() {
 
         // Afficher si les joueurs sont des bots
         console.log(
-            `Player 1 (${currentMatch.player1.name}) isBot:`,
-            player1IsBot
+          `Player 1 (${currentMatch.player1.name}) isBot:`,
+          player1IsBot
         );
         console.log(
-            `Player 2 (${currentMatch.player2.name}) isBot:`,
-            player2IsBot
+          `Player 2 (${currentMatch.player2.name}) isBot:`,
+          player2IsBot
         );
 
         // Charger les options de jeu depuis localStorage
@@ -271,8 +271,8 @@ function initializeTournamentPage() {
               score2 = Math.floor(Math.random() * 6);
 
               if (
-                  Math.max(score1, score2) === 5 &&
-                  Math.abs(score1 - score2) >= 2
+                Math.max(score1, score2) === 5 &&
+                Math.abs(score1 - score2) >= 2
               ) {
                 break;
               }
@@ -282,27 +282,27 @@ function initializeTournamentPage() {
 
           // Simuler les scores
           const { score1: simulatedScore1, score2: simulatedScore2 } =
-              simulateScores();
+            simulateScores();
 
           const simulatedWinner =
-              simulatedScore1 > simulatedScore2
-                  ? currentMatch.player1
-                  : currentMatch.player2;
+            simulatedScore1 > simulatedScore2
+              ? currentMatch.player1
+              : currentMatch.player2;
 
           console.log(
-              "Simulation complete. Winner:",
-              simulatedWinner,
-              "Scores:",
-              {
-                player1: simulatedScore1,
-                player2: simulatedScore2,
-              }
+            "Simulation complete. Winner:",
+            simulatedWinner,
+            "Scores:",
+            {
+              player1: simulatedScore1,
+              player2: simulatedScore2,
+            }
           );
 
           progressTournament(
-              null,
-              { player1: simulatedScore1, player2: simulatedScore2 },
-              this
+            null,
+            { player1: simulatedScore1, player2: simulatedScore2 },
+            this
           );
 
           this.isSimulationInProgress = false;
@@ -316,20 +316,20 @@ function initializeTournamentPage() {
 
         this.gameContainer.onload = () => {
           console.log(
-              "Game loaded, sending players:",
-              currentMatch.player1,
-              currentMatch.player2
+            "Game loaded, sending players:",
+            currentMatch.player1,
+            currentMatch.player2
           );
 
           this.gameContainer.contentWindow.postMessage(
-              {
-                type: "startGame",
-                data: {
-                  player1: currentMatch.player1,
-                  player2: currentMatch.player2,
-                },
+            {
+              type: "startGame",
+              data: {
+                player1: currentMatch.player1,
+                player2: currentMatch.player2,
               },
-              "*"
+            },
+            "*"
           );
 
           const options = this.options;
@@ -337,11 +337,11 @@ function initializeTournamentPage() {
           const power = true;
 
           this.gameContainer.contentWindow.postMessage(
-              {
-                type: "setOptions",
-                data: { options, isAI, power, languageOption },
-              },
-              "*"
+            {
+              type: "setOptions",
+              data: { options, isAI, power, languageOption },
+            },
+            "*"
           );
 
           this.gameContainer.focus();
