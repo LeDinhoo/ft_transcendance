@@ -1,3 +1,4 @@
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model
@@ -42,6 +43,26 @@ class RegisterForm(UserCreationForm):
             raise ValidationError("Ce nom d'utilisateur est déjà pris.")
         
         return username
+
+    
+    def clean_password1(self):
+        password1 = self.cleaned_data.get('password1')
+
+        if len(password1) > 20:
+            raise ValidationError("Le mot de passe ne doit pas dépasser 20 caractères.")
+        if len(password1) < 8:
+            raise ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+        if not re.search(r'[A-Z]', password1):
+            raise ValidationError("Le mot de passe doit contenir au moins une lettre majuscule.")
+        if not re.search(r'[a-z]', password1):
+            raise ValidationError("Le mot de passe doit contenir au moins une lettre minuscule.")
+        if not re.search(r'[0-9]', password1):
+            raise ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password1):
+            raise ValidationError("Le mot de passe doit contenir au moins un caractère spécial.")
+
+        return password1
+
 
     def save(self, commit=True):
         """
