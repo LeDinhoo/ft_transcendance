@@ -54,10 +54,10 @@ const keyboard = new KeyboardManager();
 scene.background = new THREE.Color(0x111111);
 
 const renderer = new THREE.WebGLRenderer({
-  antialias: true,
+  antialias: false,
   powerPreference: "high-performance",
-  precision: "mediump",
-  samples: 2,
+  precision: "lowp",
+  samples: 1,
 });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -71,7 +71,7 @@ const renderTarget = new THREE.WebGLRenderTarget(
   window.innerWidth,
   window.innerHeight,
   {
-    samples: 2,
+    samples: 1,
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
@@ -193,8 +193,7 @@ async function preloadModels() {
     await modelCache.loadModel("/static/spa/game3D/models/Beer.glb");
     await modelCache.loadModel("/static/spa/game3D/models/Tornado.glb");
     modelsPreloaded = true;
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 const cornerSpheres = createCornerSpheres(scene, percentages);
@@ -279,7 +278,6 @@ function closeWindowGame() {
   if (window.parent && window.parent !== window) {
     window.parent.postMessage(message, "*");
   } else {
-
   }
 }
 
@@ -291,7 +289,6 @@ keyboard.onSpace(() => {
     const result = scoreUser > scoreOpponent;
 
     const longestRally = scoreSystem.getMaxLongestRally();
-
 
     scoreSystem.recordGame(
       scoreUser,
@@ -418,10 +415,11 @@ export let launchPower2 = "arrowleft";
 function handleMessage(event) {
   if (event.data.type === "setOptions") {
     const { options, isAI, power, languageOption } = event.data.data;
-    scoreSystem.setLanguage(languageOption);
     INITIAL_BALL_SPEED = options.ballSpeedStart;
     SPEED_INCREMENT = options.ballSpeedIncrease;
     MAX_BALL_SPEED = options.ballSpeedMax;
+    scoreSystem.setKeyTextForTutorial(options.keyboardSettings, aiIsActive);
+    scoreSystem.setLanguage(languageOption);
     scoreSystem.setScoreToWin(options.scoreToWin);
     gameAI.setDifficulty(options.difficulty);
     powerManager.setActivePowers(options.powerups);
@@ -436,18 +434,17 @@ function handleMessage(event) {
       options.keyboardSettings.player2.moveDown
     );
 
-		aiIsActive = !!isAI;
+    aiIsActive = !!isAI;
 
+    if (!power) {
+      isPowerActivated = false;
+      powerManager.deactivatePowers();
+    } else {
+      isPowerActivated = true;
+      powerManager.activatePowers();
+    }
 
-		if (!power) {
-			isPowerActivated = false;
-			powerManager.deactivatePowers();
-		} else {
-			isPowerActivated = true;
-			powerManager.activatePowers();
-		}
-
-		scoreSystem.setKeyTextForTutorial(options.keyboardSettings, aiIsActive);
+    console.log("Keyboard settings updated", options.keyboardSettings);
 
     window.removeEventListener("message", handleMessage);
   }

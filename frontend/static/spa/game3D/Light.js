@@ -7,15 +7,15 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
 
 directionalLight.position.set(-700, 500, 0);
 directionalLight.castShadow = true;
-directionalLight.shadow.camera.near = 1;
-directionalLight.shadow.camera.far = 2000;
-directionalLight.shadow.camera.left = -2000;
-directionalLight.shadow.camera.right = 2000;
-directionalLight.shadow.camera.top = 2000;
-directionalLight.shadow.camera.bottom = -2000;
-directionalLight.shadow.mapSize.width = 4096;
-directionalLight.shadow.mapSize.height = 4096;
-directionalLight.shadow.bias = -0.0001;
+directionalLight.shadow.camera.near = 2;
+directionalLight.shadow.camera.far = 1000;
+directionalLight.shadow.camera.left = -1000;
+directionalLight.shadow.camera.right = 1000;
+directionalLight.shadow.camera.top = 1000;
+directionalLight.shadow.camera.bottom = -1000;
+directionalLight.shadow.mapSize.width = 512;
+directionalLight.shadow.mapSize.height = 512;
+directionalLight.shadow.bias = -0.1;
 directionalLight.shadow.radius = 2;
 
 
@@ -28,14 +28,14 @@ const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.6);
 directionalLight2.position.set(700, 500, 0);
 directionalLight2.castShadow = true;
 directionalLight2.shadow.camera.near = 1;
-directionalLight2.shadow.camera.far = 2000;
-directionalLight2.shadow.camera.left = -2000;
-directionalLight2.shadow.camera.right = 2000;
-directionalLight2.shadow.camera.top = 2000;
-directionalLight2.shadow.camera.bottom = -2000;
-directionalLight2.shadow.mapSize.width = 2048;
-directionalLight2.shadow.mapSize.height = 2048;
-directionalLight2.shadow.bias = -0.0001;
+directionalLight2.shadow.camera.far = 1000;
+directionalLight2.shadow.camera.left = -1000;
+directionalLight2.shadow.camera.right = 1000;
+directionalLight2.shadow.camera.top = 1000;
+directionalLight2.shadow.camera.bottom = -1000;
+directionalLight2.shadow.mapSize.width = 512;
+directionalLight2.shadow.mapSize.height = 512;
+directionalLight2.shadow.bias = -0.1;
 directionalLight2.shadow.radius = 2;
 
 
@@ -81,15 +81,15 @@ directionalLight6.castShadow = true;
 configureShadowSettings(directionalLight6);
 
 function configureShadowSettings(light) {
-  light.shadow.camera.near = 1;
-  light.shadow.camera.far = 2000;
-  light.shadow.camera.left = -2000;
-  light.shadow.camera.right = 2000;
-  light.shadow.camera.top = 2000;
+  light.shadow.camera.near = 2;
+  light.shadow.camera.far = 1000;
+  light.shadow.camera.left = -1000;
+  light.shadow.camera.right = 1000;
+  light.shadow.camera.top = 1000;
   light.shadow.camera.bottom = -2000;
-  light.shadow.mapSize.width = 1024;
-  light.shadow.mapSize.height = 1024;
-  light.shadow.bias = -0.0001;
+  light.shadow.mapSize.width = 512;
+  light.shadow.mapSize.height = 512;
+  light.shadow.bias = -0.1;
   light.shadow.radius = 2;
 }
 

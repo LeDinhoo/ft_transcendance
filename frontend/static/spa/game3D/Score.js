@@ -177,6 +177,7 @@ export class Score3D {
   }
 
   setKeyTextForTutorial(options, isAIisActive) {
+    console.log(options);
     this.player1UpKey = options.player1.moveUp;
     this.player1DownKey = options.player1.moveDown;
     this.player1LaunchKey = options.player1.launchPower;
@@ -204,6 +205,8 @@ export class Score3D {
 
   createTutorialText() {
     if (!this.font) return;
+
+    console.log(this.texts);
 
     const options = { ...this.TutorialTextOptions, font: this.font };
 
