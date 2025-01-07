@@ -54,6 +54,24 @@ const wsManager = {
 					);
 					break;
 
+				case "user_update":
+					const updatedPlayers = new Set(
+						[...this.onlinePlayers].map(user => 
+							user.id === data.user.id 
+								? {...user, ...data.user}
+								: user
+						)
+					);
+					this.onlinePlayers = updatedPlayers;
+					this.updateOnlinePlayersList([...this.onlinePlayers]);
+					
+					// Add this block
+					if (data.user.id === window.currentUser?.id) {
+						document.getElementById("nicknameProfilUser").innerText = data.user.username;
+						document.getElementById("avatarProfilUser").src = data.user.avatar;
+					}
+					break;
+
 				case "game_invitation":
 					
 
@@ -114,6 +132,12 @@ const wsManager = {
 				try {
 					const user = JSON.parse(userStr);
 					this.onlinePlayers.add(user);
+					
+					// Add this: Update UI if it's current user
+					if (window.currentUser && user.id === window.currentUser.id) {
+						document.getElementById("nicknameProfilUser").innerText = user.username;
+						document.getElementById("avatarProfilUser").src = user.avatar;
+					}
 				} catch (e) {
 				}
 			});
