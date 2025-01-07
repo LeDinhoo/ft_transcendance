@@ -1,4 +1,4 @@
-let loadedTranslations = {}; // Store loaded translations
+let loadedTranslations = {};
 
 function isLoginPage() {
   return (
@@ -7,9 +7,7 @@ function isLoginPage() {
   );
 }
 
-// Fonction pour charger la langue depuis l'API
 async function getLanguageFromAPI() {
-  // Verifier si l'utilisateur est sur la page de login
   if (isLoginPage()) {
     return null;
   }
@@ -32,7 +30,6 @@ async function getLanguageFromAPI() {
   }
 }
 
-// Fonction pour sauvegarder la langue via l'API
 async function setLanguageInAPI(language) {
   if (isLoginPage()) {
     return;
@@ -60,10 +57,9 @@ async function loadTranslations(language) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const translations = await response.json();
-    loadedTranslations[language] = translations; // Stocker en cache
+    loadedTranslations[language] = translations; 
     applyTranslations(translations);
 
-    // Sauvegarder la langue selon le contexte
     if (isLoginPage()) {
       localStorage.setItem("preferredLanguage", language);
     } else {
@@ -86,24 +82,19 @@ function applyTranslations(translations) {
     }
 
     if (translatedText) {
-      // Gérer les inputs avec placeholder
       if (element.tagName === "INPUT") {
         if (element.hasAttribute("placeholder")) {
           element.setAttribute("placeholder", translatedText);
         }
-        // element.value = translatedText;
       } else {
-        // Pour les autres éléments
         const svgElement = element.querySelector("svg");
 
-        // Supprimer les anciens nœuds texte
         element.childNodes.forEach((node) => {
           if (node.nodeType === Node.TEXT_NODE) {
             node.remove();
           }
         });
 
-        // Insérer le texte après le dernier enfant
         if (svgElement) {
           svgElement.insertAdjacentText("afterend", ` ${translatedText}`);
         } else {
@@ -123,7 +114,6 @@ function getNestedTranslation(key, translations) {
 
 async function getPreferredLanguage() {
   if (isLoginPage()) {
-    // Sur la page de login, utiliser localStorage
     const savedLanguage = localStorage.getItem("preferredLanguage");
     if (savedLanguage) {
       return savedLanguage;
@@ -133,7 +123,6 @@ async function getPreferredLanguage() {
       ? browserLanguage
       : "en";
   } else {
-    // Pour les autres pages, utiliser l'API
     const apiLanguage = await getLanguageFromAPI();
     return apiLanguage || "en";
   }
@@ -147,19 +136,16 @@ async function setPreferredLanguage(language) {
   await loadTranslations(language);
 }
 
-// Initialisation au chargement de la page
 document.addEventListener("DOMContentLoaded", async () => {
   const userLang = await getPreferredLanguage();
   await loadTranslations(userLang);
 
-  // Event listener pour les drapeaux de langue
   document.querySelectorAll(".language-flag").forEach((flag) => {
     flag.addEventListener("click", async (e) => {
       const language = e.target.dataset.language;
       if (language) {
         await setPreferredLanguage(language);
 
-        // Mise à jour visuelle du drapeau actif
         document
           .querySelectorAll(".language-flag")
           .forEach((f) => f.classList.remove("active"));
@@ -169,7 +155,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// Rendre les fonctions disponibles globalement
 window.setPreferredLanguage = setPreferredLanguage;
 window.getPreferredLanguage = getPreferredLanguage;
 window.loadTranslations = loadTranslations;

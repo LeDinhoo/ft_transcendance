@@ -56,9 +56,8 @@ const wsManager = {
 
 				case "game_invitation":
 					
-					// Assurons-nous que currentUser est défini
+				
 					if (window.currentUser) {
-						// Convertissons les deux en nombres pour la comparaison
 						const receiverId = Number(data.receiverId);
 						const currentUserId = Number(window.currentUser.id);
 						
@@ -80,7 +79,7 @@ const wsManager = {
 					this.handleUserListUpdate(data);
 					break;
 				
-				case "error":  // Ajouter ce cas
+				case "error":
 					if (window.ChatHandler?.showNotification) {
 						window.ChatHandler.showNotification(data.message);
 					}
@@ -97,14 +96,12 @@ const wsManager = {
 	handleGameInvitationResponse(data) {
 		
 		if (data.response === "accept") {
-			// Si je suis l'expéditeur ou le destinataire, afficher la notification
 			if (data.sender.id === window.currentUser?.id || data.receiverId === window.currentUser?.id) {
 				window.GameInvitationManager?.showNotification(
 					"Remote play feature is not implemented yet. You can play 1v1 locally!"
 				);
 			}
 		} else if (data.response === "decline") {
-			// Si je suis l'expéditeur, montrer la notification de refus
 			if (data.sender.id === window.currentUser?.id) {
 				window.GameInvitationManager?.showNotification(
 					`${data.receiver} declined your game invitation.`
@@ -150,7 +147,7 @@ const wsManager = {
 			let iconSrc = isCurrentUser
 				? "/static/assets/icons/account_circle.svg"
 				: isBlocked
-					? "/static/assets/icons/blocked.svg"  // Cette icône indique que l'utilisateur est bloqué
+					? "/static/assets/icons/blocked.svg" 
 					: isFriend
 						? "/static/assets/icons/friends.svg"
 						: "/static/assets/icons/online.svg";

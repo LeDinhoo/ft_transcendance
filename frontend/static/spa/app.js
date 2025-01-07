@@ -62,12 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
     isLoading = true;
 
     try {
-        // Ajout de la classe fade-out avant de changer le contenu
         appDiv.classList.add("fade-out");
 
-        // Attendez que l'animation se termine avant de changer le contenu
         await new Promise((resolve) => {
-            setTimeout(resolve, 100); // Temps de l'animation fade-out
+            setTimeout(resolve, 100);
         });
 
         const response = await fetch(htmlUrl);
@@ -98,14 +96,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         initializeNavBar();
 
-        // Ajout de la classe fade-in après le changement de contenu
         appDiv.classList.remove("fade-out");
         appDiv.classList.add("fade-in");
 
-        // Retirer la classe fade-in après l'animation
         setTimeout(() => {
             appDiv.classList.remove("fade-in");
-        }, 500); // Temps de l'animation fade-in
+        }, 500);
     } catch (err) {
         appDiv.innerHTML =
             "<p>Une erreur est survenue lors du chargement de la page.</p>";

@@ -7,7 +7,6 @@ function addLanguageSelector() {
         return;
     }
 
-    // Créer le conteneur pour le sélecteur de langue
     const languageSelector = document.createElement('div');
     languageSelector.className = 'language-selector';
     languageSelector.innerHTML = `
@@ -19,7 +18,6 @@ function addLanguageSelector() {
         </div>
     `;
 
-    // Gestionnaires d'événements pour les drapeaux
     languageSelector.querySelectorAll('.language-flag').forEach(flag => {
         flag.addEventListener('click', async (e) => {
             const language = e.target.dataset.language;
@@ -43,7 +41,6 @@ function addLanguageSelector() {
     });
 }
 
-// Fonction pour initialiser la navbar et gérer les événements de clic
 function initializeNavBar() {
 
   addLanguageSelector();

@@ -1446,10 +1446,10 @@ def get_pending_requests(request):
 
                 try:
                     sender_avatar = '/static/assets/avatars/ladybug.png'  
-                        if str(req.from_user.avatar).startswith('assets/avatars/'):
-                            sender_avatar = f"/static/{req.from_user.avatar}"
-                        else:
-                            sender_avatar = req.from_user.avatar.url
+                    if str(req.from_user.avatar).startswith('assets/avatars/'):
+                        sender_avatar = f"/static/{req.from_user.avatar}"
+                    else:
+                        sender_avatar = req.from_user.avatar.url
                 except Exception as avatar_error:
                     logger.warning(f"Erreur lors de la récupération de l'avatar pour l'utilisateur {req.from_user.id}: {avatar_error}")
 
