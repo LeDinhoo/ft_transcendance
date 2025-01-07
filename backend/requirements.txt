@@ -25,16 +25,3 @@ daphne==4.0.0
 channels-redis==4.1.0
 redis==5.0.1
 python-magic==0.4.27
-
-
-#Django>=3.2,<4.0
-#bcrypt==3.2.0
-#certifi==2023.7.22        # Mise à jour vers une version récente
-#chardet==5.1.0            # Mise à jour vers une version récente
-#cryptography==41.0.3      # Mise à jour vers la dernière version
-#pyOpenSSL==23.2.0         # Ajouté pour le support SSL
-#Pillow==10.0.0            # Mise à jour vers une version récente
-#requests==2.31.0          # Mise à jour vers une version récente
-#urllib3==2.0.4            # Mise à jour vers une version récente
-#psycopg2==2.9.6           # Mise à jour vers une version récente
-#gunicorn==20.1.0

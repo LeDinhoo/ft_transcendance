@@ -19,6 +19,7 @@ async function showErrorPopup(message, isAuthenticated) {
       await setPreferredLanguage(language);
     }
 
+
     const response = await fetch(`/static/languages/${language}.json`);
     if (!response.ok) {
       throw new Error("Failed to load translations");
@@ -31,6 +32,7 @@ async function showErrorPopup(message, isAuthenticated) {
         ? translations.error[message]
         : `Translation missing for: ${message}`;
 
+
     const popupModal = document.getElementById("popupModal");
     const popupOverlay = document.getElementById("popupOverlay");
     const popupTexte = document.querySelector(".popupTexte");
@@ -39,6 +41,7 @@ async function showErrorPopup(message, isAuthenticated) {
     popupOverlay.style.display = "block";
     popupModal.classList.add("active");
   } catch (error) {
+
     const popupModal = document.getElementById("popupModal");
     const popupOverlay = document.getElementById("popupOverlay");
     const popupTexte = document.querySelector(".popupTexte");

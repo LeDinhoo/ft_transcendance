@@ -56,6 +56,7 @@ const wsManager = {
 
 				case "game_invitation":
 					
+
 					if (window.currentUser) {
 						const receiverId = Number(data.receiverId);
 						const currentUserId = Number(window.currentUser.id);

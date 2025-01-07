@@ -1,7 +1,10 @@
-from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+import logging
 from . import views
 from .views import Toggle2FAView, Verify2FAView, TestEmailView
+from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+logger = logging.getLogger(__name__)
 
 urlpatterns = [
     path('', views.index_view, name='index'),
@@ -45,10 +48,3 @@ urlpatterns = [
 	path('blocked/block/', views.block_user, name='block-user'),
 	path('blocked/unblock/', views.unblock_user, name='unblock-user'),
 ]
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-logger.debug("URL configurée pour set_game_settings : /set-game-settings/")

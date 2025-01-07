@@ -75,7 +75,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return
         
         if data.get('type') == 'game_invitation':
-            # Traitement spécial pour les invitations de jeu
             await self.channel_layer.group_send(
                 "chat",
                 {
@@ -92,7 +91,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
         else:
-            # Traitement normal des messages
             message_data = {
                 **data,
                 'userId': str(self.user.id),
@@ -110,8 +108,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         invitation_data = event['invitation']
         print(f"Debug - Received invitation data: {invitation_data}")
 
-        # Vérification basée sur l'ID unique
-        receiver_id = int(invitation_data.get('receiverId', -1))  # Assurez-vous que c'est un entier
+        receiver_id = int(invitation_data.get('receiverId', -1)) 
         sender_id = int(invitation_data['sender']['id'])
         current_user_id = self.scope["user"].id
 
@@ -145,9 +142,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         sender_id = message_data['userId']
 
         try:
-            # Pour les messages publics
             if message_data['type'] == 'chat_message':
-                # Désinfection du message
                 sanitized_message = escape(message_data['message'])
                 message_data['message'] = sanitized_message
 
@@ -158,9 +153,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if not sender_blocked_me and not i_blocked_sender:
                     await self.send(text_data=json.dumps(message_data))
 
-            # Pour les messages privés
             elif message_data['type'] == 'private_message':
-                # Désinfection du message
                 sanitized_message = escape(message_data['message'])
                 message_data['message'] = sanitized_message
 
@@ -171,7 +164,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     try:
                         recipient = await User.objects.aget(username=recipient_name)
                         if recipient:
-                            # Ne diffuser le message que si c'est l'expéditeur ou le destinataire
                             if str(self.scope["user"].id) == str(sender_id) or self.scope["user"].username == recipient_name:
                                 sender_blocked_recipient = await self.is_user_blocked(sender_id, recipient.id)
                                 recipient_blocked_sender = await self.is_user_blocked(recipient.id, sender_id)
