@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (response.status === 401) {
-
         const refreshResponse = await fetch("/api/token/refresh/", {
           method: "POST",
           credentials: "include",
@@ -44,7 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const authenticated = await isAuthenticated();
 
     if (requiresAuth && !authenticated) {
-
       navigateTo("/login-register");
       return true;
     }
@@ -57,62 +55,58 @@ document.addEventListener("DOMContentLoaded", function () {
     cssUrl,
     jsUrls,
     shouldInitGame = false
-) {
-    if (isLoading) return; 
+  ) {
+    if (isLoading) return;
     isLoading = true;
 
     try {
-        // Ajout de la classe fade-out avant de changer le contenu
-        appDiv.classList.add("fade-out");
+      appDiv.classList.add("fade-out");
 
-        // Attendez que l'animation se termine avant de changer le contenu
-        await new Promise((resolve) => {
-            setTimeout(resolve, 100); // Temps de l'animation fade-out
-        });
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
 
-        const response = await fetch(htmlUrl);
-        if (!response.ok) {
-            throw new Error("Erreur lors du chargement de la page");
-        }
-        const html = await response.text();
+      const response = await fetch(htmlUrl);
+      if (!response.ok) {
+        throw new Error("Erreur lors du chargement de la page");
+      }
+      const html = await response.text();
 
-        appDiv.innerHTML = html;
+      appDiv.innerHTML = html;
 
-        if (cssUrl) {
-            loadCSS(cssUrl);
-        }
+      if (cssUrl) {
+        loadCSS(cssUrl);
+      }
 
-        removePreviousComponentScripts();
+      removePreviousComponentScripts();
 
-        if (jsUrls && jsUrls.length > 0) {
-            await loadScriptsInOrder(jsUrls);
-        }
+      if (jsUrls && jsUrls.length > 0) {
+        await loadScriptsInOrder(jsUrls);
+      }
 
-        if (typeof initializePage === "function") {
-            initializePage();
-        }
+      if (typeof initializePage === "function") {
+        initializePage();
+      }
 
-        if (shouldInitGame && typeof initGame === "function") {
-            initGame();
-        }
+      if (shouldInitGame && typeof initGame === "function") {
+        initGame();
+      }
 
-        initializeNavBar();
+      initializeNavBar();
 
-        // Ajout de la classe fade-in après le changement de contenu
-        appDiv.classList.remove("fade-out");
-        appDiv.classList.add("fade-in");
+      appDiv.classList.remove("fade-out");
+      appDiv.classList.add("fade-in");
 
-        // Retirer la classe fade-in après l'animation
-        setTimeout(() => {
-            appDiv.classList.remove("fade-in");
-        }, 500); // Temps de l'animation fade-in
+      setTimeout(() => {
+        appDiv.classList.remove("fade-in");
+      }, 500);
     } catch (err) {
-        appDiv.innerHTML =
-            "<p>Une erreur est survenue lors du chargement de la page.</p>";
+      appDiv.innerHTML =
+        "<p>Une erreur est survenue lors du chargement de la page.</p>";
     } finally {
-        isLoading = false;
+      isLoading = false;
     }
-}
+  }
 
   function loadCSS(cssUrl) {
     removePreviousComponentCSS();
@@ -174,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateNavBarVisibility(path);
 
     if (await isAuthenticated()) {
-        window.wsManager.initializeChatSocket();
+      window.wsManager.initializeChatSocket();
     }
 
     if (path === "/" || path === "/login-register") {
@@ -222,21 +216,19 @@ document.addEventListener("DOMContentLoaded", function () {
       ).then(() => {
         initializeSettingsPage();
       });
-    } else 
-      {
-        navigateTo("/home");
-        loadComponent(
-          "/static/spa/new_home/new_home.html",
-          "/static/spa/new_home/new_home.css",
-          ["/static/spa/new_home/new_home.js"]
-        ).then(() => {
-          initializeHome();
-        });
+    } else {
+      navigateTo("/home");
+      loadComponent(
+        "/static/spa/new_home/new_home.html",
+        "/static/spa/new_home/new_home.css",
+        ["/static/spa/new_home/new_home.js"]
+      ).then(() => {
+        initializeHome();
+      });
     }
   };
 
   window.logout = function () {
-
     fetch("/api/logout/", {
       method: "POST",
       credentials: "include",

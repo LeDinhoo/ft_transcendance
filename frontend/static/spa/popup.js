@@ -1,14 +1,3 @@
-// function showErrorPopup(message) {
-//     const popupModal = document.getElementById("popupModal");
-//     const popupOverlay = document.getElementById("popupOverlay");
-//     const popupTexte = document.querySelector(".popupTexte");
-
-//     popupTexte.innerHTML = message;
-
-//     popupOverlay.style.display = "block";
-//     popupModal.classList.add("active");
-// }
-
 function isLoginPage() {
   return (
     window.location.pathname === "/login-register" ||
@@ -18,22 +7,18 @@ function isLoginPage() {
 
 async function showErrorPopup(message, isAuthenticated) {
   let translations = {};
-  let language = "en"; // Par défaut, utiliser l'anglais
+  let language = "en";
 
   if (localStorage.getItem("preferredLanguage")) {
     language = localStorage.getItem("preferredLanguage");
   }
 
   try {
-    // Si l'utilisateur est authentifié, récupérer la langue via l'API
-    if (!isLoginPage()){
+    if (!isLoginPage()) {
       language = await getLanguageFromAPI();
       await setPreferredLanguage(language);
     }
 
-    //Afficher la langue stocker dans le local storage du navigateur
-
-    // Charger les traductions pour la langue sélectionnée
     const response = await fetch(`/static/languages/${language}.json`);
     if (!response.ok) {
       throw new Error("Failed to load translations");
@@ -41,14 +26,11 @@ async function showErrorPopup(message, isAuthenticated) {
 
     translations = await response.json();
 
-    // Traduire le message
     const translateMessage =
       translations.error && translations.error[message]
         ? translations.error[message]
         : `Translation missing for: ${message}`;
 
-
-    // Afficher le popup
     const popupModal = document.getElementById("popupModal");
     const popupOverlay = document.getElementById("popupOverlay");
     const popupTexte = document.querySelector(".popupTexte");
@@ -57,8 +39,6 @@ async function showErrorPopup(message, isAuthenticated) {
     popupOverlay.style.display = "block";
     popupModal.classList.add("active");
   } catch (error) {
-
-    // Afficher un message par défaut en cas d'erreur critique
     const popupModal = document.getElementById("popupModal");
     const popupOverlay = document.getElementById("popupOverlay");
     const popupTexte = document.querySelector(".popupTexte");
@@ -69,12 +49,11 @@ async function showErrorPopup(message, isAuthenticated) {
   }
 }
 
-// Ferme la popup d'erreur
 function hideErrorPopup() {
   const popupModal = document.getElementById("errorPopup");
 
   if (popupModal) {
-    popupModal.style.display = "none"; // Cache la popup
+    popupModal.style.display = "none";
     popupModal.classList.remove("active");
   }
 }
@@ -86,18 +65,15 @@ function closePopup() {
   popupOverlay.style.display = "none";
 }
 
-// Affiche la popup d'information
 async function showInfoPopup(message) {
   const popupModal = document.getElementById("infoPopup");
 
   let translations = {};
 
   try {
-    // Obtenir la langue de l'API
     const language = await getLanguageFromAPI();
     await setPreferredLanguage(language);
 
-    // Charger les traductions
     const response = await fetch(`/static/languages/${language}.json`);
     if (!response.ok) {
       throw new Error("Failed to load translations");
@@ -105,39 +81,34 @@ async function showInfoPopup(message) {
 
     translations = await response.json();
 
-    // Traduire le message
     const translateMessage =
       translations.info && translations.info[message]
         ? translations.info[message]
         : `Translation missing for: ${message}`;
 
+    if (popupModal) {
+      const messageContainer = popupModal.querySelector(".popupTexte");
+      if (messageContainer) {
+        messageContainer.textContent = translateMessage;
+      }
 
-	if (popupModal) {
-	  const messageContainer = popupModal.querySelector(".popupTexte");
-	  if (messageContainer) {
-		messageContainer.textContent = translateMessage;
-	  }
+      popupModal.style.display = "flex";
+      popupModal.classList.add("active");
 
-	  popupModal.style.display = "flex"; // Rend la popup visible
-	  popupModal.classList.add("active");
-
-	  setTimeout(() => hideInfoPopup(), 3000); // Fermeture automatique après 3 secondes
-	}
-  } catch (error) {
-  }
+      setTimeout(() => hideInfoPopup(), 3000);
+    }
+  } catch (error) {}
 }
 
-// Ferme la popup d'information
 function hideInfoPopup() {
   const popupModal = document.getElementById("infoPopup");
 
   if (popupModal) {
-    popupModal.style.display = "none"; // Cache la popup
+    popupModal.style.display = "none";
     popupModal.classList.remove("active");
   }
 }
 
-// Ajout des gestionnaires d'événements pour fermer les popups
 document.addEventListener("DOMContentLoaded", () => {
   const errorPopupClose = document.querySelector("#errorPopup .popupClose");
   const infoPopupClose = document.querySelector("#infoPopup .popupClose");

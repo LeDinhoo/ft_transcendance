@@ -17,7 +17,7 @@ function initializeSettingsPage() {
     button.addEventListener("click", handleButtonClick);
   });
 
-  // AI Difficulty //////////////////////////////////////////////////////////////////////////////////////
+  
 
   const difficultyButtons = document.querySelectorAll(".difficultyOptionLabel");
 
@@ -36,8 +36,8 @@ function initializeSettingsPage() {
     button.addEventListener("click", handleDifficultyButtonClick);
   });
 
-  // POWERUPS ///////////////////////////////////////////////////////////////////////////////////////////
-  // Sélectionne tous les boutons des power-ups
+  
+  
   const powerupButtons = document.querySelectorAll(".powerupOptionLabel");
 
   function handlePowerupClick(event) {
@@ -57,13 +57,13 @@ function initializeSettingsPage() {
     button.addEventListener("click", handlePowerupClick);
   });
 
-  // BALLSPEEDSTART //////////////////////////////////////////////////////////////////////////////////////
+  
 
   const ballSpeedStartButtons = document.querySelectorAll(
     ".ballSpeedStartOptionLabel"
   );
 
-  // BALLSPEEDMAX ////////////////////////////////////////////////////////////////////////////////////////
+  
 
   const ballSpeedMaxButtons = document.querySelectorAll(
     ".ballSpeedMaxOptionLabel"
@@ -147,7 +147,7 @@ function initializeSettingsPage() {
     button.addEventListener("click", handleBallSpeedMaxButtonClick);
   });
 
-  // BALLSPEEDINCREASE ///////////////////////////////////////////////////////////////////////////////////
+  
 
   const ballSpeedIncreaseButtons = document.querySelectorAll(
     ".ballSpeedIncreaseOptionLabel"
@@ -238,7 +238,7 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((data) => {
-        // Vérifiez la réponse correctement
+        
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
         }
@@ -251,7 +251,7 @@ function initializeSettingsPage() {
   const saveButton = document.getElementById("save-settings");
   saveButton.addEventListener("click", saveGameSettings);
 
-  //GAME SHORTCUTS///////////////////////////////////////////////////////////////////////////////////////
+  
 
   function handleKeyChange(event) {
     const button = event.target;
@@ -273,7 +273,7 @@ function initializeSettingsPage() {
     });
 
     function isSettingsPage() {
-      return window.location.pathname === "/settings"; // Modifier selon l'URL de votre page de paramètres
+      return window.location.pathname === "/settings"; 
     }
 
     function onKeyPress(e) {
@@ -347,7 +347,7 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((data) => {
-        // Vérifiez la réponse correctement
+        
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
         }
@@ -448,10 +448,10 @@ function initializeSettingsPage() {
     const saveButton = document.getElementById("save-settings");
     if (hasChanges) {
       saveButton.style.opacity = "1";
-      saveButton.style.pointerEvents = "auto"; // Permet le clic
+      saveButton.style.pointerEvents = "auto"; 
     } else {
       saveButton.style.opacity = "0";
-      saveButton.style.pointerEvents = "none"; // Désactive le clic
+      saveButton.style.pointerEvents = "none"; 
     }
   }
 
@@ -463,10 +463,10 @@ function initializeSettingsPage() {
     );
     if (hasKeyboardChanges) {
       keyboardSaveButton.style.opacity = "1";
-      keyboardSaveButton.style.pointerEvents = "auto"; // Permet le clic
+      keyboardSaveButton.style.pointerEvents = "auto"; 
     } else {
       keyboardSaveButton.style.opacity = "0";
-      keyboardSaveButton.style.pointerEvents = "none"; // Désactive le clic
+      keyboardSaveButton.style.pointerEvents = "none"; 
     }
   }
 

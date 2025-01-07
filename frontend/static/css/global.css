@@ -363,7 +363,7 @@ body {
   }
 }
 
-/* Animation slide-out */
+
 .slide-out-left {
   animation: slideOutLeft 0.1s ease-in-out forwards;
 }
@@ -378,7 +378,7 @@ body {
   }
 }
 
-/* Animation slide-in */
+
 .slide-in-right {
   animation: slideInRight 0.15s ease-in-out forwards;
 }
@@ -393,7 +393,7 @@ body {
   }
 }
 
-/* Animation slide-out-right */
+
 .slide-out-right {
   animation: slideOutRight 0.1s ease-in-out forwards;
 }
@@ -408,7 +408,7 @@ body {
   }
 }
 
-/* Animation slide-in-left */
+
 .slide-in-left {
   animation: slideInLeft 0.15s ease-in-out forwards;
 }
@@ -423,51 +423,51 @@ body {
   }
 }
 
-/* Info Popup */
+
 #infoPopup {
-  display: none; /* Initially hidden */
+  display: none;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;
-  background-color: var(--dark-grey); /* Solid background */
-  padding: 1.5vw 1vw; /* Same padding as error popup */
-  border-radius: var(--8px); /* Same border-radius */
-  border: 3px solid var(--liquid-lava); /* Orange border */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for effect */
+  background-color: var(--dark-grey);
+  padding: 1.5vw 1vw;
+  border-radius: var(--8px);
+  border: 3px solid var(--liquid-lava);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Info Popup Text */
+
 #infoPopup .popupTexte {
-  color: var(--snow); /* White text */
-  font-size: var(--12px); /* Match the font size */
-  font-weight: 600; /* Bold for visibility */
+  color: var(--snow);
+  font-size: var(--12px);
+  font-weight: 600;
   font-family: "Inter", sans-serif;
   text-align: center;
   margin-bottom: 1vw;
 }
 
-/* Info Popup Close Button */
+
 #infoPopup .popupClose {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--liquid-lava); /* Orange button */
+  background-color: var(--liquid-lava);
   width: 2.5vw;
   height: 1.5vw;
-  border-radius: var(--radius-sm); /* Rounded corners */
-  color: var(--snow); /* White text */
+  border-radius: var(--radius-sm);
+  color: var(--snow);
   font-size: var(--12px);
   font-weight: 600;
   font-family: "Inter", sans-serif;
   cursor: pointer;
-  margin: 0 auto; /* Centered button */
+  margin: 0 auto;
 }
 
 #infoPopup .popupClose:hover {
-  background-color: var(--snow); /* Change color on hover */
-  color: var(--liquid-lava); /* Invert text and background */
+  background-color: var(--snow);
+  color: var(--liquid-lava);
 }
 
 .game-invitation-modal {
@@ -678,7 +678,7 @@ body {
 .timer {
   display: flex;
   justify-content: center;
-  gap: 4px; /* pour un petit espacement entre le texte et le compteur */
+  gap: 4px;
   color: var(--snow);
   margin-top: var(--16px);
   font-size: var(--14px);
