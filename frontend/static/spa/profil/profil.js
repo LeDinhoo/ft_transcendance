@@ -354,7 +354,7 @@ function initializeProfilePage() {
           resetPasswordFields();
 		  setTimeout(() => {
 			window.location.reload();
-		  }, 1500);
+		  }, 10);
         })
         .catch((error) => {
 
@@ -520,7 +520,7 @@ async function verifyTwoFactorCodeForProfile(code) {
       showInfoPopup(data.message);
       setTimeout(() => {
         window.location.reload();
-      }, 1500); // 2 secondes pour voir le message de confirmation
+      }, 10); // 2 secondes pour voir le message de confirmation
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
@@ -723,7 +723,7 @@ function createAvatarGrid() {
   applyButton.addEventListener("click", () => {
     setTimeout(() => {
       window.location.reload();
-    }, 500);
+    }, 10);
   });
 }
 

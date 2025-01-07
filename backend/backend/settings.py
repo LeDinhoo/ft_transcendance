@@ -289,19 +289,42 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG', 
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',  
+#         },
+#     },
+# }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG', 
+            'level': 'INFO',  # Remplacez DEBUG par INFO ou WARNING
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',  
+            'level': 'INFO',  # Changez DEBUG à INFO ou WARNING
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',  # Réduit les logs des erreurs HTTP (ex. 404)
+            'propagate': False,
         },
     },
 }
