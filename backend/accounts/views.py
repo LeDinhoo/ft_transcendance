@@ -329,7 +329,7 @@ def update_profile_view(request):
 
         if 'username' in data:
             new_username = data['username'].strip()
-            logger.debug(f"Tentative mise à jour username: '{new_username}'")
+            logger.debug(f"Tentative mise à jour du username: '{new_username}'")
             
             if not new_username:
                 logger.warning("Username vide reçu")
@@ -392,7 +392,7 @@ def update_profile_view(request):
             try:
                 if avatar.size > 2 * 1024 * 1024: 
                     logger.warning(f"Avatar trop volumineux: {avatar.size} bytes")
-                    return JsonResponse({'error': 'L\'image est trop volumineuse (max 2MB).'}, status=400)
+                    return JsonResponse({'error': 'maxMB'}, status=400)
 
                 mime = magic.Magic(mime=True)
                 file_type = mime.from_buffer(avatar.read())
@@ -403,7 +403,7 @@ def update_profile_view(request):
 
                 if file_type not in allowed_types:
                     logger.warning(f"Type de fichier non autorisé: {file_type}")
-                    return JsonResponse({'error': 'Format de fichier non autorisé. Utilisez JPG ou PNG.'}, status=400)
+                    return JsonResponse({'error': 'wrongFormat'}, status=400)
 
                 try:
                     avatar.seek(0)
@@ -413,15 +413,15 @@ def update_profile_view(request):
                     img = Image.open(avatar)
                     if img.height > 2000 or img.width > 2000:
                         logger.warning(f"Image trop grande: {img.width}x{img.height}")
-                        return JsonResponse({'error': 'Dimensions de l\'image trop grandes (max 2000x2000)'}, status=400)
+                        return JsonResponse({'error': 'wrongDimensionBig'}, status=400)
 
                     if img.height < 100 or img.width < 100:
                         logger.warning(f"Image trop petite: {img.width}x{img.height}")
-                        return JsonResponse({'error': 'Dimensions de l\'image trop petites (min 100x100)'}, status=400)
+                        return JsonResponse({'error': 'wrongDimensionSmall'}, status=400)
 
                 except Exception as e:
                     logger.error(f"Erreur de validation d'image: {str(e)}")
-                    return JsonResponse({'error': 'Fichier image corrompu ou invalide'}, status=400)
+                    return JsonResponse({'error': 'imgCorrupt'}, status=400)
 
                 avatar.seek(0)
 
@@ -431,11 +431,10 @@ def update_profile_view(request):
 
             except Exception as e:
                 logger.error(f"Erreur lors du traitement de l'avatar: {str(e)}")
-                return JsonResponse({'error': 'Erreur lors du traitement de l\'image'}, status=500)
+                return JsonResponse({'error': 'errImg'}, status=500)
 
         elif 'selected_avatar' in data:
             selected_avatar = data['selected_avatar']
-            print("Avatar sélectionné:", selected_avatar) 
             
             expected_prefix = 'assets/avatars/'
             if selected_avatar.startswith(expected_prefix):
@@ -444,20 +443,20 @@ def update_profile_view(request):
             else:
                 
                 return JsonResponse({
-                    'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
+                    'error': 'invalidRoad'
                 }, status=400)
 
         try:
             user.save()  
         except Exception as e:
-            return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+            return JsonResponse({'error': 'profErr'}, status=500)
 
         try:
             user.save()
             logger.debug("Sauvegarde utilisateur réussie")
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde: {str(e)}", exc_info=True)
-            return JsonResponse({'error': 'Erreur lors de la sauvegarde des modifications.'}, status=500)
+            return JsonResponse({'error': 'sauvErr'}, status=500)
 
         avatar_url = None
         if user.avatar:
@@ -483,7 +482,7 @@ def update_profile_view(request):
         logger.error(f"Message d'erreur: {str(e)}")
         logger.error("Détails:", exc_info=True)
         logger.error("====== Fin Erreur Critique ======")
-        return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
+        return JsonResponse({'error': 'profErr'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -507,7 +506,7 @@ def logout_view(request):
 def refresh_token_view(request):
     refresh_token = request.COOKIES.get('refresh_token')
     if not refresh_token:
-        return JsonResponse({'error': 'Refresh token not found in cookies'}, status=403)
+        return JsonResponse({'error': 'tokenNotFound'}, status=403)
 
     try:
         token = RefreshToken(refresh_token)
@@ -525,7 +524,7 @@ def refresh_token_view(request):
 
     except TokenError as e:
         logger.error(f"Invalid refresh token: {e}")
-        return JsonResponse({'error': 'Invalid or expired refresh token'}, status=403)
+        return JsonResponse({'error': 'expToken'}, status=403)
 
 
 
@@ -535,7 +534,7 @@ def auto_refresh_token_view(request):
     refresh_token = request.data.get('refresh')
 
     if not refresh_token:
-        return Response({'error': 'Refresh token is required'}, status=400)
+        return Response({'error': 'tokenReq'}, status=400)
 
     try:
         token = RefreshToken(refresh_token)
@@ -545,7 +544,7 @@ def auto_refresh_token_view(request):
             'access': new_access_token
         }, status=200)
     except Exception as e:
-        return Response({'error': 'Invalid or expired refresh token'}, status=403)
+        return Response({'error': 'expToken'}, status=403)
 
 
 #################################API 42 ####################################################
@@ -855,7 +854,7 @@ class Toggle2FAView(APIView):
                 })
             else:
                 return Response(
-                    {'error': "Erreur lors de l'envoi de l'email"},
+                    {'error': "errMail"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
@@ -871,11 +870,11 @@ class Toggle2FAView(APIView):
                 })
 
             return Response({
-                'error': "2FA n'est pas activé"
+                'error': "2FAnotAc"
             }, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
-            'error': "Action non valide"
+            'error': "invalidAction"
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -918,7 +917,7 @@ class Verify2FAView(APIView):
 
         if not code:
             return Response(
-                {'error': 'Code requis'},
+                {'error': 'codeReq'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -926,7 +925,7 @@ class Verify2FAView(APIView):
         if user.two_factor_code_timestamp and \
            timezone.now() > user.two_factor_code_timestamp + timedelta(minutes=10):
             return Response(
-                {'error': 'Code expiré'},
+                {'error': 'codeExp'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -938,7 +937,7 @@ class Verify2FAView(APIView):
             return Response({'message': 'active2FA'})
 
         return Response(
-            {'error': 'Code invalide'},
+            {'error': 'codeInvalid'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
@@ -1138,7 +1137,7 @@ def record_game(request):
         try:
             data = json.loads(request.body.decode('utf-8'))
         except JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({'error': 'InvalidJSONformat'}, status=400)
 
         try:
             score_user = int(data.get('score_user', None))
@@ -1148,11 +1147,11 @@ def record_game(request):
             max_ball_speed = int(data.get('max_ball_speed', 0))
         except (ValueError, TypeError):
             return JsonResponse({
-                'error': 'Les champs score_user, score_opponent, result, longest_rally, et max_ball_speed doivent contenir des valeurs valides.'
+                'error': 'invalidValue'
             }, status=400)
 
         if score_user is None or score_opponent is None or result is None:
-            return JsonResponse({'error': 'Les champs score_user, score_opponent et result sont obligatoires.'}, status=400)
+            return JsonResponse({'error': 'champsObli'}, status=400)
 
         opponent_user = None
         opponent_id = data.get('opponent_id')
@@ -1161,7 +1160,7 @@ def record_game(request):
             try:
                 opponent_user = CustomUser.objects.get(id=opponent_id)
             except CustomUser.DoesNotExist:
-                return JsonResponse({'error': 'Adversaire introuvable.'}, status=404)
+                return JsonResponse({'error': 'playerNotFound'}, status=404)
 
         user_longest_rally = GameHistory.objects.filter(user=request.user).aggregate(
             Max('longest_rally')
@@ -1184,13 +1183,13 @@ def record_game(request):
             )
         except Exception as e:
             logger.error(f"Erreur lors de la création du jeu : {str(e)}")
-            return JsonResponse({'error': 'Une erreur est survenue lors de l\'enregistrement de la partie.'}, status=500)
+            return JsonResponse({'error': 'errGameEng'}, status=500)
 
         return JsonResponse({'message': 'Partie enregistrée avec succès', 'game_id': game.id})
 
     except Exception as e:
         logger.error(f"Unhandled exception in record_game: {e}")
-        return JsonResponse({'error': 'An error occurred while processing the request'}, status=500)
+        return JsonResponse({'error': 'errReq'}, status=500)
 
 
 
@@ -1393,7 +1392,7 @@ def get_friends(request):
     try:
         if not request.user:
             logger.error("Utilisateur non authentifié")
-            return JsonResponse({'error': 'User not authenticated'}, status=401)
+            return JsonResponse({'error': 'userNotAuth'}, status=401)
 
         friendships = FriendShip.objects.filter(
             Q(from_user=request.user, status='accepted') |
@@ -1428,7 +1427,7 @@ def get_friends(request):
 def get_pending_requests(request):
     try:
         if not request.user.is_active:
-            return JsonResponse({'error': 'User account is disabled'}, status=403)
+            return JsonResponse({'error': 'UserAccDisabled'}, status=403)
 
         try:
             pending = request.user.friend_requests.filter(status='pending').select_related('from_user')
@@ -1505,7 +1504,7 @@ def set_game_settings(request):
         try:
             data = JSONParser().parse(request)
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({'error': 'InvalidJSONformat'}, status=400)
         except Exception as e:
             return JsonResponse({'error': f'Unexpected error parsing JSON: {str(e)}'}, status=400)
 
@@ -1515,53 +1514,53 @@ def set_game_settings(request):
             try:
                 settings.score_to_win = int(data['scoreToWin'])
             except (ValueError, TypeError):
-                return JsonResponse({'error': 'scoreToWin must be an integer'}, status=400)
+                return JsonResponse({'error': 'scoreInt'}, status=400)
 
         if 'difficulty' in data:
             if isinstance(data['difficulty'], str):
                 settings.difficulty = data['difficulty']
             else:
-                return JsonResponse({'error': 'difficulty must be a string'}, status=400)
+                return JsonResponse({'error': 'diffString'}, status=400)
 
         if 'ballSpeedStart' in data:
             try:
                 settings.ball_speed_start = float(data['ballSpeedStart'])
             except (ValueError, TypeError):
-                return JsonResponse({'error': 'ballSpeedStart must be a number'}, status=400)
+                return JsonResponse({'error': 'ballSpeedStart'}, status=400)
 
         if 'ballSpeedMax' in data:
             try:
                 settings.ball_speed_max = float(data['ballSpeedMax'])
             except (ValueError, TypeError):
-                return JsonResponse({'error': 'ballSpeedMax must be a number'}, status=400)
+                return JsonResponse({'error': 'ballSpeedMax'}, status=400)
 
         if 'ballSpeedIncrease' in data:
             try:
                 settings.ball_speed_increase = float(data['ballSpeedIncrease'])
             except (ValueError, TypeError):
-                return JsonResponse({'error': 'ballSpeedIncrease must be a number'}, status=400)
+                return JsonResponse({'error': 'ballSpeedIncreaseNum'}, status=400)
 
         if 'powerups' in data:
             if isinstance(data['powerups'], list):
                 if all(isinstance(item, str) for item in data['powerups']):
                     settings.powerups = data['powerups']
                 else:
-                    return JsonResponse({'error': 'All powerups must be strings'}, status=400)
+                    return JsonResponse({'error': 'powerupsString'}, status=400)
             else:
-                return JsonResponse({'error': 'powerups must be a list'}, status=400)
+                return JsonResponse({'error': 'powerupsList'}, status=400)
 
         if 'keyboardSettings' in data:
             if isinstance(data['keyboardSettings'], dict):
                 settings.keyboard_settings = data['keyboardSettings']
             else:
-                return JsonResponse({'error': 'keyboardSettings must be a dictionary'}, status=400)
+                return JsonResponse({'error': 'keyboardSettingsDick'}, status=400)
 
         settings.save()
-        return JsonResponse({'message': 'Settings updated successfully'}, status=200)
+        return JsonResponse({'message': 'SettingsSuccess'}, status=200)
 
     except Exception as e:
         print(f"Unhandled exception in set_game_settings: {e}")
-        return JsonResponse({'error': 'An error occurred while processing the request'}, status=500)
+        return JsonResponse({'error': 'errReq'}, status=500)
 
 
 
@@ -1673,7 +1672,7 @@ def get_user_profile_stats(request, user_id):
     except CustomUser.DoesNotExist:
         logger.error(f"User {user_id} not found")
         return JsonResponse({
-            'error': f'User {user_id} not found'
+            'error': f'userNotFound'
         }, status=404)
     except Exception as e:
         logger.error(f"Error in get_user_profile_stats: {str(e)}")
@@ -1710,24 +1709,24 @@ def block_user(request):
         try:
             body = json.loads(request.body.decode('utf-8'))
         except json.JSONDecodeError as e:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({'error': 'InvalidJSONformat'}, status=400)
 
         user_id = body.get('user_id')
 
         if not user_id:
-            return JsonResponse({'error': 'User ID is required and cannot be empty'}, status=400)
+            return JsonResponse({'error': 'idEmpty'}, status=400)
 
         try:
             user_id = int(user_id)
         except (ValueError, TypeError) as e:
-            return JsonResponse({'error': 'User ID must be a valid integer'}, status=400)
+            return JsonResponse({'error': 'idInt'}, status=400)
 
         if user_id == request.user.id:
-            return JsonResponse({'error': 'Cannot block yourself'}, status=400)
+            return JsonResponse({'error': 'selfBlock'}, status=400)
 
         user_to_block = CustomUser.objects.filter(id=user_id).first()
         if not user_to_block:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({'error': 'userNotFound'}, status=404)
 
         request.user.blocked_users.add(user_to_block)
 
@@ -1735,7 +1734,7 @@ def block_user(request):
 
     except Exception as e:
         print(f"Unhandled exception: {e}")
-        return JsonResponse({'error': 'Unable to process the request'}, status=500)
+        return JsonResponse({'error': 'errReq'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1744,21 +1743,21 @@ def unblock_user(request):
         try:
             body = json.loads(request.body.decode('utf-8'))
         except json.JSONDecodeError as e:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({'error': 'InvalidJSONformat'}, status=400)
 
         user_id = body.get('user_id')
 
         if not user_id or str(user_id).strip() == "":
-            return JsonResponse({'error': 'User ID is required and cannot be empty'}, status=400)
+            return JsonResponse({'error': 'idEmpty'}, status=400)
 
         try:
             user_id = int(user_id)
         except (ValueError, TypeError):
-            return JsonResponse({'error': 'User ID must be a valid integer'}, status=400)
+            return JsonResponse({'error': 'idInt'}, status=400)
 
         user_to_unblock = CustomUser.objects.filter(id=user_id).first()
         if not user_to_unblock:
-            return JsonResponse({'error': 'User not found'}, status=404)
+            return JsonResponse({'error': 'userNotFound'}, status=404)
 
         request.user.blocked_users.remove(user_to_unblock)
 
@@ -1766,7 +1765,7 @@ def unblock_user(request):
 
     except Exception as e:
         print(f"Unhandled exception: {e}") 
-        return JsonResponse({'error': 'Unable to process the request'}, status=500)
+        return JsonResponse({'error': 'errReq'}, status=500)
 
 
 
@@ -1778,7 +1777,7 @@ def get_preferred_language(request):
         return JsonResponse({'language': language}, status=200)
 
     except Exception as e:
-        return JsonResponse({'error': 'Unable to fetch preferred language'}, status=500)
+        return JsonResponse({'error': 'errFetchLang'}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1787,22 +1786,22 @@ def set_preferred_language(request):
         try:
             body = json.loads(request.body.decode('utf-8'))
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({'error': 'InvalidJSONformat'}, status=400)
 
         language = body.get('language')
 
         valid_languages = dict(request.user.LANGUAGE_CHOICES).keys()
         if not language or language not in valid_languages:
-            return JsonResponse({'error': 'Invalid language choice'}, status=400)
+            return JsonResponse({'error': 'langInvalid'}, status=400)
 
         request.user.preferred_language = language
         request.user.save()
 
         return JsonResponse({
-            'message': 'Language preference updated successfully',
+            'message': 'langSucc',
             'language': language
         }, status=200)
 
     except Exception as e:
         print(f"Unhandled exception: {e}")
-        return JsonResponse({'error': 'Unable to set preferred language'}, status=500)
+        return JsonResponse({'error': 'errSetLang'}, status=500)
