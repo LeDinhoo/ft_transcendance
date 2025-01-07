@@ -23,7 +23,11 @@
     "errorNotSys": "Impossible d'envoyer des messages privés au Système.",
     "error2FA": "Erreur lors de la modification de l'authentification 2FA.",
     "handleFriendRequest": "Une erreur s'est produite lors du traitement de la demande.",
-    "L'ancien mot de passe est incorrect.": "L'ancien mot de passe est incorrect."
+    "L'ancien mot de passe est incorrect.": "L'ancien mot de passe est incorrect.",
+	"inviteSelf": "Vous ne pouvez pas vous inviter à un jeu",
+	"selectGame": "Veuillez d'abord sélectionner un type de jeu",
+	"coInvite": "Impossible d'envoyer l'invitation : erreur de connexion",
+	"notImplemented": "La fonctionnalité de jeu à distance n'est pas encore implémentée. Vous pouvez jouer en 1v1 localement !"
   },
   "info": {
     "friendAccept": "Demande d'ami acceptée.",
@@ -32,7 +36,9 @@
     "friendRequestsSuccess": "Demande d'ami envoyée avec succès.",
     "active2FA": "L'authentification 2FA est activée.",
     "codeEmail": "Code de confirmation envoyé à votre e-mail.",
-    "disabled2FA": "L'authentification 2FA est désactivée."
+    "disabled2FA": "L'authentification 2FA est désactivée.",
+	"inviteSent": "Invitation au jeu envoyée",
+	"inviteDeclined": "Invitation refusée"
   },
   "login": {
     "title": "Rejoignez la Bataille",

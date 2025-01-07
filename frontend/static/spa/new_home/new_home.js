@@ -1212,13 +1212,13 @@ function initializeHome() {
   }
 
   TooltipManager.initializeTooltips();
+  ChatHandler.initialize();
+  wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
   ProfileModal.initialize();
   ContextMenu.initialize();
   GameOptionsManager.initialize();
   OnlineGameModal.initialize();
-  ChatHandler.initialize();
   GameInvitationManager.initialize();
-  wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
   document.addEventListener(
     "friendRequestAccepted",
@@ -1348,14 +1348,14 @@ const GameInvitationManager = {
   sendInvitation(username, userId) {
     // Vérifications préliminaires
     if (username === window.currentUser?.username) {
-      this.showNotification("You cannot invite yourself to a game");
+	  showErrorPopup(inviteSelf);
       return;
     }
 
     // Récupérer le type de jeu sélectionné
     const selectedGame = document.querySelector(".gameOption.option-selected");
     if (!selectedGame) {
-      this.showNotification("Please select a game type first");
+	  showErrorPopup(selectGame);
       return;
     }
     const gameType = selectedGame.textContent.trim();
@@ -1380,7 +1380,7 @@ const GameInvitationManager = {
       !window.wsManager?.chatSocket ||
       window.wsManager.chatSocket.readyState !== WebSocket.OPEN
     ) {
-      this.showNotification("Unable to send invitation: connection error");
+	  showErrorPopup(coInvite);
       return;
     }
 
@@ -1388,7 +1388,7 @@ const GameInvitationManager = {
     window.wsManager.chatSocket.send(JSON.stringify(invitation));
 
     // Notification de confirmation d'envoi
-    this.showNotification(`Game invitation sent to ${username}`);
+	showInfoPopup("inviteSent");
 
     // Ajouter un timeout pour annuler automatiquement l'invitation après 30 secondes
     setTimeout(() => {
@@ -1490,9 +1490,7 @@ const GameInvitationManager = {
 
       // En cas d'acceptation, montrer immédiatement la notification
       if (response === "accept") {
-        this.showNotification(
-          "Remote play feature is not implemented yet. You can play 1v1 locally!"
-        );
+        showErrorPopup("notImplemented");
       }
     } else {
     }

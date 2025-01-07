@@ -30,7 +30,11 @@
 	"mailUsed": "Email address is already used",
 	"tokenInvalid" : "Token is invalid",
 	"InvalidJSON": "Invalid JSON data",
-	"EmailPwdRequired": "Email and password are required"
+	"EmailPwdRequired": "Email and password are required",
+	"inviteSelf": "You cannot invite yourself to a game",
+	"selectGame": "Please select a game type first",
+	"coInvite": "Unable to send invitation: connection error",
+	"notImplemented": "Remote play feature is not implemented yet. You can play 1v1 locally!"
   },
   "info": {
 	"friendAccept": "Friend request accepted",
@@ -39,7 +43,9 @@
 	"friendRequestsSuccess": "Friend request sent successfully",
 	"active2FA": "2FA is activated",
 	"codeEmail": "Confirmation code sent to your e-mail.",
-	"disabled2FA":"2FA is disabled"
+	"disabled2FA":"2FA is disabled",
+	"inviteSent": "Game invitation has been sent",
+	"inviteDeclined": "Invitation declined"
   },
   "navBar": {
     "home": "home",

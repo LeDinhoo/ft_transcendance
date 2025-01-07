@@ -352,9 +352,9 @@ function initializeProfilePage() {
           emailInput.disabled = true;
           cloneModifyButton.style.backgroundColor = "";
           resetPasswordFields();
-		  setTimeout(() => {
-			window.location.reload();
-		  }, 1500);
+		//   setTimeout(() => {
+		// 	window.location.reload();
+		//   }, 1500);
         })
         .catch((error) => {
 

@@ -1,257 +1,263 @@
 {
-  "error": {
-    "passwordsMissmatch": "Lösenorden matchar inte.",
-    "typeOldPassword": "Ange ditt gamla lösenord.",
-    "spaceBarError": "Mellanslag är inte tillåtet i inställningarna.",
-    "invalidLogin": "Ogiltiga inloggningsuppgifter.",
-    "errorTryAgainLater": "Ett fel inträffade. Försök igen senare.",
-    "automaticLoginFailed": "Automatisk inloggning misslyckades. Logga in manuellt.",
-    "errorOccurred": "Ett fel inträffade. Försök igen.",
-    "missingUpperCase": "Lösenordet måste innehålla minst en versal.",
-    "missingLowerCase": "Lösenordet måste innehålla minst en gemen.",
-    "missingDigit": "Lösenordet måste innehålla minst en siffra.",
-    "missingSpecial": "Lösenordet måste innehålla minst ett specialtecken.",
-    "helpText": "Lösenordet måste innehålla minst: <br>- en versal <br>- en gemen <br>- en siffra <br>- ett specialtecken: @$!%*?& <br>- minst 8 tecken.",
-    "invalidMail": "Ogiltig e-postadress.",
-    "usernameTooLong": "Användarnamnet är över 15 tecken.",
-    "usernameRequired": "Användarnamn är obligatoriskt.",
-    "idNotFound": "Det går inte att skicka vänförfrågan: Användar-ID hittades inte.",
-    "notYourself": "Du kan inte skicka en vänförfrågan till dig själv.",
-    "errorServ": "Fel vid bearbetning av serverresponsen.",
-    "errorFriendRequest": "Fel vid skickande av vänförfrågan.",
-    "errorBlock": "Fel vid uppdatering av blockstatus.",
-    "errorNotSys": "Det går inte att skicka privata meddelanden till System.",
-    "error2FA": "Fel vid växling av 2FA.",
-    "handleFriendRequest": "Ett fel inträffade vid hantering av förfrågan.",
-    "L'ancien mot de passe est incorrect.": "Det gamla lösenordet är felaktigt."
-  },
-  "info": {
-    "friendAccept": "Vänförfrågan accepterad.",
-    "friendReject": "Vänförfrågan avvisad.",
-    "friendPending": "En vänförfrågan väntar redan.",
-    "friendRequestsSuccess": "Vänförfrågan skickades framgångsrikt.",
-    "active2FA": "2FA är aktiverad.",
-    "codeEmail": "Bekräftelsekod skickades till din e-post.",
-    "disabled2FA": "2FA är inaktiverad."
-  },
-  "navBar": {
-    "home": "Hem",
-    "logout": "Logga ut",
-    "profile": "Profil",
-    "settings": "Inställningar",
-    "tournament": "Turnering"
-  },
-  "login": {
-    "title": "Gå med i Striden",
-    "emailLabel": "E-post",
-    "passwordLabel": "Lösenord",
-    "submitButton": "Logga In",
-    "registerButton": "Registrera",
-    "emailError": "Ogiltig e-postadress.",
-    "passwordError": "Lösenord får inte vara tomt."
-  },
-  "register": {
-    "title": "Skapa Konto",
-    "usernameLabel": "Användarnamn",
-    "emailLabel": "E-post",
-    "passwordLabel": "Lösenord",
-    "confirmPasswordLabel": "Bekräfta lösenord",
-    "submitButton": "Registrera",
-    "signUpButton": "Registrera"
-  },
-  "newhome": {
-    "nickname": "Smeknamn",
-    "rankText": "Rang",
-    "onlinePlayers": "Spelare Online",
-    "gameTitle": "SPEL",
-    "classicPong": "KLASSISK PONG",
-    "powerPong": "ANPASSAD PONG",
-    "modeTitle": "LÄGE",
-    "1vs1": "1 MOT 1",
-    "againstAI": "MOT AI",
-    "tournament": "TURNERING",
-    "chatTitle": "Livechatt",
-    "messagePlaceholder": "Meddelande",
-    "play": "SPELA",
-    "close": "Stäng",
-    "profileNickname": "Profilens Smeknamn",
-    "profileRankText": "Profilens Rang",
-    "gamesPlayed": "Spelade Matcher",
-    "winRate": "Vinstprocent",
-    "longestRally": "Längsta Rally",
-    "topSpeed": "Högsta Hastighet",
-    "recentGames": "Senaste Matcher",
-    "bronze": "Brons",
-    "silver": "Silver",
-    "gold": "Guld",
-    "platine": "Platina",
-    "avatarTooltip": "Avatar Tipsruta",
-    "tooltipTitle": "Profil",
-    "tooltipContent": "Du kan klicka på profilsektionen i navigationsfältet för att uppdatera din information",
-    "rankTooltip": "Rankning Tipsruta",
-    "rankTooltipTitle": "Rankningssystem",
-    "rankBronze": "Brons: 0-33% Vinstprocent",
-    "rankSilver": "Silver: 33-66% Vinstprocent",
-    "rankGold": "Guld: 66-100% Vinstprocent",
-    "menuProfile": "Visa profil",
-    "unblockUser": "Avblockera användare",
-    "blockUser": "Blockera användare",
-    "addFriend": "Lägg till vän",
-    "sendInvitation": "Skicka onlineinbjudan",
-    "privateMessage": "Privat meddelande"
-  },
-  "twoStepVerification": {
-    "title": "Tvåstegsverifiering",
-    "codeSent": "En kod har skickats till din e-postadress",
-    "timer": "Koden gäller i:",
-    "verifyButton": "Verifiera",
-    "errorMessage": "Ett fel uppstod. Försök igen."
-  },
-  "profil": {
-    "nickname": "Smeknamn",
-    "rank": "Rang",
-    "upload": "Ladda Upp",
-    "avatar": "Avatar",
-    "chooseAvatar": "Välj din avatar",
-    "cancel": "Avbryt",
-    "apply": "Tillämpa",
-    "enable2FA": "Aktivera 2FA",
-    "verificationCode": "Verifieringskod",
-    "confirm": "Bekräfta",
-    "accountSettings": "Kontoinställningar",
-    "username": "Användarnamn",
-    "email": "E-post",
-    "password": "Lösenord",
-    "newPassword": "Nytt lösenord",
-    "confirmNewPassword": "Bekräfta nytt lösenord",
-    "modify": "Ändra",
-    "modifyButton": "Ändra",
-    "saveButton": "Spara Ändringar",
-    "friendRequests": "Vänförfrågningar",
-    "matchHistory": "Matchhistorik",
-    "gamesPlayed": "Spelade Matcher",
-    "winRatio": "Vinstförhållande",
-    "longestRally": "Längsta Rally",
-    "topSpeed": "Högsta Hastighet",
-    "victory": "SEGER",
-    "defeat": "FÖRLUST",
-    "bronze": "Brons",
-    "silver": "Silver",
-    "gold": "Guld",
-    "platine": "Platina",
-    "noFriendRequest": "Inga vänförfrågningar",
-    "friendAccept": "Acceptera",
-    "friendReject": "Avböja",
-    "noRecentGames": "Inga senaste spel"
-  },
-  "settings": {
-    "title": {
-      "game": "Spel",
-      "shortcut": "Genväg"
-    },
-    "label": {
-      "scoreToWin": "Poäng för att vinna",
-      "aiDifficulty": "AI Svårighetsgrad",
-      "powerEnabled": "Förmåga aktiverad",
-      "ballSpeedStart": "Startfart för boll",
-      "ballSpeedMax": "Maxfart för boll",
-      "speedIncrease": "Hastighetsökning",
-      "moveUp": "Flytta upp",
-      "moveDown": "Flytta ner",
-      "launchPower": "Aktivera förmåga"
-    },
-    "scoreOption": {
-      "2": "2",
-      "3": "3",
-      "5": "5",
-      "11": "11",
-      "21": "21"
-    },
-    "difficulty": {
-      "easy": "LÄTT",
-      "medium": "MEDELSVÅRT",
-      "hard": "SVÅRT"
-    },
-    "powerup": {
-      "flash": "BLIXT",
-      "inverse": "OMVÄND",
-      "tornado": "TORNADO"
-    },
-    "ballSpeedStart": {
-      "1": "1",
-      "3": "3",
-      "5": "5",
-      "10": "10",
-      "20": "20"
-    },
-    "ballSpeedMax": {
-      "5": "5",
-      "10": "10",
-      "15": "15",
-      "25": "25",
-      "30": "30"
-    },
-    "speedIncrease": {
-      "0.5": "0.5",
-      "1": "1",
-      "2": "2",
-      "3": "3"
-    },
-    "saveButton": "SPARA",
-    "saveKeyboardButton": "SPARA",
-    "playerTitle": {
-      "player1": "Spelare 1",
-      "player2": "Spelare 2"
-    },
-    "key": {
-      "moveUp": "Flytta upp",
-      "moveDown": "Flytta ner",
-      "launchPower": "Aktivera förmåga"
-    }
-  },
-  "tournament": {
-    "match": {
-      "number": "Matchnummer"
-    },
-    "player": {
-      "nickname": "Smeknamn"
-    },
-    "score": "Poäng",
-    "players4": "4 Spelare",
-    "players8": "8 Spelare",
-    "playButton": "SPELA",
-    "resetButton": "ÅTERSTÄLL TURNERING",
-    "config": {
-      "title": "Turneringsinställningar"
-    },
-    "input": {
-      "placeholder": "Ange ett smeknamn"
-    },
-    "bot": {
-      "label": "Bot",
-      "name": "Bot Spelare {0}"
-    },
-    "startButton": "STARTA",
-    "complete": "Turnering Slutförd",
-    "winAnnouncement": "VANN MATCHEN",
-    "winner": {
-      "name": "Vinnarens Namn"
-    },
-    "victory": {
-      "score": "Segerscore"
-    },
-    "launchMatch": "STARTA MATCH",
-    "launchFinal": "STARTA FINAL",
-    "launchSemiFinal": "STARTA SEMIFINAL",
-    "nextMatch": "NÄSTA MATCH",
-    "botMatch": "SIMULERA BOT MATCH",
-    "champion": {
-      "title": "TURNERINGSVINNARE",
-      "name": "Vinnarens Namn"
-    },
-    "final": {
-      "score": "Finalscore"
-    },
-    "finishTournament": "AVSLUTA TURNERING"
-  }
+	"error": {
+		"passwordsMissmatch": "Lösenorden matchar inte.",
+		"typeOldPassword": "Ange ditt gamla lösenord.",
+		"spaceBarError": "Mellanslag är inte tillåtet i inställningarna.",
+		"invalidLogin": "Ogiltiga inloggningsuppgifter.",
+		"errorTryAgainLater": "Ett fel inträffade. Försök igen senare.",
+		"automaticLoginFailed": "Automatisk inloggning misslyckades. Logga in manuellt.",
+		"errorOccurred": "Ett fel inträffade. Försök igen.",
+		"missingUpperCase": "Lösenordet måste innehålla minst en versal.",
+		"missingLowerCase": "Lösenordet måste innehålla minst en gemen.",
+		"missingDigit": "Lösenordet måste innehålla minst en siffra.",
+		"missingSpecial": "Lösenordet måste innehålla minst ett specialtecken.",
+		"helpText": "Lösenordet måste innehålla minst: <br>- en versal <br>- en gemen <br>- en siffra <br>- ett specialtecken: @$!%*?& <br>- minst 8 tecken.",
+		"invalidMail": "Ogiltig e-postadress.",
+		"usernameTooLong": "Användarnamnet är över 15 tecken.",
+		"usernameRequired": "Användarnamn är obligatoriskt.",
+		"idNotFound": "Det går inte att skicka vänförfrågan: Användar-ID hittades inte.",
+		"notYourself": "Du kan inte skicka en vänförfrågan till dig själv.",
+		"errorServ": "Fel vid bearbetning av serverresponsen.",
+		"errorFriendRequest": "Fel vid skickande av vänförfrågan.",
+		"errorBlock": "Fel vid uppdatering av blockstatus.",
+		"errorNotSys": "Det går inte att skicka privata meddelanden till System.",
+		"error2FA": "Fel vid växling av 2FA.",
+		"handleFriendRequest": "Ett fel inträffade vid hantering av förfrågan.",
+		"L'ancien mot de passe est incorrect.": "Det gamla lösenordet är felaktigt.",
+		"inviteSelf": "Du kan inte bjuda in dig själv till ett spel",
+		"selectGame": "Vänligen välj en speltyp först",
+		"coInvite": "Det gick inte att skicka inbjudan: anslutningsfel",
+		"notImplemented": "Funktionen för fjärrspel är ännu inte implementerad. Du kan spela 1v1 lokalt!"
+	},
+	"info": {
+		"friendAccept": "Vänförfrågan accepterad.",
+		"friendReject": "Vänförfrågan avvisad.",
+		"friendPending": "En vänförfrågan väntar redan.",
+		"friendRequestsSuccess": "Vänförfrågan skickades framgångsrikt.",
+		"active2FA": "2FA är aktiverad.",
+		"codeEmail": "Bekräftelsekod skickades till din e-post.",
+		"disabled2FA": "2FA är inaktiverad.",
+		"inviteSent": "Spelinbjudan har skickats",
+		"inviteDeclined": "Inbjudan avböjd"
+	},
+	"navBar": {
+		"home": "Hem",
+		"logout": "Logga ut",
+		"profile": "Profil",
+		"settings": "Inställningar",
+		"tournament": "Turnering"
+	},
+	"login": {
+		"title": "Gå med i Striden",
+		"emailLabel": "E-post",
+		"passwordLabel": "Lösenord",
+		"submitButton": "Logga In",
+		"registerButton": "Registrera",
+		"emailError": "Ogiltig e-postadress.",
+		"passwordError": "Lösenord får inte vara tomt."
+	},
+	"register": {
+		"title": "Skapa Konto",
+		"usernameLabel": "Användarnamn",
+		"emailLabel": "E-post",
+		"passwordLabel": "Lösenord",
+		"confirmPasswordLabel": "Bekräfta lösenord",
+		"submitButton": "Registrera",
+		"signUpButton": "Registrera"
+	},
+	"newhome": {
+		"nickname": "Smeknamn",
+		"rankText": "Rang",
+		"onlinePlayers": "Spelare Online",
+		"gameTitle": "SPEL",
+		"classicPong": "KLASSISK PONG",
+		"powerPong": "ANPASSAD PONG",
+		"modeTitle": "LÄGE",
+		"1vs1": "1 MOT 1",
+		"againstAI": "MOT AI",
+		"tournament": "TURNERING",
+		"chatTitle": "Livechatt",
+		"messagePlaceholder": "Meddelande",
+		"play": "SPELA",
+		"close": "Stäng",
+		"profileNickname": "Profilens Smeknamn",
+		"profileRankText": "Profilens Rang",
+		"gamesPlayed": "Spelade Matcher",
+		"winRate": "Vinstprocent",
+		"longestRally": "Längsta Rally",
+		"topSpeed": "Högsta Hastighet",
+		"recentGames": "Senaste Matcher",
+		"bronze": "Brons",
+		"silver": "Silver",
+		"gold": "Guld",
+		"platine": "Platina",
+		"avatarTooltip": "Avatar Tipsruta",
+		"tooltipTitle": "Profil",
+		"tooltipContent": "Du kan klicka på profilsektionen i navigationsfältet för att uppdatera din information",
+		"rankTooltip": "Rankning Tipsruta",
+		"rankTooltipTitle": "Rankningssystem",
+		"rankBronze": "Brons: 0-33% Vinstprocent",
+		"rankSilver": "Silver: 33-66% Vinstprocent",
+		"rankGold": "Guld: 66-100% Vinstprocent",
+		"menuProfile": "Visa profil",
+		"unblockUser": "Avblockera användare",
+		"blockUser": "Blockera användare",
+		"addFriend": "Lägg till vän",
+		"sendInvitation": "Skicka onlineinbjudan",
+		"privateMessage": "Privat meddelande"
+	},
+	"twoStepVerification": {
+		"title": "Tvåstegsverifiering",
+		"codeSent": "En kod har skickats till din e-postadress",
+		"timer": "Koden gäller i:",
+		"verifyButton": "Verifiera",
+		"errorMessage": "Ett fel uppstod. Försök igen."
+	},
+	"profil": {
+		"nickname": "Smeknamn",
+		"rank": "Rang",
+		"upload": "Ladda Upp",
+		"avatar": "Avatar",
+		"chooseAvatar": "Välj din avatar",
+		"cancel": "Avbryt",
+		"apply": "Tillämpa",
+		"enable2FA": "Aktivera 2FA",
+		"verificationCode": "Verifieringskod",
+		"confirm": "Bekräfta",
+		"accountSettings": "Kontoinställningar",
+		"username": "Användarnamn",
+		"email": "E-post",
+		"password": "Lösenord",
+		"newPassword": "Nytt lösenord",
+		"confirmNewPassword": "Bekräfta nytt lösenord",
+		"modify": "Ändra",
+		"modifyButton": "Ändra",
+		"saveButton": "Spara Ändringar",
+		"friendRequests": "Vänförfrågningar",
+		"matchHistory": "Matchhistorik",
+		"gamesPlayed": "Spelade Matcher",
+		"winRatio": "Vinstförhållande",
+		"longestRally": "Längsta Rally",
+		"topSpeed": "Högsta Hastighet",
+		"victory": "SEGER",
+		"defeat": "FÖRLUST",
+		"bronze": "Brons",
+		"silver": "Silver",
+		"gold": "Guld",
+		"platine": "Platina",
+		"noFriendRequest": "Inga vänförfrågningar",
+		"friendAccept": "Acceptera",
+		"friendReject": "Avböja",
+		"noRecentGames": "Inga senaste spel"
+	},
+	"settings": {
+		"title": {
+			"game": "Spel",
+			"shortcut": "Genväg"
+		},
+		"label": {
+			"scoreToWin": "Poäng för att vinna",
+			"aiDifficulty": "AI Svårighetsgrad",
+			"powerEnabled": "Förmåga aktiverad",
+			"ballSpeedStart": "Startfart för boll",
+			"ballSpeedMax": "Maxfart för boll",
+			"speedIncrease": "Hastighetsökning",
+			"moveUp": "Flytta upp",
+			"moveDown": "Flytta ner",
+			"launchPower": "Aktivera förmåga"
+		},
+		"scoreOption": {
+			"2": "2",
+			"3": "3",
+			"5": "5",
+			"11": "11",
+			"21": "21"
+		},
+		"difficulty": {
+			"easy": "LÄTT",
+			"medium": "MEDELSVÅRT",
+			"hard": "SVÅRT"
+		},
+		"powerup": {
+			"flash": "BLIXT",
+			"inverse": "OMVÄND",
+			"tornado": "TORNADO"
+		},
+		"ballSpeedStart": {
+			"1": "1",
+			"3": "3",
+			"5": "5",
+			"10": "10",
+			"20": "20"
+		},
+		"ballSpeedMax": {
+			"5": "5",
+			"10": "10",
+			"15": "15",
+			"25": "25",
+			"30": "30"
+		},
+		"speedIncrease": {
+			"0.5": "0.5",
+			"1": "1",
+			"2": "2",
+			"3": "3"
+		},
+		"saveButton": "SPARA",
+		"saveKeyboardButton": "SPARA",
+		"playerTitle": {
+			"player1": "Spelare 1",
+			"player2": "Spelare 2"
+		},
+		"key": {
+			"moveUp": "Flytta upp",
+			"moveDown": "Flytta ner",
+			"launchPower": "Aktivera förmåga"
+		}
+	},
+	"tournament": {
+		"match": {
+			"number": "Matchnummer"
+		},
+		"player": {
+			"nickname": "Smeknamn"
+		},
+		"score": "Poäng",
+		"players4": "4 Spelare",
+		"players8": "8 Spelare",
+		"playButton": "SPELA",
+		"resetButton": "ÅTERSTÄLL TURNERING",
+		"config": {
+			"title": "Turneringsinställningar"
+		},
+		"input": {
+			"placeholder": "Ange ett smeknamn"
+		},
+		"bot": {
+			"label": "Bot",
+			"name": "Bot Spelare {0}"
+		},
+		"startButton": "STARTA",
+		"complete": "Turnering Slutförd",
+		"winAnnouncement": "VANN MATCHEN",
+		"winner": {
+			"name": "Vinnarens Namn"
+		},
+		"victory": {
+			"score": "Segerscore"
+		},
+		"launchMatch": "STARTA MATCH",
+		"launchFinal": "STARTA FINAL",
+		"launchSemiFinal": "STARTA SEMIFINAL",
+		"nextMatch": "NÄSTA MATCH",
+		"botMatch": "SIMULERA BOT MATCH",
+		"champion": {
+			"title": "TURNERINGSVINNARE",
+			"name": "Vinnarens Namn"
+		},
+		"final": {
+			"score": "Finalscore"
+		},
+		"finishTournament": "AVSLUTA TURNERING"
+	}
 }
