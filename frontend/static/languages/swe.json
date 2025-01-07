@@ -40,6 +40,14 @@
 		"inviteSent": "Spelinbjudan har skickats",
 		"inviteDeclined": "Inbjudan avböjd"
 	},
+	"invite": {
+		"title": "Spelinbjudan",
+		"setting": "Spelinställningar",
+		"gameType": "Speltyp:",
+		"mode": "Läge: 1 VS 1",
+		"decline": "Avböj",
+		"accept": "Acceptera"
+	},	
 	"navBar": {
 		"home": "Hem",
 		"logout": "Logga ut",

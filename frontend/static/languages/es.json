@@ -24,21 +24,29 @@
     "error2FA": "Error al cambiar la autenticación 2FA.",
     "handleFriendRequest": "Ocurrió un error al procesar la solicitud.",
     "L'ancien mot de passe est incorrect.": "La antigua contraseña es incorrecta.",
-	"inviteSent": "Invitación al juego enviada",
-	"inviteDeclined": "Invitación rechazada"
-  },
-  "info": {
-    "friendAccept": "Solicitud de amistad aceptada.",
+	"inviteSelf": "No puedes invitarte a ti mismo a un juego",
+	"selectGame": "Por favor, selecciona primero un tipo de juego",
+	"coInvite": "No se pudo enviar la invitación: error de conexión",
+	"notImplemented": "La función de juego remoto aún no está implementada. ¡Puedes jugar 1v1 localmente!"
+},
+"info": {
+	"friendAccept": "Solicitud de amistad aceptada.",
     "friendReject": "Solicitud de amistad rechazada.",
     "friendPending": "Ya hay una solicitud de amistad pendiente.",
     "friendRequestsSuccess": "Solicitud de amistad enviada con éxito.",
     "active2FA": "2FA está activado.",
     "codeEmail": "Código de confirmación enviado a su correo electrónico.",
     "disabled2FA": "2FA está desactivado.",
-	"inviteSelf": "No puedes invitarte a ti mismo a un juego",
-	"selectGame": "Por favor, selecciona primero un tipo de juego",
-	"coInvite": "No se pudo enviar la invitación: error de conexión",
-	"notImplemented": "La función de juego remoto aún no está implementada. ¡Puedes jugar 1v1 localmente!"
+	"inviteSent": "Invitación al juego enviada",
+	"inviteDeclined": "Invitación rechazada"
+  },
+  "invite": {
+	"title": "Invitación al juego",
+	"setting": "Configuración del juego",
+	"gameType": "Tipo de juego:",
+	"mode": "Modo: 1 VS 1",
+	"decline": "Rechazar",
+	"accept": "Aceptar"
   },
   "navBar": {
     "home": "Inicio",

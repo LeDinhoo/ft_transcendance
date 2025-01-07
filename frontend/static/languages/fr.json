@@ -40,6 +40,14 @@
 	"inviteSent": "Invitation au jeu envoyée",
 	"inviteDeclined": "Invitation refusée"
   },
+  "invite": {
+	"title": "Invitation au jeu",
+	"setting": "Paramètres du jeu",
+	"gameType": "Type de jeu :",
+	"mode": "Mode : 1 VS 1",
+	"decline": "Refuser",
+	"accept": "Accepter"
+  },
   "login": {
     "title": "Rejoignez la Bataille",
     "emailLabel": "E-mail",

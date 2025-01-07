@@ -47,6 +47,14 @@
 	"inviteSent": "Game invitation has been sent",
 	"inviteDeclined": "Invitation declined"
   },
+  "invite": {
+	"title": "Game Invitation",
+	"setting": "Game Settings",
+	"gameType": "Game type:",
+	"mode": "Mode: 1 VS 1",
+	"decline": "Decline",
+	"accept": "Accept"
+  },
   "navBar": {
     "home": "home",
     "logout": "Log out",
