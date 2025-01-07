@@ -96,15 +96,11 @@ const wsManager = {
 		
 		if (data.response === "accept") {
 			if (data.sender.id === window.currentUser?.id || data.receiverId === window.currentUser?.id) {
-				window.GameInvitationManager?.showNotification(
-					"Remote play feature is not implemented yet. You can play 1v1 locally!"
-				);
+				showErrorPopup("notImplemented");
 			}
 		} else if (data.response === "decline") {
 			if (data.sender.id === window.currentUser?.id) {
-				window.GameInvitationManager?.showNotification(
-					`${data.receiver} declined your game invitation.`
-				);
+				showInfoPopup("inviteDeclined");
 			}
 		}
 	},

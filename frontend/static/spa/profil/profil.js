@@ -348,9 +348,9 @@ function initializeProfilePage() {
           emailInput.disabled = true;
           cloneModifyButton.style.backgroundColor = "";
           resetPasswordFields();
-          setTimeout(() => {
-            window.location.reload();
-          }, 10);
+        //  setTimeout(() => {
+            //window.location.reload();
+        //   }, 10);
         })
         .catch((error) => {
           showErrorPopup(
@@ -511,7 +511,7 @@ async function verifyTwoFactorCodeForProfile(code) {
       showInfoPopup(data.message);
       setTimeout(() => {
         window.location.reload();
-      }, 10); 
+      }, 10);
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
