@@ -46,21 +46,11 @@ export class KeyboardManager {
         this.keys[key] = false;
     }
 
-    /**
-     * Vérifie si une touche est pressée
-     * @param {string} key - La touche à vérifier
-     * @returns {boolean} - `true` si la touche est pressée, `false` sinon
-     */
     isPressed(key) {
         key = key.toLowerCase();
         return !!this.keys[key]; 
     }
 
-    /**
-     * Associe un callback à une touche
-     * @param {string} key - La touche à écouter
-     * @param {function} callback - La fonction à exécuter lorsque la touche est pressée
-     */
     onKey(key, callback) {
         key = key.toLowerCase();
 
@@ -72,10 +62,6 @@ export class KeyboardManager {
         this.callbacks.set(key, callback);
     }
 
-    /**
-     * Associe un callback spécifique pour la touche espace
-     * @param {function} callback - La fonction à exécuter lorsque la touche espace est pressée
-     */
     onSpace(callback) {
         this.onSpacePress = callback;
     }

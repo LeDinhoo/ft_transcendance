@@ -56,10 +56,6 @@ export class ReductShot {
           resolve(this.cube);
         })
         .catch((error) => {
-          console.error(
-            "Erreur de chargement du modèle depuis le cache",
-            error
-          );
           reject(error);
         });
     });
@@ -157,12 +153,10 @@ export class ReductShot {
         cube.position.x -= speed;
       }
 
-      
       cube.position.z =
         startTornadoPosition +
         Math.sin(cube.position.x * this.frequency + this.phaseOffset) *
           amplitude;
-
 
       cube.rotation.y += 0.25;
       return true;

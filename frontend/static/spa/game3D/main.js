@@ -290,7 +290,6 @@ keyboard.onSpace(() => {
     const scoreOpponent = scoreSystem.score.player2;
     const result = scoreUser > scoreOpponent;
 
-    // const longestRally = scoreSystem.getLongestRally();
     const longestRally = scoreSystem.getMaxLongestRally();
 
 

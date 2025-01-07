@@ -55,8 +55,7 @@ async function updateProfilOnProfil() {
         });
       }
     })
-    .catch((error) => {
-    });
+    .catch((error) => {});
 }
 
 function resetPasswordFields() {
@@ -203,7 +202,6 @@ function loadUserStatistics() {
   })
     .then((response) => response.json())
     .then((data) => {
-
       document.getElementById("total_games").innerText = data.total_games;
       document.getElementById("win_ratio").innerText =
         data.win_ratio.toFixed(2) + "%";
@@ -211,8 +209,7 @@ function loadUserStatistics() {
         data.max_ball_speed.toFixed(2);
       document.getElementById("longest_rally").innerText = data.longest_rally;
     })
-    .catch((error) => {
-    });
+    .catch((error) => {});
 }
 
 function initializeProfilePage() {
@@ -268,7 +265,6 @@ function initializeProfilePage() {
         .then(async (response) => {
           const data = await response.json();
           if (!response.ok) {
-            // On récupère le message d'erreur du backend
             throw new Error(data.error);
           }
           return data;
@@ -352,12 +348,11 @@ function initializeProfilePage() {
           emailInput.disabled = true;
           cloneModifyButton.style.backgroundColor = "";
           resetPasswordFields();
-		  setTimeout(() => {
-			window.location.reload();
-		  }, 10);
+          setTimeout(() => {
+            window.location.reload();
+          }, 10);
         })
         .catch((error) => {
-
           showErrorPopup(
             error.message || "Une erreur est survenue lors de la mise à jour"
           );
@@ -388,7 +383,6 @@ function initializeProfilePage() {
           updateUI2FAStatus(data.is_2fa_enabled);
         }
 
-        // Mise à jour du rank
         if (data.rank) {
           document.getElementById(
             "profileRankIcon"
@@ -399,8 +393,7 @@ function initializeProfilePage() {
         avatarDisplay.src = data.avatar || "/static/assets/avatars/buffalo.png";
       }
     })
-    .catch((error) => {
-    });
+    .catch((error) => {});
 
   loadMatchHistory();
   loadUserStatistics();
@@ -443,13 +436,11 @@ function showTwoFactorPopup() {
 
   document.body.appendChild(popup);
 
-  // Ajouter l'événement de fermeture
   const closeButton = popup.querySelector(".close-2fa-popup");
   closeButton.addEventListener("click", () => {
     popup.remove();
   });
 
-  //mettre à jour les traductions
   language = getLanguageFromAPI();
   language.then((value) => {
     setPreferredLanguage(value);
@@ -520,7 +511,7 @@ async function verifyTwoFactorCodeForProfile(code) {
       showInfoPopup(data.message);
       setTimeout(() => {
         window.location.reload();
-      }, 10); // 2 secondes pour voir le message de confirmation
+      }, 10); 
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
@@ -563,9 +554,6 @@ https: function updateUI2FAStatus(enabled) {
   const verificationFrame = document.getElementById("2faVerificationFrame");
 
   if (!toggle2FAButton || !verificationFrame) {
-    console.error(
-      "Éléments pour la mise à jour de l'interface 2FA introuvables."
-    );
     return;
   }
 
@@ -578,12 +566,9 @@ https: function updateUI2FAStatus(enabled) {
 `;
 
   verificationFrame.style.display = "none";
-
-
 }
 
 function initialize2FA() {
-
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
   let is2FAEnabled = false;
@@ -607,8 +592,7 @@ function initialize2FA() {
         updateUI2FAStatus(is2FAEnabled);
       }
     })
-    .catch((error) => {
-    });
+    .catch((error) => {});
 
   const cloneToggle2FAButton = toggle2FAButton.cloneNode(true);
   toggle2FAButton.parentNode.replaceChild(
@@ -719,7 +703,6 @@ function createAvatarGrid() {
     avatarGrid.appendChild(rowDiv);
   }
 
-  // Ajouter l'événement sur le bouton Apply
   applyButton.addEventListener("click", () => {
     setTimeout(() => {
       window.location.reload();
@@ -757,7 +740,6 @@ function initializeAvatarFeature() {
             return data;
           })
           .then((data) => {
-
             const avatarElements = document.querySelectorAll(".avatarImg");
             avatarElements.forEach((element) => {
               element.src = data.avatar;
@@ -767,7 +749,7 @@ function initializeAvatarFeature() {
             if (avatarDisplay) {
               avatarDisplay.src = data.avatar;
             }
-
+            wsManager.updateOnlinePlayersList(user);
             closeModal();
           })
           .catch((error) => {
@@ -789,9 +771,6 @@ function initializeAvatarFeature() {
       if (previousSelected) {
         previousSelected.classList.remove("selected");
       }
-
-      selectedAvatar = null;
-      tempSelectedSrc = null;
 
       if (applyButton) {
         applyButton.disabled = true;
@@ -872,7 +851,6 @@ async function handleFriendRequest(requestId, action) {
     });
 
     if (response.ok) {
-      // Trouver et supprimer l'élément de la demande d'ami
       const requestElement = document.querySelector(
         `.friendRequest[data-request-id="${requestId}"]`
       );
@@ -880,7 +858,6 @@ async function handleFriendRequest(requestId, action) {
         requestElement.remove();
       }
 
-      // Si c'est une acceptation, mettre à jour la liste des joueurs en ligne
       if (action === "accept") {
         if (window.wsManager && window.wsManager.onlinePlayers) {
           await window.wsManager.updateOnlinePlayersList([
@@ -892,7 +869,6 @@ async function handleFriendRequest(requestId, action) {
         showInfoPopup("friendReject");
       }
 
-      // Vérifier s'il reste des demandes d'ami
       const requestsList = document.getElementById("friendRequestsList");
       if (requestsList && !requestsList.children.length) {
         requestsList.innerHTML =

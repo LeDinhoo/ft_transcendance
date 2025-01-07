@@ -141,10 +141,8 @@ function initializeHome() {
         if (response.ok) {
           window.currentUser = await response.json();
 
-          // Initialisation des utilisateurs bloqués
           await ChatHandler.initializeBlockedUsers();
 
-          // Définir la fonction de vérification pour wsManager
           window.wsManager.isUserBlocked = (userId) =>
             ChatHandler.blockedUsers.has(String(userId));
 
@@ -169,7 +167,6 @@ function initializeHome() {
 
         if (response.ok) {
           const data = await response.json();
-          // S'assurer que les IDs sont traités comme des chaînes de caractères
           ChatHandler.blockedUsers = new Set(
             data.blocked_users.map((user) => String(user.id))
           );
@@ -229,7 +226,6 @@ function initializeHome() {
 
         try {
           const jsonData = JSON.parse(data);
-          // Ajout de l'événement ici, après une réponse réussie
           document.dispatchEvent(new Event("friendRequestSent"));
           showInfoPopup(jsonData.message || "friendRequestsSuccess");
         } catch (e) {
@@ -290,7 +286,6 @@ function initializeHome() {
         const isBlocked = ChatHandler.blockedUsers.has(userId);
         const isOwnMessage = userId === String(window.currentUser.id);
 
-        // Bloquer toute interaction avec System
         if (username === "System" || userId === "system") {
           return;
         }
@@ -298,17 +293,14 @@ function initializeHome() {
         const menu = document.createElement("div");
         menu.className = "chat-context-menu";
 
-        // Construction  du menu
         let menuOptions = "";
 
-        // Option "See profile" toujours présente
         menuOptions += `
 					<div class="chat-menu-option" data-action="profile" data-translate="newhome.menuProfile">
 						See profile
 					</div>
 				`;
 
-        // Si ce n'est pas notre propre message
         if (!isOwnMessage) {
           if (isBlocked) {
             menuOptions += `
@@ -341,9 +333,7 @@ function initializeHome() {
 
         activeMenu = menu;
 
-        // Le reste du code reste inchangé...
 
-        // Le reste du code pour gérer les clics sur les options reste inchangé
         menu.addEventListener("click", async (e) => {
           const option = e.target.closest(".chat-menu-option");
           if (!option) return;
@@ -372,7 +362,6 @@ function initializeHome() {
         });
       });
 
-      // Le reste du code pour gérer la fermeture du menu reste inchangé
       document.addEventListener("click", (e) => {
         if (
           activeMenu &&
@@ -416,10 +405,8 @@ function initializeHome() {
         if (response.ok) {
           await ChatHandler.initializeBlockedUsers();
           ChatHandler.showBlockConfirmation(username, !isBlocked);
-          // Déclencher la mise à jour de l'affichage
           document.dispatchEvent(new Event("blockedUsersChanged"));
 
-          // Mettre à jour la liste des joueurs en ligne
           if (window.wsManager) {
             await window.wsManager.updateOnlinePlayersList([
               ...window.wsManager.onlinePlayers,
@@ -463,7 +450,6 @@ function initializeHome() {
     static handleMessage(data) {
       if (!DOM.chat.messages) return;
 
-      // Vérifier si le message est bloqué
       const isBlocked = ChatHandler.blockedUsers.has(String(data.userId));
       if (isBlocked) {
         data.originalMessage = data.message;
@@ -691,7 +677,6 @@ function initializeHome() {
 
         const playerData = await response.json();
 
-        // Update basic info
         DOM.profile.avatar.src = playerData.avatar;
         DOM.profile.nickname.textContent = playerData.nickname;
         DOM.profile.rankIcon.src = `/static/assets/icons/${playerData.rank.toLowerCase()}.png`;
@@ -702,7 +687,6 @@ function initializeHome() {
             "data-translate",
             `newhome.${playerData.rank.toLowerCase()}`
           );
-        // Update statistics
         document.getElementById("totalGames").textContent =
           playerData.stats.totalGames;
         document.getElementById("winRate").textContent =
@@ -712,7 +696,6 @@ function initializeHome() {
         document.getElementById("maxBallSpeed").textContent =
           playerData.stats.maxBallSpeed;
 
-        // Update match history
         const recentGamesList = document.getElementById("recentGamesList");
         if (playerData.matchHistory.length === 0) {
           recentGamesList.innerHTML =
@@ -788,27 +771,22 @@ function initializeHome() {
         const menu = document.createElement("div");
         menu.className = "chat-context-menu";
 
-        // Construction conditionnelle du menu
         let menuOptions = "";
 
-        // Option "See profile" toujours présente
         menuOptions += `
           <div class="chat-menu-option" data-action="profile" data-translate="newhome.menuProfile">
             See profile
           </div>
         `;
 
-        // Si ce n'est pas notre propre utilisateur
         if (!isOwnUser) {
           if (isBlocked) {
-            // Si l'utilisateur est bloqué, montrer uniquement l'option de déblocage
             menuOptions += `
               <div class="chat-menu-option" data-action="block" data-translate="newhome.unblockUser">
                 Unblock user
               </div>
             `;
           } else {
-            // Si l'utilisateur n'est pas bloqué, montrer toutes les options incluant le blocage
             menuOptions += `
               <div class="chat-menu-option" data-action="add-friend" data-translate="newhome.addFriend">
                 Add friend
@@ -829,70 +807,6 @@ function initializeHome() {
         menu.innerHTML = menuOptions;
         document.body.appendChild(menu);
         ChatHandler.positionMenuWithinViewport(menu, rect);
-        // static initialize() {
-        //   document.body.addEventListener("click", async (e) => {
-        //     const nickname = e.target.closest(".onlineNickname");
-        //     if (!nickname) return;
-
-        //     e.preventDefault();
-        //     e.stopPropagation();
-
-        //     const existingMenu = document.querySelector(".chat-context-menu");
-        //     if (existingMenu) {
-        //       existingMenu.remove();
-        //     }
-
-        //     const rect = nickname.getBoundingClientRect();
-        //     const username = nickname.textContent.trim();
-        //     const userId = nickname.dataset.userId;
-        //     const isOwnUser = username === window.currentUser.username;
-        //     const isBlocked = ChatHandler.isUserBlocked(userId);
-
-        //     const menu = document.createElement("div");
-        //     menu.className = "chat-context-menu";
-
-        //     // Construction conditionnelle du menu
-        //     let menuOptions = "";
-
-        //     // Option "See profile" toujours présente
-        //     menuOptions += `
-        // 			<div class="chat-menu-option" data-action="profile">
-        // 				See profile
-        // 			</div>
-        // 		`;
-
-        //     // Si ce n'est pas notre propre utilisateur
-        //     if (!isOwnUser) {
-        //       if (isBlocked) {
-        //         // Si l'utilisateur est bloqué, on montre uniquement l'option de déblocage
-        //         menuOptions += `
-        // 					<div class="chat-menu-option" data-action="block">
-        // 						Unblock user
-        // 					</div>
-        // 				`;
-        //       } else {
-        //         // Si l'utilisateur n'est pas bloqué et ce n'est pas notre propre message
-        //         menuOptions += `
-        // 					<div class="chat-menu-option" data-action="add-friend">
-        // 						Add friend
-        // 					</div>
-        // 					<div class="chat-menu-option" data-action="send-invitation">
-        // 						Send online invitation
-        // 					</div>
-        //   <div class="chat-menu-option" data-action="block">
-        // 						Block user
-        // 					</div>
-        // 					<div class="chat-menu-option" data-action="private-message">
-        // 						Private message
-        // 					</div>
-        // 				`;
-        //       }
-        //     }
-
-        //menu.innerHTML = menuOptions;
-
-        //document.body.appendChild(menu);
-        //     ChatHandler.positionMenuWithinViewport(menu, rect);
 
         menu.addEventListener("click", async (e) => {
           const option = e.target.closest(".chat-menu-option");
@@ -938,32 +852,7 @@ function initializeHome() {
     }
   }
 
-  // class GameOptionsManager {
-  //   static initialize() {
-  //     const handleSelection = (elements, selectedElement) => {
-  //       elements.forEach((el) => el.classList.remove("option-selected"));
-  //       selectedElement.classList.add("option-selected");
-  //     };
 
-  //     DOM.game.options.forEach((option) => {
-  //       if (option.textContent.trim() === "CLASSIC PONG") {
-  //         option.classList.add("option-selected");
-  //       }
-  //       option.addEventListener("click", () =>
-  //         handleSelection(DOM.game.options, option)
-  //       );
-  //     });
-
-  //     DOM.game.modeOptions.forEach((option) => {
-  //       if (option.textContent.trim() === "AGAINST AI") {
-  //         option.classList.add("option-selected");
-  //       }
-  //       option.addEventListener("click", () =>
-  //         handleSelection(DOM.game.modeOptions, option)
-  //       );
-  //     });
-  //   }
-  // }
 
   class GameOptionsManager {
     static initialize() {
@@ -1091,7 +980,6 @@ function initializeHome() {
         })
         .then((data) => {
           this.options = data;
-          // localStorage.setItem('gameOptions', JSON.stringify(data));
         })
         .catch((error) => {
 
@@ -1099,7 +987,6 @@ function initializeHome() {
     }
 
     handlePlayButtonClick() {
-      // Récupérer les options sélectionnées
       const selectedGame = Array.from(DOM.game.options).find((option) =>
         option.classList.contains("option-selected")
       );
@@ -1131,10 +1018,8 @@ function initializeHome() {
   }
 
   async function startMatch(options, isAI, power) {
-    // Initialisation par défaut
     let languageOption = "en";
 
-    // Attendre la réponse de l'API pour récupérer la langue
     const language = await getLanguageFromAPI();
     setPreferredLanguage(language);
     languageOption = language;
@@ -1212,13 +1097,13 @@ function initializeHome() {
   }
 
   TooltipManager.initializeTooltips();
+  ChatHandler.initialize();
+  wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
   ProfileModal.initialize();
   ContextMenu.initialize();
   GameOptionsManager.initialize();
   OnlineGameModal.initialize();
-  ChatHandler.initialize();
   GameInvitationManager.initialize();
-  wsManager.updateOnlinePlayersList([...wsManager.onlinePlayers]);
 
   document.addEventListener(
     "friendRequestAccepted",
@@ -1295,16 +1180,13 @@ async function handleFriendRequest(requestId, action) {
     });
 
     if (response.ok) {
-      // Mettre à jour la liste des demandes d'ami
       loadFriendRequests();
-      // Mettre à jour l'affichage des joueurs en ligne avec les nouveaux statuts d'ami
       if (window.wsManager && window.wsManager.onlinePlayers) {
         window.wsManager.updateOnlinePlayersList([
           ...window.wsManager.onlinePlayers,
         ]);
       }
 
-      // Afficher un message de confirmation
       const message = action === "accept" ? "friendAccept" : "friendReject";
       showInfoPopup(message);
     }
@@ -1332,7 +1214,6 @@ const GameInvitationManager = {
       return;
     }
 
-    // Nettoyer toutes les invitations actives au démarrage
     this.activeInvitations.clear();
 
     window.wsManager.addMessageListener((data) => {
@@ -1346,13 +1227,11 @@ const GameInvitationManager = {
   },
 
   sendInvitation(username, userId) {
-    // Vérifications préliminaires
     if (username === window.currentUser?.username) {
       this.showNotification("You cannot invite yourself to a game");
       return;
     }
 
-    // Récupérer le type de jeu sélectionné
     const selectedGame = document.querySelector(".gameOption.option-selected");
     if (!selectedGame) {
       this.showNotification("Please select a game type first");
@@ -1375,7 +1254,6 @@ const GameInvitationManager = {
       timestamp: Date.now(),
     };
 
-    // Vérifier la connexion websocket
     if (
       !window.wsManager?.chatSocket ||
       window.wsManager.chatSocket.readyState !== WebSocket.OPEN
@@ -1387,10 +1265,8 @@ const GameInvitationManager = {
     this.activeInvitations.set(invitationId, invitation);
     window.wsManager.chatSocket.send(JSON.stringify(invitation));
 
-    // Notification de confirmation d'envoi
     this.showNotification(`Game invitation sent to ${username}`);
 
-    // Ajouter un timeout pour annuler automatiquement l'invitation après 30 secondes
     setTimeout(() => {
       if (this.activeInvitations.has(invitationId)) {
         this.activeInvitations.delete(invitationId);
@@ -1399,34 +1275,27 @@ const GameInvitationManager = {
   },
 
   showNotification(message) {
-    // Création de l'élément de notification
     const notification = document.createElement("div");
     notification.classList.add("custom-notification");
     notification.textContent = message;
 
-    // Ajout au body pour s'assurer qu'elle apparaît partout
     document.body.appendChild(notification);
 
-    // Retirer l'élément après 3 secondes
     setTimeout(() => notification.remove(), 3000);
   },
 
   handleInvitation(data) {
-    // Vérifier si l'invitation existe déjà
     if (this.activeInvitations.has(data.invitationId)) {
       return;
     }
 
-    // Stocker l'invitation active
     this.activeInvitations.set(data.invitationId, data);
 
-    // Supprimer tout ancien modal
     const existingModal = document.querySelector(".game-invitation-modal");
     if (existingModal) {
       existingModal.remove();
     }
 
-    // Créer le nouveau modal
     const modalElement = this.template.content.cloneNode(true);
     const invitationModal = modalElement.querySelector(
       ".game-invitation-modal"
@@ -1436,14 +1305,12 @@ const GameInvitationManager = {
       return;
     }
 
-    // Remplir les détails
     invitationModal.querySelector(".inviter-avatar").src =
       data.sender.avatar || "/static/assets/avatars/default.png";
     invitationModal.querySelector(".inviter-name").textContent =
       data.sender.username;
     invitationModal.querySelector(".game-type").textContent = data.gameType;
 
-    // Gestionnaires d'événements
     const cleanup = () => {
       this.activeInvitations.delete(data.invitationId);
       invitationModal.remove();
@@ -1467,11 +1334,9 @@ const GameInvitationManager = {
       .querySelector(".close-invitation")
       .addEventListener("click", cleanup);
 
-    // Ajouter au DOM et afficher
     document.body.appendChild(invitationModal);
     invitationModal.style.display = "block";
 
-    // Auto-cleanup après 30 secondes
     setTimeout(cleanup, 30000);
   },
 
@@ -1488,7 +1353,6 @@ const GameInvitationManager = {
     if (window.wsManager?.chatSocket?.readyState === WebSocket.OPEN) {
       window.wsManager.chatSocket.send(JSON.stringify(payload));
 
-      // En cas d'acceptation, montrer immédiatement la notification
       if (response === "accept") {
         this.showNotification(
           "Remote play feature is not implemented yet. You can play 1v1 locally!"

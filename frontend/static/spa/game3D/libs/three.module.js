@@ -2036,7 +2036,6 @@ class Texture extends EventDispatcher {
 	set image( value = null ) {
 
 		this.source.data = value;
-
 	}
 
 	updateMatrix() {

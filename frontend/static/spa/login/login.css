@@ -310,11 +310,10 @@ hr {
   font-size: 0.9rem;
 }
 
-/* CSS - Appliqué par défaut */
 #registerWidget {
-  display: none; /* Masqué par défaut */
+  display: none; 
 }
 
 #loginWidget {
-  display: flex; /* Affiché par défaut */
+  display: flex; 
 }

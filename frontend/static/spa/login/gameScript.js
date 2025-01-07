@@ -60,11 +60,7 @@ function initializeGameElements() {
 }
 
 
-/**
- * Configure tous les écouteurs d'événements nécessaires pour le jeu.
- * Cela inclut les événements de la souris pour le conteneur du jeu, les événements du clavier,
- * et l'événement de redimensionnement de la fenêtre.
- */
+
 function setupEventListeners() {
     gameElements.gameSection.addEventListener('mouseenter', () => gameState.isMouseInGame = true);
     gameElements.gameSection.addEventListener('mouseleave', () => gameState.isMouseInGame = false);
@@ -73,22 +69,14 @@ function setupEventListeners() {
     window.addEventListener('resize', handleResize);
 }
 
-/**
- * Gère le redimensionnement de la fenêtre en ajustant les dimensions du jeu et en réinitialisant la balle.
- * Cette fonction assure que le jeu s'adapte correctement aux changements de taille de l'écran.
- */
+
 function handleResize() {
     gameState.gameWidth = gameElements.gameSection.offsetWidth;
     gameState.gameHeight = gameElements.gameSection.offsetHeight;
     resetBall();
 }
 
-/**
- * Gère les événements de touche enfoncée.
- * Met à jour l'état du jeu en fonction de la touche pressée et met à jour le temps de la dernière pression
- * pour chaque raquette afin de gérer le contrôle par l'IA.
- * @param {KeyboardEvent} e - L'événement clavier
- */
+
 function handleKeyDown(e) {
     switch(e.key) {
         case 'ArrowLeft':
@@ -112,11 +100,7 @@ function handleKeyDown(e) {
     }
 }
 
-/**
- * Gère les événements de touche relâchée.
- * Met à jour l'état du jeu pour indiquer que les touches ne sont plus enfoncées.
- * @param {KeyboardEvent} e - L'événement clavier
- */
+
 function handleKeyUp(e) {
     switch(e.key) {
         case 'ArrowLeft':
@@ -136,29 +120,19 @@ function handleKeyUp(e) {
     }
 }
 
-/**
- * Met à jour le temps de la dernière pression de touche pour la raquette du haut.
- * Cette fonction est utilisée pour déterminer quand l'IA doit reprendre le contrôle.
- */
+
 function updateLastTopKeyPressTime() {
     gameState.lastTopKeyPressTime = Date.now();
     gameState.isTopPaddleControlledByKeyboard = true;
 }
 
-/**
- * Met à jour le temps de la dernière pression de touche pour la raquette du bas.
- * Cette fonction est utilisée pour déterminer quand l'IA doit reprendre le contrôle.
- */
+
 function updateLastBottomKeyPressTime() {
     gameState.lastBottomKeyPressTime = Date.now();
     gameState.isBottomPaddleControlledByKeyboard = true;
 }
 
-/**
- * Calcule la couleur de la balle en fonction de sa vitesse normalisée.
- * @param {number} normalizedSpeed - La vitesse normalisée de la balle (entre 0 et 1)
- * @returns {string} La couleur de la balle au format RGB
- */
+
 function calculateBallColor(normalizedSpeed) {
     let red = 255;
     let green = Math.floor(255 - (255 - 165) * normalizedSpeed);
@@ -166,21 +140,14 @@ function calculateBallColor(normalizedSpeed) {
     return `rgb(${red}, ${green}, ${blue})`;
 }
 
-/**
- * Calcule l'effet de lueur de la balle en fonction de sa vitesse normalisée.
- * @param {number} normalizedSpeed - La vitesse normalisée de la balle (entre 0 et 1)
- * @returns {string} L'effet de lueur de la balle au format CSS
- */
+
 function calculateGlowEffect(normalizedSpeed) {
     let glowIntensity = Math.floor(normalizedSpeed * 20);
     let glowColor = calculateBallColor(normalizedSpeed);
     return `0 0 ${glowIntensity}px ${glowColor}`;
 }
 
-/**
- * Met à jour l'apparence de la balle en fonction de sa vitesse actuelle.
- * Calcule la couleur et l'effet de lueur de la balle et applique ces styles.
- */
+
 function updateBallAppearance() {
     let currentSpeed = Math.sqrt(gameState.ballSpeedX ** 2 + gameState.ballSpeedY ** 2);
     let normalizedSpeed = Math.pow((currentSpeed - MIN_SPEED) / (MAX_SPEED - MIN_SPEED), 1 / gameState.colorSensitivity);
@@ -193,10 +160,7 @@ function updateBallAppearance() {
     gameElements.ball.style.boxShadow = glowEffect;
 }
 
-/**
- * Gère le mouvement de la raquette du haut.
- * Détermine si la raquette est contrôlée par le joueur ou l'IA et met à jour sa position en conséquence.
- */
+
 function moveTopPaddle() {
     if (Date.now() - gameState.lastTopKeyPressTime > AI_TAKEOVER_DELAY) {
         gameState.isTopPaddleControlledByKeyboard = false;
@@ -216,10 +180,7 @@ function moveTopPaddle() {
     gameElements.topPaddle.style.left = gameState.topPaddleX + 'px';
 }
 
-/**
- * Gère le mouvement de la raquette du bas.
- * Détermine si la raquette est contrôlée par le joueur ou l'IA et met à jour sa position en conséquence.
- */
+
 function moveBottomPaddle() {
     if (Date.now() - gameState.lastBottomKeyPressTime > AI_TAKEOVER_DELAY) {
         gameState.isBottomPaddleControlledByKeyboard = false;
@@ -239,10 +200,7 @@ function moveBottomPaddle() {
     gameElements.bottomPaddle.style.left = gameState.bottomPaddleX + 'px';
 }
 
-/**
- * Gère le mouvement de la balle.
- * Met à jour la position de la balle, gère les collisions avec les murs et la logique de score.
- */
+
 function moveBall() {
     gameState.ballX += gameState.ballSpeedX;
     gameState.ballY += gameState.ballSpeedY;
@@ -283,10 +241,7 @@ function updateBallVelocity(reflectionAngle, speed) {
 
 
 
-/**
- * Vérifie les collisions entre la balle et les raquettes.
- * Gère le rebond de la balle et l'augmentation de la vitesse en cas de collision.
- */
+
 function checkPaddleCollisions() {
     let topPaddlePosition = gameElements.topPaddle.getBoundingClientRect();
     let bottomPaddlePosition = gameElements.bottomPaddle.getBoundingClientRect();
@@ -316,13 +271,7 @@ function checkPaddleCollisions() {
     }
 }
 
-/**
- * Calcule le mouvement de la raquette contrôlée par l'IA.
- * @param {HTMLElement} paddle - L'élément DOM de la raquette
- * @param {number} paddleX - La position X actuelle de la raquette
- * @param {boolean} isTopPaddle - Indique s'il s'agit de la raquette du haut
- * @returns {number} La nouvelle position X de la raquette
- */
+
 function moveAIPaddle(paddle, paddleX, isTopPaddle) {
     let targetX;
     
@@ -354,10 +303,7 @@ function moveAIPaddle(paddle, paddleX, isTopPaddle) {
     return paddleX;
 }
 
-/**
- * Réinitialise la position et la vitesse de la balle.
- * Cette fonction est appelée après qu'un point a été marqué.
- */
+
 function resetBall() {
     gameState.ballX = gameState.gameWidth / 2 - BALL_SIZE / 2;
     gameState.ballY = gameState.gameHeight / 2 - BALL_SIZE / 2;
@@ -367,10 +313,7 @@ function resetBall() {
     updateBallAppearance();
 }
 
-/**
- * Augmente la vitesse de la balle.
- * Cette fonction est appelée après chaque collision avec une raquette.
- */
+
 function increaseSpeed() {
     let currentSpeed = Math.sqrt(gameState.ballSpeedX ** 2 + gameState.ballSpeedY ** 2);
     if (currentSpeed < MAX_SPEED) {
@@ -380,33 +323,23 @@ function increaseSpeed() {
     }
 }
 
-/**
- * Met à jour l'affichage de la vitesse de la balle.
- */
+
 function updateSpeedDisplay() {
     let speed = Math.sqrt(gameState.ballSpeedX ** 2 + gameState.ballSpeedY ** 2).toFixed(2);
     gameElements.speedDisplay.textContent = `Vitesse: ${speed}`;
 }
 
-/**
- * Met à jour l'affichage du score.
- */
+
 function updateScoreDisplay() {
     gameElements.scoreDisplay.textContent = `${gameState.topScore} - ${gameState.bottomScore}`;
 }
 
-/**
- * Met à jour la sensibilité de la couleur de la balle.
- * @param {number} newSensitivity - La nouvelle valeur de sensibilité
- */
+
 function updateColorSensitivity(newSensitivity) {
     gameState.colorSensitivity = newSensitivity;
 }
 
-/**
- * La boucle principale du jeu.
- * Cette fonction est appelée à chaque frame pour mettre à jour l'état du jeu et redessiner les éléments.
- */
+
 function gameLoop() {
     moveTopPaddle();
     moveBottomPaddle();
@@ -418,10 +351,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-/**
- * Initialise le jeu.
- * Cette fonction est appelée une fois au chargement de la page pour démarrer le jeu.
- */
+
 function initGame() {
     initializeGameElements();
     setupEventListeners();

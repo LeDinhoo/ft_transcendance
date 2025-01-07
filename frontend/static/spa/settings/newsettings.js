@@ -347,7 +347,6 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((data) => {
-
         // Vérifiez la réponse correctement
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
@@ -392,7 +391,6 @@ function initializeSettingsPage() {
   }
 
   function initializeSettingsFromDatabase() {
-
     language = getLanguageFromAPI();
     language.then((value) => {
       setPreferredLanguage(value);
@@ -412,7 +410,6 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((settings) => {
-
         setActiveButton(".scoreOptionLabel", settings.scoreToWin, "win-score");
         setActiveButton(
           ".difficultyOptionLabel",
@@ -441,14 +438,8 @@ function initializeSettingsPage() {
         );
 
         initializeKeyboardSettings(settings.keyboardSettings);
-
       })
-      .catch((error) => {
-        console.error(
-          "Erreur lors de l'initialisation des paramètres :",
-          error
-        );
-      });
+      .catch((error) => {});
   }
 
   let hasChanges = false;

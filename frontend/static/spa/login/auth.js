@@ -1,5 +1,3 @@
-// auth.js
-
 document
   .getElementById("loginWidget")
   .addEventListener("submit", async function (event) {
@@ -63,13 +61,11 @@ function showTwoFactorPopup(userId) {
 
   document.body.appendChild(popup);
 
-  // Ajouter l'événement de fermeture
   const closeButton = popup.querySelector(".close-2fa-popup");
   closeButton.addEventListener("click", () => {
     popup.remove();
   });
 
-  //mettre à jour les traductions
   language = localStorage.getItem("preferredLanguage") || "en";
   loadTranslations(language);
 
@@ -323,7 +319,6 @@ document
 
     clearErrors();
 
-    // Valider les champs
     let validationError = validateRegistrationForm({
       username,
       email,
@@ -356,7 +351,6 @@ document
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          // Connexion automatique après inscription
           fetch("/api/login/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -372,7 +366,6 @@ document
               }
             });
         } else {
-          // Vérifie si des erreurs spécifiques sont renvoyées
           if (data.errors) {
             let errorMessages = [];
             for (const [field, errors] of Object.entries(data.errors)) {
@@ -394,58 +387,40 @@ document
       });
   });
 
-/**
- * Valide le formulaire d'inscription et retourne un message d'erreur en cas de problème.
- * @param {Object} formData - Les données du formulaire à valider
- * @returns {string|null} - Message d'erreur ou null si aucune erreur
- */
+
 function validateRegistrationForm(formData) {
   const { username, email, password1, password2 } = formData;
 
-  // Vérifie si le nom d'utilisateur est vide
   if (!username.trim()) {
     return "usernameRequired";
   }
 
-  // Vérifie si le nom d'utilisateur dépasse 15 caractères
   if (username.length > 15) {
     return "usernameTooLong";
   }
 
-  // Vérifie si l'email est valide
   if (!isValidEmail(email)) {
     return "invalidMail";
   }
 
-  // Vérifie si le mot de passe respecte les règles
   if (!isValidPassword(password1)) {
     return "helpText";
   }
 
-  // Vérifie si les mots de passe correspondent
   if (password1 !== password2) {
     return "passwordsMissmatch";
   }
 
-  // Pas d'erreur
   return null;
 }
 
-/**
- * Valide si un email est correct.
- * @param {string} email
- * @returns {boolean}
- */
+
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
-/**
- * Valide si un mot de passe est valide.
- * @param {string} password
- * @returns {boolean}
- */
+
 function isValidPassword(password) {
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!.%*?&])[A-Za-z\d@$!%.*?&]{8,}$/;

@@ -40,7 +40,6 @@ export class Score3D {
     this.tutorialP2text3 = null;
     this.isAIisActive = false;
 
-    // Texts defined in constructor
     this.texts = {
       pressSpace: "PRESS SPACE",
       player1Move: `${this.player1UpKey} and ${this.player1DownKey} to move`,
@@ -208,7 +207,6 @@ export class Score3D {
 
     const options = { ...this.TutorialTextOptions, font: this.font };
 
-    // Tutorial for Player 1
     const geometry1 = new TextGeometry(this.texts.player1Move, options);
     geometry1.computeBoundingBox();
     geometry1.center();
@@ -237,7 +235,6 @@ export class Score3D {
     this.scene.add(this.tutorialP1Text2);
     this.scene.add(this.tutorialP1text3);
 
-    // Tutorial for Player 2
     if (!this.isAIisActive) {
       const geometry4 = new TextGeometry(this.texts.player2Move, options);
       geometry4.computeBoundingBox();
@@ -342,7 +339,6 @@ export class Score3D {
     this.createPressSpaceText();
     this.gameOver = false;
 
-    // maxBallSpeed = INITIAL_BALL_SPEED;
   }
 
   checkWinCondition() {
