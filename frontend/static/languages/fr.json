@@ -88,7 +88,13 @@
 		"FailedCode": "Échec de l'échange du code d'autorisation.",
 		"2FaReq": "Le code 2FA est requis.",
 		"userIdReq": "L'identifiant utilisateur est requis pour cette opération.",
-		"2faNotFound": "Aucun code 2FA actif trouvé. Veuillez réessayer."
+		"2faNotFound": "Aucun code 2FA actif trouvé. Veuillez réessayer.",
+		"maxChar": "Le mot de passe ne doit pas dépasser 20 caractères.",
+		"minChar": "Le mot de passe doit contenir au moins 8 caractères.",
+		"minOneChar": "Le mot de passe doit contenir au moins une lettre majuscule.",
+		"maxOneCharBis": "Le mot de passe doit contenir au moins une lettre minuscule.",
+		"minNUM": "Le mot de passe doit contenir au moins un chiffre.",
+		"minSpec": "Le mot de passe doit contenir au moins un caractère spécial."
 	},
 	"info": {
 		"friendAccept": "Demande d'ami acceptée.",

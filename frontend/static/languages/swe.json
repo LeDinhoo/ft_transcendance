@@ -88,7 +88,13 @@
 		"FailedCode": "Misslyckades med att utbyta auktoriseringskod.",
 		"2FaReq": "2FA-kod krävs.",
 		"userIdReq": "Användar-ID krävs för denna åtgärd.",
-		"2faNotFound": "Ingen aktiv 2FA-kod hittades. Vänligen försök igen."
+		"2faNotFound": "Ingen aktiv 2FA-kod hittades. Vänligen försök igen.",
+		"maxChar": "Lösenordet får inte överstiga 20 tecken.",
+		"minChar": "Lösenordet måste innehålla minst 8 tecken.",
+		"minOneChar": "Lösenordet måste innehålla minst en versal.",
+		"maxOneCharBis": "Lösenordet måste innehålla minst en gemen.",
+		"minNUM": "Lösenordet måste innehålla minst en siffra.",
+		"minSpec": "Lösenordet måste innehålla minst ett specialtecken."
 	},
 	"info": {
 		"friendAccept": "Vänförfrågan accepterad.",

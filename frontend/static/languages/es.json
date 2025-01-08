@@ -88,7 +88,13 @@
 		"FailedCode": "Error al intercambiar el código de autorización",
 		"2FaReq": "Se requiere el código 2FA.",
 		"userIdReq": "El ID de usuario es obligatorio para esta operación.",
-		"2faNotFound": "No se encontró un código 2FA activo. Inténtalo de nuevo."
+		"2faNotFound": "No se encontró un código 2FA activo. Inténtalo de nuevo.",
+		"maxChar": "La contraseña no debe exceder los 20 caracteres.",
+		"minChar": "La contraseña debe contener al menos 8 caracteres.",
+		"minOneChar": "La contraseña debe contener al menos una letra mayúscula.",
+		"maxOneCharBis": "La contraseña debe contener al menos una letra minúscula.",
+		"minNUM": "La contraseña debe contener al menos un dígito.",
+		"minSpec": "La contraseña debe contener al menos un carácter especial."
 	},
 	"info": {
 		"friendAccept": "Solicitud de amistad aceptada",

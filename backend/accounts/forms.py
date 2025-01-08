@@ -8,12 +8,12 @@ from django.core.exceptions import ValidationError
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
-        help_text="Veuillez entrer une adresse email valide. Elle sera utilisée pour la confirmation de votre compte."
+        help_text="Please enter a valid email address. It will be used to confirm your account."
     )
 
     username = forms.CharField(
         max_length=15,
-        help_text="Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et les caractères @/./+/-/_."
+        help_text="The username can only contain letters, numbers, and the characters @/./+/-/_."
     )
 
     class Meta:
@@ -28,7 +28,7 @@ class RegisterForm(UserCreationForm):
         User = get_user_model()
 
         if User.objects.filter(email=email).exists():
-            raise ValidationError("Cet email est déjà utilisé.")
+            raise ValidationError("mailUsed")
         
         return email
 
@@ -40,7 +40,7 @@ class RegisterForm(UserCreationForm):
         User = get_user_model()
 
         if User.objects.filter(username=username).exists():
-            raise ValidationError("Ce nom d'utilisateur est déjà pris.")
+            raise ValidationError("usernameTaken")
         
         return username
 
@@ -49,17 +49,17 @@ class RegisterForm(UserCreationForm):
         password1 = self.cleaned_data.get('password1')
 
         if len(password1) > 20:
-            raise ValidationError("Le mot de passe ne doit pas dépasser 20 caractères.")
+            raise ValidationError("maxChar")
         if len(password1) < 8:
-            raise ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+            raise ValidationError("minChar")
         if not re.search(r'[A-Z]', password1):
-            raise ValidationError("Le mot de passe doit contenir au moins une lettre majuscule.")
+            raise ValidationError("minOneChar")
         if not re.search(r'[a-z]', password1):
-            raise ValidationError("Le mot de passe doit contenir au moins une lettre minuscule.")
+            raise ValidationError("maxOneCharBis")
         if not re.search(r'[0-9]', password1):
-            raise ValidationError("Le mot de passe doit contenir au moins un chiffre.")
+            raise ValidationError("minNUM")
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password1):
-            raise ValidationError("Le mot de passe doit contenir au moins un caractère spécial.")
+            raise ValidationError("minSpec")
 
         return password1
 

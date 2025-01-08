@@ -6,9 +6,9 @@ from django.utils.translation import gettext as _
 class ComplexPasswordValidator:
     def validate(self, password, user=None):
         if len(password) > 20:
-            raise ValidationError("Le mot de passe ne doit pas dépasser 20 caractères.")
+            raise ValidationError("maxChar")
         if len(password) < 8:
-            raise ValidationError("Le mot de passe doit contenir au moins 8 caractères.")
+            raise ValidationError("minChar")
         if not re.findall(r'[A-Z]', password):
             raise ValidationError(_("missingUpperCase"))
         if not re.findall(r'[a-z]', password):

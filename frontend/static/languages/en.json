@@ -88,7 +88,13 @@
 		"FailedCode": "Failed to exchange authorization code",
 		"2FaReq": "The 2FA code is required.",
 		"userIdReq": "User ID is required for this operation.",
-		"2faNotFound": "No active 2FA code found. Please try again."
+		"2faNotFound": "No active 2FA code found. Please try again.",
+		"maxChar": "The password must not exceed 20 characters.",
+		"minChar": "The password must contain at least 8 characters.",
+		"minOneChar": "The password must contain at least one uppercase letter.",
+		"maxOneCharBis": "The password must contain at least one lowercase letter.",
+		"minNUM": "The password must contain at least one digit.",
+		"minSpec": "The password must contain at least one special character."
 	},
 	"info": {
 		"friendAccept": "Friend request accepted",
