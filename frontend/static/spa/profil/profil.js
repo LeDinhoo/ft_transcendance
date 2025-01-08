@@ -344,21 +344,28 @@ function initializeProfilePage() {
             avatarDisplay.src = data.avatar;
           }
 
-          userInput.disabled = true;
-          emailInput.disabled = true;
-          cloneModifyButton.style.backgroundColor = "";
-          resetPasswordFields();
-        //  setTimeout(() => {
-            //window.location.reload();
-        //   }, 10);
-        })
-        .catch((error) => {
-          showErrorPopup(
-            error.message || "Une erreur est survenue lors de la mise à jour"
-          );
-        });
-    }
-  });
+					userInput.disabled = true;
+					emailInput.disabled = true;
+					cloneModifyButton.style.backgroundColor = "";
+					resetPasswordFields();
+					if (window.wsManager?.chatSocket?.readyState === WebSocket.OPEN) {
+						window.wsManager.chatSocket.send(JSON.stringify({
+							type: "user_update",
+							user: {
+								id: window.currentUser.id,
+								username: data.username,
+								avatar: data.avatar
+							}
+						}));
+					}
+				})
+				.catch((error) => {
+					showErrorPopup(
+						error.message || "Une erreur est survenue lors de la mise à jour"
+					);
+				});
+		}
+	});
 
   fetch("/api/profil/", {
     method: "GET",
@@ -509,9 +516,9 @@ async function verifyTwoFactorCodeForProfile(code) {
       if (popup) popup.remove();
       updateUI2FAStatus(true);
       showInfoPopup(data.message);
-      setTimeout(() => {
-        window.location.reload();
-      }, 10);
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 10);
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
@@ -703,11 +710,6 @@ function createAvatarGrid() {
     avatarGrid.appendChild(rowDiv);
   }
 
-  // applyButton.addEventListener("click", () => {
-  //   setTimeout(() => {
-  //     window.location.reload();
-  //   }, 10);
-  // });
 }
 
 function initializeAvatarFeature() {
@@ -745,21 +747,30 @@ function initializeAvatarFeature() {
               element.src = data.avatar;
             });
 
-            const avatarDisplay = document.getElementById("avatarDisplay");
-            if (avatarDisplay) {
-              avatarDisplay.src = data.avatar;
-            }
-            // wsManager.updateOnlinePlayersList(user);
-            closeModal();
-          })
-          .catch((error) => {
-            showErrorPopup(
-              error.message || "Erreur lors de la mise à jour de l'avatar"
-            );
-          });
-      }
-    });
-  }
+						const avatarDisplay = document.getElementById("avatarDisplay");
+						if (avatarDisplay) {
+							avatarDisplay.src = data.avatar;
+						}
+						if (window.wsManager?.chatSocket?.readyState === WebSocket.OPEN) {
+							window.wsManager.chatSocket.send(JSON.stringify({
+								type: "user_update",
+								user: {
+									id: window.currentUser.id,
+									username: window.currentUser.username,
+									avatar: data.avatar
+								}
+							}));
+						}
+						closeModal();
+					})
+					.catch((error) => {
+						showErrorPopup(
+							error.message || "Erreur lors de la mise à jour de l'avatar"
+						);
+					});
+			}
+		});
+	}
 
   window.openModal = function () {
     if (modal) {

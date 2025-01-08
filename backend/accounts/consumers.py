@@ -74,6 +74,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }))
                 return
         
+        if data.get('type') == 'user_update':
+            user_id = int(data['user']['id'])
+            if user_id in ChatConsumer.connected_users:
+                ChatConsumer.connected_users[user_id].update({
+                    'username': data['user']['username'],
+                    'avatar': data['user']['avatar'],
+                })
+                # Envoyer la mise à jour à tous les clients
+                await self.channel_layer.group_send(
+                    "chat",
+                    {
+                        "type": "user_list_update",
+                        "users": [json.dumps(user) for user in ChatConsumer.connected_users.values()]
+                    }
+                )
+            return
+
         if data.get('type') == 'game_invitation':
             await self.channel_layer.group_send(
                 "chat",

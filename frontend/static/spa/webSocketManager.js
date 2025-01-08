@@ -54,6 +54,23 @@ const wsManager = {
 					);
 					break;
 
+				// Dans webSocketManager.js, dans le switch de this.chatSocket.onmessage
+				case "user_update":
+					// First update the player in the onlinePlayers set
+					const updatedPlayers = new Set(
+						[...this.onlinePlayers].map(user =>
+							user.id === data.user.id
+								? {...user, ...data.user}
+								: user
+						)
+					);
+					this.onlinePlayers = updatedPlayers;
+					// Then force a refresh of the UI list
+					this.handleUserListUpdate({
+						users: [...this.onlinePlayers].map(user => JSON.stringify(user))
+					});
+					break;
+
 				case "game_invitation":
 					
 
