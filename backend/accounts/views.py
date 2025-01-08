@@ -290,30 +290,67 @@ def profile_view(request):
 
     return JsonResponse(response_data, status=200)
 
+from django.http import JsonResponse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
+from django.core.files.storage import default_storage
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+import os
+import magic
+from datetime import datetime
+import re
+
+import imghdr
+import magic
+from PIL import Image
+from io import BytesIO
+
+from PIL import Image
+from django.core.exceptions import ValidationError
+import io
+
 
 def validate_image_thoroughly(image_file):
+    """
+    Validation des images avec vérification basique
+    """
     try:
-        image_copy = io.BytesIO(image_file.read())
-        image_file.seek(0)  
+        # Lecture de l'image avec Pillow
+        img = Image.open(image_file)
 
-        with Image.open(image_copy) as img:
+        # Force le décodage complet de l'image
+        try:
             img.load()
-            
-            img.convert('RGB')
-            
-            list(img.getdata())  
-            
-            if not hasattr(img, 'format') or img.format not in ['JPEG', 'PNG']:
-                raise ValidationError("Format d'image non supporté (JPEG ou PNG uniquement)")
-                
-            thumbnail = img.copy()
-            thumbnail.thumbnail((100, 100))
-            
-            return True
+        except Exception:
+            raise ValidationError("Image corrompue - impossible de décoder l'image")
+
+        # Vérifier les dimensions
+        width, height = img.size
+        if width < 100 or height < 100:
+            raise ValidationError("Image trop petite (minimum 100x100 pixels)")
+        if width > 2000 or height > 2000:
+            raise ValidationError("Image trop grande (maximum 2000x2000 pixels)")
+
+        # Vérifier le format
+        if img.format not in ['JPEG', 'PNG']:
+            raise ValidationError("Format non supporté (utilisez JPG ou PNG)")
+
+        # Vérifier si l'image peut être manipulée
+        try:
+            # Tester l'accès aux données de l'image
+            img.getdata()[0]
+        except Exception:
+            raise ValidationError("Image corrompue - impossible d'accéder aux données")
+
+        return True
+
     except Exception as e:
-        raise ValidationError(f"Image corrompue ou invalide: {str(e)}")
-
-
+        if isinstance(e, ValidationError):
+            raise
+        raise ValidationError(f"Erreur lors de la validation: {str(e)}")
 logger = logging.getLogger('profile_api')
 
 @api_view(['PATCH'])
@@ -327,6 +364,7 @@ def update_profile_view(request):
         user = request.user
         data = request.data.copy()
 
+        # Traitement username
         if 'username' in data:
             new_username = data['username'].strip()
             logger.debug(f"Tentative mise à jour username: '{new_username}'")
@@ -390,47 +428,36 @@ def update_profile_view(request):
             logger.debug(f"Upload avatar: nom={avatar.name}, taille={avatar.size} bytes")
             
             try:
-                if avatar.size > 2 * 1024 * 1024: 
-                    logger.warning(f"Avatar trop volumineux: {avatar.size} bytes")
+                # Vérifications préliminaires
+                if avatar.size > 2 * 1024 * 1024:  # 2MB
                     return JsonResponse({'error': 'L\'image est trop volumineuse (max 2MB).'}, status=400)
 
-                mime = magic.Magic(mime=True)
-                file_type = mime.from_buffer(avatar.read())
-                avatar.seek(0)
-
-                allowed_types = ['image/jpeg', 'image/png']
-                logger.debug(f"Type de fichier détecté: {file_type}")
-
-                if file_type not in allowed_types:
-                    logger.warning(f"Type de fichier non autorisé: {file_type}")
-                    return JsonResponse({'error': 'Format de fichier non autorisé. Utilisez JPG ou PNG.'}, status=400)
-
+                # Vérification du type MIME
                 try:
+                    import magic
+                    mime = magic.Magic(mime=True)
+                    file_type = mime.from_buffer(avatar.read())
                     avatar.seek(0)
+
+                    if file_type not in ['image/jpeg', 'image/png']:
+                        return JsonResponse({'error': 'Format de fichier non autorisé (uniquement JPEG ou PNG).'}, status=400)
+                except Exception:
+                    return JsonResponse({'error': 'Impossible de déterminer le type de fichier.'}, status=400)
+
+                # Validation approfondie
+                try:
                     validate_image_thoroughly(avatar)
-                    avatar.seek(0)
+                except ValidationError as e:
+                    logger.warning(f"Validation échouée: {str(e)}")
+                    return JsonResponse({'error': str(e)}, status=400)
 
-                    img = Image.open(avatar)
-                    if img.height > 2000 or img.width > 2000:
-                        logger.warning(f"Image trop grande: {img.width}x{img.height}")
-                        return JsonResponse({'error': 'Dimensions de l\'image trop grandes (max 2000x2000)'}, status=400)
-
-                    if img.height < 100 or img.width < 100:
-                        logger.warning(f"Image trop petite: {img.width}x{img.height}")
-                        return JsonResponse({'error': 'Dimensions de l\'image trop petites (min 100x100)'}, status=400)
-
-                except Exception as e:
-                    logger.error(f"Erreur de validation d'image: {str(e)}")
-                    return JsonResponse({'error': 'Fichier image corrompu ou invalide'}, status=400)
-
-                avatar.seek(0)
-
+                # Si on arrive ici, l'image est valide
                 file_path = os.path.join('avatars', f"avatar_{user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
                 user.avatar = default_storage.save(file_path, avatar)
                 logger.debug(f"Avatar sauvegardé: {file_path}")
 
             except Exception as e:
-                logger.error(f"Erreur lors du traitement de l'avatar: {str(e)}")
+                logger.error(f"Erreur critique: {str(e)}")
                 return JsonResponse({'error': 'Erreur lors du traitement de l\'image'}, status=500)
 
         elif 'selected_avatar' in data:
@@ -447,11 +474,7 @@ def update_profile_view(request):
                     'error': f'Chemin d\'avatar invalide. Le chemin doit commencer par {expected_prefix}'
                 }, status=400)
 
-        try:
-            user.save()  
-        except Exception as e:
-            return JsonResponse({'error': 'Une erreur s\'est produite lors de la mise à jour du profil.'}, status=500)
-
+        # Sauvegarde finale
         try:
             user.save()
             logger.debug("Sauvegarde utilisateur réussie")
@@ -459,6 +482,7 @@ def update_profile_view(request):
             logger.error(f"Erreur lors de la sauvegarde: {str(e)}", exc_info=True)
             return JsonResponse({'error': 'Erreur lors de la sauvegarde des modifications.'}, status=500)
 
+        # Préparation réponse
         avatar_url = None
         if user.avatar:
             if str(user.avatar).startswith('assets/avatars/'):
