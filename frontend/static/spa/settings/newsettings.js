@@ -17,8 +17,6 @@ function initializeSettingsPage() {
     button.addEventListener("click", handleButtonClick);
   });
 
-  
-
   const difficultyButtons = document.querySelectorAll(".difficultyOptionLabel");
 
   function handleDifficultyButtonClick(event) {
@@ -36,8 +34,6 @@ function initializeSettingsPage() {
     button.addEventListener("click", handleDifficultyButtonClick);
   });
 
-  
-  
   const powerupButtons = document.querySelectorAll(".powerupOptionLabel");
 
   function handlePowerupClick(event) {
@@ -57,13 +53,9 @@ function initializeSettingsPage() {
     button.addEventListener("click", handlePowerupClick);
   });
 
-  
-
   const ballSpeedStartButtons = document.querySelectorAll(
     ".ballSpeedStartOptionLabel"
   );
-
-  
 
   const ballSpeedMaxButtons = document.querySelectorAll(
     ".ballSpeedMaxOptionLabel"
@@ -146,8 +138,6 @@ function initializeSettingsPage() {
   ballSpeedMaxButtons.forEach((button) => {
     button.addEventListener("click", handleBallSpeedMaxButtonClick);
   });
-
-  
 
   const ballSpeedIncreaseButtons = document.querySelectorAll(
     ".ballSpeedIncreaseOptionLabel"
@@ -238,20 +228,17 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((data) => {
-        
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
         }
       })
       .catch((error) => {
-        alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
+        // alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
       });
   }
 
   const saveButton = document.getElementById("save-settings");
   saveButton.addEventListener("click", saveGameSettings);
-
-  
 
   function handleKeyChange(event) {
     const button = event.target;
@@ -273,7 +260,7 @@ function initializeSettingsPage() {
     });
 
     function isSettingsPage() {
-      return window.location.pathname === "/settings"; 
+      return window.location.pathname === "/settings";
     }
 
     function onKeyPress(e) {
@@ -347,17 +334,15 @@ function initializeSettingsPage() {
         return response.json();
       })
       .then((data) => {
-        
         if (data.message !== "Settings updated successfully") {
           throw new Error(data.error || "Erreur inconnue côté serveur");
         }
-
-        hasKeyboardChanges = false;
-        toggleKeyboardSaveButtonVisibility();
       })
       .catch((error) => {
-        alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
+        // alert("Une erreur est survenue lors de la sauvegarde des paramètres.");
       });
+    hasKeyboardChanges = false;
+    toggleKeyboardSaveButtonVisibility();
   }
 
   document.querySelectorAll(".change-key").forEach((button) => {
@@ -448,10 +433,10 @@ function initializeSettingsPage() {
     const saveButton = document.getElementById("save-settings");
     if (hasChanges) {
       saveButton.style.opacity = "1";
-      saveButton.style.pointerEvents = "auto"; 
+      saveButton.style.pointerEvents = "auto";
     } else {
       saveButton.style.opacity = "0";
-      saveButton.style.pointerEvents = "none"; 
+      saveButton.style.pointerEvents = "none";
     }
   }
 
@@ -463,10 +448,10 @@ function initializeSettingsPage() {
     );
     if (hasKeyboardChanges) {
       keyboardSaveButton.style.opacity = "1";
-      keyboardSaveButton.style.pointerEvents = "auto"; 
+      keyboardSaveButton.style.pointerEvents = "auto";
     } else {
       keyboardSaveButton.style.opacity = "0";
-      keyboardSaveButton.style.pointerEvents = "none"; 
+      keyboardSaveButton.style.pointerEvents = "none";
     }
   }
 
