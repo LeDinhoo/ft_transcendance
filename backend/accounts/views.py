@@ -390,6 +390,9 @@ def update_profile_view(request):
         user = request.user
         data = request.data.copy()
 
+        if 'is_2fa_enabled' in data:
+            user.is_2fa_enabled = data['is_2fa_enabled']
+
         # Traitement username
         if 'username' in data:
             new_username = data['username'].strip()
@@ -523,7 +526,8 @@ def update_profile_view(request):
         response_data = {
             'username': user.username,
             'email': user.email,
-            'avatar': avatar_url
+            'avatar': avatar_url,
+            'is_2fa_enabled': user.is_2fa_enabled
         }
         
         logger.debug(f"Réponse finale: {response_data}")

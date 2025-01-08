@@ -511,36 +511,68 @@ function startCountdown(duration) {
   }, 1000);
 }
 
-https: function updateUI2FAStatus(enabled) {
+async function updateUI2FAStatus(enabled) {
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
-
+  console.log("COUCOU")
   if (!toggle2FAButton || !verificationFrame) {
-    console.error(
-      "Éléments pour la mise à jour de l'interface 2FA introuvables."
-    );
     return;
   }
 
+  // Mise à jour de l'interface
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
- <img src="/static/assets/icons/${enabled ? 'check' : 'close'}.svg" class="popuplogo" />
-  ${enabled ? "2FA On" : "2FA Off"}
-`;
+    <img src="/static/assets/icons/${enabled ? "check" : "close"}.svg" class="popuplogo" />
+    ${enabled ? "2FA On" : "2FA Off"}
+  `;
 
   verificationFrame.style.display = "none";
+  // Mettre à jour la variable globale
+  is2FAEnabled = enabled;
 
-  console.log(
-    `2FA ${enabled ? "activé" : "désactivé"} : interface mise à jour.`
-  );
+  // Appel à la vue update pour synchroniser l'état
+  try {
+    console.log("On appelle la vue update")
+    const csrfToken = getCsrfToken();
+    const response = await fetch("/api/profil/update/", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      credentials: "include",
+      body: JSON.stringify({ is_2fa_enabled: enabled })
+    });
+
+    if (!response.ok) {
+      console.error("Erreur lors de la mise à jour du profil");
+    }
+  } catch (error) {
+    console.error("Erreur lors de la requête:", error);
+  }
 }
+
+
+function getCsrfToken() {
+  let csrfToken = null;
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'csrftoken') {
+          csrfToken = value;
+          break;
+      }
+  }
+  return csrfToken;
+}
+
+let is2FAEnabled = false;
 
 function initialize2FA() {
   console.log("Initialisation de la 2FA");
 
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
-  let is2FAEnabled = false;
 
   if (!toggle2FAButton || !verificationFrame) {
     console.error("Éléments pour la gestion de la 2FA introuvables.");
@@ -866,3 +898,19 @@ async function handleFriendRequest(requestId, action) {
         console.error('Error handling friend request:', error);
     }
 }
+
+
+function handleTwoFactorButtonClick() {
+  console.log("État actuel 2FA:", is2FAEnabled);
+  
+  if (is2FAEnabled) {
+    // Si 2FA est activé, on le désactive
+    updateUI2FAStatus(false);
+  } else {
+    // Si 2FA est désactivé, on montre la popup de vérification
+    showTwoFactorPopup();
+  }
+}
+
+document.getElementById("toggle2FAButton").addEventListener("click", handleTwoFactorButtonClick);
+
