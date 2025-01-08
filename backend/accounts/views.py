@@ -122,7 +122,7 @@ def login_view(request):
             logger.warning(f"Champs non autorisés détectés : {extra_fields}")
             return JsonResponse({
                 'success': False,
-                'message': 'Invalid fields in request',
+                'message': 'invalidField',
                 'invalid_fields': list(extra_fields)
             }, status=400)
 
@@ -131,7 +131,7 @@ def login_view(request):
                 logger.warning(f"Le champ '{field}' contient une valeur non textuelle : {type(value).__name__}")
                 return JsonResponse({
                     'success': False,
-                    'message': f"Le champ '{field}' doit être une chaîne de caractères."
+                    'message': "champChar"
                 }, status=400)
 
         email = data.get('email', '').strip()
@@ -155,13 +155,13 @@ def login_view(request):
                         'success': True,
                         'requires_2fa': True,
                         'user_id': user.id,
-                        'message': 'Code 2FA envoyé'
+                        'message': '2FAsent'
                     })
                 else:
                     logger.error(f"Échec de l'envoi de l'email 2FA pour l'utilisateur {user.email}")
                     return JsonResponse({
                         'success': False,
-                        'message': 'Erreur lors de l\'envoi du code 2FA'
+                        'message': 'errCode2Fa'
                     }, status=500)
             else:
                 refresh = RefreshToken.for_user(user)
@@ -170,7 +170,7 @@ def login_view(request):
 
                 response = JsonResponse({
                     'success': True,
-                    'message': 'Login successful',
+                    'message': 'logSuccess',
                 }, status=200)
                 set_jwt_cookies(response, access_token, refresh_token)
                 return response
@@ -178,7 +178,7 @@ def login_view(request):
             logger.warning(f"Tentative de connexion échouée pour l'email : {email}")
             return JsonResponse({
                 'success': False,
-                'message': 'Invalid credentials'
+                'message': 'invalidCred'
             }, status=401)
 
     except Exception as e:
@@ -201,7 +201,7 @@ def register_view(request):
             data = json.loads(request.body)
         except json.JSONDecodeError:
             logger.error("Erreur de parsing JSON")
-            return JsonResponse({'success': False, 'message': 'Invalid JSON data'}, status=400)
+            return JsonResponse({'success': False, 'message': 'InvalidJSONformat'}, status=400)
 
         allowed_fields = {'username', 'email', 'password1', 'password2'}
 
@@ -210,7 +210,7 @@ def register_view(request):
             logger.warning(f"Champs non autorisés détectés : {extra_fields}")
             return JsonResponse({
                 'success': False,
-                'message': 'Invalid fields in request',
+                'message': 'invalidFieldReq',
                 'invalid_fields': list(extra_fields)
             }, status=400)
 
@@ -219,7 +219,7 @@ def register_view(request):
                 logger.warning(f"Le champ '{field}' contient une valeur non textuelle : {type(value).__name__}")
                 return JsonResponse({
                     'success': False,
-                    'message': f"Le champ '{field}' doit être une chaîne de caractères."
+                    'message': "champChar"
                 }, status=400)
 
         register_form = RegisterForm(data)
@@ -236,7 +236,7 @@ def register_view(request):
             logger.warning(f"Erreurs dans le formulaire : {register_form.errors}")
             return JsonResponse({
                 'success': False,
-                'message': 'Form is not valid',
+                'message': 'invalidForm',
                 'errors': register_form.errors.get_json_data()
             }, status=400)
 
@@ -524,7 +524,7 @@ def logout_view(request):
     except Exception as e:
         logger.error(f"Erreur lors du blacklistage du refresh token : {str(e)}")
 
-    response = JsonResponse({'success': True, 'message': 'Logout successful'}, status=200)
+    response = JsonResponse({'success': True, 'message': 'logoutSuccessful'}, status=200)
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     return response
@@ -638,7 +638,7 @@ def callback_42(request):
             logger.error("No authorization code received")
             return JsonResponse({
                 'success': False,
-                'message': 'No authorization code received'
+                'message': 'codeNotReceiv'
             }, status=400)
 
 
@@ -658,7 +658,7 @@ def callback_42(request):
             logger.error(f"Token exchange failed: {str(e)}")
             return JsonResponse({
                 'success': False,
-                'message': 'Failed to exchange authorization code'
+                'message': 'FailedCode'
             }, status=400)
 
         access_token = token_response.json().get('access_token')
@@ -879,7 +879,7 @@ class Toggle2FAView(APIView):
 
             if send_2fa_email(user, code):
                 return Response({
-                    'message': 'Code de vérification envoyé par email'
+                    'message': 'codeEmail'
                 })
             else:
                 return Response(
@@ -894,7 +894,7 @@ class Toggle2FAView(APIView):
                 user.two_factor_code_timestamp = None
                 user.save()
                 return Response({
-                    'message': '2FA désactivé avec succès',
+                    'message': 'disabled2FA',
                     'is_2fa_enabled': False
                 })
 
@@ -1064,7 +1064,7 @@ def verify_2fa(request):
 
         if not code:
             logger.warning("Aucun code 2FA fourni.")
-            return JsonResponse({'success': False, 'message': 'Le code 2FA est requis.'}, status=400)
+            return JsonResponse({'success': False, 'message': '2FaReq'}, status=400)
 
 
         if request.user.is_authenticated:
@@ -1079,7 +1079,7 @@ def verify_2fa(request):
                 logger.warning("Aucun identifiant utilisateur fourni pour la connexion.")
                 return JsonResponse({
                     'success': False,
-                    'message': "L'identifiant utilisateur est requis pour cette opération."
+                    'message': "userIdReq"
                 }, status=400)
 
 
@@ -1090,7 +1090,7 @@ def verify_2fa(request):
                 logger.error("Utilisateur introuvable avec l'ID : %s", user_id)
                 return JsonResponse({
                     'success': False,
-                    'message': 'Utilisateur non trouvé.'
+                    'message': 'userNotFound'
                 }, status=404)
 
 
@@ -1098,7 +1098,7 @@ def verify_2fa(request):
             logger.warning("Aucun code 2FA actif trouvé pour l'utilisateur : %s", user.email)
             return JsonResponse({
                 'success': False,
-                'message': "Aucun code 2FA actif trouvé. Réessayez."
+                'message': "2faNotFound"
             }, status=400)
 
 
@@ -1106,7 +1106,7 @@ def verify_2fa(request):
             logger.warning("Code 2FA expiré pour l'utilisateur : %s", user.email)
             return JsonResponse({
                 'success': False,
-                'message': 'Code expiré.'
+                'message': 'codeExp'
             }, status=400)
 
 
@@ -1126,7 +1126,7 @@ def verify_2fa(request):
 
                 response = JsonResponse({
                     'success': True,
-                    'message': 'Login successful',
+                    'message': 'logiSuccessful',
                 })
                 set_jwt_cookies(response, access_token, refresh_token)
             else:
@@ -1143,11 +1143,11 @@ def verify_2fa(request):
             return response
         else:
             logger.warning("Code 2FA invalide pour l'utilisateur : %s", user.email)
-            return JsonResponse({'success': False, 'message': 'Code invalide.'}, status=400)
+            return JsonResponse({'success': False, 'message': 'codeInvalid'}, status=400)
 
     except json.JSONDecodeError:
         logger.error("Erreur de parsing JSON dans la requête.")
-        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+        return JsonResponse({'success': False, 'message': 'InvalidJSON'}, status=400)
 
     except Exception as e:
         logger.error(f"Erreur inattendue lors de la vérification 2FA : {str(e)}")
@@ -1325,13 +1325,13 @@ def send_friend_request(request):
 
         if request.user.id == receiver_id:
             return JsonResponse({
-                'message': 'You cannot send a friend request to yourself'
+                'message': 'notYourself'
             }, status=400)
 
         try:
             receiver = CustomUser.objects.get(id=receiver_id)
         except CustomUser.DoesNotExist:
-            return JsonResponse({'message': 'User not found'}, status=404)
+            return JsonResponse({'message': 'userNotFound'}, status=404)
 
         existing_request = FriendShip.objects.filter(
             from_user=request.user,
@@ -1342,7 +1342,7 @@ def send_friend_request(request):
             if existing_request.status == 'pending':
                 return JsonResponse({'message': 'friendPending'}, status=400)
             elif existing_request.status == 'accepted':
-                return JsonResponse({'message': 'You are already friends'}, status=400)
+                return JsonResponse({'message': 'alreadyFreinds'}, status=400)
 
         FriendShip.objects.create(
             from_user=request.user,
@@ -1388,7 +1388,7 @@ def handle_friend_request(request):
         try:
             friendship = FriendShip.objects.get(id=request_id, to_user=request.user)
         except FriendShip.DoesNotExist:
-            return JsonResponse({'message': 'Friend request not found'}, status=404)
+            return JsonResponse({'message': 'noFriendRequest'}, status=404)
 
         if action == 'accept':
             friendship.status = 'accepted'
@@ -1406,7 +1406,7 @@ def handle_friend_request(request):
         elif action == 'decline':
             friendship.delete()
 
-        return JsonResponse({'message': f'Request {action}ed successfully'}, status=200)
+        return JsonResponse({'message': 'friendRequestsSuccess'}, status=200)
 
     except Exception as e:
         print(f"Unhandled exception in handle_friend_request: {e}")
@@ -1759,7 +1759,7 @@ def block_user(request):
 
         request.user.blocked_users.add(user_to_block)
 
-        return JsonResponse({'message': f'User {user_to_block.username} has been blocked'}, status=200)
+        return JsonResponse({'message': f'userBlocked'}, status=200)
 
     except Exception as e:
         print(f"Unhandled exception: {e}")
@@ -1790,7 +1790,7 @@ def unblock_user(request):
 
         request.user.blocked_users.remove(user_to_unblock)
 
-        return JsonResponse({'message': f'User {user_to_unblock.username} has been unblocked'}, status=200)
+        return JsonResponse({'message': 'userUnblocked'}, status=200)
 
     except Exception as e:
         print(f"Unhandled exception: {e}") 
