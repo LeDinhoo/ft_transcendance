@@ -703,11 +703,11 @@ function createAvatarGrid() {
     avatarGrid.appendChild(rowDiv);
   }
 
-  applyButton.addEventListener("click", () => {
-    setTimeout(() => {
-      window.location.reload();
-    }, 10);
-  });
+  // applyButton.addEventListener("click", () => {
+  //   setTimeout(() => {
+  //     window.location.reload();
+  //   }, 10);
+  // });
 }
 
 function initializeAvatarFeature() {
@@ -749,7 +749,7 @@ function initializeAvatarFeature() {
             if (avatarDisplay) {
               avatarDisplay.src = data.avatar;
             }
-            wsManager.updateOnlinePlayersList(user);
+            // wsManager.updateOnlinePlayersList(user);
             closeModal();
           })
           .catch((error) => {
