@@ -88,11 +88,11 @@
 		"FailedCode": "Error al intercambiar el código de autorización",
 		"2FaReq": "Se requiere el código 2FA.",
 		"userIdReq": "El ID de usuario es obligatorio para esta operación.",
-		"2faNotFound": "No se encontró un código 2FA activo. Inténtalo de nuevo.",
-		"alreadyFreinds": "Ya son amigos"
+		"2faNotFound": "No se encontró un código 2FA activo. Inténtalo de nuevo."
 	},
 	"info": {
 		"friendAccept": "Solicitud de amistad aceptada",
+		"alreadyFreinds": "Ya son amigos",
 		"friendReject": "Solicitud de amistad rechazada",
 		"friendPending": "Ya hay una solicitud de amistad pendiente",
 		"friendRequestsSuccess": "Solicitud de amistad enviada con éxito",

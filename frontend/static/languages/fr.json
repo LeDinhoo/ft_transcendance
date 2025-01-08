@@ -88,11 +88,11 @@
 		"FailedCode": "Échec de l'échange du code d'autorisation.",
 		"2FaReq": "Le code 2FA est requis.",
 		"userIdReq": "L'identifiant utilisateur est requis pour cette opération.",
-		"2faNotFound": "Aucun code 2FA actif trouvé. Veuillez réessayer.",
-		"alreadyFreinds": "Vous êtes déjà amis."
+		"2faNotFound": "Aucun code 2FA actif trouvé. Veuillez réessayer."
 	},
 	"info": {
 		"friendAccept": "Demande d'ami acceptée.",
+		"alreadyFreinds": "Vous êtes déjà amis.",
 		"friendReject": "Demande d'ami rejetée.",
 		"friendPending": "Une demande d'ami est déjà en attente.",
 		"friendRequestsSuccess": "Demande d'ami envoyée avec succès.",

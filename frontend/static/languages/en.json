@@ -88,8 +88,7 @@
 		"FailedCode": "Failed to exchange authorization code",
 		"2FaReq": "The 2FA code is required.",
 		"userIdReq": "User ID is required for this operation.",
-		"2faNotFound": "No active 2FA code found. Please try again.",
-		"alreadyFreinds": "You are already friends"
+		"2faNotFound": "No active 2FA code found. Please try again."
 	},
 	"info": {
 		"friendAccept": "Friend request accepted",
@@ -103,6 +102,7 @@
 		"inviteDeclined": "Invitation declined",
 		"2FAsent": "2FA code sent",
 		"logSuccess": "Login successful",
+		"alreadyFreinds": "You are already friends",
 		"logoutSuccessful": "Logout successful",
 		"logiSuccessful": "Login successful",
 		"userBlocked": "User has been blocked",

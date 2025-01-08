@@ -88,11 +88,11 @@
 		"FailedCode": "Misslyckades med att utbyta auktoriseringskod.",
 		"2FaReq": "2FA-kod krävs.",
 		"userIdReq": "Användar-ID krävs för denna åtgärd.",
-		"2faNotFound": "Ingen aktiv 2FA-kod hittades. Vänligen försök igen.",
-		"alreadyFreinds": "Ni är redan vänner."
+		"2faNotFound": "Ingen aktiv 2FA-kod hittades. Vänligen försök igen."
 	},
 	"info": {
 		"friendAccept": "Vänförfrågan accepterad.",
+		"alreadyFreinds": "Ni är redan vänner.",
 		"friendReject": "Vänförfrågan avvisad.",
 		"friendPending": "En vänförfrågan väntar redan.",
 		"friendRequestsSuccess": "Vänförfrågan skickades framgångsrikt.",
