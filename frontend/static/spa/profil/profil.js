@@ -339,11 +339,11 @@ function initializeProfilePage() {
 					document.getElementById("playerFrame").innerText = data.username;
 					document.getElementById("username").value = data.username;
 					document.getElementById("registerEmail").value = data.email;
-					
+
 					if (data.avatar) {
 						avatarDisplay.src = data.avatar;
 					}
-					
+
 					userInput.disabled = true;
 					emailInput.disabled = true;
 					cloneModifyButton.style.backgroundColor = "";
@@ -760,7 +760,7 @@ function initializeAvatarFeature() {
 								type: "user_update",
 								user: {
 									id: window.currentUser.id,
-									username: data.username,
+									username: window.currentUser.username,
 									avatar: data.avatar
 								}
 							}));

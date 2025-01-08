@@ -54,7 +54,9 @@ const wsManager = {
 					);
 					break;
 
+				// Dans webSocketManager.js, dans le switch de this.chatSocket.onmessage
 				case "user_update":
+					// First update the player in the onlinePlayers set
 					const updatedPlayers = new Set(
 						[...this.onlinePlayers].map(user => 
 							user.id === data.user.id 
@@ -63,13 +65,10 @@ const wsManager = {
 						)
 					);
 					this.onlinePlayers = updatedPlayers;
-					this.updateOnlinePlayersList([...this.onlinePlayers]);
-					
-					// Add this block
-					if (data.user.id === window.currentUser?.id) {
-						document.getElementById("nicknameProfilUser").innerText = data.user.username;
-						document.getElementById("avatarProfilUser").src = data.user.avatar;
-					}
+					// Then force a refresh of the UI list
+					this.handleUserListUpdate({
+						users: [...this.onlinePlayers].map(user => JSON.stringify(user))
+					});
 					break;
 
 				case "game_invitation":
@@ -127,26 +126,26 @@ const wsManager = {
 
 	handleUserListUpdate(data) {
 		try {
-			this.onlinePlayers.clear();
+			// Débuggons pour voir ce qui arrive
+			console.log("Received user list update:", data.users);
+			this.onlinePlayers.clear();  // C'est bon de clear ici
 			data.users.forEach((userStr) => {
 				try {
 					const user = JSON.parse(userStr);
+					console.log("Processing user:", user);  // Debug
 					this.onlinePlayers.add(user);
-					
-					// Add this: Update UI if it's current user
-					if (window.currentUser && user.id === window.currentUser.id) {
-						document.getElementById("nicknameProfilUser").innerText = user.username;
-						document.getElementById("avatarProfilUser").src = user.avatar;
-					}
 				} catch (e) {
+					console.error("Error parsing user:", e);
 				}
 			});
 			this.updateOnlinePlayersList([...this.onlinePlayers]);
 		} catch (error) {
+			console.error("Error in handleUserListUpdate:", error);
 		}
 	},
-
+	
 	async updateOnlinePlayersList(users) {
+		console.log("Updating players list with:", users);  // Debug
 
 		const listContainer = document.getElementById("onlinePlayersList");
 		if (!listContainer) return;
