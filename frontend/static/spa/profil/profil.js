@@ -185,7 +185,7 @@ function updateMatchHistoryUI(history) {
     matchHistoryDiv.appendChild(matchResume);
   });
 
-  // Mettre a jour les traductions
+  
   language = getLanguageFromAPI();
   language.then((value) => {
     setPreferredLanguage(value);
@@ -516,9 +516,9 @@ async function verifyTwoFactorCodeForProfile(code) {
       if (popup) popup.remove();
       updateUI2FAStatus(true);
       showInfoPopup(data.message);
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 10);
+      
+      
+      
     } else {
       errorMessage.textContent = data.message || "Code invalide.";
       errorMessage.style.display = "block";
@@ -556,29 +556,50 @@ function startCountdown(duration) {
   }, 1000);
 }
 
-https: function updateUI2FAStatus(enabled) {
+async function updateUI2FAStatus(enabled) {
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
-
+  console.log("COUCOU")
   if (!toggle2FAButton || !verificationFrame) {
     return;
   }
 
   toggle2FAButton.className = enabled ? "btn-icon enabled" : "btn-icon";
   toggle2FAButton.innerHTML = `
- <img src="/static/assets/icons/${
-   enabled ? "check" : "close"
- }.svg" class="popuplogo" />
-  ${enabled ? "2FA On" : "2FA Off"}
-`;
+    <img src="/static/assets/icons/${enabled ? "check" : "close"}.svg" class="popuplogo" />
+    ${enabled ? "2FA On" : "2FA Off"}
+  `;
 
   verificationFrame.style.display = "none";
+  
+  is2FAEnabled = enabled;
+
+  
+  try {
+  
+    const response = await fetch("/api/profil/update/", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include", 
+      body: JSON.stringify({ is_2fa_enabled: enabled })
+    });
+  
+    if (!response.ok) {
+    }
+  } catch (error) {
+    showErrorPopup("error2FA");
+  }
 }
 
+let is2FAEnabled = false;
+
 function initialize2FA() {
+  
+
   const toggle2FAButton = document.getElementById("toggle2FAButton");
   const verificationFrame = document.getElementById("2faVerificationFrame");
-  let is2FAEnabled = false;
 
   if (!toggle2FAButton || !verificationFrame) {
     return;
@@ -701,7 +722,11 @@ function createAvatarGrid() {
           avatarOption.classList.add("selected");
           selectedAvatar = avatarOption;
           tempSelectedSrc = img.src;
-          applyButton.disabled = false;
+
+          if (applyButton) {
+            applyButton.disabled = false;
+          }
+          console.log("Avatar sélectionné:", tempSelectedSrc);
         });
 
         rowDiv.appendChild(avatarOption);
