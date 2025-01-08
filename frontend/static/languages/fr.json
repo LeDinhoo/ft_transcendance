@@ -112,7 +112,13 @@
 		"logoutSuccessful": "Déconnexion réussie.",
 		"logiSuccessful": "Connexion réussie.",
 		"userBlocked": "L'utilisateur a été bloqué.",
-		"userUnblocked": "L'utilisateur a été débloqué."
+		"userUnblocked": "L'utilisateur a été débloqué.",
+		"maxChar": "Le mot de passe ne doit pas dépasser 20 caractères.",
+		"minChar": "Le mot de passe doit contenir au moins 8 caractères.",
+		"minOneChar": "Le mot de passe doit contenir au moins une lettre majuscule.",
+		"maxOneCharBis": "Le mot de passe doit contenir au moins une lettre minuscule.",
+		"minNUM": "Le mot de passe doit contenir au moins un chiffre.",
+		"minSpec": "Le mot de passe doit contenir au moins un caractère spécial."
 	},	  
   "invite": {
 	"title": "Invitation au jeu",
@@ -129,7 +135,13 @@
     "submitButton": "Se Connecter",
     "registerButton": "S'inscrire",
     "emailError": "Adresse e-mail invalide.",
-    "passwordError": "Le mot de passe ne peut pas être vide."
+    "passwordError": "Le mot de passe ne peut pas être vide.",
+	"maxChar": "Le mot de passe ne doit pas dépasser 20 caractères.",
+	"minChar": "Le mot de passe doit contenir au moins 8 caractères.",
+	"minOneChar": "Le mot de passe doit contenir au moins une lettre majuscule.",
+	"maxOneCharBis": "Le mot de passe doit contenir au moins une lettre minuscule.",
+	"minNUM": "Le mot de passe doit contenir au moins un chiffre.",
+	"minSpec": "Le mot de passe doit contenir au moins un caractère spécial."
   },
   "register": {
     "title": "Créer un Compte",
@@ -138,7 +150,13 @@
     "passwordLabel": "Mot de passe",
     "confirmPasswordLabel": "Confirmer le mot de passe",
     "submitButton": "S'inscrire",
-    "signUpButton": "Créer un Compte"
+    "signUpButton": "Créer un Compte",
+	"maxChar": "Le mot de passe ne doit pas dépasser 20 caractères.",
+	"minChar": "Le mot de passe doit contenir au moins 8 caractères.",
+	"minOneChar": "Le mot de passe doit contenir au moins une lettre majuscule.",
+	"maxOneCharBis": "Le mot de passe doit contenir au moins une lettre minuscule.",
+	"minNUM": "Le mot de passe doit contenir au moins un chiffre.",
+	"minSpec": "Le mot de passe doit contenir au moins un caractère spécial."
   },
   "newhome": {
     "nickname": "Pseudo",

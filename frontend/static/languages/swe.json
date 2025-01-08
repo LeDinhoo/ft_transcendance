@@ -112,7 +112,13 @@
 		"logoutSuccessful": "Utloggning lyckades.",
 		"logiSuccessful": "Inloggning lyckades.",
 		"userBlocked": "Användaren {user_to_block.username} har blockerats.",
-		"userUnblocked": "Användaren {user_to_unblock.username} har avblockerats."
+		"userUnblocked": "Användaren {user_to_unblock.username} har avblockerats.",
+		"maxChar": "Lösenordet får inte överstiga 20 tecken.",
+		"minChar": "Lösenordet måste innehålla minst 8 tecken.",
+		"minOneChar": "Lösenordet måste innehålla minst en versal.",
+		"maxOneCharBis": "Lösenordet måste innehålla minst en gemen.",
+		"minNUM": "Lösenordet måste innehålla minst en siffra.",
+		"minSpec": "Lösenordet måste innehålla minst ett specialtecken."
 	},
 	"invite": {
 		"title": "Spelinbjudan",
@@ -120,14 +126,26 @@
 		"gameType": "Speltyp:",
 		"mode": "Läge: 1 VS 1",
 		"decline": "Avböj",
-		"accept": "Acceptera"
+		"accept": "Acceptera",
+		"maxChar": "Lösenordet får inte överstiga 20 tecken.",
+		"minChar": "Lösenordet måste innehålla minst 8 tecken.",
+		"minOneChar": "Lösenordet måste innehålla minst en versal.",
+		"maxOneCharBis": "Lösenordet måste innehålla minst en gemen.",
+		"minNUM": "Lösenordet måste innehålla minst en siffra.",
+		"minSpec": "Lösenordet måste innehålla minst ett specialtecken."
 	},	
 	"navBar": {
 		"home": "Hem",
 		"logout": "Logga ut",
 		"profile": "Profil",
 		"settings": "Inställningar",
-		"tournament": "Turnering"
+		"tournament": "Turnering",
+		"maxChar": "Lösenordet får inte överstiga 20 tecken.",
+		"minChar": "Lösenordet måste innehålla minst 8 tecken.",
+		"minOneChar": "Lösenordet måste innehålla minst en versal.",
+		"maxOneCharBis": "Lösenordet måste innehålla minst en gemen.",
+		"minNUM": "Lösenordet måste innehålla minst en siffra.",
+		"minSpec": "Lösenordet måste innehålla minst ett specialtecken."
 	},
 	"login": {
 		"title": "Gå med i Striden",
@@ -136,7 +154,13 @@
 		"submitButton": "Logga In",
 		"registerButton": "Registrera",
 		"emailError": "Ogiltig e-postadress.",
-		"passwordError": "Lösenord får inte vara tomt."
+		"passwordError": "Lösenord får inte vara tomt.",
+		"maxChar": "Lösenordet får inte överstiga 20 tecken.",
+		"minChar": "Lösenordet måste innehålla minst 8 tecken.",
+		"minOneChar": "Lösenordet måste innehålla minst en versal.",
+		"maxOneCharBis": "Lösenordet måste innehålla minst en gemen.",
+		"minNUM": "Lösenordet måste innehålla minst en siffra.",
+		"minSpec": "Lösenordet måste innehålla minst ett specialtecken."
 	},
 	"register": {
 		"title": "Skapa Konto",
@@ -145,7 +169,13 @@
 		"passwordLabel": "Lösenord",
 		"confirmPasswordLabel": "Bekräfta lösenord",
 		"submitButton": "Registrera",
-		"signUpButton": "Registrera"
+		"signUpButton": "Registrera",
+		"maxChar": "Lösenordet får inte överstiga 20 tecken.",
+		"minChar": "Lösenordet måste innehålla minst 8 tecken.",
+		"minOneChar": "Lösenordet måste innehålla minst en versal.",
+		"maxOneCharBis": "Lösenordet måste innehålla minst en gemen.",
+		"minNUM": "Lösenordet måste innehålla minst en siffra.",
+		"minSpec": "Lösenordet måste innehålla minst ett specialtecken."
 	},
 	"newhome": {
 		"nickname": "Smeknamn",

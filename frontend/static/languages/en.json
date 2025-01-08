@@ -112,7 +112,13 @@
 		"logoutSuccessful": "Logout successful",
 		"logiSuccessful": "Login successful",
 		"userBlocked": "User has been blocked",
-		"userUnblocked": "User has been unblocked"
+		"userUnblocked": "User has been unblocked",
+		"maxChar": "The password must not exceed 20 characters.",
+		"minChar": "The password must contain at least 8 characters.",
+		"minOneChar": "The password must contain at least one uppercase letter.",
+		"maxOneCharBis": "The password must contain at least one lowercase letter.",
+		"minNUM": "The password must contain at least one digit.",
+		"minSpec": "The password must contain at least one special character."
 	},		
   "invite": {
 	"title": "Game Invitation",
@@ -136,7 +142,13 @@
     "submitButton": "Log In",
     "registerButton": "Register",
     "emailError": "Invalid email address.",
-    "passwordError": "Password cannot be empty."
+    "passwordError": "Password cannot be empty.",
+	"maxChar": "The password must not exceed 20 characters.",
+	"minChar": "The password must contain at least 8 characters.",
+	"minOneChar": "The password must contain at least one uppercase letter.",
+	"maxOneCharBis": "The password must contain at least one lowercase letter.",
+	"minNUM": "The password must contain at least one digit.",
+	"minSpec": "The password must contain at least one special character."
   },
   "register": {
     "title": "Create Account",
@@ -145,7 +157,13 @@
     "passwordLabel": "Password",
     "confirmPasswordLabel": "Confirm Password",
     "submitButton": "Register",
-    "signUpButton": "Sign Up"
+    "signUpButton": "Sign Up",
+	"maxChar": "The password must not exceed 20 characters.",
+	"minChar": "The password must contain at least 8 characters.",
+	"minOneChar": "The password must contain at least one uppercase letter.",
+	"maxOneCharBis": "The password must contain at least one lowercase letter.",
+	"minNUM": "The password must contain at least one digit.",
+	"minSpec": "The password must contain at least one special character."
   },
   "newhome": {
     "nickname": "Nickname",

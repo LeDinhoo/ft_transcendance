@@ -112,7 +112,13 @@
 		"logoutSuccessful": "Cierre de sesión exitoso",
 		"logiSuccessful": "Inicio de sesión exitoso",
 		"userBlocked": "El usuario ha sido bloqueado",
-		"userUnblocked": "El usuario ha sido desbloqueado"
+		"userUnblocked": "El usuario ha sido desbloqueado",
+		"maxChar": "La contraseña no debe exceder los 20 caracteres.",
+		"minChar": "La contraseña debe contener al menos 8 caracteres.",
+		"minOneChar": "La contraseña debe contener al menos una letra mayúscula.",
+		"maxOneCharBis": "La contraseña debe contener al menos una letra minúscula.",
+		"minNUM": "La contraseña debe contener al menos un dígito.",
+		"minSpec": "La contraseña debe contener al menos un carácter especial."
 	},
 	"invite": {
 		"title": "Invitación al juego",
@@ -136,7 +142,13 @@
 		"submitButton": "Iniciar sesión",
 		"registerButton": "Registrarse",
 		"emailError": "Dirección de correo electrónico no válida.",
-		"passwordError": "La contraseña no puede estar vacía."
+		"passwordError": "La contraseña no puede estar vacía.",
+		"maxChar": "La contraseña no debe exceder los 20 caracteres.",
+		"minChar": "La contraseña debe contener al menos 8 caracteres.",
+		"minOneChar": "La contraseña debe contener al menos una letra mayúscula.",
+		"maxOneCharBis": "La contraseña debe contener al menos una letra minúscula.",
+		"minNUM": "La contraseña debe contener al menos un dígito.",
+		"minSpec": "La contraseña debe contener al menos un carácter especial."
 	},
 	"register": {
 		"title": "Crear Cuenta",
@@ -145,7 +157,13 @@
 		"passwordLabel": "Contraseña",
 		"confirmPasswordLabel": "Confirmar contraseña",
 		"submitButton": "Registrarse",
-		"signUpButton": "Crear Cuenta"
+		"signUpButton": "Crear Cuenta",
+		"maxChar": "La contraseña no debe exceder los 20 caracteres.",
+		"minChar": "La contraseña debe contener al menos 8 caracteres.",
+		"minOneChar": "La contraseña debe contener al menos una letra mayúscula.",
+		"maxOneCharBis": "La contraseña debe contener al menos una letra minúscula.",
+		"minNUM": "La contraseña debe contener al menos un dígito.",
+		"minSpec": "La contraseña debe contener al menos un carácter especial."
 	},
 	"newhome": {
 		"nickname": "Apodo",
