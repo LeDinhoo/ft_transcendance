@@ -263,5 +263,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
+  window.addEventListener("popstate", loadPageFromURL);
+
+  function closeGameModal(modal) {
+    if (modal && document.body.contains(modal)) {
+      document.body.removeChild(modal);
+      isGameInitialized = false;
+    }
+  }
+
+  window.addEventListener("popstate", () => {
+    const modal = document.getElementById("gameModal");
+    if (modal) {
+      closeGameModal(modal);
+    }
+  });
+
   loadPageFromURL();
 });
