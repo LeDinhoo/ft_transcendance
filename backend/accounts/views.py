@@ -1541,7 +1541,10 @@ def set_game_settings(request):
 
         if 'scoreToWin' in data:
             try:
-                settings.score_to_win = int(data['scoreToWin'])
+                score_to_win = int(data['scoreToWin'])
+                if score_to_win > 21:
+                    return JsonResponse({'error': 'scoreToWinExceedsLimit'}, status=400)
+                settings.score_to_win = score_to_win
             except (ValueError, TypeError):
                 return JsonResponse({'error': 'scoreInt'}, status=400)
 
