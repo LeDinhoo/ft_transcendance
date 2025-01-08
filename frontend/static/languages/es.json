@@ -105,8 +105,8 @@
 		"logSuccess": "Inicio de sesión exitoso",
 		"logoutSuccessful": "Cierre de sesión exitoso",
 		"logiSuccessful": "Inicio de sesión exitoso",
-		"userBlocked": "El usuario {user_to_block.username} ha sido bloqueado",
-		"userUnblocked": "El usuario {user_to_unblock.username} ha sido desbloqueado"
+		"userBlocked": "El usuario ha sido bloqueado",
+		"userUnblocked": "El usuario ha sido desbloqueado"
 	},
 	"invite": {
 		"title": "Invitación al juego",

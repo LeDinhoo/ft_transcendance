@@ -105,8 +105,8 @@
 		"logSuccess": "Connexion réussie.",
 		"logoutSuccessful": "Déconnexion réussie.",
 		"logiSuccessful": "Connexion réussie.",
-		"userBlocked": "L'utilisateur {user_to_block.username} a été bloqué.",
-		"userUnblocked": "L'utilisateur {user_to_unblock.username} a été débloqué."
+		"userBlocked": "L'utilisateur a été bloqué.",
+		"userUnblocked": "L'utilisateur a été débloqué."
 	},	  
   "invite": {
 	"title": "Invitation au jeu",

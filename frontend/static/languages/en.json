@@ -105,8 +105,8 @@
 		"logSuccess": "Login successful",
 		"logoutSuccessful": "Logout successful",
 		"logiSuccessful": "Login successful",
-		"userBlocked": "User {user_to_block.username} has been blocked",
-		"userUnblocked": "User {user_to_unblock.username} has been unblocked"
+		"userBlocked": "User has been blocked",
+		"userUnblocked": "User has been unblocked"
 	},		
   "invite": {
 	"title": "Game Invitation",
